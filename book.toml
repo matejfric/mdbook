@@ -1,0 +1,10 @@
+[book]
+authors = ["Lanteren"]
+language = "en"
+multilingual = false
+src = "src"
+title = "NotitiaNexus"
+
+[preprocessor.katex]
+after = ["links"]
+
