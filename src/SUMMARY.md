@@ -7,3 +7,7 @@
 - [Strojové učení (SU)](./su/su.md)
 - [Paralelní algoritmy (PA)](./pa/pa1.md)
 - [Biologicky inspirované algoritmy](./bia/bia.md)
+- [Kvalita software (KS)](./ks/ks.md)
+  - [Testování](./ks/sw-testing.md)
+  - [Architektura](./ks/sw-architecture.md)
+  - [Bezpečnost](./ks/sw-security.md)
