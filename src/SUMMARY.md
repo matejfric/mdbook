@@ -2,6 +2,7 @@
 
 [Home](./home.md)
 
+- [Docker](./docker/docker.md)
 - [Pravděpodobnost a statistika (PaS)](./pas/pas.md)
 - [Metody analýzy sítí I (MAS1)](./mas1/MAS1.md)
 - [Strojové učení (SU)](./su/su.md)
