@@ -1,6 +1,6 @@
 # Summary
 
-[Home](./title-page.md)
+[Home](./home.md)
 
 - [Pravděpodobnost a statistika (PaS)](./pas/pas.md)
 - [Metody analýzy sítí I (MAS1)](./mas1/MAS1.md)
