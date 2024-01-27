@@ -12,3 +12,4 @@
   - [Architektura](./ks/sw-architecture.md)
   - [Bezpečnost](./ks/sw-security.md)
 - [Základy analýzy obrazu (ZAO)](./zao/zao.md)
+- [Matematika pro zpracování znalostí (MPZZ)](./mpzz/mpzz.md)
