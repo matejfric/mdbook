@@ -3,8 +3,16 @@ authors = ["Matěj Frič"]
 language = "en"
 multilingual = false
 src = "src"
-title = "NotitiaNexus"
+title = "Notitia Nexus"
+
+[output.html]
+git-repository-url = "https://github.com/matejfric/mdbook"
+default-theme = "coal"
+preferred-dark-theme = "coal"
+
+[output.html.fold]
+enable = true
+level = 0
 
 [preprocessor.katex]
 after = ["links"]
-
