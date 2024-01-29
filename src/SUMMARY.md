@@ -3,6 +3,11 @@
 [Home](./home.md)
 
 - [Docker](./docker/docker.md)
+- [Design Patterns](./design-patterns/design-patterns.md)
+  - [SOLID Design Principles](./design-patterns/solid.md)
+  - [Creational Patterns](./design-patterns/creational.md)
+  - [Structural Patterns](./design-patterns/structural.md)
+  - [Behavioral Patterns](./design-patterns/behavioral.md)
 - [Pravděpodobnost a statistika (PaS)](./pas/pas.md)
 - [Metody analýzy sítí I (MAS1)](./mas1/MAS1.md)
 - [Strojové učení (SU)](./su/su.md)
