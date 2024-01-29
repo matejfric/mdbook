@@ -6,17 +6,17 @@
 
 According to one of the authors of GoF, *Erich Gamma*, the so-called **gamma categorization** was created.
 
-1. [**Creational Patterns**](./design-patterns/creational.md)
+1. [**Creational Patterns**](creational.md)
     - creation / construction of objects
       - explicit - constructor
       - implicit - DI (Dependency Injection), reflection
       - wholesale (single statement)
       - piecewise (step-by-step)
-2. [**Structural Patterns**](./design-patterns/structural.md)
+2. [**Structural Patterns**](structural.md)
     - importance for good API design
-3. [**Behavioral Patterns**](./design-patterns/behavioral.md)
+3. [**Behavioral Patterns**](behavioral.md)
     - "everyone is different"
 
-## [SOLID Design Principles](./design-patterns/solid.md)
+## [SOLID Design Principles](solid.md)
 
 Robert C. Martin

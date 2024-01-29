@@ -1,5 +1,5 @@
 # Kvalita Software
 
-- **[Testování](./ks/sw-testing.md)**
-- **[Architektura](./ks/sw-architecture.md)**
-- **[Bezpečnost](./ks/sw-security.md)**
+- **[Testování](sw-testing.md)**
+- **[Architektura](sw-architecture.md)**
+- **[Bezpečnost](sw-security.md)**
