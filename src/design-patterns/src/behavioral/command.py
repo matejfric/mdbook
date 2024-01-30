@@ -10,20 +10,19 @@ class BankAccount:
 
     def deposit(self, amount):
         self.balance += amount
-        print(f'Deposited {amount}, balance = {self.balance}')
+        print(f"Deposited {amount}, balance={self.balance}")
 
     def withdraw(self, amount):
-        if self.balance - amount >= BankAccount.OVERDRAFT_LIMIT:
-            self.balance -= amount
-            print(f'Withdrew {amount}, balance = {self.balance}')
-            return True
-        return False
+        if self.balance - amount < self.OVERDRAFT_LIMIT:
+            return False
+        self.balance -= amount
+        print(f"Withdrew {amount}, balance={self.balance}")
+        return True
 
     def __str__(self):
-        return f'Balance = {self.balance}'
+        return f"Balance={self.balance}"
 
 
-# optional
 class Command(ABC):
     def invoke(self):
         pass
@@ -34,10 +33,11 @@ class Command(ABC):
 
 class BankAccountCommand(Command):
     def __init__(self, account, action, amount):
+        self.account = account
         self.amount = amount
         self.action = action
-        self.account = account
         self.success = None
+        self.logs = []
 
     class Action(Enum):
         DEPOSIT = 0
@@ -50,31 +50,59 @@ class BankAccountCommand(Command):
         elif self.action == self.Action.WITHDRAW:
             self.success = self.account.withdraw(self.amount)
 
+        # Add to logs
+        if self.success:
+            self.logs.append(self.action)
+
     def undo(self):
-        if not self.success:
+        """We no longer have to rely on success"""
+        if not self.logs:
             return
-        # strictly speaking this is not correct
-        # (you don't undo a deposit by withdrawing)
-        # but it works for this demo, so...
-        if self.action == self.Action.DEPOSIT:
-            self.account.withdraw(self.amount)
-        elif self.action == self.Action.WITHDRAW:
+        most_recent_user_action = self.logs.pop()
+        if most_recent_user_action == self.Action.WITHDRAW:
             self.account.deposit(self.amount)
+            self.action = self.Action.DEPOSIT
+        elif most_recent_user_action == self.Action.DEPOSIT:
+            self.account.withdraw(self.amount)
+            self.action = self.Action.WITHDRAW
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ba = BankAccount()
+    print("> Init")
+    print(ba)
+
+    print("> Add +100")
     cmd = BankAccountCommand(ba, BankAccountCommand.Action.DEPOSIT, 100)
     cmd.invoke()
-    print('After $100 deposit:', ba)
+    print(ba)
 
+    print("> Undo")
     cmd.undo()
-    print('$100 deposit undone:', ba)
+    print(ba)
 
-    illegal_cmd = BankAccountCommand(ba, BankAccountCommand.Action.WITHDRAW, 1000)
+    # Fixed broken undo
+    print("> Fixed: Undo once again")
+    cmd.undo()
+    print(ba)
+
+    # But now we cycle thorugh
+    print("> Wee! We have the entire history of you")
+    cmd.undo()
+    print(ba)
+
+    # Even if we go too far
+    print("> We don't go beyond what we know")
+    cmd.undo()
+    print(ba)
+
+    print("> Withdraw 500")
+    illegal_cmd = BankAccountCommand(ba, BankAccountCommand.Action.WITHDRAW, 500)
     illegal_cmd.invoke()
-    print('After impossible withdrawal:', ba)
-    illegal_cmd.undo()
-    print('After undo:', ba)
+    print(ba)
 
-
+    print("> Withdraw too much")
+    illegal_cmd = BankAccountCommand(ba, BankAccountCommand.Action.WITHDRAW, 5000)
+    illegal_cmd.invoke()
+    print(ba)
+    
