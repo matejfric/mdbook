@@ -743,20 +743,13 @@ class QuadraticEquationSolver:
 
 ## 7. Command
 
-```admonish info
-Command is an object which represents an instruction to perform a particular **action** and contains all the necessary information for the action to be taken.
-```
+> Command is an object which represents an instruction to perform a particular **action** and contains all the necessary information for the action to be taken.
 
 - Ordinary statements are perishable.
-  - one cannot undo a member assignment
-  - one cannot directly serialize a sequence of actions (calls, macro)
+  - One cannot undo a member assignment.
+  - One cannot directly serialize a sequence of actions (calls, macro).
 - GUI actions are usually implemented by commands (clicking on buttons, undo/redo), macro recording and more...
 - How can we create an object that represents an operation?
-
-```admonish example
-- `person` should change its `age` to `22`,
-- `car` should do `explode()`
-```
 
 ><details>
 ><summary> Code example: Bank account with undo </summary>

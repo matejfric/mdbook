@@ -8,15 +8,11 @@ title = "Notitia Nexus"
 [preprocessor.katex]
 after = ["links"]
 
-[preprocessor.admonish]
-command = "mdbook-admonish"
-
 [output.html.fold]
 enable = true
 level = 0
 
 [output.html]
-additional-css = ["./mdbook-admonish.css"]
 git-repository-url = "https://github.com/matejfric/mdbook"
 default-theme = "coal"
 preferred-dark-theme = "coal"
