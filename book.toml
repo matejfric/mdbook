@@ -14,5 +14,6 @@ level = 0
 
 [output.html]
 git-repository-url = "https://github.com/matejfric/mdbook"
+additional-js = ["src/custom.js"]
 default-theme = "coal"
 preferred-dark-theme = "coal"
