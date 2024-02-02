@@ -13,6 +13,9 @@ Structural patterns compose classes or objects.
 - [4. Façade](#4-façade)
 - [5. Flyweight](#5-flyweight)
 - [6. Proxy](#6-proxy)
+  - [6.1. Protection Proxy](#61-protection-proxy)
+  - [6.2. Virtual Proxy](#62-virtual-proxy)
+  - [6.3. Proxy Vs. Decorator](#63-proxy-vs-decorator)
 - [7. Composite](#7-composite)
 
 ## 1. Adapter
@@ -484,6 +487,47 @@ if __name__ == '__main__':
 ```
 
 ## 6. Proxy
+
+> **Proxy** is a class that functions as an interface to a particular resource. That resource may be remote, expensive to construct, or may require logging or other added functionality.
+
+- Instead of breaking *Open Closed Principle*, one can use a proxy.
+- The same interface, but different behavior.
+
+### 6.1. Protection Proxy
+
+- Add an access control to a class without changing it.
+
+<details><summary> Code example: Driving license age restriction </summary>
+
+```python
+{{#include src/structural/proxy/protection_proxy.py}}
+```
+
+</details>
+
+<details><summary> Code example: Age restrictions </summary>
+
+```python
+{{#include src/structural/proxy/protection_proxy2.py}}
+```
+
+</details>
+
+### 6.2. Virtual Proxy
+
+<details><summary> Code example: Lazy loading </summary>
+
+```python
+{{#include src/structural/proxy/virtual_proxy.py}}
+```
+
+</details>
+
+### 6.3. Proxy Vs. Decorator
+
+- Proxy provides an identical interface. Decorator provides an enhanced interface.
+- Decorator typically has a reference to the object it decorates.
+- Proxy doesn't need an instantiated object.
 
 ## 7. Composite
 
