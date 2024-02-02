@@ -1335,7 +1335,7 @@ Different example:
 <details><summary> Code example: Undo/redo </summary>
 
 ```python
-{{#include src/behavioral/memento/undo_redu.py}}
+{{#include src/behavioral/memento/undo_redo.py}}
 ```
 
 </details>

@@ -63,8 +63,10 @@ class Evaluate(unittest.TestCase):
         tm.revert(m)
         self.assertEqual(2, len(tm.tokens), msg='We should have exactly 2 tokens')
         self.assertEqual(1, tm.tokens[0].value,
-                         msg='First token should have value 1, you got ' + str(tm.tokens[0].value))
-        self.assertEqual(2, tm.tokens[1].value, msg='Second token should have the value 2')
+                         msg='First token should have value 1, you got '
+                              + str(tm.tokens[0].value))
+        self.assertEqual(2, tm.tokens[1].value,
+                         msg='Second token should have the value 2')
 
     # this one is deliberately tricky
     def test_fiddled_token(self):
@@ -85,7 +87,11 @@ class Evaluate(unittest.TestCase):
         tm.revert(m)
 
         self.assertEqual(2, len(tm.tokens),
-                         'At this point, token machine should have exactly 2 tokens, you have ' + str(len(tm.tokens)))
+            'At this point, token machine should have exactly 2 tokens, you have '
+             + str(len(tm.tokens)))
 
         self.assertEqual(111, tm.tokens[0].value,
-                         'You got the tokens[0] value wrong here. Hint: did you init the memento by value?')
+            'You got the tokens[0] value wrong here. Hint: did you init the memento by value?')
+        
+if __name__ == "__main__":
+    unittest.main()
