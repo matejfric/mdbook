@@ -19,6 +19,7 @@ Behavioral Patterns describe algorithms or cooperation of objects.
   - [7.1. Composite Command (Macro)](#71-composite-command-macro)
 - [8. Interpreter](#8-interpreter)
   - [8.1. Lexing and Parsing](#81-lexing-and-parsing)
+- [9. Memento](#9-memento)
 
 1. Chain of Responsibility
 2. Command
@@ -1315,3 +1316,34 @@ Different example:
 >```
 >
 ></details>
+
+## 9. Memento
+
+> **Memento** is a token/handle class representing the system state (typically without methods). Memento lets us *roll back* to the state when the token was generated.
+
+- Keep a memento of an object's state to return to that state.
+- Memento can be used to implement **undo/redo** operations.
+
+<details><summary> Code example: Bank account snapshot </summary>
+
+```python
+{{#include src/behavioral/memento/memento.py}}
+```
+
+</details>
+
+<details><summary> Code example: Undo/redo </summary>
+
+```python
+{{#include src/behavioral/memento/undo_redu.py}}
+```
+
+</details>
+
+<details><summary> Code example: TokenMachine and tricky references in Python </summary>
+
+```python
+{{#include src/behavioral/memento/token_machine.py}}
+```
+
+</details>
