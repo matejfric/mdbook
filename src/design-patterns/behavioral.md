@@ -11,14 +11,15 @@ Behavioral Patterns describe algorithms or cooperation of objects.
   - [2.1. Method Chain](#21-method-chain)
   - [2.2. Broker Chain](#22-broker-chain)
   - [2.3. Simpler Broker Chain](#23-simpler-broker-chain)
-- [4. Iterator](#4-iterator)
-- [5. Template Method](#5-template-method)
-- [6. Strategy](#6-strategy)
-- [7. Command](#7-command)
-  - [7.1. Composite Command (Macro)](#71-composite-command-macro)
-- [8. Interpreter](#8-interpreter)
-  - [8.1. Lexing and Parsing](#81-lexing-and-parsing)
-- [9. Memento](#9-memento)
+- [3. Iterator](#3-iterator)
+- [4. Template Method](#4-template-method)
+- [5. Strategy](#5-strategy)
+- [6. Command](#6-command)
+  - [6.1. Composite Command (Macro)](#61-composite-command-macro)
+- [7. Interpreter](#7-interpreter)
+  - [7.1. Lexing and Parsing](#71-lexing-and-parsing)
+- [8. Memento](#8-memento)
+- [9. Mediator](#9-mediator)
 
 1. Chain of Responsibility
 2. Command
@@ -622,7 +623,7 @@ class Game:
         self.creatures = CreatureList()
 ```
 
-## 4. Iterator
+## 3. Iterator
 
 > Iterator is a class that facilitates the traversal of a data structure.
 
@@ -654,7 +655,7 @@ class Game:
 
 </details>
 
-## 5. Template Method
+## 4. Template Method
 
 - Define an algorithm at a high level in parent class.
 - Define abstract methods/properties.
@@ -718,7 +719,7 @@ if __name__ == '__main__':
     chess.run()
 ```
 
-## 6. Strategy
+## 5. Strategy
 
 - Define an algorithm at a high level and define the interface that every strategy must follow.
 - Provide dynamic **composition** of strategies in the resulting object.
@@ -761,7 +762,7 @@ class QuadraticEquationSolver:
         )
 ```
 
-## 7. Command
+## 6. Command
 
 > Command is an object which represents an instruction to perform a particular **action** and contains all the necessary information for the action to be taken.
 
@@ -885,7 +886,7 @@ if __name__ == "__main__":
 
 </details>
 
-### 7.1. Composite Command (Macro)
+### 6.1. Composite Command (Macro)
 
 How to group multiple commands?
 
@@ -1054,7 +1055,7 @@ if __name__ == '__main__':
 
 </details>
 
-## 8. Interpreter
+## 7. Interpreter
 
 > Interpreter is a component that processes structured text data by turning it into separate lexical tokens *(lexing)* and then interpreting sequences of said tokens *(parsing)*.
 
@@ -1065,7 +1066,7 @@ Examples:
 - RegEx
 - Numerical expressions (1+2*3)
 
-### 8.1. Lexing and Parsing
+### 7.1. Lexing and Parsing
 
 1. Lex the input into tokens.
 2. Parse the tokens into a datastructure (tree).
@@ -1334,7 +1335,7 @@ if __name__=="__main__":
 
 </details>
 
-## 9. Memento
+## 8. Memento
 
 > **Memento** is a token/handle class representing the system state (typically without methods). Memento lets us *roll back* to the state when the token was generated.
 
@@ -1361,6 +1362,52 @@ if __name__=="__main__":
 
 ```python
 {{#include src/behavioral/memento/token_machine.py}}
+```
+
+</details>
+
+## 9. Mediator
+
+> Mediator is a component that facilitates communication between other components without them necessarily being aware of each other or having direct access (reference) to each other.
+
+- For example:
+  - player in a MMO game,
+  - participants in a chat room.
+- Create the mediator and have each object in the system refer to it (typically, the mediator is passed as an argument during instantiation of objects).
+- Mediator engages in bi-directional communication with its connected components.
+  - Components have methods the mediator can call.
+  - This is usually implemented via event processing (e.g., [RxPY](https://github.com/ReactiveX/RxPY)).
+
+<details><summary> Code example: Simple mediator with events </summary>
+
+Our system has any number of instances of `Participant` classes. Each `Participant` has a `value` integer attribute, initially zero.
+
+A participant can `say()` a particular `value`, which is broadcast to all other participants. At this point in time, every other participant is obliged to increase their `value` by the `value` being broadcast.
+
+Example:
+
+- Two participants start with values `0` and `0` respectively.
+- Participant 1 broadcasts the value `3`. We now have Participant 1 `value=0`, Participant 2 `value=3`
+- Participant 2 broadcasts the value `2`. We now have Participant 1 `value=2`, Participant 2 `value=3`
+
+```python
+{{#include src/behavioral/mediator/mediator.py}}
+```
+
+</details>
+
+<details><summary> Code example: Chat room </summary>
+
+```python
+{{#include src/behavioral/mediator/chat_room.py}}
+```
+
+</details>
+
+<details><summary> Code example: Football match with events </summary>
+
+```python
+{{#include src/behavioral/mediator/chat_room.py}}
 ```
 
 </details>
