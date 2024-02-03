@@ -30,7 +30,7 @@ details[open]>summary::before {
 }
 
 summary {
-    font-weight: bold;
+    font-weight: 550;
     margin: -0.5em -0.5em 0;
     padding: 0.5em;
     border: 1px solid #444444;
