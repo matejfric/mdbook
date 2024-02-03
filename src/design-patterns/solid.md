@@ -29,42 +29,42 @@
 - Interface by neměl mít příliš velké množství metod. Je lepší takové rozhraní rozdělit na více rozhraní.
 - YAGNI - You Ain't Going to Need It
 
-><details>
->  <summary>Code example</summary>
->
->```python
->from abc import ABC, abstractmethod
->
-># wrong - YAGNI
->
->class Machine(ABC):
->    @abstractmethod
->    def print(self, document):
->        raise NotImplementedError()
->
->    @abstractmethod
->    def fax(self, document):
->        raise NotImplementedError()
->
->    @abstractmethod
->    def scan(self, document):
->        raise NotImplementedError()
->```
->
->```python
-># this is better
->
->class Printer(ABC):
->    @abstractmethod
->    def print(self, document): pass
->
->
->class Scanner(ABC):
->    @abstractmethod
->    def scan(self, document): pass
->```
->
-></details>
+<details>
+  <summary>Code example</summary>
+
+```python
+from abc import ABC, abstractmethod
+
+# wrong - YAGNI
+
+class Machine(ABC):
+    @abstractmethod
+    def print(self, document):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def fax(self, document):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def scan(self, document):
+        raise NotImplementedError()
+```
+
+```python
+# this is better
+
+class Printer(ABC):
+    @abstractmethod
+    def print(self, document): pass
+
+
+class Scanner(ABC):
+    @abstractmethod
+    def scan(self, document): pass
+```
+
+</details>
 
 ## 5. Dependency Inversion Principle (DIP)
 

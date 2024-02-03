@@ -537,46 +537,46 @@ if __name__ == '__main__':
 - For example, scalars and vectors.
 - Composition lets us make compound objects.
 
-><details><summary> Code example </summary>
->
->```python
->from abc import ABC
->from collections.abc import Iterable
->import unittest
->
->class Summable(Iterable, ABC):
->    @property
->    def sum(self):
->        s = 0
->        for x in self:
->            for y in x:
->                s += y
->        return s
->
->class SingleValue(Summable):
->    def __init__(self, value):
->        self.value = value
->    def __iter__(self):
->        yield self.value
->
-># Notice that order of inheritance matters here
->class ManyValues(list, Summable):
->    pass
->
->class FirstTestSuite(unittest.TestCase):
->    def test(self):
->        single_value = SingleValue(11)
->        other_values = ManyValues()
->        other_values.append(22)
->        other_values.append(33)
->        # Make a list of all values (uniform usage)
->        all_values = ManyValues()
->        all_values.append(single_value)  # SingleValue
->        all_values.append(other_values)  # ManyValues
->        self.assertEqual(all_values.sum, 66)
->
->if __name__ == '__main__':
->    unittest.main()
->```
->
-></details>
+<details><summary> Code example </summary>
+
+```python
+from abc import ABC
+from collections.abc import Iterable
+import unittest
+
+class Summable(Iterable, ABC):
+    @property
+    def sum(self):
+        s = 0
+        for x in self:
+            for y in x:
+                s += y
+        return s
+
+class SingleValue(Summable):
+    def __init__(self, value):
+        self.value = value
+    def __iter__(self):
+        yield self.value
+
+# Notice that order of inheritance matters here
+class ManyValues(list, Summable):
+    pass
+
+class FirstTestSuite(unittest.TestCase):
+    def test(self):
+        single_value = SingleValue(11)
+        other_values = ManyValues()
+        other_values.append(22)
+        other_values.append(33)
+        # Make a list of all values (uniform usage)
+        all_values = ManyValues()
+        all_values.append(single_value)  # SingleValue
+        all_values.append(other_values)  # ManyValues
+        self.assertEqual(all_values.sum, 66)
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+</details>

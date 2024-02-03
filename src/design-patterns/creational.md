@@ -317,251 +317,251 @@ print(jane)
 
 Since `__init__` is always called directly after `__new__`, in this implementation the initializer is called with each creation of the singleton object.
 
-><details><summary> Code example: Singleton allocator </summary>
->
->```python
->import random
->
->class Database:
->    initialized = False
->
->    def __init__(self):
->        self.id = random.randint(1,101)
->        #print('Generated an id of ', self.id)
->        #print('Loading database from file')
->        pass
->
->    _instance = None
->
->    def __new__(cls, *args, **kwargs):
->        if not cls._instance:
->            cls._instance = super(Database, cls)\
->                .__new__(cls, *args, **kwargs)
->
->        return cls._instance
->
->
->database = Database()
->
->if __name__ == '__main__':
->    d1 = Database()
->    d2 = Database()
->
->    print(d1.id, d2.id)
->    print(d1 == d2)
->    print(database == d1)
->```
->
-></details>
+<details><summary> Code example: Singleton allocator </summary>
+
+```python
+import random
+
+class Database:
+    initialized = False
+
+    def __init__(self):
+        self.id = random.randint(1,101)
+        #print('Generated an id of ', self.id)
+        #print('Loading database from file')
+        pass
+
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(Database, cls)\
+                .__new__(cls, *args, **kwargs)
+
+        return cls._instance
+
+
+database = Database()
+
+if __name__ == '__main__':
+    d1 = Database()
+    d2 = Database()
+
+    print(d1.id, d2.id)
+    print(d1 == d2)
+    print(database == d1)
+```
+
+</details>
 
 ### 5.2. Singleton Decorator
 
-><details><summary> Code example: Singleton decorator </summary>
->
->```python
->def singleton(class_):
->    instances = {}
->
->    def get_instance(*args, **kwargs):
->        if class_ not in instances:
->            instances[class_] = class_(*args, **kwargs)
->        return instances[class_]
->
->    return get_instance
->
->
->@singleton
->class Database:
->    def __init__(self):
->        print('Loading database')
->
->
->if __name__ == '__main__':
->    d1 = Database()
->    d2 = Database()
->    print(d1 == d2)
->```
->
-></details>
+<details><summary> Code example: Singleton decorator </summary>
+
+```python
+def singleton(class_):
+    instances = {}
+
+    def get_instance(*args, **kwargs):
+        if class_ not in instances:
+            instances[class_] = class_(*args, **kwargs)
+        return instances[class_]
+
+    return get_instance
+
+
+@singleton
+class Database:
+    def __init__(self):
+        print('Loading database')
+
+
+if __name__ == '__main__':
+    d1 = Database()
+    d2 = Database()
+    print(d1 == d2)
+```
+
+</details>
 
 ### 5.3. Singleton Metaclass
 
 Probably the nicest implementation in Python.
 
-><details><summary> Code example: Singleton metaclass </summary>
->
->```python
->class Singleton(type):
->    """ Metaclass that creates a Singleton base type when called. """
->    _instances = {}
->
->    def __call__(cls, *args, **kwargs):
->        if cls not in cls._instances:
->            cls._instances[cls] = super(Singleton, cls)\
->                .__call__(*args, **kwargs)
->        return cls._instances[cls]
->
->
->class Database(metaclass=Singleton):
->    def __init__(self):
->        print('Loading database')
->
->
->if __name__ == '__main__':
->    d1 = Database()
->    d2 = Database()
->    print(d1 == d2)
->```
->
-></details>
+<details><summary> Code example: Singleton metaclass </summary>
+
+```python
+class Singleton(type):
+    """ Metaclass that creates a Singleton base type when called. """
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls)\
+                .__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class Database(metaclass=Singleton):
+    def __init__(self):
+        print('Loading database')
+
+
+if __name__ == '__main__':
+    d1 = Database()
+    d2 = Database()
+    print(d1 == d2)
+```
+
+</details>
 
 ### 5.4. Monostate
 
 Each object refers to the same instance. All members are static.
 
-><details><summary> Code example: Monostate </summary>
->
->```python
->class CEO:
->    __shared_state = {
->        'name': 'Steve',
->        'age': 55
->    }
->
->    def __init__(self):
->        self.__dict__ = self.__shared_state
->
->    def __str__(self):
->        return f'{self.name} is {self.age} years old'
->
->
->class Monostate:
->    _shared_state = {}
->
->    def __new__(cls, *args, **kwargs):
->        obj = super(Monostate, cls).__new__(cls, *args, **kwargs)
->        obj.__dict__ = cls._shared_state
->        return obj
->
->
->class CFO(Monostate):
->    def __init__(self):
->        self.name = ''
->        self.money_managed = 0
->
->    def __str__(self):
->        return f'{self.name} manages ${self.money_managed}bn'
->
->if __name__ == '__main__':
->    ceo1 = CEO()
->    print(ceo1)
->
->    ceo1.age = 66
->
->    ceo2 = CEO()
->    ceo2.age = 77
->    print(ceo1)
->    print(ceo2)
->
->    ceo2.name = 'Tim'
->
->    ceo3 = CEO()
->    print(ceo1, ceo2, ceo3)
->
->    cfo1 = CFO()
->    cfo1.name = 'Sheryl'
->    cfo1.money_managed = 1
->
->    print(cfo1)
->
->    cfo2 = CFO()
->    cfo2.name = 'Ruth'
->    cfo2.money_managed = 10
->    print(cfo1, cfo2, sep='\n')
->```
->
-></details>
+<details><summary> Code example: Monostate </summary>
+
+```python
+class CEO:
+    __shared_state = {
+        'name': 'Steve',
+        'age': 55
+    }
+
+    def __init__(self):
+        self.__dict__ = self.__shared_state
+
+    def __str__(self):
+        return f'{self.name} is {self.age} years old'
+
+
+class Monostate:
+    _shared_state = {}
+
+    def __new__(cls, *args, **kwargs):
+        obj = super(Monostate, cls).__new__(cls, *args, **kwargs)
+        obj.__dict__ = cls._shared_state
+        return obj
+
+
+class CFO(Monostate):
+    def __init__(self):
+        self.name = ''
+        self.money_managed = 0
+
+    def __str__(self):
+        return f'{self.name} manages ${self.money_managed}bn'
+
+if __name__ == '__main__':
+    ceo1 = CEO()
+    print(ceo1)
+
+    ceo1.age = 66
+
+    ceo2 = CEO()
+    ceo2.age = 77
+    print(ceo1)
+    print(ceo2)
+
+    ceo2.name = 'Tim'
+
+    ceo3 = CEO()
+    print(ceo1, ceo2, ceo3)
+
+    cfo1 = CFO()
+    cfo1.name = 'Sheryl'
+    cfo1.money_managed = 1
+
+    print(cfo1)
+
+    cfo2 = CFO()
+    cfo2.name = 'Ruth'
+    cfo2.money_managed = 10
+    print(cfo1, cfo2, sep='\n')
+```
+
+</details>
 
 ### 5.5. Singleton Testing
 
-><details><summary> Code example: Singleton testing </summary>
->
->```python
->import unittest
->
->class Singleton(type):
->    _instances = {}
->
->    def __call__(cls, *args, **kwargs):
->        if cls not in cls._instances:
->            cls._instances[cls] = super(Singleton, cls).__call__(*args, >**kwargs)
->        return cls._instances[cls]
->
->
->class Database(metaclass=Singleton):
->    def __init__(self):
->        self.population = {}
->        f = open('capitals.txt', 'r')
->        lines = f.readlines()
->        for i in range(0, len(lines), 2):
->            self.population[lines[i].strip()] = int(lines[i + 1].strip())
->        f.close()
->
->
->class SingletonRecordFinder:
->    def total_population(self, cities):
->        result = 0
->        for c in cities:
->            result += Database().population[c]
->        return result
->
->
->class ConfigurableRecordFinder:
->    def __init__(self, db):
->        self.db = db
->
->    def total_population(self, cities):
->        result = 0
->        for c in cities:
->            result += self.db.population[c]
->        return result
->
->
->class DummyDatabase:
->    population = {
->        'alpha': 1,
->        'beta': 2,
->        'gamma': 3
->    }
->
->    def get_population(self, name):
->        return self.population[name]
->
->class SingletonTests(unittest.TestCase):
->    def test_is_singleton(self):
->        db = Database()
->        db2 = Database()
->        self.assertEqual(db, db2)
->
->    def test_singleton_total_population(self):
->        """ This tests on a live database :( """
->        rf = SingletonRecordFinder()
->        names = ['Seoul', 'Mexico City']
->        tp = rf.total_population(names)
->        # What if this is a live DB and the values change?
->        self.assertEqual(tp, 17500000 + 17400000)  
->
->    ddb = DummyDatabase()
->
->    def test_dependent_total_population(self):
->        crf = ConfigurableRecordFinder(self.ddb)
->        self.assertEqual(
->            crf.total_population(['alpha', 'beta']),
->            3
->        )
->
->if __name__ == '__main__':
->    unittest.main()
->```
->
-></details>
+<details><summary> Code example: Singleton testing </summary>
+
+```python
+import unittest
+
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, >**kwargs)
+        return cls._instances[cls]
+
+
+class Database(metaclass=Singleton):
+    def __init__(self):
+        self.population = {}
+        f = open('capitals.txt', 'r')
+        lines = f.readlines()
+        for i in range(0, len(lines), 2):
+            self.population[lines[i].strip()] = int(lines[i + 1].strip())
+        f.close()
+
+
+class SingletonRecordFinder:
+    def total_population(self, cities):
+        result = 0
+        for c in cities:
+            result += Database().population[c]
+        return result
+
+
+class ConfigurableRecordFinder:
+    def __init__(self, db):
+        self.db = db
+
+    def total_population(self, cities):
+        result = 0
+        for c in cities:
+            result += self.db.population[c]
+        return result
+
+
+class DummyDatabase:
+    population = {
+        'alpha': 1,
+        'beta': 2,
+        'gamma': 3
+    }
+
+    def get_population(self, name):
+        return self.population[name]
+
+class SingletonTests(unittest.TestCase):
+    def test_is_singleton(self):
+        db = Database()
+        db2 = Database()
+        self.assertEqual(db, db2)
+
+    def test_singleton_total_population(self):
+        """ This tests on a live database :( """
+        rf = SingletonRecordFinder()
+        names = ['Seoul', 'Mexico City']
+        tp = rf.total_population(names)
+        # What if this is a live DB and the values change?
+        self.assertEqual(tp, 17500000 + 17400000)  
+
+    ddb = DummyDatabase()
+
+    def test_dependent_total_population(self):
+        crf = ConfigurableRecordFinder(self.ddb)
+        self.assertEqual(
+            crf.total_population(['alpha', 'beta']),
+            3
+        )
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+</details>

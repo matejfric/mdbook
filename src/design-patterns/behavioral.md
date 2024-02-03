@@ -754,288 +754,288 @@ class QuadraticEquationSolver:
 - GUI actions are usually implemented by commands (clicking on buttons, undo/redo), macro recording and more...
 - How can we create an object that represents an operation?
 
-><details><summary> Code example: Bank account with undo </summary>
->
->```python
->from abc import ABC
->from enum import Enum
->
->
->class BankAccount:
->    OVERDRAFT_LIMIT = -500
->
->    def __init__(self, balance=0):
->        self.balance = balance
->
->    def deposit(self, amount):
->        self.balance += amount
->        print(f"Deposited {amount}, balance={self.balance}")
->
->    def withdraw(self, amount):
->        if self.balance - amount < self.OVERDRAFT_LIMIT:
->            return False
->        self.balance -= amount
->        print(f"Withdrew {amount}, balance={self.balance}")
->        return True
->
->    def __str__(self):
->        return f"Balance={self.balance}"
->
->
->class Command(ABC):
->    def invoke(self):
->        pass
->
->    def undo(self):
->        pass
->
->
->class BankAccountCommand(Command):
->    def __init__(self, account, action, amount):
->        self.account = account
->        self.amount = amount
->        self.action = action
->        self.success = None
->        self.logs = []  # Keep track of successful actions (Event Sourcing).
->
->    class Action(Enum):
->        DEPOSIT = 0
->        WITHDRAW = 1
->
->    def invoke(self):
->        if self.action == self.Action.DEPOSIT:
->            self.account.deposit(self.amount)
->            self.success = True
->        elif self.action == self.Action.WITHDRAW:
->            self.success = self.account.withdraw(self.amount)
->
->        # Add to logs
->        if self.success:
->            self.logs.append(self.action)
->
->    def undo(self):
->        """We no longer have to rely on success"""
->        if not self.logs:
->            return
->        most_recent_user_action = self.logs.pop()
->        if most_recent_user_action == self.Action.WITHDRAW:
->            self.account.deposit(self.amount)
->            self.action = self.Action.DEPOSIT
->        elif most_recent_user_action == self.Action.DEPOSIT:
->            self.account.withdraw(self.amount)
->            self.action = self.Action.WITHDRAW
->
->
->if __name__ == "__main__":
->    ba = BankAccount()
->    print("> Init")
->    print(ba)
->
->    print("> Add +100")
->    cmd = BankAccountCommand(ba, BankAccountCommand.Action.DEPOSIT, 100)
->    cmd.invoke()
->    print(ba)
->
->    print("> Undo")
->    cmd.undo()
->    print(ba)
->
->    # Fixed broken undo
->    print("> Fixed: Undo once again")
->    cmd.undo()
->    print(ba)
->
->    # But now we cycle thorugh
->    print("> Wee! We have the entire history of you")
->    cmd.undo()
->    print(ba)
->
->    # Even if we go too far
->    print("> We don't go beyond what we know")
->    cmd.undo()
->    print(ba)
->
->    print("> Withdraw 500")
->    illegal_cmd = BankAccountCommand(ba, BankAccountCommand.Action.WITHDRAW, 500)
->    illegal_cmd.invoke()
->    print(ba)
->
->    print("> Withdraw too much")
->    illegal_cmd = BankAccountCommand(ba, BankAccountCommand.Action.WITHDRAW, 5000)
->    illegal_cmd.invoke()
->    print(ba)
->```
->
-></details>
+<details><summary> Code example: Bank account with undo </summary>
+
+```python
+from abc import ABC
+from enum import Enum
+
+
+class BankAccount:
+    OVERDRAFT_LIMIT = -500
+
+    def __init__(self, balance=0):
+        self.balance = balance
+
+    def deposit(self, amount):
+        self.balance += amount
+        print(f"Deposited {amount}, balance={self.balance}")
+
+    def withdraw(self, amount):
+        if self.balance - amount < self.OVERDRAFT_LIMIT:
+            return False
+        self.balance -= amount
+        print(f"Withdrew {amount}, balance={self.balance}")
+        return True
+
+    def __str__(self):
+        return f"Balance={self.balance}"
+
+
+class Command(ABC):
+    def invoke(self):
+        pass
+
+    def undo(self):
+        pass
+
+
+class BankAccountCommand(Command):
+    def __init__(self, account, action, amount):
+        self.account = account
+        self.amount = amount
+        self.action = action
+        self.success = None
+        self.logs = []  # Keep track of successful actions (Event Sourcing).
+
+    class Action(Enum):
+        DEPOSIT = 0
+        WITHDRAW = 1
+
+    def invoke(self):
+        if self.action == self.Action.DEPOSIT:
+            self.account.deposit(self.amount)
+            self.success = True
+        elif self.action == self.Action.WITHDRAW:
+            self.success = self.account.withdraw(self.amount)
+
+        # Add to logs
+        if self.success:
+            self.logs.append(self.action)
+
+    def undo(self):
+        """We no longer have to rely on success"""
+        if not self.logs:
+            return
+        most_recent_user_action = self.logs.pop()
+        if most_recent_user_action == self.Action.WITHDRAW:
+            self.account.deposit(self.amount)
+            self.action = self.Action.DEPOSIT
+        elif most_recent_user_action == self.Action.DEPOSIT:
+            self.account.withdraw(self.amount)
+            self.action = self.Action.WITHDRAW
+
+
+if __name__ == "__main__":
+    ba = BankAccount()
+    print("> Init")
+    print(ba)
+
+    print("> Add +100")
+    cmd = BankAccountCommand(ba, BankAccountCommand.Action.DEPOSIT, 100)
+    cmd.invoke()
+    print(ba)
+
+    print("> Undo")
+    cmd.undo()
+    print(ba)
+
+    # Fixed broken undo
+    print("> Fixed: Undo once again")
+    cmd.undo()
+    print(ba)
+
+    # But now we cycle thorugh
+    print("> Wee! We have the entire history of you")
+    cmd.undo()
+    print(ba)
+
+    # Even if we go too far
+    print("> We don't go beyond what we know")
+    cmd.undo()
+    print(ba)
+
+    print("> Withdraw 500")
+    illegal_cmd = BankAccountCommand(ba, BankAccountCommand.Action.WITHDRAW, 500)
+    illegal_cmd.invoke()
+    print(ba)
+
+    print("> Withdraw too much")
+    illegal_cmd = BankAccountCommand(ba, BankAccountCommand.Action.WITHDRAW, 5000)
+    illegal_cmd.invoke()
+    print(ba)
+```
+
+</details>
 
 ### 7.1. Composite Command (Macro)
 
 How to group multiple commands?
 
-><details><summary> Code example: Transfer between bank accounts </summary>
->
->```python
-># Composite Command a.k.a. Macro
-># also: Composite design pattern ;)
->
->import unittest
->from abc import ABC, abstractmethod
->from enum import Enum
->
->
->class BankAccount:
->    OVERDRAFT_LIMIT = -500
->
->    def __init__(self, balance=0):
->        self.balance = balance
->
->    def deposit(self, amount):
->        self.balance += amount
->        print(f'Deposited {amount}, balance = {self.balance}')
->
->    def withdraw(self, amount):
->        if self.balance - amount >= BankAccount.OVERDRAFT_LIMIT:
->            self.balance -= amount
->            print(f'Withdrew {amount}, balance = {self.balance}')
->            return True
->        return False
->
->    def __str__(self):
->        return f'Balance = {self.balance}'
->
->
->class Command(ABC):
->    def __init__(self):
->        self.success = False
->
->    def invoke(self):
->        pass
->
->    def undo(self):
->        pass
->
->
->class BankAccountCommand(Command):
->    def __init__(self, account, action, amount):
->        super().__init__()
->        self.amount = amount
->        self.action = action
->        self.account = account
->
->    class Action(Enum):
->        DEPOSIT = 0
->        WITHDRAW = 1
->
->    def invoke(self):
->        if self.action == self.Action.DEPOSIT:
->            self.account.deposit(self.amount)
->            self.success = True
->        elif self.action == self.Action.WITHDRAW:
->            self.success = self.account.withdraw(self.amount)
->
->    def undo(self):
->        if not self.success:
->            return
->        # strictly speaking this is not correct
->        # (you don't undo a deposit by withdrawing)
->        # but it works for this demo, so...
->        if self.action == self.Action.DEPOSIT:
->            self.account.withdraw(self.amount)
->        elif self.action == self.Action.WITHDRAW:
->            self.account.deposit(self.amount)
->
->
-># try using this before using MoneyTransferCommand!
->class CompositeBankAccountCommand(Command, list):
->    def __init__(self, items=[]):
->        super().__init__()
->        for i in items:
->            self.append(i)
->
->    def invoke(self):
->        for x in self:
->            x.invoke()
->
->    def undo(self):
->        for x in reversed(self):
->            x.undo()
->
->
->class MoneyTransferCommand(CompositeBankAccountCommand):
->    def __init__(self, from_acct, to_acct, amount):
->        super().__init__([
->            BankAccountCommand(from_acct,
->                               BankAccountCommand.Action.WITHDRAW,
->                               amount),
->            BankAccountCommand(to_acct,
->                               BankAccountCommand.Action.DEPOSIT,
->                               amount)])
->
->    def invoke(self):
->        ok = True
->        for cmd in self:
->            if ok:
->                cmd.invoke()
->                ok = cmd.success
->            else:
->                cmd.success = False
->        self.success = ok
->
->
->class TestSuite(unittest.TestCase):
->    def test_composite_deposit(self):
->        print("\ntest_composite_deposit")
->        ba = BankAccount()
->        deposit1 = BankAccountCommand(ba, BankAccountCommand.Action.DEPOSIT, 1000)
->        deposit2 = BankAccountCommand(ba, BankAccountCommand.Action.DEPOSIT, 1000)
->        composite = CompositeBankAccountCommand([deposit1, deposit2])
->        composite.invoke()
->        print(ba)
->        composite.undo()
->        print(ba)
->
->    def test_transfer_fail(self):
->        print("\ntest_transfer_fail")
->        ba1 = BankAccount(100)
->        ba2 = BankAccount()
->
->        # composite isn't so good because of failure
->        amount = 1000  # try 1000: no transactions should happen
->        wc = BankAccountCommand(ba1, BankAccountCommand.Action.WITHDRAW, amount)
->        dc = BankAccountCommand(ba2, BankAccountCommand.Action.DEPOSIT, amount)
->
->        transfer = CompositeBankAccountCommand([wc, dc])
->
->        transfer.invoke()
->        print('ba1:', ba1, 'ba2:', ba2)  # end up in incorrect state
->        transfer.undo()
->        print('ba1:', ba1, 'ba2:', ba2)
->
->    def test_better_tranfer(self):
->        print("\ntest_better_tranfer")
->        ba1 = BankAccount(100)
->        ba2 = BankAccount()
->
->        amount = 100
->
->        transfer = MoneyTransferCommand(ba1, ba2, amount)
->        transfer.invoke()
->        print('ba1:', ba1, 'ba2:', ba2)
->        print('success:', transfer.success)
->        transfer.undo()
->        print('ba1:', ba1, 'ba2:', ba2)
->        print('success:', transfer.success)
->        with self.assertRaises(Exception):
->            # this should fail (multiple undo is not implemented!)
->            transfer.undo()  
->            print('ba1:', ba1, 'ba2:', ba2)
->            print('success:', transfer.success)
->
->if __name__ == '__main__':
->    unittest.main()
->```
->
-></details>
+<details><summary> Code example: Transfer between bank accounts </summary>
+
+```python
+# Composite Command a.k.a. Macro
+# also: Composite design pattern ;)
+
+import unittest
+from abc import ABC, abstractmethod
+from enum import Enum
+
+
+class BankAccount:
+    OVERDRAFT_LIMIT = -500
+
+    def __init__(self, balance=0):
+        self.balance = balance
+
+    def deposit(self, amount):
+        self.balance += amount
+        print(f'Deposited {amount}, balance = {self.balance}')
+
+    def withdraw(self, amount):
+        if self.balance - amount >= BankAccount.OVERDRAFT_LIMIT:
+            self.balance -= amount
+            print(f'Withdrew {amount}, balance = {self.balance}')
+            return True
+        return False
+
+    def __str__(self):
+        return f'Balance = {self.balance}'
+
+
+class Command(ABC):
+    def __init__(self):
+        self.success = False
+
+    def invoke(self):
+        pass
+
+    def undo(self):
+        pass
+
+
+class BankAccountCommand(Command):
+    def __init__(self, account, action, amount):
+        super().__init__()
+        self.amount = amount
+        self.action = action
+        self.account = account
+
+    class Action(Enum):
+        DEPOSIT = 0
+        WITHDRAW = 1
+
+    def invoke(self):
+        if self.action == self.Action.DEPOSIT:
+            self.account.deposit(self.amount)
+            self.success = True
+        elif self.action == self.Action.WITHDRAW:
+            self.success = self.account.withdraw(self.amount)
+
+    def undo(self):
+        if not self.success:
+            return
+        # strictly speaking this is not correct
+        # (you don't undo a deposit by withdrawing)
+        # but it works for this demo, so...
+        if self.action == self.Action.DEPOSIT:
+            self.account.withdraw(self.amount)
+        elif self.action == self.Action.WITHDRAW:
+            self.account.deposit(self.amount)
+
+
+# try using this before using MoneyTransferCommand!
+class CompositeBankAccountCommand(Command, list):
+    def __init__(self, items=[]):
+        super().__init__()
+        for i in items:
+            self.append(i)
+
+    def invoke(self):
+        for x in self:
+            x.invoke()
+
+    def undo(self):
+        for x in reversed(self):
+            x.undo()
+
+
+class MoneyTransferCommand(CompositeBankAccountCommand):
+    def __init__(self, from_acct, to_acct, amount):
+        super().__init__([
+            BankAccountCommand(from_acct,
+                               BankAccountCommand.Action.WITHDRAW,
+                               amount),
+            BankAccountCommand(to_acct,
+                               BankAccountCommand.Action.DEPOSIT,
+                               amount)])
+
+    def invoke(self):
+        ok = True
+        for cmd in self:
+            if ok:
+                cmd.invoke()
+                ok = cmd.success
+            else:
+                cmd.success = False
+        self.success = ok
+
+
+class TestSuite(unittest.TestCase):
+    def test_composite_deposit(self):
+        print("\ntest_composite_deposit")
+        ba = BankAccount()
+        deposit1 = BankAccountCommand(ba, BankAccountCommand.Action.DEPOSIT, 1000)
+        deposit2 = BankAccountCommand(ba, BankAccountCommand.Action.DEPOSIT, 1000)
+        composite = CompositeBankAccountCommand([deposit1, deposit2])
+        composite.invoke()
+        print(ba)
+        composite.undo()
+        print(ba)
+
+    def test_transfer_fail(self):
+        print("\ntest_transfer_fail")
+        ba1 = BankAccount(100)
+        ba2 = BankAccount()
+
+        # composite isn't so good because of failure
+        amount = 1000  # try 1000: no transactions should happen
+        wc = BankAccountCommand(ba1, BankAccountCommand.Action.WITHDRAW, amount)
+        dc = BankAccountCommand(ba2, BankAccountCommand.Action.DEPOSIT, amount)
+
+        transfer = CompositeBankAccountCommand([wc, dc])
+
+        transfer.invoke()
+        print('ba1:', ba1, 'ba2:', ba2)  # end up in incorrect state
+        transfer.undo()
+        print('ba1:', ba1, 'ba2:', ba2)
+
+    def test_better_tranfer(self):
+        print("\ntest_better_tranfer")
+        ba1 = BankAccount(100)
+        ba2 = BankAccount()
+
+        amount = 100
+
+        transfer = MoneyTransferCommand(ba1, ba2, amount)
+        transfer.invoke()
+        print('ba1:', ba1, 'ba2:', ba2)
+        print('success:', transfer.success)
+        transfer.undo()
+        print('ba1:', ba1, 'ba2:', ba2)
+        print('success:', transfer.success)
+        with self.assertRaises(Exception):
+            # this should fail (multiple undo is not implemented!)
+            transfer.undo()  
+            print('ba1:', ba1, 'ba2:', ba2)
+            print('success:', transfer.success)
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+</details>
 
 ## 8. Interpreter
 
@@ -1054,268 +1054,268 @@ Examples:
 2. Parse the tokens into a datastructure (tree).
 3. Evaluate the parsed tokens.
 
-><details><summary> Code example: Lexing and parsing of a binary numerical expression </summary>
->
->```python
->from enum import Enum
->
->
->class Token:
->    class Type(Enum):
->        INTEGER = 0
->        PLUS = 1
->        MINUS = 2
->        LPAREN = 3
->        RPAREN = 4
->
->    def __init__(self, type, text):
->        self.type = type
->        self.text = text
->
->    def __str__(self):
->        return f'`{self.text}`'
->
->
->def lex(input):
->    result = []
->
->    i = 0
->    while i < len(input):
->        if input[i] == '+':
->            result.append(Token(Token.Type.PLUS, '+'))
->        elif input[i] == '-':
->            result.append(Token(Token.Type.MINUS, '-'))
->        elif input[i] == '(':
->            result.append(Token(Token.Type.LPAREN, '('))
->        elif input[i] == ')':
->            result.append(Token(Token.Type.RPAREN, ')'))
->        else:  # must be a number
->            digits = [input[i]]
->            for j in range(i + 1, len(input)):
->                if input[j].isdigit():
->                    digits.append(input[j])
->                    i += 1
->                else:
->                    result.append(Token(Token.Type.INTEGER,
->                                        ''.join(digits)))
->                    break
->        i += 1
->
->    return result
->
->
-># ↑↑↑ lexing ↑↑↑
->
-># ↓↓↓ parsing ↓↓↓
->
->class Integer:
->    def __init__(self, value):
->        self.value = value
->
->
->class BinaryOperation:
->    class Type(Enum):
->        ADDITION = 0
->        SUBTRACTION = 1
->
->    def __init__(self):
->        self.type = None
->        self.left = None
->        self.right = None
->
->    @property
->    def value(self):
->        if self.type == self.Type.ADDITION:
->            return self.left.value + self.right.value
->        elif self.type == self.Type.SUBTRACTION:
->            return self.left.value - self.right.value
->
->
->def parse(tokens):
->    result = BinaryOperation()
->    have_lhs = False
->    i = 0
->    while i < len(tokens):
->        token = tokens[i]
->
->        if token.type == Token.Type.INTEGER:
->            integer = Integer(int(token.text))
->            if not have_lhs:
->                result.left = integer
->                have_lhs = True
->            else:
->                result.right = integer
->        elif token.type == Token.Type.PLUS:
->            result.type = BinaryOperation.Type.ADDITION
->        elif token.type == Token.Type.MINUS:
->            result.type = BinaryOperation.Type.SUBTRACTION
->        elif token.type == Token.Type.LPAREN:  # note: no if >for RPAREN
->            j = i
->            while j < len(tokens):
->                if tokens[j].type == Token.Type.RPAREN:
->                    break
->                j += 1
->            # preprocess subexpression
->            subexpression = tokens[i + 1:j]
->            element = parse(subexpression)
->            if not have_lhs:
->                result.left = element
->                have_lhs = True
->            else:
->                result.right = element
->            i = j  # advance
->        i += 1
->    return result
->
->def eval(input):
->    tokens = lex(input)
->    print(' '.join(map(str, tokens)))
->
->    parsed = parse(tokens)
->    print(f'{input} = {parsed.value}')
->
->if __name__ == '__main__':
->    eval('(13+4)-(12+1)')
->    eval('1+(3-4)')
->
->    # This won't work (ternary expression).
->    eval('1+2+(3-4)')
->```
->
-></details>
+<details><summary> Code example: Lexing and parsing of a binary numerical expression </summary>
+
+```python
+from enum import Enum
+
+
+class Token:
+    class Type(Enum):
+        INTEGER = 0
+        PLUS = 1
+        MINUS = 2
+        LPAREN = 3
+        RPAREN = 4
+
+    def __init__(self, type, text):
+        self.type = type
+        self.text = text
+
+    def __str__(self):
+        return f'`{self.text}`'
+
+
+def lex(input):
+    result = []
+
+    i = 0
+    while i < len(input):
+        if input[i] == '+':
+            result.append(Token(Token.Type.PLUS, '+'))
+        elif input[i] == '-':
+            result.append(Token(Token.Type.MINUS, '-'))
+        elif input[i] == '(':
+            result.append(Token(Token.Type.LPAREN, '('))
+        elif input[i] == ')':
+            result.append(Token(Token.Type.RPAREN, ')'))
+        else:  # must be a number
+            digits = [input[i]]
+            for j in range(i + 1, len(input)):
+                if input[j].isdigit():
+                    digits.append(input[j])
+                    i += 1
+                else:
+                    result.append(Token(Token.Type.INTEGER,
+                                        ''.join(digits)))
+                    break
+        i += 1
+
+    return result
+
+
+# ↑↑↑ lexing ↑↑↑
+
+# ↓↓↓ parsing ↓↓↓
+
+class Integer:
+    def __init__(self, value):
+        self.value = value
+
+
+class BinaryOperation:
+    class Type(Enum):
+        ADDITION = 0
+        SUBTRACTION = 1
+
+    def __init__(self):
+        self.type = None
+        self.left = None
+        self.right = None
+
+    @property
+    def value(self):
+        if self.type == self.Type.ADDITION:
+            return self.left.value + self.right.value
+        elif self.type == self.Type.SUBTRACTION:
+            return self.left.value - self.right.value
+
+
+def parse(tokens):
+    result = BinaryOperation()
+    have_lhs = False
+    i = 0
+    while i < len(tokens):
+        token = tokens[i]
+
+        if token.type == Token.Type.INTEGER:
+            integer = Integer(int(token.text))
+            if not have_lhs:
+                result.left = integer
+                have_lhs = True
+            else:
+                result.right = integer
+        elif token.type == Token.Type.PLUS:
+            result.type = BinaryOperation.Type.ADDITION
+        elif token.type == Token.Type.MINUS:
+            result.type = BinaryOperation.Type.SUBTRACTION
+        elif token.type == Token.Type.LPAREN:  # note: no if >for RPAREN
+            j = i
+            while j < len(tokens):
+                if tokens[j].type == Token.Type.RPAREN:
+                    break
+                j += 1
+            # preprocess subexpression
+            subexpression = tokens[i + 1:j]
+            element = parse(subexpression)
+            if not have_lhs:
+                result.left = element
+                have_lhs = True
+            else:
+                result.right = element
+            i = j  # advance
+        i += 1
+    return result
+
+def eval(input):
+    tokens = lex(input)
+    print(' '.join(map(str, tokens)))
+
+    parsed = parse(tokens)
+    print(f'{input} = {parsed.value}')
+
+if __name__ == '__main__':
+    eval('(13+4)-(12+1)')
+    eval('1+(3-4)')
+
+    # This won't work (ternary expression).
+    eval('1+2+(3-4)')
+```
+
+</details>
 
 Different example:
 
-><details><summary> Code example: Lexing and parsing of plus, minus numerical expressions </summary>
->
->```python
->from enum import Enum, auto
->import unittest
->import math
->
->class Token:
->    class Type(Enum):
->        INTEGER = auto()
->        PLUS = auto()
->        MINUS = auto()
->
->    def __init__(self, type, text):
->        self.type = type
->        self.text = text
->
->    def __str__(self):
->        return f'`{self.text}`'
->    
->
->class BinaryOperation:
->    def __init__(self):
->        self.type = None
->        self.left = None
->        self.right = None
->
->    @property
->    def value(self):
->        if self.type == Token.Type.PLUS:
->            return self.left + self.right
->        elif self.type == Token.Type.MINUS:
->            return self.left - self.right
->            
->
->class ExpressionProcessor:
->    def __init__(self):
->        self.variables = {}
->
->    def calculate(self, expression):
->        try:
->            lexed = self._lex(expression)
->            result = self._parse_eval(lexed)
->        except ValueError as e:
->            print(e)
->            return math.nan
->        return result
->        
->    def _lex(self, input):
->        result = []
->        i = 0
->        while i < len(input):
->            if input[i] == '+':
->                result.append(Token(Token.Type.PLUS, '+'))
->            elif input[i] == '-':
->                result.append(Token(Token.Type.MINUS, '-'))
->            elif input[i].isalpha():
->                alphas = []
->                while i < len(input) and input[i].isalpha():
->                    alphas.append(input[i])
->                    i += 1
->                if len(alphas) > 1:
->                    raise ValueError(f"Variables with more than one letter are not supported. Got `{''.join(alphas)}`.")
->                if input[i-1] in self.variables:
->                    result.append(Token(Token.Type.INTEGER, str(self.variables[input[i-1]])))
->                else:
->                    raise ValueError(f'Variable `{input[i-1]}` not found.')
->                continue  # skip i += 1
->            elif input[i].isdigit():
->                digits = []
->                while i < len(input) and input[i].isdigit():
->                    digits.append(input[i])
->                    i += 1
->                result.append(Token(Token.Type.INTEGER, ''.join(digits)))
->                continue  # skip i += 1
->            else:
->                raise ValueError(f'Invalid character found: {input[i]}')
->            i += 1
->        return result
->    
->    def _parse_eval(self, tokens):
->        has_lhs = False
->        bin_op = BinaryOperation()
->        result = 0
->        for token in tokens:
->            if token.type == Token.Type.INTEGER:
->                if not has_lhs:
->                    bin_op.left = int(token.text)
->                    result = bin_op.left
->                    has_lhs = True
->                else:
->                    bin_op.right = int(token.text)
->                    if bin_op.type is None:
->                        raise ValueError('Invalid syntax. No operator found.')
->                    result = bin_op.value
->                    bin_op.left = result
->            elif token.type == Token.Type.PLUS:
->                bin_op.type = Token.Type.PLUS
->            elif token.type == Token.Type.MINUS:
->                bin_op.type = Token.Type.MINUS
->        return result
->    
->
->class FirstTestSuite(unittest.TestCase):
->    @classmethod
->    def setUpClass(cls):
->        ep = ExpressionProcessor()
->        ep.variables['x'] = 5
->        cls.ep = ep
->
->    def test_simple(self):
->        self.assertEqual(1, self.ep.calculate('1'))
->
->    def test_addition(self):
->        self.assertEqual(6, self.ep.calculate('1+2+3'))
->
->    def test_addition_with_variable(self):
->        self.assertEqual(6, self.ep.calculate('1+x'))
->
->    def test_failure(self):
->        result = self.ep.calculate('1+xy')
->        self.assertIs(math.nan, result)
->        
->    
->if __name__=="__main__":
->    unittest.main()
->
->```
->
-></details>
+<details><summary> Code example: Lexing and parsing of plus, minus numerical expressions /summary>
+
+```python
+from enum import Enum, auto
+import unittest
+import math
+
+class Token:
+    class Type(Enum):
+        INTEGER = auto()
+        PLUS = auto()
+        MINUS = auto()
+
+    def __init__(self, type, text):
+        self.type = type
+        self.text = text
+
+    def __str__(self):
+        return f'`{self.text}`'
+    
+
+class BinaryOperation:
+    def __init__(self):
+        self.type = None
+        self.left = None
+        self.right = None
+
+    @property
+    def value(self):
+        if self.type == Token.Type.PLUS:
+            return self.left + self.right
+        elif self.type == Token.Type.MINUS:
+            return self.left - self.right
+            
+
+class ExpressionProcessor:
+    def __init__(self):
+        self.variables = {}
+
+    def calculate(self, expression):
+        try:
+            lexed = self._lex(expression)
+            result = self._parse_eval(lexed)
+        except ValueError as e:
+            print(e)
+            return math.nan
+        return result
+        
+    def _lex(self, input):
+        result = []
+        i = 0
+        while i < len(input):
+            if input[i] == '+':
+                result.append(Token(Token.Type.PLUS, '+'))
+            elif input[i] == '-':
+                result.append(Token(Token.Type.MINUS, '-'))
+            elif input[i].isalpha():
+                alphas = []
+                while i < len(input) and input[i].isalpha():
+                    alphas.append(input[i])
+                    i += 1
+                if len(alphas) > 1:
+                    raise ValueError(f"Variables with more than one letter are not upported. Got `{''.join(alphas)}`.")
+                if input[i-1] in self.variables:
+                    result.append(Token(Token.Type.INTEGER, str(self.variables[inputi-1]])))
+                else:
+                    raise ValueError(f'Variable `{input[i-1]}` not found.')
+                continue  # skip i += 1
+            elif input[i].isdigit():
+                digits = []
+                while i < len(input) and input[i].isdigit():
+                    digits.append(input[i])
+                    i += 1
+                result.append(Token(Token.Type.INTEGER, ''.join(digits)))
+                continue  # skip i += 1
+            else:
+                raise ValueError(f'Invalid character found: {input[i]}')
+            i += 1
+        return result
+    
+    def _parse_eval(self, tokens):
+        has_lhs = False
+        bin_op = BinaryOperation()
+        result = 0
+        for token in tokens:
+            if token.type == Token.Type.INTEGER:
+                if not has_lhs:
+                    bin_op.left = int(token.text)
+                    result = bin_op.left
+                    has_lhs = True
+                else:
+                    bin_op.right = int(token.text)
+                    if bin_op.type is None:
+                        raise ValueError('Invalid syntax. No operator found.')
+                    result = bin_op.value
+                    bin_op.left = result
+            elif token.type == Token.Type.PLUS:
+                bin_op.type = Token.Type.PLUS
+            elif token.type == Token.Type.MINUS:
+                bin_op.type = Token.Type.MINUS
+        return result
+    
+
+class FirstTestSuite(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        ep = ExpressionProcessor()
+        ep.variables['x'] = 5
+        cls.ep = ep
+
+    def test_simple(self):
+        self.assertEqual(1, self.ep.calculate('1'))
+
+    def test_addition(self):
+        self.assertEqual(6, self.ep.calculate('1+2+3'))
+
+    def test_addition_with_variable(self):
+        self.assertEqual(6, self.ep.calculate('1+x'))
+
+    def test_failure(self):
+        result = self.ep.calculate('1+xy')
+        self.assertIs(math.nan, result)
+        
+    
+if __name__=="__main__":
+    unittest.main()
+
+```
+
+</details>
 
 ## 9. Memento
 
