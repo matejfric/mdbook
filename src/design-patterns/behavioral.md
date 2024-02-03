@@ -20,6 +20,7 @@ Behavioral Patterns describe algorithms or cooperation of objects.
   - [7.1. Lexing and Parsing](#71-lexing-and-parsing)
 - [8. Memento](#8-memento)
 - [9. Mediator](#9-mediator)
+- [10. Visitor](#10-visitor)
 
 1. Chain of Responsibility
 2. Command
@@ -635,7 +636,7 @@ class Game:
   - `__next__()` get the next element,
   - `raise StopIteration` when there are no more elements.
 - Unified interface for traversal of a (heterogenic) collection.
-- Separation of Concerns (SOC) / Single Responsibility Principle (SRP).
+- Single Responsibility Principle (SRP) / Separation of Concerns (SoC).
 - Stateful iterator cannot be recursive.
 - For example: [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal).
 
@@ -1408,6 +1409,55 @@ Example:
 
 ```python
 {{#include src/behavioral/mediator/chat_room.py}}
+```
+
+</details>
+
+## 10. Visitor
+
+> Visitor is a component that knows how to traverse a data structure composed of (possibly related) types.
+
+Motivation: How to define a new operation on an entire class hierarchy?
+
+<details><summary> Code example: Intrusive visitor </summary>
+
+- Intrusively add functionality to all classes.
+- Breaks *Open Closed Principle (OCP)*. Intrusive visitor requires to modify the entire hierarchy.
+- What is more likely? A new type or a new operation?
+
+```python
+{{#include src/behavioral/visitor/intrusive.py}}
+```
+
+</details>
+
+<details><summary> Code example: Reflective visitor </summary>
+
+- Still breaks *Open Closed Principle (OCP)*, because new types require $M×N$ modifications.
+- Single Responsibility Principle (SRP) / Separation of Concerns (SoC).
+
+```python
+{{#include src/behavioral/visitor/reflective.py}}
+```
+
+</details>
+
+<details><summary> Code example: Dynamic visitor </summary>
+
+```python
+{{#include src/behavioral/visitor/classic.py}}
+```
+
+</details>
+
+<details><summary> Code example: Dynamic visitor refined </summary>
+
+You are asked to implement a visitor called `ExpressionPrinter` for printing different mathematical expressions. The range of expressions covers addition and multiplication. Put round brackets around addition operations, but not multiplication ones!
+
+Notice that there is no need for an `Expression` base class due to duck typing.
+
+```python
+{{#include src/behavioral/visitor/classic2.py}}
 ```
 
 </details>
