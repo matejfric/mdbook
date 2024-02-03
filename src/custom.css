@@ -1,5 +1,10 @@
 /* Custom CSS for the website */
 
+img {
+    display: block;
+    margin: 0 auto;
+}
+
 details {
     width: 100%;
     padding: 0.5em 0.5em 0em;
