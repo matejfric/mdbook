@@ -11,7 +11,6 @@ Behavioral Patterns describe algorithms or cooperation of objects.
   - [2.1. Method Chain](#21-method-chain)
   - [2.2. Broker Chain](#22-broker-chain)
   - [2.3. Simpler Broker Chain](#23-simpler-broker-chain)
-- [3. Command](#3-command)
 - [4. Iterator](#4-iterator)
 - [5. Template Method](#5-template-method)
 - [6. Strategy](#6-strategy)
@@ -623,19 +622,37 @@ class Game:
         self.creatures = CreatureList()
 ```
 
-## 3. Command
-
-<img src="figures/command.png" alt="" style="width: 500px;">
-
-Místo implementace spousty různých tlačítek budeme implementovat několik **tříd příkazů** pro všechny možné operace a propojíme je s konkrétními tlačítky v závislosti nad zamýšleným chováním tlačítek.
-
 ## 4. Iterator
 
-- má dvě metody `get_next` a `has_next`
-- jednotné rozhraní pro průchod heterogenních kolekcí
-- konkrétní iterátor je úzce spjatý s datovou strukturou, jejíž průchod chceme implementovat
-  - přistupuje k interním proměnným dané datové struktury
-  - jak lze přistoupit k interní proměnné kolekce přes zapouzdření? Např. v C# mají kolekce vnořenou třídu Enumerable
+> Iterator is a class that facilitates the traversal of a data structure.
+
+- Traditional iterator has two methods:
+  - `get_next -> item`
+  - `has_next -> bool`
+- In Python:
+  - `__iter__()` expose the iterator,
+  - `__next__()` get the next element,
+  - `raise StopIteration` when there are no more elements.
+- Unified interface for traversal of a (heterogenic) collection.
+- Separation of Concerns (SOC) / Single Responsibility Principle (SRP).
+- Stateful iterator cannot be recursive.
+- For example: [Tree traversal](https://en.wikipedia.org/wiki/Tree_traversal).
+
+<details><summary> Code example: Binary tree in-order traversal </summary>
+
+```python
+{{#include src/behavioral/iterator/tree_traversal.py}}
+```
+
+</details>
+
+<details><summary> Code example: Binary tree pre-order traversal </summary>
+
+```python
+{{#include src/behavioral/iterator/preorder_traversal.py}}
+```
+
+</details>
 
 ## 5. Template Method
 
