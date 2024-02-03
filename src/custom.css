@@ -2,10 +2,9 @@
 
 details {
     width: 100%;
-    border: 1px solid #444444;
-    border-radius: 4px;
     padding: 0.5em 0.5em 0em;
     margin-bottom: 1em;
+    outline: none;
 }
 
 details>summary {
@@ -24,11 +23,6 @@ details>summary::before {
     transition: transform 0.2s ease; /* Add transition for smooth animation */
 }
 
-details[open]>summary {
-    /*margin-bottom: 0.5em;*/
-    border-bottom: 1px solid #444444;
-}
-
 /* Rotate the rocket emoji when the details element is open */
 details[open]>summary::before {
     transform: rotate(90deg);
@@ -39,4 +33,6 @@ summary {
     font-weight: bold;
     margin: -0.5em -0.5em 0;
     padding: 0.5em;
+    border: 1px solid #444444;
+    border-radius: 4px;
 }
