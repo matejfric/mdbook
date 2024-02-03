@@ -318,17 +318,20 @@ Hodnoty mimo tyto hradby budou odstraněny.
 3. Zvolíme tzv. testovou statistiku , tj. výběrovou charakteristiku, jejíž rozdělení závisí na testovaném parametru $\theta$. (Rozdělení testové statistiky za předpokladu platnosti nulové hypotézy nazýváme nulové rozdělení.)
 4. Ověříme předpoklady testu.
 5. Určíme kritický obor $W^*$:
-    | Tvar alternativní hypotézy $H_A$ | Kritický obor $W^*$                                     |
-    |-----------------------------------|---------------------------------------------------------|
-    | $\theta < \theta_0$               | $(-\infty, x_{\alpha})$                                 |
-    | $\theta > \theta_0$               | $(x_{1-\alpha}, \infty)$                                |
-    | $\theta \neq \theta_0$            | $(-\infty, x_{\alpha/2}) \cup (x_{1-\alpha/2}, \infty)$ |
+
+| Tvar alternativní hypotézy $H_A$ | Kritický obor $W^*$                                     |
+|-----------------------------------|---------------------------------------------------------|
+| $\theta < \theta_0$               | $(-\infty, x_{\alpha})$                                 |
+| $\theta > \theta_0$               | $(x_{1-\alpha}, \infty)$                                |
+| $\theta \neq \theta_0$            | $(-\infty, x_{\alpha/2}) \cup (x_{1-\alpha/2}, \infty)$ |
+
 6. Na základě konkrétní realizace výběru určíme pozorovanou hodnotu $x_{\text{OBS}}$ testové statistiky.
 7. Rozhodneme o výsledku testu:
-    | Situace                    | Interpretace                                            |
-    |----------------------------|---------------------------------------------------------|
-    | $x_{\text{OBS}} \in W^*$   | Na hladině významnosti $\alpha$ zamítáme $H_0$ ve prospěch $H_A$. |
-    | $x_{\text{OBS}} \notin W^*$ | Na hladině významnosti $\alpha$ nezamítáme $H_0$.        |
+
+| Situace                    | Interpretace                                            |
+|----------------------------|---------------------------------------------------------|
+| $x_{\text{OBS}} \in W^*$   | Na hladině významnosti $\alpha$ zamítáme $H_0$ ve prospěch $H_A$. |
+| $x_{\text{OBS}} \notin W^*$ | Na hladině významnosti $\alpha$ nezamítáme $H_0$.        |
 
 Čím větší je rozsah výběru, tím menší efekt „postačuje“ k zamítnutí nulové hypotézy.
 
@@ -344,16 +347,19 @@ Při použití příliš velkého rozsahu výběru bude i velmi malý efekt (pra
 Místo kroků 5-7 (v klasickém testu) provedeme:
 
 1. Výpočet $p$-hodnoty:
-    | Tvar alternativní hypotézy $H_A$  |                      $p$-hodnota                  |
-    |-----------------------------------|----------------------------------------------------|
-    | $\theta < \theta_0$               | $F_0(x_{\text{OBS}})$               |
-    | $\theta > \theta_0$               | $1 - F_0(x_{\text{OBS}})$           |
-    | $\theta \neq \theta_0$            | $2 \min\set{F_0(x_{\text{OBS}}), 1 - F_0(x_{\text{OBS}})}$ |
+
+| Tvar alternativní hypotézy $H_A$  |                      $p$-hodnota                  |
+|-----------------------------------|----------------------------------------------------|
+| $\theta < \theta_0$               | $F_0(x_{\text{OBS}})$               |
+| $\theta > \theta_0$               | $1 - F_0(x_{\text{OBS}})$           |
+| $\theta \neq \theta_0$            | $2 \min\set{F_0(x_{\text{OBS}}), 1 - F_0(x_{\text{OBS}})}$ |
+
 2. Rozhodnutí o výsledku testu:
-    | $p$-hodnota                    | Interpretace                                           |
-    |-----------------------------|--------------------------------------------------------|
-    | $< \alpha$    | Na hladině významnosti $\alpha$ zamítáme $H_0$ ve prospěch $H_A$. |
-    | $\geq \alpha$  | Na hladině významnosti $\alpha$ nezamítáme $H_0$.     |
+
+| $p$-hodnota                    | Interpretace                                           |
+|-----------------------------|--------------------------------------------------------|
+| $< \alpha$    | Na hladině významnosti $\alpha$ zamítáme $H_0$ ve prospěch $H_A$. |
+| $\geq \alpha$  | Na hladině významnosti $\alpha$ nezamítáme $H_0$.     |
 
 ## 4. Bodové a intervalové odhady
 
