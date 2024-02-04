@@ -17,9 +17,13 @@ or another object.
 
 ## 1. Builder
 
-- creation of a complex object in parts
+> When object construction is too complicated, provide an API for doing it succinctly.
+
+- Creation of a complex object in parts.
 
 ## 2. Factory
+
+> Factory is a component responsible solely for the wholesale (not piecewise) creation of objects.
 
 - Defines an interface to create an object, but let subclasses decide which class to instantiate.
 - Factory method is any method that returns an object (typically static).
@@ -212,6 +216,9 @@ if __name__ == '__main__':
 
 ## 4. Prototype
 
+> Prototype is a partially or fully initialized object that you copy (clone) and make use of.
+
+- Creation of object from an existing object.
 - When it's easier to create a copy of an object instead of creating a new one.
 - `copy.deepcopy()` - create a **deep** copy of an object by recursively copying all attributes
 - `copy.copy()` - create a **shallow** copy of an object without the recursive scan
@@ -312,6 +319,8 @@ print(jane)
 ## 5. Singleton
 
 > Singleton is a component which is instantiated only once.
+
+When we need to ensure that just a single instance exists.
 
 ### 5.1. Singleton Allocator
 

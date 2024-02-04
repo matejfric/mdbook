@@ -37,6 +37,8 @@ Behavioral Patterns describe algorithms or cooperation of objects.
 
 ## 1. Observer
 
+> **Observer** is an object that wishes to be informed about events happening in the system. The entity generating the events is an *observable*.
+
 - Events that you can subscribe to.
 - An event is a list of function references.
   - Subscription and unsubscription is handled with addition/removal of items in the list.
@@ -294,6 +296,9 @@ class Evaluate(TestCase):
 
 ## 2. Chain of Responsibility
 
+> Chain of Responsibility is a chain of components who all get a chance to process a command or a query, optionally having default processing implementation and an ability to terminate the processing chain.
+
+- Allow components to process information/events in a chain.
 - Given a hierarchy apply something to all objects.
 
 ### 2.1. Method Chain
@@ -659,6 +664,8 @@ class Game:
 
 ## 4. Template Method
 
+> Template method allows us to define the *skeleton* of an algorithm, with concrete implementations defined in subclasses.
+
 - Define an algorithm at a high level in parent class.
 - Define abstract methods/properties.
 - **Inherit** the algorithm class, providing necessary overrides.
@@ -722,6 +729,8 @@ if __name__ == '__main__':
 ```
 
 ## 5. Strategy
+
+> **Strategy** enables the exact behavior of a system to be selected at run-time.
 
 - Define an algorithm at a high level and define the interface that every strategy must follow.
 - Provide dynamic **composition** of strategies in the resulting object.

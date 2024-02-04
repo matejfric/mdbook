@@ -20,6 +20,8 @@ Structural patterns compose classes or objects.
 
 ## 1. Adapter
 
+> Adapter is a construct which adapts an existing interface X to conform to the required interface Y.
+
 - When an API doesn't provide the exact implementation we need, we use an adapter.
 
 ### 1.1. Adapter Example
@@ -149,6 +151,8 @@ if __name__ == '__main__':
 ```
 
 ## 2. Decorator
+
+> Decorator facilitates the addition of behaviors to individual objects without inheriting from them.
 
 - A class that keeps reference to an object it decorates.
 - A decorator can add utility attributes and methods to augment the object's features.
@@ -317,9 +321,11 @@ class ColoredShape:
 
 ## 3. Bridge
 
-- **Decouple** abstraction from implementation.
+> **Bridge** *decouples* abstraction from implementation.
+
 - A stronger form of encapsulation.
 - Build a bridge between two hierarchies.
+- Prevent Cartesian product complexity explosion.
 
 ```python
 # Circles and squares
@@ -370,6 +376,8 @@ if __name__ == '__main__':
 ```
 
 ## 4. Façade
+
+> Façade provides a simple, easy to use, user interface over a large and sophisticated body of code.
 
 - Simplify API over a set of classes.
 - Optionally expose internal methods for power users.
@@ -423,7 +431,8 @@ if __name__ == '__main__':
 
 ## 5. Flyweight
 
-- Spatial complexity optimization technique.
+> Flyweight is spatial complexity optimization technique that lets us use less memory by storing externally the data associated with similar objects.
+
 - Store common data externally by specifying an **index**, **range**, or **reference** into the external data store.
 
 ```python
