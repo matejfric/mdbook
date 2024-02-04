@@ -21,6 +21,7 @@ Behavioral Patterns describe algorithms or cooperation of objects.
 - [8. Memento](#8-memento)
 - [9. Mediator](#9-mediator)
 - [10. Visitor](#10-visitor)
+- [11. State](#11-state)
 
 1. Chain of Responsibility
 2. Command
@@ -1458,6 +1459,28 @@ Notice that there is no need for an `Expression` base class due to duck typing.
 
 ```python
 {{#include src/behavioral/visitor/classic2.py}}
+```
+
+</details>
+
+## 11. State
+
+> State is a pattern in which the object's behavior is determined by its state. The object transitions from state to another (something needs to *trigger* a transition).
+
+- Finite state machine (FSM).
+
+<details><summary> Code example: Combination lock </summary>
+
+```python
+{{#include src/behavioral/state/state.py}}
+```
+
+</details>
+
+<details><summary> Code example: Classic OOP state </summary>
+
+```python
+{{#include src/behavioral/state/state_classic.py}}
 ```
 
 </details>

@@ -55,5 +55,3 @@ if __name__ == '__main__':
               # Light turned off
 
     sw.off()  # Light is already off
-
-
