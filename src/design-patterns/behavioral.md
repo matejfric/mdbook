@@ -1215,7 +1215,7 @@ if __name__ == '__main__':
 
 Different example:
 
-<details><summary> Code example: Lexing and parsing of plus, minus numerical expressions /summary>
+<details><summary> Code example: Lexing and parsing of plus, minus numerical expressions </summary>
 
 ```python
 from enum import Enum, auto
