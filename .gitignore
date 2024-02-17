@@ -1,2 +1,5 @@
 # Ignore rendered output of mdbook
 book/
+
+# Ignore virtual environment
+.venv/

@@ -14,6 +14,15 @@
 - [9. Statické a dynamické PL/SQL](#9-statické-a-dynamické-plsql)
   - [9.1. Vázené proměnné](#91-vázené-proměnné)
   - [9.2. Prevence SQL Injection](#92-prevence-sql-injection)
+- [10. Objektově-relační datový model (ORDM)](#10-objektově-relační-datový-model-ordm)
+  - [10.1. Typy metod](#101-typy-metod)
+  - [10.2. Uložení objektu v tabulkách](#102-uložení-objektu-v-tabulkách)
+  - [10.3. Objektový identifikátor a reference na objekt](#103-objektový-identifikátor-a-reference-na-objekt)
+  - [10.4. Dědičnost](#104-dědičnost)
+  - [10.5. Změna datových typů](#105-změna-datových-typů)
+  - [10.6. Pole](#106-pole)
+- [Transakce a zotavení](#transakce-a-zotavení)
+- [Halda](#halda)
 
 PL/SQL je procedurální rozšíření jazyka SQL.
 
@@ -743,3 +752,335 @@ END;
 ```
 
 - `DBMS_ASSERT` - kontrola potencionálně nebezpečných znaků `'` nebo `"`.
+
+## 10. Objektově-relační datový model (ORDM)
+
+- Objektové typy a jejich metody jsou uloženy spolu s daty. Pokud se stejná databáze používá napříč aplikacemi, není nutno duplikovat kód.
+- Metody jsou spouštěny na serveru *(server-side)*.
+- Objekty mohou reprezentovat vazby (bez použití vazeb).
+- Objektové datové typy mohou obsahovat data (atributy) a operace (metody).
+
+<details><summary> Příklad: Objektové datové typy </summary>
+
+```sql
+CREATE TYPE person_type AS OBJECT (
+    idno NUMBER,
+    first_name VARCHAR2(20),
+    last_name VARCHAR2(25),
+    email VARCHAR2(25),
+    phone VARCHAR2(20),
+    MAP MEMBER FUNCTION get_idno RETURN NUMBER,
+    MEMBER PROCEDURE display(SELF IN OUT NOCOPY person_type)
+);
+\
+-- Tělo metody `get_idno` (číslo záznamu).
+CREATE TYPE BODY person_type AS
+    MAP MEMBER FUNCTION get_idno RETURN NUMBER IS
+    BEGIN
+        RETURN idno;
+    END;
+END;
+\
+-- Metoda `display` zobrazí všechny hodnoty atributů objektu.
+MEMBER PROCEDURE display (SELF IN OUT NOCOPY person_type) IS
+BEGIN
+    DBMS_OUTPUT.PUT_LINE(TO_CHAR(idno) || ' ' || first_name || ' ' || last_name);
+    DBMS_OUTPUT.PUT_LINE(email || ' ' || phone);
+END;
+END;
+\
+--Objektové datové typy můžeme používat podobně jako SQL datové typy.
+CREATE TABLE contacts (
+    contact person_type,
+    contact_date DATE
+);
+-- Záznam vložíme pomocí SQL INSERT.
+INSERT INTO contacts VALUES (
+    person_type(65, 'Verna', 'Mills', 'vmills@example.com', '1-650-555-0125'),
+    DATE '2003-06-24'
+);
+```
+
+Zmiňované metody nereprezentují výhody ORDM, protože:
+
+- `get_idno` lze nahradit dotazem `SELECT idno FROM person`.
+- Metoda `display` zobrazí hodnoty atributů na straně serveru, pokud chceme vypsat hodnoty v aplikaci, je pro nás metoda nepoužitelná.
+
+</details>
+
+### 10.1. Typy metod
+
+- Členské metody - volány nad konkrétním objektem.
+- Statické metody - volány nad datovým typem.
+- Konstruktor - pro každý datový typ je definován implicitní konstruktor.
+
+```sql
+-- Příklad volání metody:
+SELECT c.contact.get_idno () FROM contacts c;
+```
+
+### 10.2. Uložení objektu v tabulkách
+
+- **Objektové tabulky**
+  - obsahují pouze objekty (každý záznam reprezentuje objekt).
+  - Mluvíme o tzv. řádkovém objektu (row object).
+  - Objekty sdílené s dalšími objekty by měly být uloženy v objektových tabulkách – mohou být referencovány.
+
+```sql
+CREATE TABLE person_obj_table OF person_type;
+```
+
+- **Relační tabulky**
+  - obsahují objekty spolu s ostatními daty.
+  - Mluvíme o tzv. sloupcovém objektu (column object).
+
+```sql
+CREATE TABLE contacts (contact person_type, contact_date DATE);
+```
+
+<details><summary> Příklad: Integritní omezení objektových tabulek </summary>
+
+```sql
+-- Location
+CREATE OR REPLACE TYPE location_type AS OBJECT (
+    building_no NUMBER,
+    city VARCHAR2(40)
+);
+
+-- Office type
+CREATE OR REPLACE TYPE office_type AS OBJECT (
+    office_id VARCHAR(10),
+    office_loc location_type,
+    occupant person_type
+);
+
+-- Table of offices
+CREATE TABLE office_tab OF office_type (
+    office_id PRIMARY KEY
+);
+```
+
+</details>
+
+<details><summary> Příklad: Objektové tabulky </summary>
+
+```sql
+-- Existují dva pohledy: Tabulka s jedním sloupcem, kde každý záznam
+-- je instancí objektového datového typu.
+DECLARE
+    person person_type;
+BEGIN
+    SELECT VALUE(p) INTO person
+    FROM person_obj_table p WHERE p.idno = 101;
+    
+    person.display();
+END;
+
+-- Tabulku obsahující atributy objektového datového typu
+-- nad kterou můžeme provádět relační operace.
+INSERT INTO person_obj_table VALUES (
+    person_type(101, 'John', 'Smith', 'jsmith@example.com', '1-650-555-0135')
+);
+```
+
+</details>
+
+### 10.3. Objektový identifikátor a reference na objekt
+
+- Objektový identifikátor (OID) identifikuje objekty objektových tabulek.
+- OID není přístupné přímo, pouze pomocí reference (typ `REF`).
+- SŘBD automaticky generuje OID pro záznamy objektových tabulek.
+- Sloupcové objekty jsou identifikovány hodnotou primárního klíče, v případě relačních tabulek s objekty tedy OID nepotřebujeme.
+- Ukazatel nebo reference na objekt objektové tabulky je reprezentována datovým typem `REF`.
+- `REF` může ukazovat na různé objekty stejného typu nebo má hodnotu `null`.
+- Reference tedy nahrazuje cizí klíč implementující vazbu mezi entitami v relačním datovém modelu (RDM).
+
+<details><summary> Příklad: Reference na objekt </summary>
+
+```sql
+CREATE TYPE emp_person_type AS OBJECT (
+    name VARCHAR2(30),
+    manager REF emp_person_type
+);
+-- Objektová tabulku obsahující instance typu `emp_person_type`, jméno a 
+-- volitelně referenci na vedoucího zaměstnance (atribut `manager`).
+CREATE TABLE emp_person_obj_table OF emp_person_type;
+
+-- Do tabulky vložíme instanci typu `emp_person_type`.
+INSERT INTO emp_person_obj_table VALUES (
+    emp_person_type('John Smith', NULL)
+);
+
+-- Do tabulky vložíme instanci Bob Jones s nadřízeným John Smith.
+INSERT INTO emp_person_obj_table
+  SELECT emp_person_type('Bob Jones', REF(e))
+    FROM emp_person_obj_table e
+    WHERE e.name = 'John Smith';
+
+-- Dereference
+SELECT DEREF(e.manager) FROM emp_person_obj_table e;
+```
+
+Pokud tabulka obsahuje referenci na objekt pouze jedné tabulky, můžeme s výhodou využít integritní omezení `SCOPE IS` *(scoped REF)*. Takto omezená reference zabírá méně místa a umožňuje efektivnější přístup než `REF` bez tohoto omezení.
+
+```sql
+CREATE TABLE contacts_ref (
+    contact_ref REF person_type SCOPE IS person_obj_table,
+    contact_date DATE
+);
+
+INSERT INTO contacts_ref
+  SELECT REF(p), DATE '2003-06-26'
+    FROM person_obj_table p
+    WHERE p.idno = 101;
+```
+
+Objektově-relační SŘBD umožňují tzv. implicitní dereferenci:
+
+```sql
+SELECT e.name, e.manager.name
+  FROM emp_person_obj_table e
+  WHERE e.name = 'Bob Jones';
+```
+
+V případě relačního datového modelu bychom záznam vedoucího museli získat pomocí operace spojení.
+
+</details>
+
+<details><summary> Příklad: Získání reference na záznam objektové tabulky </summary>
+
+```sql
+DECLARE
+    person_ref REF person_type;
+    person person_type;
+BEGIN
+    SELECT REF(p) INTO person_ref
+    FROM person_obj_table p
+    WHERE p.idno = 101;
+
+    SELECT DEREF(person_ref) INTO person FROM dual;
+    person.display();
+END;
+```
+
+</details>
+
+### 10.4. Dědičnost
+
+V objektově-relačních SŘBD můžeme vytvářet hierarchie typů
+pomocí dědičnosti.
+
+```sql
+-- `student_type` dědí z typu `person_type`
+CREATE TYPE student_type UNDER person_type (
+    dept_id NUMBER,
+    major VARCHAR2(30),
+    OVERRIDING MEMBER FUNCTION show RETURN VARCHAR2
+) NOT FINAL;
+```
+
+### 10.5. Změna datových typů
+
+- Podobně jako můžeme měnit schéma tabulky pomocí `ALTER TABLE`, můžeme v ORDM měnit datový typ (přidávat a měnit atributy a metody).
+- Změna datového typu se provádí příkazem: `ALTER TYPE`.
+- V případě ORDM musí být ovšem změny automaticky propagovány v celé hierarchii dědičnosti.
+
+### 10.6. Pole
+
+```sql
+-- Vytvoření typu:
+CREATE TYPE type_name IS 
+  {VARRAY | VARYING ARRAY} (size_limit) -- pole s pevnou maximální délkou
+  OF element_type [NOT NULL];
+```
+
+- `type_name` – název typu
+- `element_type` – datový typ prvků tabulky
+- `size_limit` – maximální počet prvků pole
+
+<details><summary> Příklad: Pole kalendář </summary>
+
+```sql
+DECLARE
+    -- Creating a type that can contain up to 366 dates.
+    TYPE Calendar IS VARRAY(366) OF DATE;
+BEGIN
+    NULL; -- Placeholder for any executable code.
+END;
+```
+
+</details>
+
+<details><summary> Příklad: Asociativní pole (hash table) </summary>
+
+```sql
+DECLARE
+    -- Creating an associative array type with keys of type VARCHAR and values of type NUMBER
+    TYPE population_type IS TABLE OF NUMBER INDEX BY VARCHAR2(64);
+
+    -- Creating two instances of the defined type
+    country_population population_type;
+    continent_population population_type;
+    howmany NUMBER;
+    which VARCHAR2(64);
+BEGIN
+    -- Adding new entries to the country_population array
+    country_population('Greenland') := 100000; -- new entry
+    country_population('Iceland') := 750000; -- new entry
+
+    -- Accessing the value associated with a key
+    howmany := country_population('Greenland');
+
+    -- Adding new entries to the continent_population array
+    continent_population('Australia') := 30000000;
+    continent_population('Antarctica') := 1000; -- new entry
+
+    -- Updating an existing entry
+    continent_population('Antarctica') := 1001;
+
+    -- Retrieving the first key (alphabetically)
+    which := continent_population.FIRST;
+
+    -- Retrieving the last key (alphabetically)
+    which := continent_population.LAST;
+
+    -- Retrieving the value associated with the last key, which is 'Australia'
+    howmany := continent_population(continent_population.LAST);
+END;
+```
+
+</details>
+
+## Transakce a zotavení
+
+> Zotavení *(recovery)* znamená zotavení databáze z nějaké chyby (přetečení hodnoty atributu, pád systému atd.).
+
+- Základní jednotkou zotavení je *transakce*.
+- Ne všechny DBS zotavení (a transakce) podporují, často především z výkonnostních důvodů, nicméně většina aplikací se bez podpory transakcí neobejde.
+- Při jakékoli chybě musí být databáze v korektním stavu. Tzn. výsledkem zotavení musí být **korektní stav** databáze.
+
+> Transakce je logická (nedělitelná, atomická) jednotka práce s databází, která začíná operací `BEGIN TRANSACTION` a končí provedením operací `COMMIT` nebo `ROLLBACK`.
+
+## Halda
+
+- Halda je podobná BST, ale pouze kořen je jednoznačně určen jako největší prvek (resp. nejmenší). U ostatních prvků není pořadí určeno jednoznačně, pouze rodič musí mít vyšší (resp. nižsí) hodnotu než potomek.
+- Halda není vhodná pro vyhledávání, protože pořadí prvků není jednoznačné.
+- Halda se standardně reprezentuje pomocí pole.
+
+<img src="figures/heap.png" alt="heap" width="400px">
+
+- Pokud nultý index pole necháme prázdný, zjednodušší se výpočet.
+
+<img src="figures/heap-children.png" alt="heap-children" width="400px">
+
+- Nový prvek vložíme na konec pole a "probubláme" nahoru.
+
+<img src="figures/heap-insert.gif" alt="heap-insert.gif" width="400px">
+
+<details><summary> Příklad: Implementace haldy </summary>
+
+```python
+{{#include src/heap.py}}
+```
+
+</details>
