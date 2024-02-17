@@ -11,6 +11,9 @@
 - [6. Cykly](#6-cykly)
 - [7. Kurzory](#7-kurzory)
 - [8. Hromadné operace](#8-hromadné-operace)
+- [9. Statické a dynamické PL/SQL](#9-statické-a-dynamické-plsql)
+  - [9.1. Vázené proměnné](#91-vázené-proměnné)
+  - [9.2. Prevence SQL Injection](#92-prevence-sql-injection)
 
 PL/SQL je procedurální rozšíření jazyka SQL.
 
@@ -613,3 +616,130 @@ Zrychlení za použití hromadného vkládání je v tomto případě asi **8ná
 záznamu.
 
 </details>
+
+## 9. Statické a dynamické PL/SQL
+
+V PL/SQL bloku nemůžeme přímo volat všechny dostupné SQL příkazy. Příkazy, které lze volat v PL/SQL přímo, nazýváme **statické příkazy** PL/SQL. Mezi statické příkazy patří:
+
+- SELECT, INSERT, UPDATE, DELETE, MERGE,
+- LOCK TABLE, COMMIT, ROLLBACK, SAVEPOINT, SET TRANSACTION.
+
+Příkazy, které nemůžeme volat přímo, jsou všechny příkazy JDD (**DDL** - Data Definition Language):
+
+- CREATE, ALTER, DROP, TRUNCATE, RENAME, (COMMENT, GRANT, REVOKE),
+
+a příkazy, které v době překladu nejsou známy (tzn. obsahují nějaké parametry definované až za běhu).
+
+Dynamické PL/SQL umožňuje sestavit a volat jakýkoli SQL příkaz
+(na který má uživatel právo) za běhu aplikace. Nevýhodou je, že nelze jednoduše ověřit *syntaktickou správnost* a *sémantické vazby mezi objekty* (správné datové typy, počet parametrů atd.). Navíc se vystavujeme nebezpečí *SQL injection!*
+
+<div class="warning">
+
+Dynamické PL/SQL používáme jen v případě, kdy není možné použít statické PL/SQL!
+
+</div>
+
+<details><summary> Příklad: PL/SQL dynamické vytvoření a odstranění tabulky </summary>
+
+```sql
+DECLARE
+    v_command VARCHAR2(50);
+BEGIN
+    EXECUTE IMMEDIATE 'CREATE TABLE Book ' ||
+                      '(id INT UNIQUE, name VARCHAR2(50), ' ||
+                      'author INT REFERENCES author(author_id))';
+    v_command := 'DROP TABLE Book';
+    EXECUTE IMMEDIATE v_command;
+END;
+
+```
+
+</details>
+
+### 9.1. Vázené proměnné
+
+Při zpracování dotazu databázový systém kontroluje, zda takový dataz již nebyl dříve zpracován. Pokud byl zaslán poprvé, tak:
+
+1. Dotaz je parsován a je pro něj vytvořen *plán vykonávání
+dotazu*.
+2. Dotaz může být vykonán mnoha způsoby, systém hledá ten
+*nejefektivnější*.
+
+Tento proces může v některých případech trvat déle než samotné
+vykonání dotazu. Pokud byl dotaz již dříve vykonán, tak SŘBD využije sestavený plán vykonávání dotazu. SŘBD kontroluje celý řetězec dotazu.
+
+```sql
+-- Bez použití vázené proměnné se s každým
+-- dotazem sestavuje nový plán vykonávání.
+SELECT fname, lname, address FROM Student
+    WHERE login = 'kra228';
+SELECT fname, lname, address FROM Student
+    WHERE login = 'fer452';
+
+SELECT fname, lname, address FROM Student
+    WHERE login = :login; -- vázaná proměnná
+```
+
+Použitím vázaných proměnných snižujeme *čas vykonávání* dotazu a tedy i *zátěž systému* (a zvyšujeme *propustnost*). Statické PL/SQL automaticky používá vázané proměnné.
+
+Konkatenace řetězců vede k neefektivnímu zpracování každého dotazu v SŘBD.
+
+```sql
+'UPDATE Student SET class = class + 1 WHERE login = ' || p_login;
+```
+
+Pokud je proměnná literál (např. hodnota atributu, ne dynamicky získané jméno tabulky), tak vždy použijeme vázané proměnné:
+
+```sql
+CREATE OR REPLACE PROCEDURE updateClass (p_login IN VARCHAR2)
+AS
+BEGIN
+    EXECUTE IMMEDIATE -- vázaná proměnná :x
+    'UPDATE Student SET class = class + 1 WHERE login = :x'
+    USING p_login; -- p_login --> x
+    
+    COMMIT;
+END;
+```
+
+<details><summary> Příklad: PL/SQL dynamické vytvoření a odstranění tabulky </summary>
+
+```sql
+DECLARE
+    TYPE rc IS REF CURSOR;
+    v_rc rc;
+    v_dummy ALL_OBJECTS.OBJECT_NAME%TYPE;
+    v_start NUMBER := DBMS_UTILITY.GET_TIME;
+BEGIN
+    FOR i IN 1..1000 LOOP
+        OPEN v_rc FOR
+        -- 'SELECT object_name FROM all_objects WHERE object_id=' || i; -- konkatenace
+        'SELECT object_name FROM all_objects WHERE object_id = :x' USING i; -- vázaná proměnná
+        FETCH v_rc INTO v_dummy;
+        CLOSE v_rc;
+        -- DBMS_OUTPUT.PUT_LINE(v_dummy);
+    END LOOP;
+    DBMS_OUTPUT.PUT_LINE(
+      ROUND((DBMS_UTILITY.GET_TIME - v_start)/100, 2) || 's');
+END;
+```
+
+- Čas bez využití vázaných proměnných: 65.48s.
+- Čas s využitím vázaných proměnných: 0.25s.
+
+</details>
+
+### 9.2. Prevence SQL Injection
+
+- Používání statického SQL, kdykoliv je to možné.
+- Používání vázaný proměnných.
+
+```sql
+-- Nepoužívejte:
+'SELECT * FROM employees WHERE fname = ''' || p_fname || ''' AND lname = ''' || p_lname || '''';
+
+-- Používejte:
+'SELECT * FROM employees WHERE fname = :1 AND lname = :2';
+```
+
+- `DBMS_ASSERT` - kontrola potencionálně nebezpečných znaků `'` nebo `"`.
