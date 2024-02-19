@@ -3,3 +3,6 @@ book/
 
 # Ignore virtual environment
 .venv/
+
+# Custom directory for PDF files
+lectures/
