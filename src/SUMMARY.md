@@ -23,3 +23,4 @@
 - [Matematika pro zpracování znalostí (MPZZ)](./mpzz/mpzz.md)
 - [Databázové systémy (DS)](./ds/ds.md)
   - [Pokročilé databázové systémy (PDBS)](./ds/pdbs.md)
+- [Operations Research (OR)](./or/or.md)
