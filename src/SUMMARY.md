@@ -26,3 +26,4 @@
   - [Pokročilé databázové systémy (PDBS)](./ds/pdbs.md)
 - [Operations Research (OR)](./or/or.md)
 - [Metody analýzy textu (MATD)](./matd/matd.md)
+- [Nekonvenční algoritmy a výpočty (NAVY)](./navy/navy.md)
