@@ -1,60 +1,74 @@
 # PA2
 
-- Datový paralelismus.
-- Instrukční paralelismus:
-  - využití instrukcí:
-    - jedny vlákna chystají
+- [1. Úvod](#1-úvod)
+  - [1.1. Amdahlův zákon](#11-amdahlův-zákon)
+  - [1.2. N-Body Problem](#12-n-body-problem)
+  - [1.3. Boiler Problem](#13-boiler-problem)
+  - [1.4. Dining Philosophers Problem](#14-dining-philosophers-problem)
+  - [1.5. nvcc](#15-nvcc)
+  - [1.6. VisualStudio22](#16-visualstudio22)
+  - [1.7. Limity GPU](#17-limity-gpu)
+- [2. Technologie CUDA](#2-technologie-cuda)
+  - [2.1. Práce s vektory](#21-práce-s-vektory)
+  - [2.2. Shared memory](#22-shared-memory)
+  - [2.3. Parallel Reduction](#23-parallel-reduction)
+  - [2.4. Zarovnaná paměť](#24-zarovnaná-paměť)
+- [3. Examples](#3-examples)
 
-**Logické vlákno** je sled instrukcí. Potřebuju **registry** a nějakou výpočetní jednotku. Běží dokud má instrukce.
+## 1. Úvod
+
+Typy paralelizmu:
+
+1. **Datový paralelismus**.
+2. **Instrukční paralelismus** - využití instrukcí - např. jedny vlákna chystají data, další je zpracovávají.
+
+**Logické vlákno** je *sled instrukcí*. Potřebuju **registry** a nějakou výpočetní jednotku. Běží dokud má instrukce. Přerušení výpočtu vláken určuje programátor.
 
 **Pointer** je proměnná, jejíž hodnotou je adresa.
 
-Hyper-threading - každé vlákno se jakoby rozdělí.
-16jádro má 16 instrukčních sad.
+**Hyper-threading** - každé vlákno se navenek rozdělí. 16jádro má 16 instrukčních sad.
 
-Přerušení výpočtu vláken určuje programátor.
+Co rozumíme pojmem **proces**? OS *alokuje a spravuje paměť*, přidělí *stack* a alespoň jeden *main thread*.
 
-Proces: alokace a management paměti OS, přidělení stacku, alespoň jeden main thread.
+Bloky jsou schedulované pomocí Streaming Multiprocessoru (SM). GPU má pouze omezený počet SM *(NVIDIA GeForce GTX 1650 má 14 SM)*.
 
-Bloky jsou schedulované pomocí Streaming Multiprocessoru (SM). GPU má pouze $n$ SM.
+Skrýváním latence (čekání, **latency hiding**) rozumíme zkrácení nečinnosti procesoru. Instrukce mají nějaký čas vykonávání (např. odmocnina nebo modulo je drahá instrukce). Čtení z disku jakožto nejdražší paměťová operace.
 
-Skrývání latence (čekání, **latency hiding**) - zkrácení nečinnosti procesoru.
+32 CUDA vláken běží se stejnou instrukční sadou ve **warpu**.
 
-- instrukce mají nějaký čas vykonávání
-- čtení z disku
+### 1.1. Amdahlův zákon
 
-CUDA: vlákna se stejnou instrukční sadou běží ve **warpu**.
+Maximální teoretické zrychlení pomocí paralelismu:
 
-## Amdahlův zákon
+$$\boxed{S=\dfrac{1}{r_s+\dfrac{r_p}{n}}}$$
 
-Maximální teoretické zrychlení:
+- $S$ - *speed-up*
+- $r_s$ - *serial runtime* (čas sekvenčního algoritmu)
+- $r_p$ - *parallel runtime* (čas paralelního běhu)
+- $n$ - *number of cores*
 
-$$ S=\dfrac{1}{r_s+\dfrac{r_p}{n}} $$
+Příklad: 70 % programu běží sériově. Máme k dispozici 8 jader.
 
-- $r_s$...*(serial runtime)* čas sekvenčního algoritmu
-- $r_p$...*(parallel runtime)* čas paralelního běhu
+$$ S=\dfrac{1}{0.7+\dfrac{0.3}{8}} \approx 1.35 $$
 
-Příklad 70 % programu běží sériově. Máme 8 jader.
+### 1.2. N-Body Problem
 
-$$ S=\dfrac{1}{0.7+\dfrac{0.3}{8}} $$
+Výpočet gravitačních interakcí těles, kdy musíme počítat interakce každý s každým (neexistuje matematický model pro $N$ těles).
 
-## N-Body Problem
+### 1.3. Boiler Problem
 
-Výpočet gravitačních interakcí těles, kdy musíme počítat interakce každý s každým (neexistuje matematický model pro $n$).
+Buď kotel na vodu a dvě kontrolní vlákna. Problém nelze řešit pouze těmito dvěmi vlákny. To, co chce udělat jedno z nich, chce i to druhé. Musí tam být nějaký další prvek, který bude vlákna ovládat (např. semafor, mutex).
 
-## Boiler Problem
-
-Kotel na vodu a dvě kontrolní vlákna. Problém nelze řešit pouze těmito dvěmi vlákny. To, co chce udělat jedno z nich, chce i to druhé. Musí tam být nějaký další prvek, který bude vlákna ovládat (např. semafor, mutex).
-
-## Dining Philosophers Problem
+### 1.4. Dining Philosophers Problem
 
 <img src="figures/dining-philosophers.png" alt="dining-philosophers" width="200px">
 
-## nvcc
+### 1.5. nvcc
 
-- vezme zdroják a rozdělí kód na funkce, které se mají kompilovat g++ a cudapp
+- Compiler pro rozšíření CUDA.
+- Vezme zdroják a rozdělí kód na funkce, které se mají kompilovat pomocí `g++` a `cudapp`.
 
-## VisualStudio22
+### 1.6. VisualStudio22
 
 <img src="figures/vs22-setup.png" alt="vs22-setup" width="200px">
 
@@ -64,22 +78,7 @@ Kotel na vodu a dvě kontrolní vlákna. Problém nelze řešit pouze těmito dv
 
 - *Compute capability* je dána modelem GPU.
 
-## Práce s vektory
-
-- Zvolím grid, např. $(2,1,1)$
-- Zvolím velikost bloku např. $(128,1,1)$ - není důvod komplikovat.
-
-```cpp
-unsigned int tid = blockIdx.x * blockDim + threadIdx;
-```
-
-## Popis CUDA
-
-- Grid se rozpadne na bloky.
-- Bloky se rozdělí na warpy. Jeden warp má 32 vláken, které jsou schopny vykonávat SIMT (Single Instruction Multiple Thread).
-- `syncthread` - čeká se až se všechny warpy dokončí výpočet.
-
-## Limity GPU
+### 1.7. Limity GPU
 
 ```text
 [GPU details]:
@@ -114,4 +113,83 @@ unsigned int tid = blockIdx.x * blockDim + threadIdx;
 SELECTED GPU Device 0: "NVIDIA GeForce GTX 1650" with compute capability 7.5
 ```
 
-- 14 SM
+## 2. Technologie CUDA
+
+- Grid se rozpadne na bloky.
+- Bloky se rozdělí na warpy. Jeden warp má 32 vláken, které jsou schopny vykonávat SIMT (Single Instruction Multiple Thread).
+- `__syncthreads()` - čeká se až všechny warpy dokončí výpočet.
+
+Jeden **streaming multiprocessor (SM) zpracovává jeden blok**. Při dělení problému řádu $N$ obvykle dádá smysl rozdělit úlohu na násobek $|SM|$ bloků, kde $|SM|$ je počet SM.
+
+**Blok je dělený do warpů po 32 vláknech.** Vlákna v rámci jednoho warpu jsou **synchronní** (tzn. nedává smysl volat `__syncthreads()`).
+
+**Global memory** je hodně, ale je pomalá.
+
+**Karta čte obvykle po 512 B.**
+
+### 2.1. Práce s vektory
+
+- Zvolím grid, např. $(2,1,1)$.
+- Zvolím velikost bloku např. $(128,1,1)$. Není důvod to komplikovat více dimenzemi.
+
+```cpp
+unsigned int tid = blockIdx.x * blockDim + threadIdx;
+```
+
+### 2.2. Shared memory
+
+- staticky v kernelu: `__shared__ int vec[256];`
+- dynamicky
+  - kernel: `extern __shared__ int x[];`
+  - host: `kernel<<<nBlocks, nThreadsPerBlock, nBytesSM>>>(...)`
+
+Multicast
+
+- `__syncthreads();`
+- `volatile;` řekne compileru, že se nemá provádět cache hodnot, používá se při paralelní redukci
+
+### 2.3. Parallel Reduction
+
+Průchod dat - agregace do jedné hodnoty (min, max, suma atd.)
+
+1. Vlákna zkopírují hodnoty z globalní paměti do shared memory.
+
+Hledání minima:
+
+<img src="figures/parallel-reduction.png" alt="parallel-reduction" width="400px">
+
+### 2.4. Zarovnaná paměť
+
+```cuda
+cudaError_t cudaMallocPitch(void** devPtr, size_t* pitch, size_t width, size_t height);
+
+cudaError_t cudaMemcpy2D(void* dst, size_t dpitch, const void* src, size_t spitch, size_t width, size_t height, cudaMemcpyKind kind);
+```
+
+Sloupcová vs. řádková matice - do 1D se matice ukládá buď po sloupcích *(column major)* nebo po řádcích *(row major)*.
+
+## 3. Examples
+
+<details><summary> Add vectors </summary>
+
+```cpp
+{{#include src/1_add_vectors.cu}}
+```
+
+</details>
+
+<details><summary> Pitched memory </summary>
+
+```cpp
+{{#include src/2_malloc_pitch.cu}}
+```
+
+</details>
+
+<details><summary> Parallel reduce: Raindrops </summary>
+
+```cpp
+{{#include src/3_raindrops.cu}}
+```
+
+</details>
