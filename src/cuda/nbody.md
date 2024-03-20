@@ -25,20 +25,18 @@ kde
 - $m_i,m_j$ jsou hmotnosti těles $i$ a $j$,
 - $\mathbf{r}_{i,j} = \mathbf{x}_{j} - \mathbf{x}_{i}$ ($\mathbf{x}_{i}$ je pozice tělesa $i$),
 - $G$ je gravitační konstanta a
-- $\mathbf{f}_{i,j}$ je vektor síly působící na těloso $i$ způsobené gravitační silou tělesa $j$.
+- $\mathbf{f}_{i,j}$ je vektor síly působící na těleso $i$ způsobený gravitační přitažlivostí k tělesu $j$.
 
 Celková velikost síly $\mathbf{F}_i$ působící na těleso $i$ je dána interakcemi se zbylými $N-1$ tělesy:
 
 $$
-F_i = \sum\limits_{j=1, j\neq i}^{N}\mathbf{f}_{i,j}=Gm_i\sum\limits_{j=1, j\neq i}^{N}\dfrac{m_j\mathbf{r}_{i,j}}{\lVert \mathbf{r}_{i,j}\rVert^3}
+F_i = \sum\limits_{j=1, j\neq i}^{N}\mathbf{f}_{i,j}=Gm_i\sum\limits_{j=1, j\neq i}^{N}\dfrac{m_j\mathbf{r}_{i,j}}{\lVert \mathbf{r}_{i,j}\rVert^3}.
 $$
 
 Nicméně jak se tělesa k sobě přibližují, tak síla mezi nimi neomezeně roste. Tato vlastnost není vhodná pro numerickou simulaci. Zanedbáme-li kolize těles, tak můžeme zavést aproximaci celkové síly:
 
 $$
-\begin{equation}
-    F_i \approx Gm_i\sum\limits_{j=1}^{N}\dfrac{m_j\mathbf{r}_{i,j}}{\sqrt{\left(\lVert \mathbf{r}_{i,j}\rVert^2+\varepsilon^2\right)^{3}}}
-\end{equation}
+F_i \approx Gm_i\sum\limits_{j=1}^{N}\dfrac{m_j\mathbf{r}_{i,j}}{\sqrt{\left(\lVert \mathbf{r}_{i,j}\rVert^2+\varepsilon^2\right)^{3}}}.
 $$
 
 Díky zavedení konstanty $\varepsilon$ můžeme odebrat podmínku $j\neq i$, protože pro $i=j$ dostaneme nulovou sílu.
@@ -61,7 +59,7 @@ Jedna z možností je použít $N$ vláken, přičemž každé vypočte $N$ inte
 
 Interakce v rámci jednoho řádku se provedou sekvenčně, zatímco jednotlivé řádky jsou zpracovány paralelně. Pozice těles a jejich hmostnost bude uložena v globální paměti (jako vektor, kvůli zarovnávání paměti nejspíše `float4`). V rámci jednoho bloku můžeme vždy překopírovat $p$ těles do *shared memory*. Během sekvenčního výpočtu (přes řádek) můžeme akumulovat hodnotu zrychlení do proměnné v registru vlákna a na konci uložit výslednou hodnotu do globální paměti.
 
-Díky aproximace (1) nemusíme řešit situaci, kdy interakce tělesa se sebou samým by nebyla definována kvůli dělení nulou (diagonála matice interakce těles). Navíc můžeme zanedbat podmínku $i\neq j$ a nenastane tak divergence vláken.
+Díky aproximace za použití konstanty $\varepsilon$ nemusíme řešit situaci, kdy interakce tělesa se sebou samým by nebyla definována kvůli dělení nulou (diagonála matice interakce těles). Navíc můžeme zanedbat podmínku $i\neq j$ a nenastane tak divergence vláken.
 
 Pole částic může být *double-buffered*, kdy jedno pole může být použito k vizualizaci, zatímco druhé je aktualizováno.
 
@@ -74,7 +72,7 @@ Pole částic může být *double-buffered*, kdy jedno pole může být použito
 
 ## 4. Modifikace
 
-Je možné využít hierarchické datové struktury a vyhnout se tak výpočtu všech $N^2$ interakcí (síla klesá s kvadrátem vzdálenosti a interakce vzdálených těles lze zanedbat). Ve 2D lze využít kvadrantový strom a následně na "blízká" tělese lze použít dříve popsaný *brute-force* algoritmus.
+Je možné využít hierarchické datové struktury a vyhnout se tak výpočtu všech $N^2$ interakcí (síla klesá s kvadrátem vzdálenosti a interakce vzdálených těles lze zanedbat). Ve 2D lze využít kvadrantový strom a následně na "blízká" tělesa lze použít dříve popsaný *brute-force* algoritmus.
 
 ## 5. Reference
 
