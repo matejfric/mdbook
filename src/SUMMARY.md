@@ -5,6 +5,7 @@
 - [Docker](./docker/docker.md)
 - [CUDA](./cuda/cuda.md)
   - [Parallel Computing with CUDA (PA2)](./cuda/pa_cuda.md)
+  - [N-Body Problem](./cuda/nbody.md)
 - [Design Patterns](./design-patterns/design-patterns.md)
   - [SOLID Design Principles](./design-patterns/solid.md)
   - [Creational Patterns](./design-patterns/creational.md)
