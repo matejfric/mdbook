@@ -8,11 +8,16 @@
   - [1.5. nvcc](#15-nvcc)
   - [1.6. VisualStudio22](#16-visualstudio22)
   - [1.7. Limity GPU](#17-limity-gpu)
+  - [1.8. Jak vybrat N náhodných unikátních čísel z pole?](#18-jak-vybrat-n-náhodných-unikátních-čísel-z-pole)
 - [2. Technologie CUDA](#2-technologie-cuda)
   - [2.1. Práce s vektory](#21-práce-s-vektory)
-  - [2.2. Shared memory](#22-shared-memory)
+  - [2.2. Shared memory (SH)](#22-shared-memory-sh)
+    - [2.2.1. Statická shared memory](#221-statická-shared-memory)
+    - [2.2.2. Dynamická shared memory](#222-dynamická-shared-memory)
   - [2.3. Parallel Reduction](#23-parallel-reduction)
   - [2.4. Zarovnaná paměť](#24-zarovnaná-paměť)
+  - [2.5. Bank Conflicts](#25-bank-conflicts)
+  - [2.6. Constant Memory](#26-constant-memory)
 - [3. Examples](#3-examples)
 
 ## 1. Úvod
@@ -113,6 +118,10 @@ Buď kotel na vodu a dvě kontrolní vlákna. Problém nelze řešit pouze těmi
 SELECTED GPU Device 0: "NVIDIA GeForce GTX 1650" with compute capability 7.5
 ```
 
+### 1.8. Jak vybrat N náhodných unikátních čísel z pole?
+
+- Dvě pole: originální a pole náhodných hodnot. Sortuju náhodné pole a podle toho měním pozice v originálním poli. Potom vyberu prvních $N$ hodnot z takto vytvořeného pole.
+
 ## 2. Technologie CUDA
 
 - Grid se rozpadne na bloky.
@@ -136,17 +145,39 @@ Jeden **streaming multiprocessor (SM) zpracovává jeden blok**. Při dělení p
 unsigned int tid = blockIdx.x * blockDim + threadIdx;
 ```
 
-### 2.2. Shared memory
+### 2.2. Shared memory (SH)
 
-- staticky v kernelu: `__shared__ int vec[256];`
-- dynamicky
-  - kernel: `extern __shared__ int x[];`
-  - host: `kernel<<<nBlocks, nThreadsPerBlock, nBytesSM>>>(...)`
+Shared memory (SH) je alokovaná pro každý thread block, všechny vlákna v rámci bloku mají přístup do stejné sdílené paměti. Latence SH je přibližně 10x nižší oproti globální paměti, která není načtená v cache (pokud nedochází k *bank konfliktům* mezi vlákny). Každý SM má k dispozici 64 KB shared memory.
 
-Multicast
+Multicast přístup k SH znamená, že přístup do paměti na stejnou pozici více vlákny je v rámci warpu obsloužen současně.
 
-- `__syncthreads();`
-- `volatile;` řekne compileru, že se nemá provádět cache hodnot, používá se při paralelní redukci
+- `__syncthreads()`
+- `volatile` řekne compileru, že se nemá provádět cache hodnot, používá se při paralelní redukci
+
+#### 2.2.1. Statická shared memory
+
+V kernelu: `__shared__ int vec[256];`
+
+#### 2.2.2. Dynamická shared memory
+
+V kernelu: `extern __shared__ int x[];` (`extern` a prázdné `[]`)
+
+Při volání kernelu specifikujeme třetí volitený parametr pro velikost SH pro každý blok (v B): `kernel<<<nBlocks, nThreadsPerBlock, nBytesSH>>>(...)`, např. `kernel<<<1, n, n*sizeof(int)>>>(...)`.
+
+Jak postupovat, když potřebuju více SH polí v rámci kernelu?
+
+```cpp
+extern __shared__ int s[];
+int *integerData = s;                        // nI ints
+float *floatData = (float*)&integerData[nI]; // nF floats
+char *charData = (char*)&floatData[nF];      // nC chars
+
+myKernel<<<
+  gridSize, 
+  blockSize, 
+  nI*sizeof(int)+nF*sizeof(float)+nC*sizeof(char)
+>>>(...);
+```
 
 ### 2.3. Parallel Reduction
 
@@ -167,6 +198,17 @@ cudaError_t cudaMemcpy2D(void* dst, size_t dpitch, const void* src, size_t spitc
 ```
 
 Sloupcová vs. řádková matice - do 1D se matice ukládá buď po sloupcích *(column major)* nebo po řádcích *(row major)*.
+
+### 2.5. Bank Conflicts
+
+- Přístup k paměti přes nějaký bank. Lze optimalizovat pomocí vhodného indexování prvků.
+
+### 2.6. Constant Memory
+
+- Klíčové slovo `__constant__`, např. `__constant__ __device__ int myVar;`
+- Chová se jako konstanta z pohledu GPU, ale lze měnit z HOST.
+- `cudaMemCpyToSymbol` a `cudaMemCpyFromSymbol`
+- Přístup k poli uloženém v konstantní paměti se serializuje! V tomto případě je lepší SH, která podporuje multicast.
 
 ## 3. Examples
 
@@ -190,6 +232,14 @@ Sloupcová vs. řádková matice - do 1D se matice ukládá buď po sloupcích *
 
 ```cpp
 {{#include src/3_raindrops.cu}}
+```
+
+</details>
+
+<details><summary> Constant memory </summary>
+
+```cpp
+{{#include src/4_constant_memory.cu}}
 ```
 
 </details>

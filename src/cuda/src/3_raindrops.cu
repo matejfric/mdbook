@@ -206,8 +206,9 @@ int main(int argc, char* argv[])
 	int nBlocks = (NO_RAIN_DROPS + TPB - 1) / TPB;
 	const int nSMs = deviceProp.multiProcessorCount;
 	int nBlocksPerSM = (nBlocks + nSMs - 1) / nSMs;
-	ksAdd.dimGrid = dim3(nSMs, 1, 1);
-	ksAdd.dimBlock = dim3(nBlocksPerSM, 1, 1);
+	int SMmultiplier = (nBlocksPerSM + 1023) / 1024;
+	ksAdd.dimGrid = dim3(nSMs * SMmultiplier, 1, 1);
+	ksAdd.dimBlock = dim3(nBlocksPerSM / SMmultiplier, 1, 1);
 
 	for (int i = 0; i < 1; i++)
 	{
