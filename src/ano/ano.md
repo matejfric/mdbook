@@ -11,6 +11,8 @@
   - [5.1. Kruhovost](#51-kruhovost)
   - [5.2. Popis tvaru objektu pomocí průběhu křivosti jeho hranice](#52-popis-tvaru-objektu-pomocí-průběhu-křivosti-jeho-hranice)
   - [5.3. Příznaky odvozené z histogramu jasu](#53-příznaky-odvozené-z-histogramu-jasu)
+- [6. Příznakové metody analýzy obrazu](#6-příznakové-metody-analýzy-obrazu)
+- [7. Neuronové sítě](#7-neuronové-sítě)
 
 Univerzální obrazové deskriptory - HoG
 
@@ -206,3 +208,19 @@ Vhodné pro objekty, které jsou charakteristické svojí texturou nebo jistým 
 - křivost
 - entropie,
 - energie (kontrast).
+
+## 6. Příznakové metody analýzy obrazu
+
+Klasifikátorem rozumíme zobrazení $f\colon\mathcal{X}\rightarrow\omega$, kde $\mathcal{X}$ je matice příznaků a $\omega$ je vektor tříd, i.e., $\omega=f(\mathbf{x})$.
+
+Klasifikace diskriminačními funkcemi:
+
+<img src="figures/clf-discriminative-funs.png" alt="clf-discriminative-funs" width="400px">
+
+Jednotlivé hustoty odpovídají podmíněné pravděpodobnosti $g_r(\mathbb{x})=\mathcal{P}(\mathbb{x}|\omega_{r})$, kde $r$ je index třídy.
+
+Dále jsme schopni definovat funkce pro každou třídu a minimalizovat plochu pod křivkou (integrál). Dá se ukázat, že tato diskriminační funkce má tvar asi $\mathcal{P}(x|\omega_r)\mathcal{P}(\omega_r)$.
+
+## 7. Neuronové sítě
+
+<img src="figures/neuron.png" alt="neuron" width="200px">
