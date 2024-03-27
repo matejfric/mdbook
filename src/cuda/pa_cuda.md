@@ -18,7 +18,8 @@
   - [2.4. Zarovnaná paměť](#24-zarovnaná-paměť)
   - [2.5. Bank Conflicts](#25-bank-conflicts)
   - [2.6. Constant Memory](#26-constant-memory)
-- [3. Examples](#3-examples)
+- [3. Textury](#3-textury)
+- [4. Examples](#4-examples)
 
 ## 1. Úvod
 
@@ -210,7 +211,28 @@ Sloupcová vs. řádková matice - do 1D se matice ukládá buď po sloupcích *
 - `cudaMemCpyToSymbol` a `cudaMemCpyFromSymbol`
 - Přístup k poli uloženém v konstantní paměti se serializuje! V tomto případě je lepší SH, která podporuje multicast.
 
-## 3. Examples
+## 3. Textury
+
+- Obrázek - šířka, výška, formát. Mapování se ukládá do datových struktur.
+
+<img src="figures/2d_texture.png" alt="2d_texture" width="350px">
+
+Blok *read-only* paměti sdílené všemi multi-procesory (SM). Rychlý random-access. Přístupy k texturovací paměti jsou cache-ovány.
+
+- 1D - např. gradient - grafická reprezentace nějaké fyzikální veličiny (třeba mapování výšky terénu)
+- 2D - obrázek
+- 3D - v porovnání s polem 2D textur lze ve 3D provádět interpolaci
+- 4D - cube mapa (skybox)
+
+V texturovací jednotce lze nastavit **wrapping** (textura se *opakuje*) nebo **clamping** (přístupy mimo texturu se přesunou na *hranici*).
+
+<img src="figures/wrap_vs_clamp.png" alt="wrap_vs_clamp" width="400px">
+
+**Mipmapa** je metoda optimalizace textur, kdy se načítájí textury v různých rozlišeních od největší (4k) až do velikosti 1x1 pixel:
+
+<img src="figures/mipmap.png" alt="mipmap" width="250px">
+
+## 4. Examples
 
 <details><summary> Add vectors </summary>
 
@@ -240,6 +262,14 @@ Sloupcová vs. řádková matice - do 1D se matice ukládá buď po sloupcích *
 
 ```cpp
 {{#include src/4_constant_memory.cu}}
+```
+
+</details>
+
+<details><summary> Texture memory </summary>
+
+```cpp
+{{#include src/5_texture_memory.cu}}
 ```
 
 </details>
