@@ -5,6 +5,12 @@
   - [1.2. Metody průchodu nulou](#12-metody-průchodu-nulou)
   - [1.3. Cannyho detektor hran](#13-cannyho-detektor-hran)
 - [2. OpenCV](#2-opencv)
+- [3. Hough transformace](#3-hough-transformace)
+- [4. Detekce význačných bodů (keypoints)](#4-detekce-význačných-bodů-keypoints)
+- [5. Obrazové příznaky](#5-obrazové-příznaky)
+  - [5.1. Kruhovost](#51-kruhovost)
+  - [5.2. Popis tvaru objektu pomocí průběhu křivosti jeho hranice](#52-popis-tvaru-objektu-pomocí-průběhu-křivosti-jeho-hranice)
+  - [5.3. Příznaky odvozené z histogramu jasu](#53-příznaky-odvozené-z-histogramu-jasu)
 
 Univerzální obrazové deskriptory - HoG
 
@@ -124,3 +130,79 @@ cv::imshow("Gradient", gradient_8uc1_img);
 ```
 
 </details>
+
+## 3. Hough transformace
+
+- [:háfova:]
+- detekce bodů na přímce, kružnici (po detekci hran)
+
+## 4. Detekce význačných bodů (keypoints)
+
+- TODO
+
+## 5. Obrazové příznaky
+
+Dvourozměrný moment řádu $(p,q)$ pro plochu $\Omega$ je:
+
+$$m_{p,q}=\iint\limits_{\Omega}x^py^qf(x,y)\mathrm{d}x\mathrm{d}y$$
+
+V analýze obrazu máme diskrétní obraz a funkce průběhu jasu je obvykle $f(x,y)=1$:
+
+$$m_{p,q}=\sum\limits_{\Omega}x^py^q$$
+
+Plocha: $m_{0,0}$
+
+Těžiště:
+
+$$
+\begin{align*}
+    x_t&=\dfrac{m_{1,0}}{m_{0,0}}\\
+    y_t&=\dfrac{m_{0,1}}{m_{0,0}}
+\end{align*}
+$$
+
+Pokud uvažujeme souřadnou soustavu s *osami v těžišti*, tak:
+
+$$\mu_{p,q}=\sum\limits_{\Omega}(x-x_t)^p(y-y_t)^qf(x,y)$$
+
+Momenty $\mu_{p,q}$ k těžištním osám *nezávisí na poloze objektu*, ale *závisí na velikosti a rotaci* objektu.
+
+- &#9645; $\Rightarrow\dfrac{\mu_{2,0}}{\mu_{0,2}}$ větší než 1
+- &#9647; $\Rightarrow\dfrac{\mu_{2,0}}{\mu_{0,2}}$ menší než 1
+
+Co kdybychom chtěli, aby tento příznak nebyl závislý na rotaci/orientaci? **Hlavní momenty setrvačnosti**: Představ si natočený obdélník, cílem je najít natočený souřadnicový systém takový, že najdeme minimum a maximum:
+
+$$
+\begin{array}{c}
+    \mu_{\mathrm{max}} \\
+    \mu_{\mathrm{min}}
+\end{array}
+= \frac{1}{2} \left( \mu_{2,0} + \mu_{0,2} \right) \pm \frac{1}{2} \sqrt{ 4 \mu_{1,1}^{2} + \left( \mu_{2,0} - \mu_{0,2} \right)^2 }.
+$$
+
+### 5.1. Kruhovost
+
+Buď $P$ délka hranice objektu a $S$ jeho plocha. Kruhovost definujeme $\boxed{C=\dfrac{P^2}{S}.}$
+
+### 5.2. Popis tvaru objektu pomocí průběhu křivosti jeho hranice
+
+Průběh křivosti:
+
+<img src="figures/curvature.png" alt="curvature" width="350px">
+
+Buď $P$ délka hranice objektu a $k$ funkce křivosti hranice objektu. Informace o křivosti můžeme komprimovat do jedné hodnoty:
+
+$$\dfrac{1}{P}\int\limits_{s}\big(k(s)\big)^2\mathrm{d}s.$$
+
+Pokud je jedno číslo málo, můžeme vzít $n$ prvních členů **Fourierovy řady** (nejčastěji $\approx 5$).
+
+### 5.3. Příznaky odvozené z histogramu jasu
+
+Vhodné pro objekty, které jsou charakteristické svojí texturou nebo jistým rozložením jasu. Buď $b$ jas pixelu, vypočteme histogram pixelů objektu $N(b)$ a provedem normalizaci $p(b)=N(b)/N$.
+
+- střední hodnota,
+- rozptyl,
+- šikmost,
+- křivost
+- entropie,
+- energie (kontrast).
