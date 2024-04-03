@@ -19,9 +19,20 @@
   - [2.5. Bank Conflicts](#25-bank-conflicts)
   - [2.6. Constant Memory](#26-constant-memory)
 - [3. Textury](#3-textury)
+  - [3.1. Normálové mapy (Normal Mapping)](#31-normálové-mapy-normal-mapping)
 - [4. Examples](#4-examples)
 
 ## 1. Úvod
+
+- [CUDA Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html)
+
+GPU (GP-GPU) poskytuje mnohem větší propustnost instrukcí a paměti oproti CPU podobné ceny.
+
+Rozdíl ve schopnostech GPU a CPU existuje proto, že jsou navrženy s různými cíli. Zatímco CPU je navržen tak, aby vynikal co nejrychlejším prováděním sekvence operací, tzv. vláken, a může paralelně provádět několik desítek těchto vláken, GPU je navržen tak, aby vynikal paralelním prováděním tisíců těchto operací (úlohu rozdělí na velké množství jednotlivých vláken a menším výkonem a dosáhne tak vyšší propustnosti).
+
+Na GPU je více tranzistorů věnováno zpracování dat namísto ukládání dat do mezipaměti *(cache)* a řízení toku *(if else)*.
+
+<img src="figures/gpu-devotes-more-transistors-to-data-processing.png" alt="gpu-devotes-more-transistors-to-data-processing" width="500x">
 
 Typy paralelizmu:
 
@@ -37,6 +48,8 @@ Typy paralelizmu:
 Co rozumíme pojmem **proces**? OS *alokuje a spravuje paměť*, přidělí *stack* a alespoň jeden *main thread*.
 
 Bloky jsou schedulované pomocí Streaming Multiprocessoru (SM). GPU má pouze omezený počet SM *(NVIDIA GeForce GTX 1650 má 14 SM)*.
+
+<img src="figures/sm-automatic-scalability.png" alt="sm-automatic-scalability" width="400px">
 
 Skrýváním latence (čekání, **latency hiding**) rozumíme zkrácení nečinnosti procesoru. Instrukce mají nějaký čas vykonávání (např. odmocnina nebo modulo je drahá instrukce). Čtení z disku jakožto nejdražší paměťová operace.
 
@@ -148,7 +161,7 @@ unsigned int tid = blockIdx.x * blockDim + threadIdx;
 
 ### 2.2. Shared memory (SH)
 
-Shared memory (SH) je alokovaná pro každý thread block, všechny vlákna v rámci bloku mají přístup do stejné sdílené paměti. Latence SH je přibližně 10x nižší oproti globální paměti, která není načtená v cache (pokud nedochází k *bank konfliktům* mezi vlákny). Každý SM má k dispozici 64 KB shared memory.
+Shared memory (SH) je alokovaná pro každý thread block, všechny vlákna v rámci bloku mají přístup do stejné sdílené paměti. Latence SH je přibližně 10x nižší oproti globální paměti, která není načtená v cache (pokud nedochází k *bank konfliktům* mezi vlákny). Každý SM má k dispozici 64 KB shared memory. SH je paměť s nízkou latencí v blízkosti každého jádra SM (podobně jako  L1 cache CPU).
 
 Multicast přístup k SH znamená, že přístup do paměti na stejnou pozici více vlákny je v rámci warpu obsloužen současně.
 
@@ -228,9 +241,27 @@ V texturovací jednotce lze nastavit **wrapping** (textura se *opakuje*) nebo **
 
 <img src="figures/wrap_vs_clamp.png" alt="wrap_vs_clamp" width="400px">
 
+Proč se nepoužívá `if` na kontrolu `ouf of bound`? Př. 3K textura, 10k objektů, double buffering, 144 fps $\Rightarrow 9\cdot10^6\cdot10000\cdot2\cdot144\Rightarrow$ obrovské množsví instrukcí a práce pro scheduler.
+
 **Mipmapa** je metoda optimalizace textur, kdy se načítájí textury v různých rozlišeních od největší (4k) až do velikosti 1x1 pixel:
 
 <img src="figures/mipmap.png" alt="mipmap" width="250px">
+
+### 3.1. Normálové mapy (Normal Mapping)
+
+<img src="figures/normal-mapping.png" alt="normal-mapping" width="350px">
+
+Příklad normálové mapy (uprostřed) se 3D scénou, ze které byla vypočtena (vlevo), a výsledek při aplikaci na rovný povrch (vpravo).
+
+Normálová mapa je obvykle RGB textura, ve které jsou zakódované souřadnice $x,y,z$. Obvykle převažuje souřadnice $z$, proto normálové mapy bývají do modra (B).
+
+Normálová mapa lze také vypočítat z 2D obrázku pomocí **Sobelova filtru**.
+
+- $x$ ... R ... $[-1,1]\Rightarrow[0,255]$
+- $y$ ... G ... $[-1,1]\Rightarrow[0,255]$
+- $z$ ... B ... $[0,1]\Rightarrow[0,255]$
+
+<img src="figures/normal-map-from-image.png" alt="normal-map-from-image" width="350x">
 
 ## 4. Examples
 
@@ -270,6 +301,14 @@ V texturovací jednotce lze nastavit **wrapping** (textura se *opakuje*) nebo **
 
 ```cpp
 {{#include src/5_texture_memory.cu}}
+```
+
+</details>
+
+<details><summary> Texture memory: Normal Map </summary>
+
+```cpp
+{{#include src/6_normal_map.cu}}
 ```
 
 </details>
