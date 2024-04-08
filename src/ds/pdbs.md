@@ -764,7 +764,7 @@ Složený klíč je **lexikograficky uspořádán**. Záleží tedy na pořadí 
 
 Důsledek: pro dotaz na `ID_PRODUCT` bude použit sekvenční průchod haldou! Záznamy nejsou seřazené, a tedy index nebude využit.
 
-Lexikografickému uspořádání pro klíč $a_1, a_2,\ldots, a_k$ odpovídají dotazy obsahující **bodové dotazy** pro atributy $a_1,\ldots, a_l$, kde $l\leq k$. Pro atribut $a_{l+1}$ může být specifikován **rozsah**, zatímco atributy $a_{l+2}$,\ldots, a_k$ mohou zůstat nespecifikované.
+Lexikografickému uspořádání pro klíč $a_1, a_2,\ldots, a_k$ odpovídají dotazy obsahující **bodové dotazy** pro atributy $a_1,\ldots, a_l$, kde $l\leq k$. Pro atribut $a_{l+1}$ může být specifikován **rozsah**, zatímco atributy $a_{l+2},\ldots, a_k$ mohou zůstat nespecifikované.
 
 Jakýkoliv jiný dotaz znamená **nevyužití indexu** (dotaz není kompatibilní s lexikografickým uspořádáním indexu). Výjimkou je optimalizace `INDEX SKIP SCAN` v Oracle.
 
@@ -842,8 +842,8 @@ Dotaz na jiný atribut než na PK znamená sekvenční průchod B-stromem. Tzn. 
 
 Využití stránek:
 
-- Halda ≈ 100%
-- Shlukovaná tabulka ≈ 50%
+- Halda $\approx 100\%$
+- Shlukovaná tabulka $\approx 50\%$
 
 Záznamy ve shlukované tabulce jsou **setřízeny dle PK**. Pokud potřebujeme rychlejší přístup k hodnotám dalších atributů, musíme vytvořit index na tyto atributy.
 
@@ -894,8 +894,8 @@ Algoritmy operace spojení:
 
 Vstupy algoritmu spojení:
 
-- Dvě relace $R_1, R_2$, $n_1, n_2$ záznamy a $b_1, b_2$ stránkami.
-- Pořadová čísla spojovaných atributů $R_1.x$ a $R_2.y$.
+- Dvě relace $R_1, R_2, n_1, n_2$ záznamy a $b_1, b_2$ stránkami.
+- Pořadová čísla spojovaných atributů $R_1(x)$ a $R_2(y)$.
 
 Velikost výsledku: $[0, n_1\cdot n_2]$
 
