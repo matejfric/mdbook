@@ -881,8 +881,6 @@ CREATE TABLE my_table (
 )
 ```
 
-</div>
-
 ## 6. Operace spojení (JOIN)
 
 Nejčastějším spojením je **spojení na rovnost hodnot atributů (equality join)**.
