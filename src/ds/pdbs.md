@@ -39,6 +39,17 @@
   - [6.3. Merge Join (spojení sléváním)](#63-merge-join-spojení-sléváním)
   - [6.4. Hash join](#64-hash-join)
   - [6.5. Shrnutí](#65-shrnutí)
+  - [6.6. Použití indexu při ladění dotazů se spojením](#66-použití-indexu-při-ladění-dotazů-se-spojením)
+- [7. Stránkování výsledku dotazu](#7-stránkování-výsledku-dotazu)
+- [8. Komprimace v DBS](#8-komprimace-v-dbs)
+  - [8.1. MS SQL Server](#81-ms-sql-server)
+  - [8.2. Oracle](#82-oracle)
+- [9. Uložení dat v tabulce](#9-uložení-dat-v-tabulce)
+  - [9.1. Řádkové uložení dat](#91-řádkové-uložení-dat)
+  - [9.2. Sloupcové uložení dat](#92-sloupcové-uložení-dat)
+  - [9.3. Oracle](#93-oracle)
+  - [9.4. MS SQL Server](#94-ms-sql-server)
+- [10. Další možnosti fyzického návrhu (optimalizace)](#10-další-možnosti-fyzického-návrhu-optimalizace)
 
 ## 1. Testovací databáze ProductOrderDb
 
@@ -993,7 +1004,165 @@ Algoritmus:
 
 ### 6.5. Shrnutí
 
-> - **Nested loop join** se využívá pokud DBS spojuje menší, **nesetřízené** relace.
-> - Pokud je u druhé relace k dispozici index, využívá se **Nested loop join s indexem** (stále se musí jednat o dotaz s vysokou selektivitou, a tedy malým počtem záznamů $<1\%$).
-> - Pokud má DBS k dispozici obě relace **setřízené**, použije algoritmus **Merge join**.
-> - **Hash join** se využívá, pokud je nutné spojovat **větší nesetřízené relace**, zvláště pokud jedna z relací je menší.
+- **Nested loop join** se využívá pokud DBS spojuje menší, **nesetřízené** relace.
+- Pokud je u druhé relace k dispozici index, využívá se **Nested loop join s indexem** (stále se musí jednat o dotaz s vysokou selektivitou, a tedy malým počtem záznamů $<1\%$).
+- Pokud má DBS k dispozici obě relace **setřízené**, použije algoritmus **Merge join**.
+- **Hash join** se využívá, pokud je nutné spojovat **větší nesetřízené relace**, zvláště pokud jedna z relací je menší.
+
+### 6.6. Použití indexu při ladění dotazů se spojením
+
+- Obecně platí, že index se využívá pro selekci získávající malý počet záznamů (tzv. vysoce selektivní dotazy).
+- V případě operace spojení se můžeme pokusit vytvořit složený klíč obsahující spojovaný cizí klíč a atributy tabulky, pro které se provádí selekce.
+- Pro dotazy `SELECT *` se složený index využije jen v případě dotazů s vyšší selektivitou.
+- Pokud dotaz obsahuje projekci jinou než `*`, dáme atributy projekce na konec složeného klíče indexu. Vyhneme se drahým přístupům ke kompletnímu záznamu tabulky a složený index bude spíše využit. Pokud bude takový složený index využit, namísto sekvenčních
+průchodů tabulkou získáme výrazně nižší čas vykonání dotazu.
+
+## 7. Stránkování výsledku dotazu
+
+Někdy nepotřebujeme v aplikaci zobrazit všechny výsledky dotazu najednou. Např. tabulka obsahuje 100 000 záznamů, ale v UI se uživateli zobrazuje jen jedna stránka záznamů, např. 100.
+
+1. Cachování na úrovni aplikačního serveru
+   - Je vhodné (bezproblémové) pouze v případě **statických** nebo téměř statických dat.
+
+2. Stránkování na úrovni DBS a jeho podpora v ORM
+    - Např. metoda třídy `Student`: `Student.Select(loIndex, hiIndex)`
+
+Dotaz se stránkováním (1. stránka):
+
+```sql
+SELECT * FROM Customer
+WHERE residence = 'Ostrava'
+ORDER BY lname, idCustomer
+OFFSET 0 
+ROWS FETCH NEXT 100 ROWS ONLY;
+```
+
+Dotaz se stránkováním (poslední stránka):
+
+```sql
+SELECT * FROM Customer
+WHERE residence = 'Ostrava'
+ORDER BY lname, idCustomer
+OFFSET 15500 -- 15 570 records
+ROWS FETCH NEXT 100 ROWS ONLY;
+```
+
+## 8. Komprimace v DBS
+
+Využívají se jednodušší, starší, spíše rychlé algoritmy, např. **RLE (Run-Length-Encoding)**. Upřednostňujeme **propustnost** *(rychlost komprese/dekomprese)* před **kompresním poměrem** *(kolik se uvolní místa)*.
+
+Kódy proměnné délky *(Eliasovy, Fibonacciho, atd.)* se spíše nepoužívají, protože jsou pomalejší.
+
+**Prefixová komprimace klíčů** B-stromu. Využívá se především u složených klíčů s větším počtem atributů.
+
+Kdy se vyplatí vyšší komprimace i za cenu pomalejší rychlosti dotazu *(vyšší komprimační poměr, nižší propustnost)*? Např. pro **historická data**, které se nepoužívají příliš často.
+
+### 8.1. MS SQL Server
+
+Typy komprimace:
+
+- `row` - kódování proměnné délky pro čísla i řetězce
+- `page` - řádková, prefixová a slovníková komprimace (v tomto pořadí)
+- `none`
+
+```sql
+ALTER TABLE <table> REBUILD PARTITION = ALL
+WITH (DATA COMPRESSION = <type>);
+```
+
+```sql
+ALTER INDEX <index> ON <table> REBUILD PARTITION = ALL
+WITH (DATA COMPRESSION = <type>);
+```
+
+### 8.2. Oracle
+
+Typy komprimace:
+
+- `compress` - prefixová komprimace klíčů
+- `compress advanced low` - komprimace stránek
+
+```sql
+CREATE TABLE <table> COMPRESS BASIC ...
+
+CREATE TABLE <table> COMPRESS ADVANCED LOW ...
+
+ALTER TABLE <table> MOVE NOCOMPRESS;
+
+ALTER TABLE <table> MOVE COMPRESS;
+
+CREATE INDEX <index> ON <table> (<...>) COMPRESS;
+
+CREATE INDEX <index> ON <table> (<...>) COMPRESS ADVANCED LOW;
+
+ALTER INDEX <index> REBUILD COMPRESS ADVANCED LOW;
+```
+
+## 9. Uložení dat v tabulce
+
+### 9.1. Řádkové uložení dat
+
+V blocích haldy jsou data uložena po záznamech, mluvíme o **řádkovém uložení** **(rowstore)**.
+
+Řádkové uložení je **výhodné** v případě **projekce na všechny nebo větší počet atributů**:
+
+- `SELECT * FROM Customer` – sekvenční průchod haldou.
+- `SELECT * FROM Customer WHERE idCustomer=1` – bodový dotaz v indexu, přístup k záznamu v haldě.
+
+Naopak je řádkové uložení **nevýhodné** v případě **projekce na nízký počet atributů**:
+
+- `SELECT AVG(sysdate - birthday) FROM Customer` – sekvenční průchod tabulkou a počítání součtu věku, bloky ovšem obsahují i hodnoty ostatních atributů.
+
+### 9.2. Sloupcové uložení dat
+
+Pokud v dotazech pracujeme jen s několika málo atributy (reálné tabulky mohou mít desítky atributů), můžeme uvažovat o tzv. **sloupcovém uložení dat (columnstore)**.
+
+Jednotlivé hodnoty neobsahují identifikátor řádku (klíč, RID atd.). **Záznamy jsou rekonstruovány podle pořadí hodnot ve sloupci**.
+
+Interně může být každý sloupec reprezentovaný jednou haldou.
+
+Při sloupcovém uložení můžeme dosáhnout **vyššího kompresního poměru**.
+
+Sloupcové uložení je výhodné zejména, pokud dotazy pracují s **malým počtem atributů** tabulky (např. agregace - sekvenční průchod haldou). Je to tedy "opačný" koncept ke konceptu indexu - sekvenční průchod menším objemem dat při nízké selektivitě dotazů.
+
+### 9.3. Oracle
+
+**Oracle In-Memory Column Store** - uložení v hlavní paměti.
+
+```sql
+-- Tabulka <table> bude převedena na sloupcovou tabulku
+-- po prvním sekvenčním průchodu.
+ALTER TABLE <table> INMEMORY;
+
+-- Tabulka <table> bude převedena na sloupcovou tabulku
+-- okamžitě po startu databáze.
+ALTER TABLE <table> INMEMORY PRIORITY CRITICAL;
+
+-- Tabulka <table> bude řádkovou tabulkou - haldou.
+ALTER TABLE <table> NO INMEMORY;
+```
+
+Nastavení komprimace sloupcové tabulky:
+
+```sql
+ALTER TABLE <table> INMEMORY MEMCOMPRESS FOR <type>;
+```
+
+Kde `<type>` může být:
+
+- `DML`
+- `QUERY LOW` - implicitní komprese pro dotazy
+- `QUERY HIGH`
+- `CAPACITY LOW`
+- `CAPACITY HIGH` - nejvyšší komprese
+
+### 9.4. MS SQL Server
+
+- **Clustered columnstore index** - sloupcová tabulka
+- **Nonclustered columnstore index** - sloupcový index
+
+## 10. Další možnosti fyzického návrhu (optimalizace)
+
+**Materializované pohledy** - uložení výsledku dotazu, vhodné pro časté, složitější dotazy. Nevýhodou je pomalejší aktualizace databáze.
+
+**Rozdělení dat (data partitioning)** - určené pro velké tabulky obsahující např. dlouhodobá měření. Jednotlivé části (tabulky a indexy) pak obsahují data jen za určitý časový úsek.
