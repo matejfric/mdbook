@@ -20,7 +20,11 @@
   - [2.6. Constant Memory](#26-constant-memory)
 - [3. Textury](#3-textury)
   - [3.1. Normálové mapy (Normal Mapping)](#31-normálové-mapy-normal-mapping)
-- [4. Examples](#4-examples)
+- [4. OpenGL](#4-opengl)
+  - [4.1. Double Buffering](#41-double-buffering)
+  - [4.2. Buffery](#42-buffery)
+  - [4.3. GLUT library](#43-glut-library)
+- [5. Examples](#5-examples)
 
 ## 1. Úvod
 
@@ -263,7 +267,39 @@ Normálová mapa lze také vypočítat z 2D obrázku pomocí **Sobelova filtru**
 
 <img src="figures/normal-map-from-image.png" alt="normal-map-from-image" width="350x">
 
-## 4. Examples
+## 4. OpenGL
+
+- Knihovna, **stavový stroj**. Používá `main thread`, samotná aplikace musí běžet na jiném vlákně.
+- Neumožňuje vytváření oken, není to programovací jazyk.
+- Pracuje se v **shaderech**.
+
+Grafika:
+
+Vertex ve 3D je prvek vektorového prostoru $V$, nicméně na obrazovce vidíme jenom projekci do 2D. Manipulujeme s vektory, projektujeme je do jiných vektorových prostorů.
+
+1. Model-View matice.
+2. Projekční matice - optická vlastnost pohledu, "vlastnosti čočky" (např. ohnisko kamery).
+3. NDC transformace, která převede komolý hranol - kameru do jednotkové krychle (normalizace).
+4. Transformace na rozlišení displeje.
+
+CUDA se přizpůsobuje OpenGL (protože OpenGL je starší). Prvně se vytvoří objekt v OpenGL, ke kterému potom přes pointery přistupuju z CUDA.
+
+### 4.1. Double Buffering
+
+- Front buffer, back buffer.
+- Jeden buffer ukazuji na obrazovce, druhý upravuji pro další snímek, potom je prohodím.
+
+### 4.2. Buffery
+
+1. **Z-buffer** - z-ová souřadnice určující, které objekty vidíme (vzdálenost mezi přední a zadní ořezovou rovinou kamery).
+2. **Accumulation-buffer** - načítání předchozích snímků např. pro *motion-blur*.
+3. **Stencil-buffer** - maskování.
+
+### 4.3. GLUT library
+
+- Vrstva nad OpenGL pro vytváření oken.
+
+## 5. Examples
 
 <details><summary> Add vectors </summary>
 
@@ -309,6 +345,14 @@ Normálová mapa lze také vypočítat z 2D obrázku pomocí **Sobelova filtru**
 
 ```cpp
 {{#include src/6_normal_map.cu}}
+```
+
+</details>
+
+<details><summary> OpenGL integration in CUDA </summary>
+
+```cpp
+{{#include src/7_opengl.cu}}
 ```
 
 </details>
