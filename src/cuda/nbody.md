@@ -10,7 +10,8 @@ Dne 14. 4. 2024.
 - [2. Simulace problému n-body pomocí technologie CUDA](#2-simulace-problému-n-body-pomocí-technologie-cuda)
 - [3. Instance problému](#3-instance-problému)
 - [4. Modifikace](#4-modifikace)
-- [5. Reference](#5-reference)
+- [5. Pseudokód pro implementaci v CUDA a OpenGL](#5-pseudokód-pro-implementaci-v-cuda-a-opengl)
+- [6. Reference](#6-reference)
 
 ## 1. Popis problému
 
@@ -74,7 +75,48 @@ Je možné využít hierarchické datové struktury a vyhnout se tak výpočtu v
 
 Tato modifikace není implementována.
 
-## 5. Reference
+## 5. Pseudokód pro implementaci v CUDA a OpenGL
+
+1. Fyzikální simulace
+
+    ```text
+    kernel simulate_nbody(positions, velocities)
+        tid = thread ID
+        vel = velocities[tid]
+        acc = {0.0, 0.0, 0.0}
+        for i from 0 to N in increments of p:
+            load body positions into shared memory
+            synchronize threads
+            acc = tile_calculation(pos, acc)
+            synchronize threads
+            continue with the next tile
+        update position and velocity using euler integration
+        write back updated position and velocity to global memory
+
+    device tile_calculation(myPosition, accel):
+        for each body in shared memory:
+            accel = body_body_interaction(myPosition, body, accel)
+        return accel
+
+    device body_body_interaction(bi, bj, ai):
+        update acceleration using gravitation laws
+        return updated acceleration
+
+    host init_universe()
+        initialize particle positions and velocities using Plummer sphere
+    ```
+
+2. Vizualizace v OpenGL
+
+    ```text
+    kernel blit_black(buffer)
+        set buffer to black
+
+    kernel display_universe(buffer, positions)
+        draw particle positions to the buffer
+    ```
+
+## 6. Reference
 
 Lars Nyland, Mark Harris, and Jan Prins:
 *Chapter 31. fast n-body simulation with cuda.*
