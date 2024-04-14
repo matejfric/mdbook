@@ -1,8 +1,8 @@
-# N-Body Problem
+# N-Body problém
 
 Matěj Frič, FRI0089.
 
-Dne 20. 3. 2024.
+Dne 14. 4. 2024.
 
 ---
 
@@ -57,7 +57,7 @@ Jedna z možností je použít $N$ vláken, přičemž každé vypočte $N$ inte
 
 <img src="figures/nbody.jpg" alt="nbody" width="350px">
 
-Interakce v rámci jednoho řádku se provedou sekvenčně, zatímco jednotlivé řádky jsou zpracovány paralelně. Pozice těles a jejich hmostnost bude uložena v globální paměti (jako vektor, kvůli zarovnávání paměti nejspíše `float4`). V rámci jednoho bloku můžeme vždy překopírovat $p$ těles do *shared memory*. Během sekvenčního výpočtu (přes řádek) můžeme akumulovat hodnotu zrychlení do proměnné v registru vlákna a na konci uložit výslednou hodnotu do globální paměti.
+Interakce v rámci jednoho řádku se provedou sekvenčně, zatímco jednotlivé řádky jsou zpracovány paralelně. Pozice těles a jejich hmostnost bude uložena v globální paměti (vektor `float4`), stejně tak rychlosti těles (druhý vektor `float4`). V rámci jednoho bloku můžeme vždy překopírovat $p$ těles do *shared memory*. Během sekvenčního výpočtu (přes řádek) můžeme akumulovat hodnotu zrychlení do proměnné v registru vlákna. Nakonec použijeme vypočtenou hodnotu zrychlení k výpočtu rychlosti pomocí numerícké integrace (např. Eulerovou metodou).
 
 Díky aproximace za použití konstanty $\varepsilon$ nemusíme řešit situaci, kdy interakce tělesa se sebou samým by nebyla definována kvůli dělení nulou (diagonála matice interakce těles). Navíc můžeme zanedbat podmínku $i\neq j$ a nenastane tak divergence vláken.
 
@@ -68,13 +68,20 @@ Pole částic může být *double-buffered*, kdy jedno pole může být použito
 - 2D (nebo 3D)
 - $N\approx[1024, 16384]=[2^{10}, 2^{14}]$
 
-<!--$p \leq 1024$, maximální počet vláken pro jeden blok, $\Rightarrow N \leq 2^{20} = 1048576$. Omezení *shared memory* 65536 B na SM.-->
-
 ## 4. Modifikace
 
 Je možné využít hierarchické datové struktury a vyhnout se tak výpočtu všech $N^2$ interakcí (síla klesá s kvadrátem vzdálenosti a interakce vzdálených těles lze zanedbat). Ve 2D lze využít kvadrantový strom a následně na "blízká" tělesa lze použít dříve popsaný *brute-force* algoritmus.
 
+Tato modifikace není implementována.
+
 ## 5. Reference
 
 Lars Nyland, Mark Harris, and Jan Prins:
-*Chapter 31. fast n-body simulation with cuda.* [https://developer.nvidia.com/gpugems/gpugems3/part-v-physics-simulation/chapter-31-fast-n-body-simulation-cuda](https://developer.nvidia.com/gpugems/gpugems3/part-v-physics-simulation/chapter-31-fast-n-body-simulation-cuda).
+*Chapter 31. fast n-body simulation with cuda.*
+Dostupné z: [https://developer.nvidia.com/gpugems/gpugems3/part-v-physics-simulation/chapter-31-fast-n-body-simulation-cuda](https://developer.nvidia.com/gpugems/gpugems3/part-v-physics-simulation/chapter-31-fast-n-body-simulation-cuda). [cit. 2024-03-27].
+
+Jakub Homola:
+*Barnesův-Hutův algoritmus pro řešení problému mnoha těles.*
+Online, Bakalářská práce.
+Ostrava: Vysoká škola báňská - Technická univerzita Ostrava, 2019.
+Dostupné z: [http://hdl.handle.net/10084/136163](http://hdl.handle.net/10084/136163). [cit. 2024-04-14].
