@@ -50,6 +50,12 @@
   - [9.3. Oracle](#93-oracle)
   - [9.4. MS SQL Server](#94-ms-sql-server)
 - [10. Další možnosti fyzického návrhu (optimalizace)](#10-další-možnosti-fyzického-návrhu-optimalizace)
+- [11. CAP teorém](#11-cap-teorém)
+- [12. NoSQL databázové systémy](#12-nosql-databázové-systémy)
+  - [12.1. JSON (JavaScript Object Notation)](#121-json-javascript-object-notation)
+  - [12.2. MongoDB](#122-mongodb)
+    - [12.2.1. Struktura databáze](#1221-struktura-databáze)
+- [13. Poznámky](#13-poznámky)
 
 ## 1. Testovací databáze ProductOrderDb
 
@@ -1065,12 +1071,12 @@ Typy komprimace:
 
 ```sql
 ALTER TABLE <table> REBUILD PARTITION = ALL
-WITH (DATA COMPRESSION = <type>);
+WITH (DATA_COMPRESSION = <type>);
 ```
 
 ```sql
 ALTER INDEX <index> ON <table> REBUILD PARTITION = ALL
-WITH (DATA COMPRESSION = <type>);
+WITH (DATA_COMPRESSION = <type>);
 ```
 
 ### 8.2. Oracle
@@ -1164,3 +1170,95 @@ Kde `<type>` může být:
 **Materializované pohledy** - uložení výsledku dotazu, vhodné pro časté, složitější dotazy. Nevýhodou je pomalejší aktualizace databáze.
 
 **Rozdělení dat (data partitioning)** - určené pro velké tabulky obsahující např. dlouhodobá měření. Jednotlivé části (tabulky a indexy) pak obsahují data jen za určitý časový úsek.
+
+## 11. CAP teorém
+
+Mějme **distribuovaný DBS** rozložený na více počítačích sítě, tzv. **uzlech**.
+
+**CAP teorém** (**Brewerův teorém**) tvrdí, že pro distribuovaný DBS není možné dodržet více než dvě vlastnosti z těchto tří:
+
+- **Konzistence (Consistency)**: každé čtení vrátí buď výsledek posledního zápisu nebo chybu.
+- **Dostupnost (Availability)**: každé čtení vrátí výsledek (nikdy ne chybu), nemusí se ale jednat o výsledek posledního zápisu.
+- **Odolnost k přerušení (síť) (Partition tolerance)**: systém pracuje dál i v případě, že dojde ke ztrátě nebo zdržení libovolného počtu zpráv mezi uzly.
+
+V případě výskytu přerušení sítě, systém musí vybírat mezi dvěma akcemi:
+
+1. Zrušit operaci a tak snížit dostupnost, ale zajistit konzistenci. V případě výskytu přerušení, systém vrátí chybu.
+2. Vykonat operaci a tak zachovat dostupnost, ale riskovat nekonzistenci. V případě výskytu přerušení, systém vrátí dostupnou verzi výsledku, nemusí se tedy jednat o výsledek posledního zápisu.
+
+Jinými slovy, při výskytu přerušení, volí systém mezi dostupností a konzistencí, není možné zajistit oboje. Dostupnost a konzistenci je možné zajistit jen v případě neexistence přerušení.
+
+Při platnosti dvou vlastností ze tří, rozlišujeme tyto DDBS:
+
+- **CP**: Konzistence a odolnost k přerušení (Consistency & Partition tolerance) - systém tedy upřednostňuje konzistenci před dostupností:
+  - DBS s podporou **ACID**, zjednodušeně relační DBS s podporou transakcí.
+
+- **AP**: Dostupnost a odolnost k přerušení (Availability & Partition tolerance) - systém tedy upřednostňuje dostupnost před konzistencí:
+  - DBS s podporou **BASE**, zjednodušeně NoSQL databázové systémy.
+
+## 12. NoSQL databázové systémy
+
+NoSQL databázové systémy jsou označení poměrně široké třídy DBS, které (spíše):
+
+- Nepoužívají relační datový model,
+- Nepoužívají SQL,
+- Nepoužívají transakční model ACID,
+- Používají model **klíč-hodnota** (např. JSON dokument) nebo komplikovanější datový model (**strom** pro XML dokumenty nebo **graf**),
+- Nejsou konkurenční k relačním DBS, jsou určeny pro jiné problémy.
+
+Oracle a MS SQL taky umožňují ukládání grafů XML dokumentů apod. Nicméně pracaují s těmito daty pomocí modelu ACID.
+
+Nelze tvrdit, že NoSQL je lepší než transakční model. Záleží na aplikaci.
+
+### 12.1. JSON (JavaScript Object Notation)
+
+- Textový formát nezávislý na žádném programovacím jazyku.
+- JSON je postavený na dvou strukturách
+  - objekt
+  - pole
+
+**Objekt** je **neuspořádaná množina dvojic**, položek, `(name, value)`:
+
+- Objekt je uvozen znaky `{` a `}`.
+- Jméno je ukončeno znakem `:`
+- Dvojice `(name, value)` je ukončena znakem `,`
+
+**Pole** je **uspořádaný seznam hodnot**:
+
+- Pole je uvozeno znaky `[` a `]`.
+- Hodnoty jsou odděleny znakem `,`
+
+**Hodnota** může být: řetězec uvozený znaky `"`, číslo, `true/false`, `null`, objekt nebo pole.
+
+### 12.2. MongoDB
+
+- **Dokumentová databáze** typu **klíč-hodnota**, kde dokumentem je formát podobný **JSON** (**BSON**).
+
+- V JSON dokumentech nepoužíváme dekompozici na entitní typy: ukládáme entity v jednom dokumentu.
+- Neexistuje schéma databáze (můžeme ale použít, pokud chceme).
+- **Nevýhoda**: **redundance**, není možná validace dat dle schématu.
+- **Výhoda**: **jednodušší dotazování**, ptáme se na dokument, **nepoužíváme operaci spojení** pro spojování entit.
+
+#### 12.2.1. Struktura databáze
+
+Uživatel má přístup k $N$ **databázím**, např. `<login>`, aktuální databázi zvolíme příkazem: `use <login>;`.
+
+Databáze se skládá z $M$ **kolekcí**, např. `moviedb`, jméno kolekce pak píšeme do volání metod, např. `db.moviedb.find()`. Implicitní kolekce se jmenuje `inventory`.
+
+Kolekce obsahuje $K$ **JSON** souborů.
+
+Connection string:
+
+```shell
+mongosh.exe mongodb://fri0089:fri0089@dbsys.cs.vsb.cz:27017
+use fri0089
+```
+
+## 13. Poznámky
+
+Jak vytvořit kopii tabulky:
+
+```sql
+SELECT * INTO MY_TABLE_COPY
+FROM MY_TABLE
+```
