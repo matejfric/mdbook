@@ -21,8 +21,11 @@
   - [10.4. Dědičnost](#104-dědičnost)
   - [10.5. Změna datových typů](#105-změna-datových-typů)
   - [10.6. Pole](#106-pole)
-- [Transakce a zotavení](#transakce-a-zotavení)
-- [Halda](#halda)
+- [11. Transakce a zotavení](#11-transakce-a-zotavení)
+  - [11.1. ACID](#111-acid)
+  - [11.2. Techniky zotavení](#112-techniky-zotavení)
+- [12. T-SQL](#12-t-sql)
+- [13. Halda](#13-halda)
 
 PL/SQL je procedurální rozšíření jazyka SQL.
 
@@ -1051,17 +1054,176 @@ END;
 
 </details>
 
-## Transakce a zotavení
+## 11. Transakce a zotavení
 
-> Zotavení *(recovery)* znamená zotavení databáze z nějaké chyby (přetečení hodnoty atributu, pád systému atd.).
+> **Zotavení** *(recovery)* znamená zotavení databáze z nějaké chyby (přetečení hodnoty atributu, pád systému atd.).
 
 - Základní jednotkou zotavení je *transakce*.
 - Ne všechny DBS zotavení (a transakce) podporují, často především z výkonnostních důvodů, nicméně většina aplikací se bez podpory transakcí neobejde.
 - Při jakékoli chybě musí být databáze v korektním stavu. Tzn. výsledkem zotavení musí být **korektní stav** databáze.
 
-> Transakce je logická (nedělitelná, atomická) jednotka práce s databází, která začíná operací `BEGIN TRANSACTION` a končí provedením operací `COMMIT` nebo `ROLLBACK`.
+> **Transakce** je logická (nedělitelná, atomická) jednotka práce s databází, která začíná operací `BEGIN TRANSACTION` a končí provedením operací `COMMIT` nebo `ROLLBACK`.
 
-## Halda
+- `COMMIT` – úspěšné ukončení transakce. Programátor oznamuje *transakčnímu manageru*, že transakce byla úspěšně dokončena, databáze je nyní v *korektním stavu*, a všechny změny provedené v rámci transakce mohou být trvale uloženy v databázi.
+- `ROLLBACK` – neúspěšné provedení transakce. Programátor oznamuje *transakčnímu manageru*, že databáze může být v nekorektním stavu a všechny změny provedené v rámci transakce musí být zrušeny *(roll back / undo)*.
+
+> Úkolem transakce je převést *korektní* stav databáze na jiný *korektní* stav.
+
+<details><summary> Příklad: Transakce mezi účty </summary>
+
+Chceme převést 100 Kč z účtu číslo 345 na účet číslo 789. Převod musí být proveden jako jedna atomická (nedělitelná) operace, ačkoli se jedná o dvě operace `UPDATE`.
+
+```sql
+BEGIN TRANSACTION;
+try {
+  UPDATE Account 345 { balance -= 100; }
+  UPDATE Account 789 { balance += 100; }
+  COMMIT;
+}
+catch(SqlException) {
+  ROLLBACK;
+}
+```
+
+</details>
+
+Jak může dojít k chybě při provádění transakce?
+
+- lokální chyby:
+  - chyba v dotazu,
+  - přetečení hodnoty atributu
+- chyby globální:
+  - chyby systémové *(soft crash)* - výpadek proudu, pád systému či SŘBD
+  - chyby média *(hard crash)*
+
+Pro podporu operace `ROLLBACK` má systém k dispozici soubor `log` nebo `journal` na disku, kde jsou zaznamenány detaily o všech provedených operacích.
+
+Transakce nemůže být uvnitř jiné transakce.
+
+> Řekneme, že databáze je **konzistentní** právě tehdy, když v databázi neexistují žádné výjimky z daných integritních omezení.
+
+Operace `COMMIT` zavádí tzv. **potvrzovací bod** *(commit point)*. Operace `ROLLBACK` vrací DBS k předchozímu potvrzovacímu bodu.
+
+### 11.1. ACID
+
+Každá transakce musí splňovat vlastnosti ACID:
+
+- **A**tomicity *(atomičnost)* - jsou provedeny všechny operace transkce nebo žádná.
+- **C**orrectness *(korektnost)* - transakce převádí korektní stav databáze do jiného korektního stavu.
+- **I**solation *(izolovanost)* - transakce jsou navzájem izolované, změny provedené jednou transakcí jsou pro ostatní viditelné až po provední `COMMIT`.
+- **D**urability *(trvalost)* - jakmile je transakce potvrzena, změny v databázi se stávají trvalými (i po případném pádu systému).
+
+Kvůli efektivity se používá *vyrovnávací paměť* umístěna v hlavní paměti (RAM). Databáze je kvůli perzistence dat umístěna na disku v datovém souboru.
+
+Všechny změny musí být zapsány do logu před samotným zápisem změn do databáze. Před ukončením vykonávání operace `COMMIT` je do logu zapsán tzv. `COMMIT` záznam. Takovéto pravidlo nazýváme **pravidlo dopředného zápisu do logu** *(write-ahead log rule)*. Systém je pak schopen na základě informací z logu provést zotavení databáze.
+
+Proč nezapisovat změny rovnou na disk? Protože potom často dochází k náhodnému přístupu k paměti (aktualizace datových struktur), zatímco do logu se zapisuje sekvenčně (řádově rychleji).
+
+### 11.2. Techniky zotavení
+
+Během zotavení se po restartu systému provádí pro jednotlivé transakce operace:
+
+- `UNDO` - stav transakce není znám (nebyla ukončena). Transakce musí být zrušena.
+- `REDO` - transakce byla úspěšně ukončena (příkazem `COMMIT`), ale změny z *logu* nebyly přeneseny do databáze. Transakce musí být přepracována.
+
+Techniky aktualizace logu a databáze:
+
+1. **Odložená aktualizace** `(NO-UNDO / REDO)`
+    - Aktualizace logu a DB se provádí až po potvrzení transakce. Všechny změny se zaznamenávají do paměti.
+    - Teprve po provední `COMMIT` se aktualizace zapíšou do logu a potom do DB (pravidlo dopředného zápisu do logu).
+    - V případě selhání není nutno provádět `UNDO`.
+    - Hrozí přetečení vyrovnávací paměti.
+    <img src="figures/deferred-update.png" alt="deferred-update" width="400px">
+1. **Okamžitá aktualizace** `(UNDO / NO-REDO)`
+    - Zotavení okamžitou aktualizací provádí aktualizace logu a databáze *po každé aktualizaci transakce*.
+    - Pokud transakce selže před dosažením potvrzovacího bodu, pak je nutné provést `UNDO` (na disk byly zapsány aktualizace, které musí být zrušeny).
+    <img src="figures/immediate-update.png" alt="immediate-update" width="400px">
+    - Do logu se ukládají *původní hodnoty*, což umožní systému provést při zotavení operaci `UNDO`.
+    - Dochází k velkému počtu zápisů do databáze, ale nedochází k přetečení vyrovnávací paměti.
+1. **Kombinovaná aktualizace** `(UNDO / REDO)`
+    - V praxi se používá kombinovaný `UNDO / REDO` algoritmus.
+      - Odložená aktualizace – hrozí přetečení paměti.
+      - Okamžitá aktualizace – nízký výkon (častý zápis do databáze).
+    - Aktualizace jsou zapisovány do logu po `COMMIT`.
+    - K aktualizaci databáze dochází v určitých časových intervalech - kontrolních bodech **(check points)**. Např. po určitém počtu zapsaných záznamů do logu.
+    <img src="figures/combined-update.png" alt="combined-update" width="400px">
+    - V čase kontrolního bodu $t_c$ jsou:
+      - Aktualizace transakce $T_1$ zapsány do databáze.
+      - Aktualizace transakcí $T_2$ a $T_3$ provedené před $t_c$ zapsány do databáze (v logu jsou uloženy staré hodnoty pro případné `UNDO`).
+    - Zotavení ze systémové chyby $t_f$:
+      - $T_1$ neřešíme, aktualizace zapsaný v $t_c$.
+      - $T_5$ neřešíme, `COMMIT` nebyl proveden a žádné změny nebyly ještě zapsány.
+      - $T_2$ `REDO` pro aktualizace po $t_c$ (byly zapsány do logu při `COMMITu`).
+      - $T_4$ `REDO` pro všechny aktualizace.
+      - $T_3$ `UNDO` pro aktualizace provedené do $t_c$.
+    - O transakce $T_3$ a $T_5$ přijdeme, nebyly potvrzené commitem.
+
+## 12. T-SQL
+
+- Názvy lokálních proměnných začínají `@`.
+- Chybí `%TYPE` a `%ROWTYPE`.
+- Výpis do konzole `PRINT 'Hello,' + "World!"` (`+` pro konkatenaci)
+
+<details><summary> Příklad: T-SQL </summary>
+
+```sql
+DECLARE @x INT;
+SET @x = 29;
+IF @x = 29 PRINT 'The number is 29';
+```
+
+```sql
+-- SELECT musíme dát do závorek:
+IF (SELECT COUNT(*) FROM Pubs.dbo.Authors
+    WHERE au_lname LIKE '[A-D]%') > 0
+BEGIN
+    PRINT 'Found A-D Authors';
+END
+```
+
+Cyklus `WHILE`:
+
+```sql
+DECLARE @counter INT;
+SET @counter = 0;
+WHILE @counter < 10
+BEGIN
+    SET @counter = @counter + 1;
+    PRINT 'The counter is ' + 
+      CAST(@counter AS CHAR); --Cast is not implicit!
+END
+```
+
+Transakce:
+
+```sql
+DECLARE @v_upd1 INT;
+DECLARE @v_upd2 INT;
+
+BEGIN TRAN UpdateTransaction;
+
+UPDATE Product SET description = 'desc4' WHERE id = 1;
+SET @v_upd1 = @@ROWCOUNT;
+
+UPDATE Product SET description = 'desc5' WHERE id = 4;
+SET @v_upd2 = @@ROWCOUNT;
+
+-- Error or no update
+IF @@ERROR <> 0 OR @v_upd1 = 0 OR @v_upd2 = 0
+BEGIN
+    PRINT 'rollback...'
+    ROLLBACK
+END
+ELSE
+BEGIN
+    PRINT 'commit...'
+    COMMIT
+END
+```
+
+</details>
+
+## 13. Halda
 
 - Halda je podobná BST, ale pouze kořen je jednoznačně určen jako největší prvek (resp. nejmenší). U ostatních prvků není pořadí určeno jednoznačně, pouze rodič musí mít vyšší (resp. nižsí) hodnotu než potomek.
 - Halda není vhodná pro vyhledávání, protože pořadí prvků není jednoznačné.
