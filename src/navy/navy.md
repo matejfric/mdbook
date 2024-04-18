@@ -3,6 +3,10 @@
 - [1. Hopfield Network (HN)](#1-hopfield-network-hn)
   - [1.1. Hebian Learning - How does a HN Learn?](#11-hebian-learning---how-does-a-hn-learn)
   - [1.2. Energy](#12-energy)
+- [2. Fractals](#2-fractals)
+  - [2.1. IFS](#21-ifs)
+  - [2.2. L-Systems](#22-l-systems)
+  - [2.3. Mandelbrot Set](#23-mandelbrot-set)
 
 ## 1. Hopfield Network (HN)
 
@@ -63,4 +67,46 @@ HN can be considered a stable attractor. At any input state, the network converg
 
 $$
 E = -\dfrac{1}{2}\sum\limits_{i,j=1}^{N}w_{i,j}s_is_j = -\dfrac{1}{2}y^Twy
+$$
+
+## 2. Fractals
+
+Two basic algorithms:
+
+- **IFS - Iterated Function System**
+- **TEA - Escape Time Algorithm**
+
+### 2.1. IFS
+
+IFS is based on affine transformations (do not change object properties, just the projection)
+
+- Scale (shrink, enlarge) - $a,b,c,d$
+- Translation - $e,f$
+- Rotation - $\varphi, \theta$
+
+$$
+\begin{align*}
+  w(\mathbf{x})&=w\begin{pmatrix}x_1\\x_2\end{pmatrix}=\begin{pmatrix}r_1\cos\varphi & -r_2\sin\theta\\r_1\sin\varphi & r_2\cos\theta\end{pmatrix}\cdot\begin{pmatrix}x_1\\x_2\end{pmatrix}+\begin{pmatrix}e\\f\end{pmatrix}\\
+  w(\mathbf{x})&=w\begin{pmatrix}x_1\\x_2\end{pmatrix}=\begin{pmatrix}a & b\\c & d\end{pmatrix}\cdot\begin{pmatrix}x_1\\x_2\end{pmatrix}+\begin{pmatrix}e\\f\end{pmatrix}
+\end{align*}
+$$
+
+### 2.2. L-Systems
+
+Rule based fractals.
+
+1. Axiom
+  $$A\colon F+F$$
+2. Rule
+  $$R\colon F \rightarrow F+F-F$$
+
+### 2.3. Mandelbrot Set
+
+Quadratic recurrence equation, $z\in \mathbb{C},c \in \mathbb{C}$:
+
+$$
+\begin{align*}
+  z_0 &= 0\\
+  z_{n+1} &= z_n^2 + c
+\end{align*}
 $$
