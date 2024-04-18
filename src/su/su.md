@@ -45,6 +45,20 @@
   - [8.1. Bagging/Boostrapping](#81-baggingboostrapping)
   - [8.2. Boosting](#82-boosting)
   - [8.3. Gradient Boosted Decision Trees](#83-gradient-boosted-decision-trees)
+- [9. XGBoost](#9-xgboost)
+  - [9.1. Bias Variance Tradeoff](#91-bias-variance-tradeoff)
+  - [9.2. Classification and Regression Trees (CART)](#92-classification-and-regression-trees-cart)
+- [10. Hluboké učení](#10-hluboké-učení)
+  - [10.1. Autoencoder](#101-autoencoder)
+  - [10.2. Variational Autoencoder](#102-variational-autoencoder)
+  - [10.3. CNN](#103-cnn)
+  - [10.4. RNN](#104-rnn)
+    - [10.4.1. Text Embedding](#1041-text-embedding)
+    - [10.4.2. Word2Vec](#1042-word2vec)
+      - [10.4.2.1. Continuous bag-of-words model](#10421-continuous-bag-of-words-model)
+      - [10.4.2.2. Continuous skip-gram model](#10422-continuous-skip-gram-model)
+    - [10.4.3. BERT](#1043-bert)
+- [11. Precision/Recall Tradeoff](#11-precisionrecall-tradeoff)
 
 ## 1. Dolování častých vzorů (Frequent Itemset Mining)
 
@@ -399,3 +413,197 @@ $$\boxed{\mathcal{P}(y=1 \mid \mathbf{x}) = \sigma\left(\sum\limits_{d=1}^{D}w_{
 ### 8.3. Gradient Boosted Decision Trees
 
 - LightGBM
+- CatBoost
+- XGBoost
+
+## 9. XGBoost
+
+- [Extreme Gradient Boostring](https://xgboost.readthedocs.io/en/stable/tutorials/model.html) (or on [GitHub](https://github.com/dmlc/xgboost/blob/82d846bbeb83c652a0b1dff0e3519e67569c4a3d/doc/tutorials/model.rst))
+
+In order to train the model, we need to define the objective function to measure how well the model fit the training data. The objective functions consists of two parts - **training loss** and **regularization term**:
+
+$$
+\text{obj}(\theta) = L(\theta) + \Omega(\theta),
+$$
+
+where $\theta$ are model parameters, $L(\theta)$ is the training loss function, and $\Omega(\theta)$ is the regularization term.
+
+### 9.1. Bias Variance Tradeoff
+
+<img src="figures/bias-variance-tradeoff.png" alt="bias-variance-tradeoff" width="400px">
+
+<img src="figures/bias-variance-tradeoff2.png" alt="bias-variance-tradeoff2" width="400px">
+
+The regularization term controls the complexity of the model, which helps us to avoid overfitting. The general principle is we want both a simple and predictive model.
+
+### 9.2. Classification and Regression Trees (CART)
+
+- classification and regression trees (CART)
+
+<img src="figures/cart.png" alt="cart" width="400px">
+<img src="figures/twocart.png" alt="twocart" width="400px">
+
+$$
+\hat{y}_i = \sum_{k=1}^K f_k(x_i), f_k \in \mathcal{F},
+$$
+
+where $K$ is the number of trees, $f_k$ is a function in the functional space $\mathcal{F}$, and $\mathcal{F}$ is the set of all possible CARTs. The objective function to be optimized is given by
+
+$$
+\text{obj}(\theta) = \sum_i^n l(y_i, \hat{y}_i) + \sum_{k=1}^K \omega(f_k),
+$$
+
+where $\omega(f_k)$ is the complexity of the tree $f_k$, defined in detail later.
+
+## 10. Hluboké učení
+
+### 10.1. Autoencoder
+
+Učení probíhá v režimu komprese (vytvoří se latentní vektor) a následné dekomprese. Autoencoder není vhodný pro klasifikaci. Proč? Encoder se snaží co nejlépe komprimovat vstup, prvky vytvořeného latentního vektoru ("features") nerozlišují mezi různými třídami vstupů (komprimují celý prostor trénovací množiny).
+
+- Komprese (např. textu).
+- One Class Classification - informace, jesti model dříve daná data viděl.
+- Detekce outlierů.
+- Denoising.
+
+<img src="figures/autoencoder.png" alt="autoencoder" width="300px">
+
+### 10.2. Variational Autoencoder
+
+- Fungují na základě skládání vícerozměrných normálních rozdělení a větě o úplné pravděpodobnosti $\mathcal{P}(x)=\int \mathcal{P}(x|z)\mathcal{P}(z)\mathrm{d} x$
+- $\mathcal{P}(x|z)$ je modelované pomocí vícerozměrného normálního rozdělení $\mathcal{N}(\mu, \Sigma)$.
+- Používají se dvě ztrátové funkce - podobnost na úrovní pixelů a podobnost distribuce se standardním normálním rozdělení pomocí KLD:
+
+$$
+D_\text{KL}\left(
+    \mathcal{N}\left(\left(\mu_1, \ldots, \mu_k\right)^\mathsf{T}, \operatorname{diag} \left(\sigma_1^2, \ldots, \sigma_k^2\right)\right) \parallel
+    \mathcal{N}\left(\mathbf{0}, \mathbf{I}\right)
+  \right) \\=
+  {1 \over 2} \sum_{i=1}^k \left(\sigma_i^2 + \mu_i^2 - 1 - \ln\left(\sigma_i^2\right)\right).
+$$
+
+<img src="figures/variational-autoencoder.png" alt="variational-autoencoder" width="400px">
+
+<img src="figures/variational-autoencoder-architecture.png" alt="variational-autoencoder-architecture" width="400px">
+
+### 10.3. CNN
+
+By definition a confusion matrix $C$ is such that  $C_{i,j}$  is equal to the number of observations known to be in group $i$ and predicted to be in group $j$.
+
+- Conv1D - např. zpracování signálu, časové řady
+- Conv2D - standardně obrázky
+- Conv3D - lidar, video, hloubkový obraz
+
+**Convolution increases depth**; thus, if you start with a grayscale image with `depth=1` and apply Conv2D layer with 32 filters, output will have the depth of 32.
+
+**Pooling reduces width and height**, but depth stays the same.
+
+Keras example:
+
+```python
+model = keras.Sequential([
+    # Encoder - feature engineering
+    keras.layers.Conv2D(32, (3,3), activation='relu', input_shape=(32, 32, 3)),
+    keras.layers.MaxPooling2D((2, 2)),
+    keras.layers.Conv2D(16, (3,3), activation='relu'),
+    # Decoder - fully connected network (classification)
+    keras.layers.Flatten(),
+    keras.layers.Dense(64, activation='relu'),
+    keras.layers.Dense(class_count, activation='softmax')
+])
+```
+
+```text
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ conv2d (Conv2D)             (None, 30, 30, 32)        896       
+                                                                 
+ max_pooling2d (MaxPooling2  (None, 15, 15, 32)        0         
+ D)                                                              
+                                                                 
+ conv2d_1 (Conv2D)           (None, 13, 13, 16)        4624      
+                                                                 
+ flatten (Flatten)           (None, 2704)              0         
+                                                                 
+ dense (Dense)               (None, 64)                173120    
+                                                                 
+ dense_1 (Dense)             (None, 10)                650     
+```
+
+- Weights of the convolutional layers are concentrated in the convolution masks.
+
+### 10.4. RNN
+
+- Proč potřebujeme RNN? Berou v potaz **kontext** (mají "paměť"), což je nezbytné např. pro zpracování textu nebo pro časově závislé sekvence. Např. **sentiment analysis**.
+- RNN jsou náchylné na *vanishing gradient problem*.
+- RNN jsou schopné zpracovávat sekvence libovolné konečné délky. Používá se **backpropagation through time**.
+- RNN nelze paralelizovat a trénovat pomocí grafických akcelerátorů $\Rightarrow$ výpočetně náročné.
+
+<img src="figures/rnn.png" alt="rnn" width="400px">
+
+- $h_i$ ...hidden state
+
+#### 10.4.1. Text Embedding
+
+- Každému slovu odpovídá jeden vektor.
+- Embeddingem rozumíme matici, kde jeden řádek odpovídá jednomu slovu.
+
+```python
+# Dimension of embedded representation (for words)
+embedding_dim = 128
+
+# Number of unique tokens in vocabulary
+vocab_size = 10000
+
+# Output dimension after vectorizing
+# (how long sequences do we have?
+#  e.g. tweets are on average 100 character)
+sequence_length = 30
+```
+
+Speciální tokeny:
+
+- `''` - empty token
+- `[UNK]` - unknown token (not included in the training corpus)
+
+GRU, LSTM:
+
+- Usually we don't stack multiple recurrent layers (LSTM, GRU) - susceptible to vanishing gradient.
+- LSTM is more complicated but less prone to underfitting compared to GRU.
+- LSTM is often used together with `RMSprop`.
+
+Why should we use **pre-trained embeddings**?
+
+Often, the embeddings are trained on **large corpuses** (e.g. Wikipedia); therefore, the final quality should be better (better context). However, for **specialized domains** (e.g., *medicine* or *law*) we would need to choose an appropriate embedding or train our own.
+
+#### 10.4.2. Word2Vec
+
+- Používá sliding-window.
+- Pro kvalitní embedding je potřeba velké množství dat - alespoň desítky tisíc vět. Např. jedna knížka nestačí (není tam dostatek kontextu).
+
+##### 10.4.2.1. Continuous bag-of-words model
+
+- predicts the middle word based on surrounding context words.
+- the context consists of a few words before and after the current (middle) word.
+- this architecture is called a bag-of-words model as the **order of words in the context is not important**.
+
+##### 10.4.2.2. Continuous skip-gram model
+
+- predicts words within a certain range before and after the current word in the same sentence.
+- window size 2 corresponds to two words before a given word and 2 words behind it.
+
+#### 10.4.3. BERT
+
+- Bidirectional Encoder Representations from Transformers (BERT)
+- Čte kontext slova z obou stran.
+- Při inferenci lze nastavit **teplotu**. Vyšší teplota znamená vyšší randomizaci. Např. pro bing chat lze taky nastavit různé úrovně...
+
+## 11. Precision/Recall Tradeoff
+
+Pokud chceme vyšší *recall* na úkor *precision*, tak obvykle zvolíme jiný **threshold**:
+
+```py
+threshold = 0.5
+y_pred = [1 if x >= threshold else 0 for x in y_pred]
+```
