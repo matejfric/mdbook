@@ -24,7 +24,11 @@
   - [4.1. Double Buffering](#41-double-buffering)
   - [4.2. Buffery](#42-buffery)
   - [4.3. GLUT library](#43-glut-library)
-- [5. Examples](#5-examples)
+- [5. Atomické intrukce (Atomic Functions)](#5-atomické-intrukce-atomic-functions)
+  - [5.1. CUDA atomické instrukce](#51-cuda-atomické-instrukce)
+- [6. Page Lock Memory](#6-page-lock-memory)
+- [7. Unified Memory](#7-unified-memory)
+- [8. Examples](#8-examples)
 
 ## 1. Úvod
 
@@ -299,7 +303,40 @@ CUDA se přizpůsobuje OpenGL (protože OpenGL je starší). Prvně se vytvoří
 
 - Vrstva nad OpenGL pro vytváření oken.
 
-## 5. Examples
+## 5. Atomické intrukce (Atomic Functions)
+
+- Atomická instrukce je **nedělitelná operace**.
+- Je HW zaručeno, že atomická operace bude vykonána pouze jedním vláknem.
+- SW implementace lze vytvořit pomocí binárního **semaforu**. Jedno vlákno něco dělá, ostatí v nekonečném cyklu čekájí, až se operace dokončí. Toto by bylo velmi pomalé, proto je to řešeno v HW.
+
+### 5.1. CUDA atomické instrukce
+
+- **shared** nebo **global** memory
+- atomické operace jsou pomalejší než standardní (load/store)
+
+```cpp
+int y = atomicAdd(x, 1) // y = *x; *x = *x + 1
+```
+
+Proč to vrací aktuální stav? **Stack unwinding**.
+
+Možné přístupy hledání maxima v poli pomocí atomických operací:
+
+1. Agregace do jedné hodnoty v globální paměti.
+2. Agregace do pole v globální paměti (pro každý blok).
+3. Agregace do shared memory v rámci jednoho bloku.
+
+## 6. Page Lock Memory
+
+OS stránkuje paměť (kvůli rychlosti, přes cache). Přednačítá data dopředu (kvůli rychlosti). Podobně funguje i GPU.
+
+Princip **page lock memory** je zamknutí paměti na `host`. OS tím řekneme, aby paměť stránkoval na stejných adresách. Potom GPU nemusí kontrolovat stránky a **memcopy** je rychlejší.
+
+## 7. Unified Memory
+
+Správa paměti je přenechána OS. Nevýhodou je, že nemáme jak zjistit, kdy je paměť na CPU a kdy na GPU. Pokud program navrhneme špatně, tak může docházet k častému kopírovaní dat mezi CPU a GPU (přičemž z pohledu programátora to nemusí na první pohled být viditelné).
+
+## 8. Examples
 
 <details><summary> Add vectors </summary>
 
@@ -353,6 +390,14 @@ CUDA se přizpůsobuje OpenGL (protože OpenGL je starší). Prvně se vytvoří
 
 ```cpp
 {{#include src/7_opengl.cu}}
+```
+
+</details>
+
+<details><summary> Atomics </summary>
+
+```cpp
+{{#include src/8_atomics.cu}}
 ```
 
 </details>
