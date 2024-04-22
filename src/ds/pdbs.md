@@ -55,7 +55,21 @@
   - [12.1. JSON (JavaScript Object Notation)](#121-json-javascript-object-notation)
   - [12.2. MongoDB](#122-mongodb)
     - [12.2.1. Struktura databáze](#1221-struktura-databáze)
-- [13. Poznámky](#13-poznámky)
+    - [12.2.2. Dotazy v MongoDB](#1222-dotazy-v-mongodb)
+      - [12.2.2.1. Agregace](#12221-agregace)
+      - [12.2.2.2. Aktualizace](#12222-aktualizace)
+      - [12.2.2.3. JavaScript](#12223-javascript)
+    - [12.2.3. Schéma v MongoDB](#1223-schéma-v-mongodb)
+  - [12.3. Případná konzistence](#123-případná-konzistence)
+  - [12.4. BASE](#124-base)
+- [13. Distribuovaný databázový systém (DDBS)](#13-distribuovaný-databázový-systém-ddbs)
+  - [13.1. Fragmentace dat](#131-fragmentace-dat)
+  - [13.2. Replikace dat](#132-replikace-dat)
+  - [13.3. Primární kopie](#133-primární-kopie)
+    - [13.3.1. Aktualizace sekundárních replik](#1331-aktualizace-sekundárních-replik)
+  - [13.4. Implementace DDBS](#134-implementace-ddbs)
+  - [13.5. MongoBD](#135-mongobd)
+- [14. Poznámky](#14-poznámky)
 
 ## 1. Testovací databáze ProductOrderDb
 
@@ -1254,7 +1268,169 @@ mongosh.exe mongodb://fri0089:fri0089@dbsys.cs.vsb.cz:27017
 use fri0089
 ```
 
-## 13. Poznámky
+#### 12.2.2. Dotazy v MongoDB
+
+Jak smazat všechny dokumenty z databáze `moviedb`?
+
+```sql
+db.moviedb.deleteMany({});
+```
+
+##### 12.2.2.1. Agregace
+
+```js
+db.moviedb.aggregate([
+  {
+    $match: { /* kritéria pro selekci */ }
+  },
+  {
+    $group: { /* pravidla pro seskupování */ }
+  }
+]);
+```
+
+- `$match` provádí selekci.
+- `$group` provádí seskupování vybraných dokumentů podle zadaných pravidel.
+
+##### 12.2.2.2. Aktualizace
+
+```js
+db.collection.updateOne(query, update, options);
+db.collection.updateMany(query, update, options);
+```
+
+##### 12.2.2.3. JavaScript
+
+V `mongoshell` musíme povolit JS `snippet install mongocompat`.
+
+#### 12.2.3. Schéma v MongoDB
+
+```js
+db.createCollection("moviedb", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      title: "Movie Record Validation",
+      required: ["name", "year", "actor", "genre", "ranking"],
+      properties: {
+        name: {
+          bsonType: "string",
+          description: "’name’ must be a string and is required"
+        },
+        year: {
+          bsonType: "int",
+          minimum: 1870,
+          maximum: 3017,
+          description: "’year’ must be an integer in [1870, 3017] and is required"
+        },
+        // další vlastnosti...
+      }
+    }
+  }
+});
+```
+
+- `validator` určuje schéma JSON, které definuje pravidla pro validaci dokumentů.
+- `required` specifikuje povinná pole.
+- `properties` obsahuje definice pro jednotlivé vlastnosti, jako je `name`, `year`, a další.
+- Každá vlastnost může obsahovat atributy jako `bsonType`, `minimum`, `maximum`, a `description` pro specifikaci validace.
+
+### 12.3. Případná konzistence
+
+**Případná konzistence (Eventual consistency)** je model konzistence používaný v **distribuovaných** databázových systémech k dosažení vysoké dostupnosti.
+
+Případná konzistence znamená, že pokud provedeme nějaké zápisy a systém bude pracovat dostatečně dlouho bez dalších zápisů, data se nakonec zkonsolidují: další čtení pak budou vracet stejnou hodnotu (posledního zápisu).
+
+### 12.4. BASE
+
+Systémy založené na **případné konzistenci** jsou často klasifikovány jako systémy s vlastností **BASE**:
+
+- **V podstatě dostupné (Basically-available)**: Čtení a zápis jsou **maximálně dostupné** s použitím všech uzlů sítě, ale **nemusí být konzistentní**, což znamená, že **čtení nemusí vracet poslední zápis**.
+- **Soft-state**: Není garantována konzistence. Po zápisech a nějakém čase chodu systému existuje pouze určitá pravděpodobnost konvergence dat.
+- **Případná konzistence (Eventual consistency)**.
+
+## 13. Distribuovaný databázový systém (DDBS)
+
+Hlavním důvodem pro DDBS je **zvýšení dostupnosti** *(availability)*.
+
+1. DDBS se pro uživatele musí jevit jako systém **nedistribuovaný**.
+2. Je **nezávislý na centrálním prvku**.
+3. Je **dostupný**.
+    - Dostupnost (availability) je pravděpodobnost, že systém bude funkční během definovaného období. Dostupnost je u DDBS vyšší díky využití **replikace** (viz dále).
+4. Používá **fragmentaci**.
+5. Používá **replikaci**.
+
+Všechny uzly jsou si rovny, nemůžeme se spoléhat na nějaký centrální uzel zabezpečující vykonávání dotazů, řízení souběhu atd.
+
+Proč neuvažujeme centrální uzel?
+
+- Možné úzké místo systému – potenciální problémy s výkonem.
+- Systém je zranitelný – pád centrálního uzlu znamená pád celého systému, což vede ke snížení dostupnosti.
+
+V implementacích DDBS se některý uzel v určitém čase může stát nadřazeným uzlem, ale jeho pád neohrozí dostupnost.
+
+### 13.1. Fragmentace dat
+
+> **Fragmentace dat** znamená, že data jsou rozdělena na části (fragmenty). Fragmenty jsou **disjunktní**, každá část obsahuje unikátní informace.
+
+Fragmentace se používá především kvůli výkonu, protože data jsou umístěna v uzlu, kde jsou **nejčastěji používána**. Výkon dotazování může být naopak snížen, pokud se provádějí spojení mezi daty umístěnými na různých uzlech, což může být ovlivněno nízkou přenosovou rychlostí. Z tohoto důvodu se v **NoSQL** databázových systémech snaží **eliminovat operaci spojení**, a proto se méně používá dekompozice dat.
+
+Fragmentaci rozdělujeme na **horizontální** a **vertikální**:
+
+- Horizontální fragmentace odpovídá operaci **selekce**.
+- Vertikální fragmentace odpovídá operaci **projekce**.
+
+**Operace nad fragmenty:**
+
+- Při dotazování fragmentů, DBS z katalogu přečte, na kterém uzlu je daný fragment uložen, a nebude přistupovat k ostatním uzlům (například, pokud správce chce získat sumu na účtech pobočky B1, přistupuje pouze k uzlu Ostrava).
+- Aktualizace fragmentů má mnoho společného s aktualizací pohledů. Záznam může být přesunut z jednoho uzlu na druhý, pokud po aktualizaci nesplňuje podmínky původního uzlu.
+
+### 13.2. Replikace dat
+
+> **Replikace dat** znamená, že data jsou uložena v několika kopiích (replikách) na uzlech systému.
+
+**Replikace slouží ke zvýšení dostupnosti**, protože replikovaný objekt je dostupný, dokud je dostupná alespoň jedna kopie. Fragmentace sama o sobě tuto záruku neposkytuje. Proto pokud se v NoSQL databázových systémech používá fragmentace, obvykle je to v kombinaci s replikací.
+
+Replikaci můžeme považovat za druh řízené **redundance**.
+
+V ACID databázových systémech znamená aktualizace záznamu aktualizaci všech kopií. Co se stane, pokud je jeden z uzlů s kopií nedostupný? Nezaktualizuje se? To je **problém propagace aktualizace**.
+
+Okamžitá propagace aktualizace na všechny uzly může snížit dostupnost, protože transakce se dokončí pouze tehdy, když je aktualizace provedena na všech uzlech. Z tohoto důvodu byly vyvinuty databázové systémy, které používají **případnou konzistenci**. To není omezeno pouze na NoSQL databáze, podobné rysy můžeme vidět i u relačních databázových systémů.
+
+### 13.3. Primární kopie
+
+Časté řešení **propagace aktualizace** se nazývá **primární kopie**:
+
+- Jedna z kopií replikovaného objektu se nazývá **primární kopie** a všechny ostatní kopie se nazývají **sekundární kopie**.
+- Primární kopie různých objektů se nacházejí na různých uzlech.
+- Aktualizace se považuje za **dokončenou**, právě tehdy, když je aktualizována **primární kopie**. Uzel obsahující tuto kopii je pak zodpovědný za propagaci aktualizace ke všem sekundárním kopiím.
+- Primární kopie porušuje podmínku **neexistence centrálního prvku**. Transakce selže, pokud je primární kopie nedostupná. U NoSQL databázových systémů se v takovém případě volí nová primární kopie, aby bylo možné pokračovat v provozu.
+
+#### 13.3.1. Aktualizace sekundárních replik
+
+1. **Synchronní replikace**: Propagace aktualizace musí být provedena před ukončením transakce, je **dodržen ACID**.
+
+2. **Asynchronní replikace**: Propagace změn k sekundárním kopiím není provedena v rámci transakce, ale v nějakém čse později (často nastavitelném uživatelem).
+   - Toto je méně ambiciózní podoba aktualizace, podporovaná v mnoha databázových systémech.
+   - **Není garantována konzistence** databáze v každém okamžiku. Uživatel dokonce nemusí být schopen zjistit, zda je databáze konzistentní či nikoli (případná konzistence).
+
+### 13.4. Implementace DDBS
+
+**Oracle** implementuje **primární kopii** (také známou jako řídící tabulka – `control table` nebo `master table`). Repliku je možné vytvořit příkazem `CREATE SNAPSHOT`.
+
+### 13.5. MongoBD
+
+- Dokumenty mohou být uloženy na různých uzlech sítě v kopiích - **replikách** (primární, sekundární)
+
+> Sharding je metoda rozdělení dat (data partitioning) v distribuovaném prostředí. Obdoba fragmentace dat.
+
+- Dokumenty kolekce se ukládají do úlomků **(shards)** podle klíče **(Shard Key)**, což je vybraná položka dokumentu.
+- **Sharded cluster** (shluk) se skládá z následujících komponent:
+  - **Shard (úlomek)**: Každý úlomek obsahuje část dokumentů dle klíče. Každý úlomek představuje množinu replik.
+  - **Dotazovací router**: Poskytuje rozhraní mezi klientem a shlukem.
+  - **Konfigurační server**: Ukládá metadata a nastavení shluku.
+
+## 14. Poznámky
 
 Jak vytvořit kopii tabulky:
 
