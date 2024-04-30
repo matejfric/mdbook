@@ -8,8 +8,14 @@
   - [1.5. Aho-Corasick (AC) Algorithm](#15-aho-corasick-ac-algorithm)
 - [2. Přibližné vyhledávání řetezců (Exact Pattern Matching)](#2-přibližné-vyhledávání-řetezců-exact-pattern-matching)
   - [2.1. NDFA](#21-ndfa)
-- [3. Elias Gamma Coding](#3-elias-gamma-coding)
-- [Vector Model](#vector-model)
+- [3. Vector Model](#3-vector-model)
+- [4. Kódování](#4-kódování)
+  - [4.1. Elias Gamma Coding](#41-elias-gamma-coding)
+  - [4.2. Huffman coding](#42-huffman-coding)
+  - [4.3. Aritmetické kódování](#43-aritmetické-kódování)
+  - [4.4. Run-length Encoding (RLE)](#44-run-length-encoding-rle)
+  - [4.5. Burrows–Wheeler transform (BWT)](#45-burrowswheeler-transform-bwt)
+- [5. Latentní sémantická analýza](#5-latentní-sémantická-analýza)
 
 ## 1. Exact Pattern Matching
 
@@ -91,7 +97,23 @@ $T=\text{survey}$
 1. $t_0\colon (1,i)$
 2. $t_1\colon s\rightarrow[(2,i+1), (9,i), (8,i)]$
 
-## 3. Elias Gamma Coding
+## 3. Vector Model
+
+| TF | Doc1 | Doc2 | ... | DocN |
+|--|--|--|--|--|
+| term1 | 10 | 0 | ... |  3 |
+| term2 | 15 | 0 | ... |  0 |
+| term3 | 0 | 8 | ... |  7 |
+
+$$\boxed{\mathrm{idf}(\mathrm{term}) = \log\dfrac{N}{\mathrm{df}(\mathrm{term})},}$$
+
+kde $N$ je počet dokumentů v kolekci a $\mathrm{df}_{\mathrm{term}}$ je počet dokumentů obsahujících $\mathrm{term}$.
+
+Pro dotaz $q$: $\mathrm{Score}(q,d)=\sum\limits_{t\in q} \mathrm{TF}_{d,t} \cdot \mathrm{idf}(t)$
+
+## 4. Kódování
+
+### 4.1. Elias Gamma Coding
 
 - Každé kladné celé číslo ve dvojkové soustavě začíná jedničkou.
 
@@ -108,16 +130,80 @@ $$
 
 Př. $4 \Rightarrow b(4) =100 \Rightarrow \lvert b(4) \rvert = 3 \Rightarrow u( \lvert b(4) \rvert -1)\Rightarrow \gamma(4)=00100$ (první tři bity jsou $u(3)$, další dva jsou $b(4)$ bez *leading* bitu)
 
-## Vector Model
+### 4.2. Huffman coding
 
-| TF | Doc1 | Doc2 | ... | DocN |
+- [Huffman coding](https://en.wikipedia.org/wiki/Huffman_coding)
+
+<img src="figures/huffman-tree.png" alt="huffman-tree" width="400px">
+
+### 4.3. Aritmetické kódování
+
+<img src="figures/arithmetic-coding.png" alt="arithmetic-coding" width="300px">
+
+Encoding the message `"WIKI"` with arithmetic coding
+
+1. The letter frequencies are found.
+2. The interval $[0, 1)$ is partitioned in the ratio of the frequencies.
+3. The corresponding interval is iteratively:
+      1. partitioned for each letter in the message.
+      2. Any value in the final interval is chosen to represent the message.
+
+2*–6*: The partitioning and value if the message were `"KIWI"` instead.
+
+### 4.4. Run-length Encoding (RLE)
+
+- [RLE](https://en.wikipedia.org/wiki/Run-length_encoding)
+
+Consider a screen containing plain black text on a solid white background. There will be many long runs of white pixels in the blank space, and many short runs of black pixels within the text. A hypothetical scan line, with `B` representing a black pixel and `W` representing white, might read as follows:
+
+```text
+WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW
+```
+
+With a run-length encoding (RLE) data compression algorithm applied to the above hypothetical scan line, it can be rendered as follows:
+
+```text
+12W1B12W3B24W1B14W
+```
+
+### 4.5. Burrows–Wheeler transform (BWT)
+
+- Přeuspořádává řetězce znaků do sekvencí podobných symbolů (změna uspořádání).
+- Používá se např. v kombinaci s **move-to-front (MTF) transform** a **run-length encoding (RLE)**.
+- Použití `bzip2`.
+
+## 5. Latentní sémantická analýza
+
+TF Matice $A$:
+
+| TF | $D_1$ | $D_2$ | ... | $D_N$ |
 |--|--|--|--|--|
-| term1 | 10 | 0 | ... |  3 |
-| term2 | 15 | 0 | ... |  0 |
-| term3 | 0 | 8 | ... |  7 |
+| $w_1$ | 10 | 0 | ... |  3 |
+| $w_2$ | 15 | 0 | ... |  0 |
+| $w_3$ | 0 | 8 | ... |  7 |
 
-$$\boxed{\mathrm{idf}(\mathrm{term}) = \log\dfrac{N}{\mathrm{df}(\mathrm{term})},}$$
+SVD rozklad $A=U\Sigma V^T$
 
-kde $N$ je počet dokumentů v kolekci a $\mathrm{df}_{\mathrm{term}}$ je počet dokumentů obsahujících $\mathrm{term}$.
+| $U$ | $b_1$ | $b_2$ | ... | $b_N$ |
+|--|--|--|--|--|
+| $w_1$ |  |  |  |  |
+| $w_2$ |  |  |  |  |
+| $w_3$ |  |  |  |  |
 
-Pro dotaz $q$: $\mathrm{Score}(q,d)=\sum\limits_{t\in q} \mathrm{TF}_{d,t} \cdot \mathrm{idf}(t)$
+| $\Sigma$ |  |  |  |
+|--|--|--|--|
+|  | $\sigma_1$ |  |  |
+|  |  | $\ddots$ |  |
+|  |  |  | $\sigma_N$  |
+
+$\sigma_1 > \sigma_2 > \cdots > \sigma_N$
+
+| $V^T$ | $b_1$ | $b_2$ | ... | $b_N$ |
+|--|--|--|--|--|
+| $D_1$ |  |  |  |  |
+| $D_2$ |  |  |  |  |
+| $D_3$ |  |  |  |  |
+
+Singulární čísla matice $\Sigma$ udávají, jak důležitý je daný bázový vektor $b$ - **koncept** (latentní dimenze).
+
+Pokud uvažujeme TF matici $A$, kde *řádky jsou věty* a *sloupce jsou slova*, tak `argmax(U[:,0])` je index nejvýznamější věty a `argmax(V_T[:,0])` je index nejvýznamějšího slova.
