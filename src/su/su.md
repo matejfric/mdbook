@@ -58,7 +58,10 @@
       - [10.4.2.1. Continuous bag-of-words model](#10421-continuous-bag-of-words-model)
       - [10.4.2.2. Continuous skip-gram model](#10422-continuous-skip-gram-model)
     - [10.4.3. BERT](#1043-bert)
-- [11. Precision/Recall Tradeoff](#11-precisionrecall-tradeoff)
+    - [10.4.4. Attention vrstva](#1044-attention-vrstva)
+- [11. Miscellaneous](#11-miscellaneous)
+  - [11.1. Precision/Recall Tradeoff](#111-precisionrecall-tradeoff)
+  - [11.2. Batch size](#112-batch-size)
 
 ## 1. Dolování častých vzorů (Frequent Itemset Mining)
 
@@ -599,7 +602,15 @@ Often, the embeddings are trained on **large corpuses** (e.g. Wikipedia); theref
 - Čte kontext slova z obou stran.
 - Při inferenci lze nastavit **teplotu**. Vyšší teplota znamená vyšší randomizaci. Např. pro bing chat lze taky nastavit různé úrovně...
 
-## 11. Precision/Recall Tradeoff
+#### 10.4.4. Attention vrstva
+
+- Myšlenka je taková, že to, co není důležité, můžeme zahodit. Naopak *důležité* věci si zapamatujeme.
+- Attention vrstva potlačuje *forget gate*. V principu nastavuje váhy tokenů po *bidirectional LSTM* vrstvě.
+- *Self-attention* - v rámci řetězce se vypočte *attention* vůči všem tokenům.
+
+## 11. Miscellaneous
+
+### 11.1. Precision/Recall Tradeoff
 
 Pokud chceme vyšší *recall* na úkor *precision*, tak obvykle zvolíme jiný **threshold**:
 
@@ -607,3 +618,9 @@ Pokud chceme vyšší *recall* na úkor *precision*, tak obvykle zvolíme jiný 
 threshold = 0.5
 y_pred = [1 if x >= threshold else 0 for x in y_pred]
 ```
+
+### 11.2. Batch size
+
+What's the advantage of a larger batchsize? Higher speed.
+
+Why? Backpropagation is not computed as many times (bottleneck).
