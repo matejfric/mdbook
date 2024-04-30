@@ -69,7 +69,12 @@
     - [13.3.1. Aktualizace sekundárních replik](#1331-aktualizace-sekundárních-replik)
   - [13.4. Implementace DDBS](#134-implementace-ddbs)
   - [13.5. MongoBD](#135-mongobd)
-- [14. Poznámky](#14-poznámky)
+- [14. Vícerozměrné datové struktury](#14-vícerozměrné-datové-struktury)
+  - [14.1. Dotazy](#141-dotazy)
+  - [14.2. Kvadrantový strom](#142-kvadrantový-strom)
+  - [14.3. R-strom](#143-r-strom)
+  - [14.4. SphereR-Tree (SpR-Tree)](#144-spherer-tree-spr-tree)
+- [15. Poznámky](#15-poznámky)
 
 ## 1. Testovací databáze ProductOrderDb
 
@@ -1430,7 +1435,54 @@ Okamžitá propagace aktualizace na všechny uzly může snížit dostupnost, pr
   - **Dotazovací router**: Poskytuje rozhraní mezi klientem a shlukem.
   - **Konfigurační server**: Ukládá metadata a nastavení shluku.
 
-## 14. Poznámky
+## 14. Vícerozměrné datové struktury
+
+K čemu to je dobré? Efektivní **rozsahové dotazy**. Typicky ukládáme body v $n$-rozměrném prostoru.
+
+Vícerozměrné datové struktury je možné aplikovat všude, kde se data reprezentují jako $d$-rozměrné vektory a používáme vysoce selektivní dotazy.
+
+Vícerozměrné datové struktury rozlišujeme:
+
+- **Metrické**, např. $M$-strom
+  - Indexují metrické prostory, používají podobnost $d$-rozměrných vektorů.
+- **Vektorové**, např. $R$-strom
+  - Indexují vektorové prostory, používají vzdálenost (nejčastěji Euklidovskou) vektorů.
+  
+Vektorové vícerozměrné datové struktury rozlišujeme:
+
+- Nevyvážené stromy: kvadrantové stromy, $KD$-stromy.
+- Vyvážené stromy: $R$-stromy, $UB$-stromy.
+- Gridy.
+
+Rozlišujeme také reálné a diskrétní domény indexovaných prostorů.
+
+### 14.1. Dotazy
+
+- **bodový dotaz** na existenci vektoru - IO cost $h+1$
+- **hyperkvádr** (rozsahový dotaz)
+- **hyperkoule** (rozsahový dotaz)
+- **kNN**
+
+Prokletí dimenzionality: v některých případech jsou vícerozměrné datové struktury nepoužitelné už pro $d>32$ (pomalejší než sekvenční průchod).
+
+### 14.2. Kvadrantový strom
+
+Používá se pro dimenze 2 nebo 3 (oktantový strom). Nepoužívá se pro prostory vyšších dimenzí, protože stupeň uzlu roste exponenciálně s dimenzí $2^d\Rightarrow2^{10}=1024$.
+
+- bodový dotaz na existenci vektoru - IO cost $h+1$
+- rozsahový dotaz - průchod stromem od kořene k listům. Průchod $r$ kvadranty protínající dotazovací hyperkvádr IO cost $r(h+1)$
+
+### 14.3. R-strom
+
+- Oracle Spatial
+- Proč? **Vyváženost** a **stránkování**.
+
+### 14.4. SphereR-Tree (SpR-Tree)
+
+- $d$-rozměrné koule (hyperkoule)
+- Vyvážený strom, garance využití stránek $\geq50\%$, protínání regionů, volba arity stromu pro velikost stránky.
+
+## 15. Poznámky
 
 Jak vytvořit kopii tabulky:
 
