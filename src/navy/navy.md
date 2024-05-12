@@ -233,7 +233,9 @@ Initialization: weights are set to small random numbers (or sampled from the 1st
 
 ### 6.3. Describe a perceptron
 
-<img src="figures/perceptron.png" alt="perceptron" width="600px">
+Perceptron is a model of neuron:
+
+<img src="figures/perceptron.png" alt="perceptron" width="400px">
 
 ### 6.4. Every neuron (unit) has an activations function. What is the input of this function?
 
