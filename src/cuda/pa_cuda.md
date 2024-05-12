@@ -7,7 +7,6 @@
   - [1.4. Dining Philosophers Problem](#14-dining-philosophers-problem)
   - [1.5. nvcc](#15-nvcc)
   - [1.6. VisualStudio22](#16-visualstudio22)
-  - [1.7. Limity GPU](#17-limity-gpu)
   - [1.8. Jak vybrat N náhodných unikátních čísel z pole?](#18-jak-vybrat-n-náhodných-unikátních-čísel-z-pole)
 - [2. Technologie CUDA](#2-technologie-cuda)
   - [2.1. Práce s vektory](#21-práce-s-vektory)
@@ -21,8 +20,8 @@
 - [3. Textury](#3-textury)
   - [3.1. Normálové mapy (Normal Mapping)](#31-normálové-mapy-normal-mapping)
 - [4. OpenGL](#4-opengl)
-  - [4.1. Double Buffering](#41-double-buffering)
-  - [4.2. Buffery](#42-buffery)
+  - [4.1. Grafika](#41-grafika)
+  - [4.2. Double Buffering](#42-double-buffering)
   - [4.3. GLUT library](#43-glut-library)
 - [5. Atomické intrukce (Atomic Functions)](#5-atomické-intrukce-atomic-functions)
   - [5.1. CUDA atomické instrukce](#51-cuda-atomické-instrukce)
@@ -44,8 +43,8 @@ Na GPU je více tranzistorů věnováno zpracování dat namísto ukládání da
 
 Typy paralelizmu:
 
-1. **Datový paralelismus**.
-2. **Instrukční paralelismus** - využití instrukcí - např. jedny vlákna chystají data, další je zpracovávají.
+1. **Datový paralelismus** - data jsou rozdělena do bloků a každý blok je zpracován procesem/vláknem.
+2. **Instrukční paralelismus** - využití nezávislých instrukcí - např. jedny vlákna chystají data, další je zpracovávají.
 
 **Logické vlákno** je *sled instrukcí*. Potřebuju **registry** a nějakou výpočetní jednotku. Běží dokud má instrukce. Přerušení výpočtu vláken určuje programátor.
 
@@ -67,7 +66,7 @@ Skrýváním latence (čekání, **latency hiding**) rozumíme zkrácení nečin
 
 Maximální teoretické zrychlení pomocí paralelismu:
 
-$$\boxed{S=\dfrac{1}{r_s+\dfrac{r_p}{n}}}$$
+$$\boxed{S=\dfrac{T_{old}}{T_{new}}=\dfrac{r_s+r_p}{r_s+\dfrac{r_p}{n}}=\dfrac{1}{r_s+\dfrac{r_p}{n}}}$$
 
 - $S$ - *speed-up*
 - $r_s$ - *serial runtime* (čas sekvenčního algoritmu)
@@ -78,13 +77,15 @@ Příklad: 70 % programu běží sériově. Máme k dispozici 8 jader.
 
 $$ S=\dfrac{1}{0.7+\dfrac{0.3}{8}} \approx 1.35 $$
 
+Algoritmus, kde $r_p=1$, nazýváme "embarrassingly parallel".
+
 ### 1.2. N-Body Problem
 
 Výpočet gravitačních interakcí těles, kdy musíme počítat interakce každý s každým (neexistuje matematický model pro $N$ těles).
 
 ### 1.3. Boiler Problem
 
-Buď kotel na vodu a dvě kontrolní vlákna. Problém nelze řešit pouze těmito dvěmi vlákny. To, co chce udělat jedno z nich, chce i to druhé. Musí tam být nějaký další prvek, který bude vlákna ovládat (např. semafor, mutex).
+Buď kotel na vodu a dvě kontrolní vlákna. Problém nelze řešit pouze těmito dvěmi vlákny. To, co chce udělat jedno z nich, chce i to druhé. Musí tam být nějaký další prvek, který bude vlákna ovládat (např. semafor, mutex - mutual exclusion).
 
 ### 1.4. Dining Philosophers Problem
 
@@ -105,9 +106,9 @@ Buď kotel na vodu a dvě kontrolní vlákna. Problém nelze řešit pouze těmi
 
 - *Compute capability* je dána modelem GPU.
 
-### 1.7. Limity GPU
+<details><summary> Limity a vlastnosti GPU </summary>
 
-```text
+```txt
 [GPU details]:
   Clock rate                                        : 1.51 GHz
   Number of multiprocessors                         : 14
@@ -140,23 +141,31 @@ Buď kotel na vodu a dvě kontrolní vlákna. Problém nelze řešit pouze těmi
 SELECTED GPU Device 0: "NVIDIA GeForce GTX 1650" with compute capability 7.5
 ```
 
+</details>
+
 ### 1.8. Jak vybrat N náhodných unikátních čísel z pole?
 
 - Dvě pole: originální a pole náhodných hodnot. Sortuju náhodné pole a podle toho měním pozice v originálním poli. Potom vyberu prvních $N$ hodnot z takto vytvořeného pole.
 
 ## 2. Technologie CUDA
 
+<img src="figures/grid-blocks-thread.png" alt="grid-blocks-thread" width="300px">
+
 - Grid se rozpadne na bloky.
 - Bloky se rozdělí na warpy. Jeden warp má 32 vláken, které jsou schopny vykonávat SIMT (Single Instruction Multiple Thread).
 - `__syncthreads()` - čeká se až všechny warpy dokončí výpočet.
 
-Jeden **streaming multiprocessor (SM) zpracovává jeden blok**. Při dělení problému řádu $N$ obvykle dádá smysl rozdělit úlohu na násobek $|SM|$ bloků, kde $|SM|$ je počet SM.
+Jeden **streaming multiprocessor (SM) zpracovává jeden blok**. Při dělení problému řádu $N$ obvykle dádá smysl rozdělit úlohu na násobek $|SM|$ bloků, kde $|SM|$ je počet SM. Každý SM má vlastní řídící jednotky, registry, caches a execution pipelines.
 
-**Blok je dělený do warpů po 32 vláknech.** Vlákna v rámci jednoho warpu jsou **synchronní** (tzn. nedává smysl volat `__syncthreads()`).
+**Blok je dělený do warpů po 32 vláknech (thread block).** Vlákna v rámci jednoho warpu jsou **synchronní** (tzn. nedává smysl volat `__syncthreads()`). Warp je fyzicky vykonán paralelně (SIMT) na multiprocesoru.
 
 **Global memory** je hodně, ale je pomalá.
 
 **Karta čte obvykle po 512 B.**
+
+Kernel je funkce (vrácí void), která je spuštěna na `host` a vykonává se asynchronně na `device` (neblokuje `host`). Klíčové slovo `__global__`.
+
+<img src="figures/kernel-grid-block-warp-thread.png" alt="kernel-grid-block-warp-thread" width="300px">
 
 ### 2.1. Práce s vektory
 
@@ -276,28 +285,30 @@ Normálová mapa lze také vypočítat z 2D obrázku pomocí **Sobelova filtru**
 - Knihovna, **stavový stroj**. Používá `main thread`, samotná aplikace musí běžet na jiném vlákně.
 - Neumožňuje vytváření oken, není to programovací jazyk.
 - Pracuje se v **shaderech**.
+- CUDA se přizpůsobuje OpenGL (protože OpenGL je starší). Prvně se vytvoří objekt v OpenGL, ke kterému potom přes pointery přistupujeme z CUDA.
 
-Grafika:
+### 4.1. Grafika
 
 Vertex ve 3D je prvek vektorového prostoru $V$, nicméně na obrazovce vidíme jenom projekci do 2D. Manipulujeme s vektory, projektujeme je do jiných vektorových prostorů.
 
-1. Model-View matice.
-2. Projekční matice - optická vlastnost pohledu, "vlastnosti čočky" (např. ohnisko kamery).
-3. NDC transformace, která převede komolý hranol - kameru do jednotkové krychle (normalizace).
+1. **Model-View** matice. Transformace model $\rightarrow$ kamera.
+2. **Projekční** matice. Definuje optické vlastnosti pohledu, "vlastnosti čočky" (např. ohnisko kamery). Přesněji definuje **zorný objem** (frustum - komolý hranol), součástí je přední a zadní ořezávací vzdálenost.
+
+   <img src="figures/frustum.png" alt="frustum" width="150px">
+
+3. **NDC** (normalized device coordinates) transformace, která převede komolý hranol (kameru) do normalizované krychle $[-1,-1,-1]$ až $[1,1,1]$. Tzn. transformace kamera $\rightarrow$ normalizovaná krychle.
 4. Transformace na rozlišení displeje.
 
-CUDA se přizpůsobuje OpenGL (protože OpenGL je starší). Prvně se vytvoří objekt v OpenGL, ke kterému potom přes pointery přistupuju z CUDA.
+Buffery v počítačové grafice:
 
-### 4.1. Double Buffering
+1. **Z buffer**: z-ová souřadnice určující, které objekty vidíme (vzdálenost mezi přední a zadní ořezovou rovinou kamery).
+2. **Accumulation buffer**: načítání předchozích snímků např. pro *motion-blur*.
+3. **Stencil buffer**: maskování.
+
+### 4.2. Double Buffering
 
 - Front buffer, back buffer.
 - Jeden buffer ukazuji na obrazovce, druhý upravuji pro další snímek, potom je prohodím.
-
-### 4.2. Buffery
-
-1. **Z-buffer** - z-ová souřadnice určující, které objekty vidíme (vzdálenost mezi přední a zadní ořezovou rovinou kamery).
-2. **Accumulation-buffer** - načítání předchozích snímků např. pro *motion-blur*.
-3. **Stencil-buffer** - maskování.
 
 ### 4.3. GLUT library
 
