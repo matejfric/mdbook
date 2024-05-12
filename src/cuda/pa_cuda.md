@@ -28,11 +28,18 @@
   - [5.1. CUDA atomické instrukce](#51-cuda-atomické-instrukce)
 - [6. Page Lock Memory](#6-page-lock-memory)
 - [7. Unified Memory](#7-unified-memory)
-- [8. Examples](#8-examples)
+- [8. Stream](#8-stream)
+  - [8.1. Memory Stream](#81-memory-stream)
+  - [8.2. CUDA Streams](#82-cuda-streams)
+- [9. CuBLAS](#9-cublas)
+  - [9.1. N-body maticově](#91-n-body-maticově)
+- [10. Examples](#10-examples)
 
 ## 1. Úvod
 
 - [CUDA Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html)
+
+> Proč potřebujeme více jader procesoru? **Skrývání latence** - každá instrukce má nějaký čas vykonávání a my chceme skrývat latenci mezi instrukcemi.
 
 GPU (GP-GPU) poskytuje mnohem větší propustnost instrukcí a paměti oproti CPU podobné ceny.
 
@@ -330,13 +337,104 @@ Možné přístupy hledání maxima v poli pomocí atomických operací:
 
 OS stránkuje paměť (kvůli rychlosti, přes cache). Přednačítá data dopředu (kvůli rychlosti). Podobně funguje i GPU.
 
-Princip **page lock memory** je zamknutí paměti na `host`. OS tím řekneme, aby paměť stránkoval na stejných adresách. Potom GPU nemusí kontrolovat stránky a **memcopy** je rychlejší.
+Princip **page lock memory** je zamknutí paměti na `host` a `device` (RAM a VRAM). OS tím řekneme, aby paměť stránkoval na stejných adresách. Potom GPU nemusí kontrolovat stránky a **memcopy** je rychlejší.
 
 ## 7. Unified Memory
 
 Správa paměti je přenechána OS. Nevýhodou je, že nemáme jak zjistit, kdy je paměť na CPU a kdy na GPU. Pokud program navrhneme špatně, tak může docházet k častému kopírovaní dat mezi CPU a GPU (přičemž z pohledu programátora to nemusí na první pohled být viditelné).
 
-## 8. Examples
+## 8. Stream
+
+- Memory Stream
+- File Stream
+- Network Stream
+
+Proč mít více streamů? **Skrývání latence** - každá instrukce má nějaký čas vykonávání a my chceme skrývat latenci mezi instrukcemi. Zpracovávání heterogenních úloh.
+
+### 8.1. Memory Stream
+
+- **buffer**, třeba lineární (např. **pole**)
+- **ukazatel** - pozice v bufferu
+- **realokace**
+- **pomocné metody**, třeba operátory `<<` a `>>`
+- **dealokace**
+- vícevláknová implementace: zamykání, přístup, ...
+
+### 8.2. CUDA Streams
+
+- `cudaStreamCreate`
+- `cudaMemcopyAsync` - asynchronní volání
+- `cudaStreamSynchronize` - v asynchronním programování musíme vždy někdy zavolat `synchronize`
+
+Co dělat s více streamy?
+
+1. Paralelismus do **hloubky**
+   - Buď $i_n$ $n$-tá instrukce, $s_1$ a $s_2$ streamy.
+   - Postup: $i_1$ pro $s_1$, $i_2$ pro $s_1$, ..., $i_n$ pro $s_1$ a až potom $i_1$ pro $s_2$ atd.
+2. Paralelismus do **šířky** - všechny streamy mohou hned začít pracovat
+   - Buď $i_n$ $n$-tá instrukce, $s_1$ a $s_2$ streamy.
+   - Postup: $i_1$ pro $s_1$, $i_1$ pro $s_2$, pak $i_2$ pro $s_1$, $i_2$ pro $s_2$ atd.
+
+## 9. CuBLAS
+
+Operace:
+
+- $V\times V$
+- $V\times M$
+- $M\times M$
+
+`ld` je *leading dimension* - kolik prvků přeskočit, abych se dostal na další dimenzi (sloupec).
+
+`cublas` apriori používá sloupcové matice. Matice $A^{M\times N} \Rightarrow$ v `cublas` $M$ sloupců dimenze $N$ $\Rightarrow$ `ld=N`.
+
+### 9.1. N-body maticově
+
+- Buď $N$ těles dimenze $D$, buď $a$ a $b$ dvě libovolné tělesa.
+
+$$
+\begin{align*}
+  \sum\limits_{i=0}^{D-1}(a_i-b_i)^2 &= \sum\limits_{i=0}^{D-1}\left(a_i^2-2a_ib_i+b_i^2\right)=\\
+  &=\sum\limits_{i=0}^{D-1}a_i^2-2 \sum\limits_{i=0}^{D-1}a_ib_i + \sum\limits_{i=0}^{D-1}b_i^2\\
+  &= A^{.2} -2A^TA + A^{.2}
+\end{align*},
+$$
+kde $A^{.2}$ značí kvadrát elementů matice $A$.
+
+$$
+\begin{bmatrix}
+\times  & a & b & c\\
+a & 0 & d_{a,b} & d_{a,c} \\
+b & d_{b,a} & 0  & d_{b,c} \\
+c & d_{c,a}  & d_{c,b}  & 0 \\
+\end{bmatrix}
+$$
+
+<!-- $\Rightarrow A.^2 @ \mathbb{1}^{M,N} - 2 A^TA$ -->
+
+`cublas` má pro násobení matic operaci:
+
+$C \leftarrow \alpha AB+\beta C$
+
+```cpp
+// OP_T ... transpose
+// OP_N ... normal
+cublasSgemm(handler, A, B, C)
+```
+
+Buď $\mathbb{J}$ matice jedniček.
+
+$$
+\begin{align*}
+  C &\leftarrow 1 A^{.2}\mathbb{J}^{D,N} + 0C;\\
+  C &\leftarrow -2AB^T+1C;\\
+  C &\leftarrow 1B^{.2}\mathbb{J}^{D,N} + 1C;\\
+  C &\leftarrow \sqrt{C};
+\end{align*}
+$$
+
+Druhou mocninu elementů matice a odmocninu spočítáme v kernelu.
+
+## 10. Examples
 
 <details><summary> Add vectors </summary>
 
@@ -398,6 +496,14 @@ Správa paměti je přenechána OS. Nevýhodou je, že nemáme jak zjistit, kdy 
 
 ```cpp
 {{#include src/8_atomics.cu}}
+```
+
+</details>
+
+<details><summary> CUDA streams </summary>
+
+```cpp
+{{#include src/9_cuda_streams.cu}}
 ```
 
 </details>
