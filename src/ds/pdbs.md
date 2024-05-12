@@ -74,7 +74,9 @@
   - [14.2. Kvadrantový strom](#142-kvadrantový-strom)
   - [14.3. R-strom](#143-r-strom)
   - [14.4. SphereR-Tree (SpR-Tree)](#144-spherer-tree-spr-tree)
-- [15. Poznámky](#15-poznámky)
+- [15. Prostorová data](#15-prostorová-data)
+  - [15.1. SQL Server](#151-sql-server)
+- [16. Poznámky](#16-poznámky)
 
 ## 1. Testovací databáze ProductOrderDb
 
@@ -1482,7 +1484,83 @@ Používá se pro dimenze 2 nebo 3 (oktantový strom). Nepoužívá se pro prost
 - $d$-rozměrné koule (hyperkoule)
 - Vyvážený strom, garance využití stránek $\geq50\%$, protínání regionů, volba arity stromu pro velikost stránky.
 
-## 15. Poznámky
+## 15. Prostorová data
+
+### 15.1. SQL Server
+
+Dva **datové typy**:
+
+- `geometry` - euklidovský prostor (kód `0`)
+- `geography` - souřadnicový systém (CRS - *coordinate reference system*), konkrétně **WGS84 (EPSG:4326)** - globální geografický souřadný systém (měření v metrech).
+
+Při vytváření indexu definujeme tzv. ohraničující obdélník (**bounding box**). Proč? Kvůli variantě R-stromu, který SQL server používá (musí mít předem definovanou oblast).
+
+```sql
+CREATE TABLE SpatialTable (
+    id INT PRIMARY KEY,
+    geometry_col GEOMETRY
+);
+
+CREATE SPATIAL INDEX SIndx_SpatialTable_geometry_col1
+ON SpatialTable (geometry_col)
+WITH (
+    BOUNDING_BOX = (0, 0, 500, 200)
+)
+```
+
+Geometrii můžeme definovat jak **WKT**, **WKB** (binární alternativa WKT), **GML** (XML soubor) nebo jako výsledek **prostorové operace** nad prostorovými daty (např. `STIntersects`, `STContains` atd.).
+
+<details><summary> Příklad definování geometrie </summary>
+
+```sql
+CREATE TABLE SpatialTable (
+    id INT IDENTITY(1, 1),
+    GeomCol1 GEOMETRY,
+    GeomCol2 AS GeomCol1.STAsText()
+);
+GO
+
+INSERT INTO SpatialTable (GeomCol1)
+VALUES (geometry::STGeomFromText(
+    'LINESTRING (100 100, 20 180, 180 180)', 0)
+);
+
+INSERT INTO SpatialTable (GeomCol1)
+VALUES (geometry::STGeomFromText(
+    'POLYGON ((0 0, 150 0, 150 150, 0 150, 0 0))', 0)
+);
+GO
+```
+
+</details>
+
+<details><summary> Příklad prostorové operace </summary>
+
+```sql
+DECLARE @g GEOMETRY;
+DECLARE @h GEOMETRY;
+
+SET @g = geometry::STGeomFromText('LINESTRING(0 2, 2 0, 4 2)', 0);
+SET @h = geometry::STGeomFromText('POINT(1 1)', 0);
+
+SELECT @g.STIntersects(@h);
+```
+
+</details>
+
+<details><summary> k-NN query </summary>
+
+```sql
+DECLARE @g geography = 'POINT(-121.626 47.8315)';
+SELECT TOP(7) SpatialLocation.ToString(), City
+FROM Person.Address
+  WHERE SpatialLocation.STDistance(@g) IS NOT NULL
+  ORDER BY SpatialLocation.STDistance(@g);
+```
+
+</details>
+
+## 16. Poznámky
 
 Jak vytvořit kopii tabulky:
 
