@@ -13,6 +13,7 @@
   - [5.3. Příznaky odvozené z histogramu jasu](#53-příznaky-odvozené-z-histogramu-jasu)
 - [6. Příznakové metody analýzy obrazu](#6-příznakové-metody-analýzy-obrazu)
 - [7. Neuronové sítě](#7-neuronové-sítě)
+- [8. Geometrické transformace obrazu](#8-geometrické-transformace-obrazu)
 
 Univerzální obrazové deskriptory - HoG
 
@@ -224,3 +225,31 @@ Dále jsme schopni definovat funkce pro každou třídu a minimalizovat plochu p
 ## 7. Neuronové sítě
 
 <img src="figures/neuron.png" alt="neuron" width="200px">
+
+## 8. Geometrické transformace obrazu
+
+- Skripta strana 56.
+
+Afiní transformace, zachovává rovnoběžnost (ortografický pohled):
+
+$$y=Ax+t$$
+
+Perspektivní transformace:
+
+$$y=Px,$$
+
+kde $P\in\mathbb{R^{4,4}}$. Např.
+
+$$y=Px=\begin{bmatrix}
+    1 & 0 & 0 & 0\\
+    0 & 1 & 0 & 0\\
+    0 & 0 & 1 & 0\\
+    0 & 0 & 0 & 1\\
+\end{bmatrix}\begin{bmatrix}
+    x\\
+    y\\
+    z\\
+    1
+\end{bmatrix},$$
+
+do matice $P$ je možné "dát" translaci $t$.
