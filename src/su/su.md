@@ -602,6 +602,10 @@ Often, the embeddings are trained on **large corpuses** (e.g. Wikipedia); theref
 - Čte kontext slova z obou stran.
 - Při inferenci lze nastavit **teplotu**. Vyšší teplota znamená vyšší randomizaci. Např. pro bing chat lze taky nastavit různé úrovně...
 
+K dispozici je více verzí `cased/uncased` a potom `distilbert`, kde byla provedena **destilace modelu** - technika minimalizace velikosti modelu, kdy se menší model učí vytvářet výstupy velkého modelu (malá ztráta přesnosti za cenu až 50% velikosti).
+
+Jak vybrat maximální délku sekvence? Vykreslit si **histogram** délek sekvencí a podle toho nastavit `truncation` and `padding`, aby bylo pokryto třeba 80 % délek sekvencí.
+
 #### 10.4.4. Attention vrstva
 
 - Myšlenka je taková, že to, co není důležité, můžeme zahodit. Naopak *důležité* věci si zapamatujeme.
