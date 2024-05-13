@@ -78,7 +78,8 @@
   - [15.1. SQL Server](#151-sql-server)
 - [16. Elastic Search](#16-elastic-search)
   - [16.1. Vyhledávání podle podobnosti](#161-vyhledávání-podle-podobnosti)
-- [17. Poznámky](#17-poznámky)
+- [17. Full-text index pro MS-SQL](#17-full-text-index-pro-ms-sql)
+- [18. Poznámky](#18-poznámky)
 
 ## 1. Testovací databáze ProductOrderDb
 
@@ -1565,6 +1566,7 @@ FROM Person.Address
 ## 16. Elastic Search
 
 - Distribuovaný systém pro vyhledávání a analýzu dat.
+- NoSQL DBS.
 - RESTful API - téměř každá akce může být provedena pomocí JSON dokumentu přes protokol HTML.
 - Termín `index` označuje konkrétní databázi.
 
@@ -1593,7 +1595,17 @@ Rozšíření pro:
 
 **Filtrovací kontext** *(filter context)* - `filter`. Nepodílí se na výpočtu skóre relevance. Ekvivalent selekce.
 
-## 17. Poznámky
+## 17. Full-text index pro MS-SQL
+
+```sql
+CREATE FULLTEXT INDEX ON Product(description)
+
+SELECT *
+FROM Product p
+WHERE CONTAINS(p.description, "¯\_(ツ)_/¯")
+```
+
+## 18. Poznámky
 
 Jak vytvořit kopii tabulky:
 
