@@ -14,10 +14,10 @@
 - [4. Self-Organizing Map (SOM)](#4-self-organizing-map-som)
 - [5. Cellular Automata](#5-cellular-automata)
 - [6. Summary and Questions](#6-summary-and-questions)
-  - [6.1. What are typical properties of chaos?](#61-what-are-typical-properties-of-chaos)
-  - [6.2. What is the role of the **bias** in neural networks?](#62-what-is-the-role-of-the-bias-in-neural-networks)
+  - [6.1. What are the typical properties of chaos?](#61-what-are-the-typical-properties-of-chaos)
+  - [6.2. What is the role of **bias** in neural networks?](#62-what-is-the-role-of-bias-in-neural-networks)
   - [6.3. Describe a perceptron](#63-describe-a-perceptron)
-  - [6.4. Every neuron (unit) has an activations function. What is the input of this function?](#64-every-neuron-unit-has-an-activations-function-what-is-the-input-of-this-function)
+  - [6.4. Each neuron (unit) has an activation function. What is the input of this function?](#64-each-neuron-unit-has-an-activation-function-what-is-the-input-of-this-function)
   - [6.5. What is the purpose of learning rate in ANN and why is it usually set to a small value (such as 0.01)?](#65-what-is-the-purpose-of-learning-rate-in-ann-and-why-is-it-usually-set-to-a-small-value-such-as-001)
   - [6.6. What is "deterministic chaos"?](#66-what-is-deterministic-chaos)
   - [6.7. What is Lyapunov exponent?](#67-what-is-lyapunov-exponent)
@@ -215,29 +215,29 @@ Initialization: weights are set to small random numbers (or sampled from the 1st
 
 - 2D **grid** of cells (can be generalized to 3D).
 - Each cell has a **neighborhood**.
-- At given time $t$, each cell is in one of defined **state**s.
+- At given time $t$, each cell is in one of defined **states**.
 - We can define a **transition rule**, which maps state of a cell to a different state.
 
 <img src="figures/moore-vs-von-neumann.png" alt="moore-vs-von-neumann" width="500px">
 
 ## 6. Summary and Questions
 
-### 6.1. What are typical properties of chaos?
+### 6.1. What are the typical properties of chaos?
   
 - Sensitivity to initial conditions.
 - Divergence of nearby trajectories.
 
-### 6.2. What is the role of the **bias** in neural networks?
+### 6.2. What is the role of **bias** in neural networks?
   
 - A bias value allows you to **shift the activation function to the left or right**.
 
 ### 6.3. Describe a perceptron
 
-Perceptron is a model of neuron:
+Perceptron is a model of a neuron:
 
-<img src="figures/perceptron.png" alt="perceptron" width="400px">
+<img src="figures/perceptron.png" alt="perceptron" width="350px">
 
-### 6.4. Every neuron (unit) has an activations function. What is the input of this function?
+### 6.4. Each neuron (unit) has an activation function. What is the input of this function?
 
 Scalar (dot) product of inputs and weights plus bias.
 
@@ -271,7 +271,7 @@ Trajectories with initial separation $\lVert\delta(0)\rVert$ diverge exponential
 ### 6.8. How do you determine the color of a point in Mandelbrot set?
 
 ```python
-def mandelbrot(c: complex, max_iter=1000):
+def mandelbrot(c: complex, max_iter: int = 1000):
     """Computes the number of iterations to escape the Mandelbrot set.
 
     Parameters
