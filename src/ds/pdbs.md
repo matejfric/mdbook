@@ -76,7 +76,9 @@
   - [14.4. SphereR-Tree (SpR-Tree)](#144-spherer-tree-spr-tree)
 - [15. Prostorová data](#15-prostorová-data)
   - [15.1. SQL Server](#151-sql-server)
-- [16. Poznámky](#16-poznámky)
+- [16. Elastic Search](#16-elastic-search)
+  - [16.1. Vyhledávání podle podobnosti](#161-vyhledávání-podle-podobnosti)
+- [17. Poznámky](#17-poznámky)
 
 ## 1. Testovací databáze ProductOrderDb
 
@@ -1560,7 +1562,38 @@ FROM Person.Address
 
 </details>
 
-## 16. Poznámky
+## 16. Elastic Search
+
+- Distribuovaný systém pro vyhledávání a analýzu dat.
+- RESTful API - téměř každá akce může být provedena pomocí JSON dokumentu přes protokol HTML.
+- Termín `index` označuje konkrétní databázi.
+
+HTML metody (requests):
+
+- `GET`
+- `POST`
+- `PUT` - vložení záznamu
+- `DELETE`
+
+Vkládání dokumentu pod stejným `id` vede ke vložení **nové verze**.
+
+Musíme znát **HTTP metodu**, **přístupový bod** (např. `kra28_index/_search`) a **specifikaci dotazu** (JSON).
+
+Rozšíření pro:
+
+- full-text vyhledávání (podle podobnosti dokumentů)
+- dotazování geografických dat (položky `geo` a `shape`)
+- dotazování na termy (existence termu v dokumentu)
+
+### 16.1. Vyhledávání podle podobnosti
+
+**Skóre relevance**: výsledek dotazu je sestupně setřízen podle položky `_score`. Skóre relevance je kladné reálné číslo, které není porovnatelné napříč dotazy.
+
+**Dotazovací kontext** *(query context)* - `query`, `bool`, `match`. Určuje podobné dokumenty a podílí se ny výpočtu skóre relevance.
+
+**Filtrovací kontext** *(filter context)* - `filter`. Nepodílí se na výpočtu skóre relevance. Ekvivalent selekce.
+
+## 17. Poznámky
 
 Jak vytvořit kopii tabulky:
 
