@@ -140,7 +140,9 @@ The idea is to move on a polytop (polyhedron). The direction is given by the obj
 
 Linear programming problem is in the canonical form iff,
 
-1. all constraints are in a form of equality
+1. the problem is in form of a maximalization,
+2. all constraints are in a form of equality,
+3. all right sides are positive.
 
 #### 3.2.2. Conversion to canonical form
 
@@ -161,7 +163,7 @@ Linear programming problem is in the canonical form iff,
 
 - [Python PuLP](https://www.coin-or.org/PuLP/CaseStudies/a_transportation_problem.html)
 
-Shipping cost ($) per truck:
+Shipping cost in $\$$ per truck:
 
 | Mill / Warehouse          | $w_1$ | $w_2$ | $w_3$ | $w_4$ | Output |
 |:----------------:|:----:|:----:|:--------|:------:|:---:|
