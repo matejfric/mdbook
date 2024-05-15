@@ -14,6 +14,8 @@
 - [6. Příznakové metody analýzy obrazu](#6-příznakové-metody-analýzy-obrazu)
 - [7. Neuronové sítě](#7-neuronové-sítě)
 - [8. Geometrické transformace obrazu](#8-geometrické-transformace-obrazu)
+- [9. Optický tok](#9-optický-tok)
+- [10. Kalmanův filtr](#10-kalmanův-filtr)
 
 Univerzální obrazové deskriptory - HoG
 
@@ -253,3 +255,42 @@ $$y=Px=\begin{bmatrix}
 \end{bmatrix},$$
 
 do matice $P$ je možné "dát" translaci $t$.
+
+Co je epipolára???
+
+## 9. Optický tok
+
+- Analýza obrazů měnících se v čase.
+
+## 10. Kalmanův filtr
+
+- Je postavený na fyzikálním modelu, do kterého započítává nejistoty měření.
+- Zjednodušený Kalmanův filtr s konstantním zrychlení pro 1D:
+
+$$
+\begin{align*}
+    \mathbf{H} &= [1,0,0]\\
+    \mathbf{z}_t &= \mathbf{H}\mathbf{x}_t+\mathbf{v}_t\\
+    \mathbf{x}_{t+1} &= \varPhi_{t\mid t+1} \mathbf{x}_t + \mathbf{w}_t
+\end{align*}
+$$
+
+$$
+\begin{bmatrix}
+    s_{t+1}\\
+    v_{t+1}\\
+    a_{t+1}
+\end{bmatrix} =
+\begin{bmatrix}
+  1 & \Delta t  & \frac{1}{2}\Delta t^2\\
+  0 & 1 & \Delta t\\
+  0 & 0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+    s_{t}\\
+    v_{t}\\
+    a_{t}
+\end{bmatrix} + \mathbf{w}_t
+$$
+
+- kde $\mathbf{w}$ je bílý šum (nezávislé NV).
