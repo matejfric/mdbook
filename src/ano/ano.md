@@ -29,34 +29,52 @@
   - [2.3. Klasifikátor a klasifikace pomocí diskriminačních funkcí](#23-klasifikátor-a-klasifikace-pomocí-diskriminačních-funkcí)
   - [2.4. Klasifikace pomocí etalonů](#24-klasifikace-pomocí-etalonů)
   - [2.5. Stanovení diskriminační funkce metodou minimalizace ztráty](#25-stanovení-diskriminační-funkce-metodou-minimalizace-ztráty)
-  - [Klasifikace pomocí SVM](#klasifikace-pomocí-svm)
-  - [2.6. Rozpoznání neuronovou sítí (vícevrstvá síť s učením back propagation)](#26-rozpoznání-neuronovou-sítí-vícevrstvá-síť-s-učením-back-propagation)
+  - [2.6. Klasifikace pomocí SVM](#26-klasifikace-pomocí-svm)
   - [2.7. Vyhodnocení účinnosti zvolené množiny příznaků a Karhunen-Loéveho transformace (PCA)](#27-vyhodnocení-účinnosti-zvolené-množiny-příznaků-a-karhunen-loéveho-transformace-pca)
-  - [2.8. Rozpoznávání pomocí hlubokých neutonových sítí](#28-rozpoznávání-pomocí-hlubokých-neutonových-sítí)
-- [3. Zpětná stereoprojekce](#3-zpětná-stereoprojekce)
-  - [3.1. Zpětná stereoprojekce a základní vztahy pro kamery s rovnoběžnými optickými osami](#31-zpětná-stereoprojekce-a-základní-vztahy-pro-kamery-s-rovnoběžnými-optickými-osami)
-  - [3.2. Absolutní kalibrace kamery a rekonstrukce](#32-absolutní-kalibrace-kamery-a-rekonstrukce)
-  - [3.3. Relativní kalibrace a rekonstrukce](#33-relativní-kalibrace-a-rekonstrukce)
-- [4. Analýza obrazů proměnných v čase](#4-analýza-obrazů-proměnných-v-čase)
-  - [4.1. Princip sledování objektů v obrazech](#41-princip-sledování-objektů-v-obrazech)
-  - [4.2. Optický tok](#42-optický-tok)
-  - [4.3. Základní principy rozpoznávání činností pomocí neuronových sítí](#43-základní-principy-rozpoznávání-činností-pomocí-neuronových-sítí)
-- [5. Geometrické transformace obrazu](#5-geometrické-transformace-obrazu)
-- [6. Hough transformace](#6-hough-transformace)
-- [7. Úlohy při zpracování obrazu](#7-úlohy-při-zpracování-obrazu)
-- [8. Template matching](#8-template-matching)
-- [9. Typy kernelů](#9-typy-kernelů)
-- [10. Detekce objektů a rozpoznávání obličejů](#10-detekce-objektů-a-rozpoznávání-obličejů)
-  - [10.1. Sliding window](#101-sliding-window)
-  - [10.2. Proces rozpoznávání](#102-proces-rozpoznávání)
-  - [10.3. Detekce obrazový zájmový bodů](#103-detekce-obrazový-zájmový-bodů)
-  - [10.4. Haar features (příznaky)](#104-haar-features-příznaky)
-    - [10.4.1. Kaskádová regrese (Cascaded Regression)](#1041-kaskádová-regrese-cascaded-regression)
-    - [10.4.2. Knihovny pro detekci zájmový bodů obličeje](#1042-knihovny-pro-detekci-zájmový-bodů-obličeje)
-- [11. Autonomí vozidla](#11-autonomí-vozidla)
-  - [11.1. Senzory](#111-senzory)
-  - [11.2. Úrovně autonomních vozidel](#112-úrovně-autonomních-vozidel)
-- [12. OpenCV](#12-opencv)
+- [3. Neuronové sítě](#3-neuronové-sítě)
+  - [3.1. Aktivační funkce](#31-aktivační-funkce)
+  - [3.2. Dopředný průchod](#32-dopředný-průchod)
+  - [3.3. Back propagation](#33-back-propagation)
+  - [3.4. Předchůdci hlubokých neuronových sítí](#34-předchůdci-hlubokých-neuronových-sítí)
+  - [3.5. Detekce objektů pomocí sliding window](#35-detekce-objektů-pomocí-sliding-window)
+  - [3.6. Komponenty hlubokých CNN](#36-komponenty-hlubokých-cnn)
+  - [3.7. Sítě pro detekci bez sliding window](#37-sítě-pro-detekci-bez-sliding-window)
+    - [3.7.1. Region proposal](#371-region-proposal)
+    - [3.7.2. Fast R-CNN](#372-fast-r-cnn)
+    - [3.7.3. Faster R-CNN](#373-faster-r-cnn)
+    - [3.7.4. YOLO](#374-yolo)
+  - [3.8. Sítě pro použití s časem](#38-sítě-pro-použití-s-časem)
+    - [3.8.1. Rekurentní sítě (RNN)](#381-rekurentní-sítě-rnn)
+    - [3.8.2. LSTM](#382-lstm)
+    - [3.8.3. Attention](#383-attention)
+- [4. Zpětná stereoprojekce](#4-zpětná-stereoprojekce)
+  - [4.1. Lineární model kamery](#41-lineární-model-kamery)
+    - [4.1.1. Perspektivní transformace](#411-perspektivní-transformace)
+    - [4.1.2. Souřadnicová transformace](#412-souřadnicová-transformace)
+    - [4.1.3. Projekční matice](#413-projekční-matice)
+    - [4.1.4. Kalibrace](#414-kalibrace)
+  - [4.2. Zpětná stereoprojekce a základní vztahy pro kamery s rovnoběžnými optickými osami](#42-zpětná-stereoprojekce-a-základní-vztahy-pro-kamery-s-rovnoběžnými-optickými-osami)
+  - [4.3. Absolutní kalibrace kamery a rekonstrukce](#43-absolutní-kalibrace-kamery-a-rekonstrukce)
+  - [4.4. Relativní kalibrace a rekonstrukce](#44-relativní-kalibrace-a-rekonstrukce)
+  - [4.5. Hledání korespondence](#45-hledání-korespondence)
+- [5. Analýza obrazů proměnných v čase](#5-analýza-obrazů-proměnných-v-čase)
+  - [5.1. Princip sledování objektů v obrazech](#51-princip-sledování-objektů-v-obrazech)
+- [6. Geometrické transformace obrazu](#6-geometrické-transformace-obrazu)
+- [7. Hough transformace](#7-hough-transformace)
+- [8. Úlohy při zpracování obrazu](#8-úlohy-při-zpracování-obrazu)
+- [9. Template matching](#9-template-matching)
+- [10. Typy kernelů](#10-typy-kernelů)
+- [11. Detekce objektů a rozpoznávání obličejů](#11-detekce-objektů-a-rozpoznávání-obličejů)
+  - [11.1. Sliding window](#111-sliding-window)
+  - [11.2. Proces rozpoznávání](#112-proces-rozpoznávání)
+  - [11.3. Detekce obrazový zájmový bodů](#113-detekce-obrazový-zájmový-bodů)
+  - [11.4. Haar features (příznaky)](#114-haar-features-příznaky)
+    - [11.4.1. Kaskádová regrese (Cascaded Regression)](#1141-kaskádová-regrese-cascaded-regression)
+    - [11.4.2. Knihovny pro detekci zájmový bodů obličeje](#1142-knihovny-pro-detekci-zájmový-bodů-obličeje)
+- [12. Autonomí vozidla](#12-autonomí-vozidla)
+  - [12.1. Senzory](#121-senzory)
+  - [12.2. Úrovně autonomních vozidel](#122-úrovně-autonomních-vozidel)
+- [13. OpenCV](#13-opencv)
 
 ## 1. Segmentace obrazu
 
@@ -440,9 +458,9 @@ $$
 \end{equation*}
 $$
 
-### Klasifikace pomocí SVM
+### 2.6. Klasifikace pomocí SVM
 
-- see applet [libsvm](https://www.csie.ntu.edu.tw/~cjlin/libsvm/)!
+- [applet libsvm](https://www.csie.ntu.edu.tw/~cjlin/libsvm/)
 - maximalizace marginu mezi daty ze dvou tříd $\rightarrow$ hledání dělící nadroviny
 - lineární SVM není nic přelomového - existují efektivnější metody pro hledání dělící přímky/nadroviny - např. logistická regrese
 - výhoda SVM je v možnosti používat různé kernel funkce - lineární, polynomiální, Gaussian RBF (Radial Basis Function) $K(x,y)=e^{-\dfrac{\lVert x-y \rVert_{2}^{2}}{2\sigma^2}}$, sigmoid, exponenciální, laplacian $\longrightarrow$ **kernel trick**
@@ -455,10 +473,6 @@ $$
 <img src="figures/svm.png" alt="svm" width="250px">
 
 - $C=1000, \gamma=1/3$ (už náznak overfittingu)
-
-### 2.6. Rozpoznání neuronovou sítí (vícevrstvá síť s učením back propagation)
-
-<img src="figures/neuron.png" alt="neuron" width="200px">
 
 ### 2.7. Vyhodnocení účinnosti zvolené množiny příznaků a Karhunen-Loéveho transformace (PCA)
 
@@ -482,21 +496,339 @@ PCA se snaží odstranit korelaci mezi příznaky.
 - vlastní čísla vyjadřují důležitost dané dimenze
 - speciální případ SVD
 
-### 2.8. Rozpoznávání pomocí hlubokých neutonových sítí
+## 3. Neuronové sítě
 
-Základní principy výstavby hlubokých neuronových sítí:
+Vstupních uzlů je tolik, kolik je příznaků. Počet výstupních uzlu je roven počtu tříd objektů.
 
-## 3. Zpětná stereoprojekce
+> Model neuronu s aktivační funkcí sigmoid, kde $\lambda$ je obvykle $1$, $p$ je dimenze vstupu, $i$ je index neuronu ve vrstvě.
+>
+><img src="figures/neuron.png" alt="neuron" width="200px">
 
-### 3.1. Zpětná stereoprojekce a základní vztahy pro kamery s rovnoběžnými optickými osami
+### 3.1. Aktivační funkce
 
-### 3.2. Absolutní kalibrace kamery a rekonstrukce
+1. **Sigmoid**:
+   $$
+   \sigma(x) = \dfrac{1}{1 + e^{-x}}
+   $$
+2. **ReLU (Rectified Linear Unit)**:
+   $$
+   \text{ReLU}(x) = \max(0, x)
+   $$
 
-### 3.3. Relativní kalibrace a rekonstrukce
+3. **Tanh (Hyperbolic Tangent)**:
+   $$
+   \tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}
+   $$
 
-## 4. Analýza obrazů proměnných v čase
+4. **Softmax**:
+   $$
+   \text{softmax}(x_i) = \frac{e^{x_i}}{\sum_{j=1}^K e^{x_j}},
+   $$
+   where $K$ is the number of classes.
 
-### 4.1. Princip sledování objektů v obrazech
+5. **Leaky ReLU**:
+   $$
+   \text{Leaky ReLU}(x) =
+   \begin{cases} 
+   x & \text{if } x \geq 0 \\
+   \alpha x & \text{if } x < 0
+   \end{cases}
+   $$
+   where $\alpha$ is a small constant (e.g., $0.01$).
+
+6. **ELU (Exponential Linear Unit)**:
+   $$
+   \text{ELU}(x) =
+   \begin{cases} 
+   x & \text{if } x \geq 0 \\
+   \alpha (e^x - 1) & \text{if } x < 0
+   \end{cases}
+   $$
+   where $\alpha$ is a positive constant.
+
+### 3.2. Dopředný průchod
+
+<img src="figures/ann-2-3-2.png" alt="ann-2-3-2" width="350px">
+
+- Input layer: 2 neurons
+- Hidden layer: 3 neurons
+- Output layer: 2 neurons
+- Weights from input to hidden layer
+  - $W_1\in\mathbb{R}^{3\times2}$
+- Biases for hidden layer
+  - $b_1\in\mathbb{R}^{3}$
+- Weights from hidden to output layer
+  - $W_2\in\mathbb{R}^{2\times3}$
+- Biases for output layer
+  - $b_2\in\mathbb{R}^{2}$
+
+Pro inicializaci vah se obvykle používá Glorot(ovo) uniformní rozdělení, které vybírá vzorky z intervalu $[-\text{limit}, \text{limit}]$, kde $\text{limit} = \sqrt{\dfrac{6}{n_{in} + n_{out}}}$, kde $n_{in}$ je počet vstupních neuronů a $n_{out}$ je počet výstupních neuronů.
+
+Buď náhodná inicializace:
+
+$$
+\begin{align*}
+  W_1 &= \begin{bmatrix} 0.2 & 0.4 \\ 0.5 & 0.9 \\ 0.8 & 0.1 \end{bmatrix}, & \mathbf{b}_1 &= \begin{bmatrix} 0.1 \\ 0.2 \\ 0.3 \end{bmatrix}, \\
+  W_2 &= \begin{bmatrix} 0.3 & 0.7 & 0.2 \\ 0.6 & 0.5 & 0.8 \end{bmatrix}, & \mathbf{b}_2 &= \begin{bmatrix} 0.1 \\ 0.4 \end{bmatrix},
+\end{align*}
+$$
+
+a buď vstupní vektor $\mathbf{x} = \begin{bmatrix} 0.5 \\ 0.6 \end{bmatrix}$. Dále uvažujme aktivační funkci sigmoid $\sigma(x) = \dfrac{1}{1 + e^{-x}}$.
+
+Výstupem *skryté vrstvy* bude:
+
+$$
+\mathbf{a}_1 = \sigma(\mathbf{z}_1) = \sigma(W_1\mathbf{x} + \mathbf{b}_1) = \dfrac{1}{1 + e^{-(W_1\mathbf{x} + \mathbf{b}_1)}}.
+$$
+
+Obdobně pro *výstupní vrstvu*:
+
+$$
+\mathbf{a}_2 = \sigma(\mathbf{z}_2) = \sigma(W_2\mathbf{x} + \mathbf{b}_2) = \dfrac{1}{1 + e^{-(W_2\mathbf{x} + \mathbf{b}_2)}}.
+$$
+
+Nakonec můžeme vypočítat chybu, např. MSE:
+
+$$
+\text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 = \frac{1}{2} \sum_{i=1}^{2} (y_i - a_{2,i})^2,
+$$
+
+kde $\mathbf{y}$ jsou skutečné hodnoty z trénovací sady a $\hat{\mathbf{y}}=\mathbf{a}_2$ je predikce.
+
+### 3.3. Back propagation
+
+Nechť jsou všechny parametry ANN označeny $\theta$ (váhy a bias). Pak v každém kroku $t$ gradientního sestupu jsou parametry aktualizovány pomocí:
+
+$$\theta^{(t)}=\theta^{(t-1)}-\eta\dfrac{\partial C(X,\theta^{(t)})}{\partial\theta},$$
+
+kde $\eta\in\R^+$ je míra učení a $C$ je ztrátová funkce, která závisí na parametrech sítě $\theta^{(t)}$ a souboru dat $X$, tzn. dvojic vstup-výstup $(\mathbf{x}_i,\mathbf{y}_i)$.
+
+### 3.4. Předchůdci hlubokých neuronových sítí
+
+- 1995 HoG + SVM pro detekci lidí
+- 1998 LeNet
+- 2012 AlexNet
+- 2015 ResNet
+
+### 3.5. Detekce objektů pomocí sliding window
+
+- Non-maxima suppression pro filtrování ohraničujících obdélníků.
+- CNN síť natrénovaná na výřezech/oknech.
+- Někdy je vhodné použít proměnnou velikost okna.
+
+<img src="figures/cnn.png" alt="cnn" width="600px">
+<img src="figures/res-block.png" alt="res-block" width="500px">
+
+### 3.6. Komponenty hlubokých CNN
+
+- Konvoluce
+- Pooling
+- Dropout
+- Softmax
+- Normalizace
+- Transponovaná konvoluce (up-sampling)
+
+<img src="figures/transposed-convolutional-layer-stride-1.png" alt="transposed-convolutional-layer-stride-1" width="500px">
+<img src="figures/transposed-convolutional-layer.png" alt="transposed-convolutional-layer" width="500px">
+
+### 3.7. Sítě pro detekci bez sliding window
+
+- R-CNN, Fast R-CNN, Faster R-CNN, YOLO
+
+#### 3.7.1. Region proposal
+
+- **Selective Search** - metoda narůstání oblasti
+
+<img src="figures/region-proposal-selective-search.png" alt="region-proposal-selective-search" width="400px">
+
+- **Edge Boxes** (detekce hran) - pokud je mnoho uzavřených hran uvnitř ohraničujícího obdélníku, je velká šance, že tam je i nějaký objekt
+
+<img src="figures/region-proposal-edge-detection.png" alt="region-proposal-edge-detection" width="400px">
+
+#### 3.7.2. Fast R-CNN
+
+Používá vícekriteriální cenovou funkci - klasifikace a lokalizace.
+
+<img src="figures/fast-r-cnn.png" alt="fast-r-cnn" width="600px">
+
+#### 3.7.3. Faster R-CNN
+
+Detektor Faster R-CNN přidává **Region Proposal Network (RPN)**, která generuje návrhy oblastí přímo v síti namísto použití externího algoritmu, jako jsou Edge Boxes nebo Selective Search. Síť RPN přijímá vstupní obrázek (libovolné velikosti) a vypisuje sadu návrhů ohraničujících obdélníků, z nichž každý má skóre objektovosti. Generování návrhů oblastí v síti je rychlejší než v případě selektivního vyhledávání nebo edge boxů.
+
+<img src="figures/rpn.png" alt="rpn" width="300px">
+
+#### 3.7.4. YOLO
+
+- You Only Look Once
+- YOLO přistupuje k detekci objektů spíše jako k regresnímu problému (než ke klasifikaci).
+
+Naopak metody jako R-CNN přistupjí k problému detekce v několika krocích:
+
+1. Region proposal
+2. Klasifikace boxů
+3. Post-processing boxů (úprava bboxů, odstranění duplikátů)
+
+YOLO predikuje všechny bboxy najednou, globálně. Každý bbox má 5 hodnot: $x, y, w, h,$ a confidence.
+
+### 3.8. Sítě pro použití s časem
+
+#### 3.8.1. Rekurentní sítě (RNN)
+
+- Proč potřebujeme RNN? Berou v potaz **kontext** (mají "paměť"), což je nezbytné např. pro zpracování textu nebo pro časově závislé sekvence. Např. **sentiment analysis**.
+- RNN jsou náchylné na *vanishing gradient problem*.
+- RNN jsou schopné zpracovávat sekvence libovolné konečné délky. Používá se **backpropagation through time**.
+- RNN nelze paralelizovat a trénovat pomocí grafických akcelerátorů $\Rightarrow$ výpočetně náročné.
+
+<img src="figures/rnn.png" alt="rnn" width="400px">
+
+- $h_i$ ...hidden state
+
+#### 3.8.2. LSTM
+
+- **forget gate** - sigmoid, $1\Rightarrow$ forget, $0\Rightarrow$ keep processing
+- **input gate** - sigmoid rozhodne, které hodnoty aktualizovat, $\tanh$ aktualizuje
+
+<img src="figures/lstm.png" alt="lstm" width="400px">
+
+#### 3.8.3. Attention
+
+- Myšlenka je taková, že to, co není důležité, můžeme zahodit. Naopak *důležité* věci si zapamatujeme.
+- Attention vrstva potlačuje *forget gate*. V principu nastavuje váhy tokenů po *bidirectional LSTM* vrstvě.
+- *Self-attention* - v rámci řetězce se vypočte *attention* vůči všem tokenům.
+- Tři matice $Q, K, V$ (query, key, value)
+- Vision Transformer (ViT)
+
+## 4. Zpětná stereoprojekce
+
+Máme-li k dispozici několik obrazů téže scény z různých míst, pak jsme za jistých okolností schopni provést rekonstrukci scény.
+
+### 4.1. Lineární model kamery
+
+Model kamery je dírková komora:
+
+<img src="figures/camera.png" alt="camera" width="250px">
+
+<img src="figures/forward-imaging-model.png" alt="forward-imaging-model" width="700px">
+
+| Obrazové<br>souřadnice | Perspektivní<br>projekce | Souřadnice<br>kamery | Transformace<br>souřadnic | Globální<br>souřadnice |
+|:--:|:--:|:--:|:--:|:--:|
+|$\mathbf{x}_i = \begin{bmatrix}x_i \\y_i\end{bmatrix}$ | $\Leftarrow$ | $\mathbf{x}_c = \begin{bmatrix}x_c \\y_c \\z_c\end{bmatrix}$ | $\Leftarrow$ | $\mathbf{x}_w = \begin{bmatrix}x_w \\y_w \\z_w\end{bmatrix}$ |
+
+#### 4.1.1. Perspektivní transformace
+
+<img src="figures/image-and-sensor.png" alt="image-and-sensor" width="400px">
+
+Pixely mohou být obdélníkové. Jestliže $m_x$ a $m_y$ jsou hustoty pixelů (pixely/mm) ve směru $x$ a $y$, pak souřadnice pixelů jsou:
+
+$$
+u = m_x x_i = m_x f \frac{x_c}{z_c} + o_x, \quad\quad\quad v = m_y y_i = m_y f \frac{y_c}{z_c}+o_y,
+$$
+
+kde $f$ je ohnisková vzdálenost a $(o_x,o_y)$ je souřadnice, kde optická osa protíná senzor. Označme $f_x=m_xf$ a $f_y=m_yf$. Pak můžeme pro homogenní souřadnice $(u,v)=\left(\dfrac{\tilde{u}}{\tilde{w}},\dfrac{\tilde{u}}{\tilde{w}}\right)$ vyjádřit vnitřní *(intrinsic)* matici jako:
+
+$$
+\begin{equation*}
+\begin{bmatrix} u \\ v \\ 1 \end{bmatrix} = \underbrace{\begin{bmatrix} f_x & 0 & o_x & 0 \\ 0 & f_y & o_y & 0 \\ 0 & 0 & 1 & 0 \end{bmatrix}}_{M_{int}} \begin{bmatrix} x_c \\ y_c \\ z_c \\ 1 \end{bmatrix}
+\end{equation*}.
+$$
+
+Kalibrační matice $\mathbf{K}=\begin{bmatrix} f_x & 0 & o_x \\ 0 & f_y & o_y  \\ 0 & 0 & 1  \end{bmatrix}$.
+
+#### 4.1.2. Souřadnicová transformace
+
+$$\mathbf{x}_c=R\left(\mathbf{x}_w-\mathbf{c}_w\right)=R \mathbf{x}_w-R \mathbf{c}_w=R \mathbf{x}_w+\mathbf{t}, \quad\text{kde}\quad \boxed{\mathbf{t}=-R \mathbf{c}_w}$$
+
+$$\mathbf{x}_c=\left[\begin{array}{l}x_c \\ y_c \\ z_c\end{array}\right]=\left[\begin{array}{lll}r_{11} & r_{12} & r_{13} \\ r_{21} & r_{22} & r_{23} \\ r_{31} & r_{32} & r_{33}\end{array}\right]\left[\begin{array}{l}x_w \\ y_w \\ z_w\end{array}\right]+\left[\begin{array}{l}t_x \\ t_y \\ t_z\end{array}\right]$$
+
+Přepis pomocí homogenních souřadnic:
+
+$$
+\tilde{\mathbf{x}}_c=\left[\begin{array}{c}
+x_c \\
+y_c \\
+z_c \\
+1
+\end{array}\right]=\underbrace{\left[\begin{array}{cccc}
+r_{11} & r_{12} & r_{13} & t_x \\
+r_{21} & r_{22} & r_{23} & t_y \\
+r_{31} & r_{32} & r_{33} & t_z \\
+0 & 0 & 0 & 1
+\end{array}\right]}_{M_{ext}}\left[\begin{array}{c}
+x_w \\
+y_w \\
+z_w \\
+1
+\end{array}\right]
+$$
+
+#### 4.1.3. Projekční matice
+
+$$\tilde{\mathbf{u}}=M_{\text {int }} M_{\text {ext }} \tilde{\mathbf{x}}_w=P \tilde{\mathbf{x}}_w$$
+
+#### 4.1.4. Kalibrace
+
+> Kalibrace kamery znamená odhad **projekční matice** (tzn. vnitřních "intrisických" a vnějších "extrasických" parametrů) pomocí objektu se známou geometrií.
+
+<img src="figures/camera-calibration-procedure.png" alt="camera-calibration-procedure" width="400px">
+
+Pro každý zájmový bod ve scéně a obrázku:
+
+$$
+\begin{bmatrix}
+    u^{(i)} \\
+    v^{(i)} \\
+    1
+\end{bmatrix}=\begin{bmatrix}
+    p_{11} & p_{12} & p_{13} & p_{14} \\
+    p_{21} & p_{22} & p_{23} & p_{24} \\
+    p_{31} & p_{32} & p_{33} & p_{34}
+\end{bmatrix}
+\begin{bmatrix}
+    x_w^{(i)} \\
+    y_w^{(i)} \\
+    z_w^{(i)} \\
+    1
+\end{bmatrix}
+$$
+
+Známe obrazové souřadnice $u,v$ (v pixelech) a souřadnice ve scéně $x,y,z$ (v metrech).
+
+Škálování projekční matice (homogenní souřadnice) znamená současné škálovaní "světa" (globálních souřadnic) a kamery, přičemž výsledný obraz se nezmění.
+
+### 4.2. Zpětná stereoprojekce a základní vztahy pro kamery s rovnoběžnými optickými osami
+
+<img src="figures/simple-stereo.png" alt="simple-stereo" width="300px">
+
+Dvě identické kamery s rovnoběžnými optickými osami (počítačové stereovidění):
+
+<img src="figures/binocular-vision.png" alt="binocular-vision" width="500px">
+<img src="figures/binocular-vision-equations.png" alt="binocular-vision-equations" width="500px">
+
+$$
+x=\frac{b\left(u_l-o_x\right)}{\left(u_l-u_r\right)} \quad\quad y=\frac{b f_x\left(v_l-o_y\right)}{f_y\left(u_l-u_r\right)} \quad\quad z=\frac{b f_x}{\left(u_l-u_r\right)}
+$$
+
+### 4.3. Absolutní kalibrace kamery a rekonstrukce
+
+Předpokládáme znalost kalibračních bodů v obraze $(u,v)$ i ve scéně $(x,y,z)$.
+
+### 4.4. Relativní kalibrace a rekonstrukce
+
+Máme k dispozici pouze souřadnice bodů v obraze získaném kamerami. Souřadnice ve scéně nejsou k dispozici. Např. pro pohyb robota v neznámé scéně.
+
+V procesu relativní kalibrace jsme schopni určit matici rotace $R$ a vektor posunu $\mathbf{b}=O_2-O_1$, díky čemuž získáme informace o transformaci ze souřadného systému druhé kamery do souřadného systému první kamery:
+
+$$\mathbf{x}_1=R\mathbf{x}_2+\mathbf{b}$$
+
+### 4.5. Hledání korespondence
+
+<img src="figures/correspondence-pattern-matching.png" alt="correspondence-pattern-matching" width="400px">
+
+## 5. Analýza obrazů proměnných v čase
+
+### 5.1. Princip sledování objektů v obrazech
+
+Uvažujme dynamický systém, který se mění v čase. Stav systému v čase $t+1$ vypočteme z předchozího stavu $\mathbf{x}_t$ jako součet deterministického signálu (výstup fyzikálního modelu) a šumu $\mathbf{w}_t$. Podle skutečných měření Kalmanův filtr více důvěřuje buď fyzikálnímu modelu (odebírá šum), nebo vnitřně tvořenému modelu (přidává šum). (Je to Markovský proces.)
 
 Základní myšlenky Kalmanova filtru:
 
@@ -504,11 +836,9 @@ Základní myšlenky Kalmanova filtru:
 - Zjednodušený Kalmanův filtr s konstantním zrychlení pro 1D:
 
 $$
-\begin{align*}
-    \mathbf{H} &= [1,0,0]\\
-    \mathbf{z}_t &= \mathbf{H}\mathbf{x}_t+\mathbf{v}_t\\
-    \mathbf{x}_{t+1} &= \varPhi_{t\mid t+1} \mathbf{x}_t + \mathbf{w}_t
-\end{align*}
+\begin{equation*}
+    \mathbf{x}_{t+1} = \varPhi_{t\mid t+1} \mathbf{x}_t + \mathbf{w}_t
+\end{equation*}
 $$
 
 $$
@@ -531,15 +861,7 @@ $$
 
 - kde $\mathbf{w}$ je bílý šum (nezávislé NV).
 
-### 4.2. Optický tok
-
-- Analýza obrazů měnících se v čase.
-
-Rovnice optického toku a její řešení: TODO
-
-### 4.3. Základní principy rozpoznávání činností pomocí neuronových sítí
-
-## 5. Geometrické transformace obrazu
+## 6. Geometrické transformace obrazu
 
 - Skripta strana 56.
 
@@ -569,12 +891,12 @@ do matice $P$ je možné "dát" translaci $t$.
 
 Co je epipolára???
 
-## 6. Hough transformace
+## 7. Hough transformace
 
 - [:háfova:]
 - detekce bodů na přímce, kružnici (po detekci hran)
 
-## 7. Úlohy při zpracování obrazu
+## 8. Úlohy při zpracování obrazu
 
 - vylepšení / filtrace
 - detekce hran
@@ -589,7 +911,7 @@ Co je epipolára???
   - rozdělení obrazu na více oblastí
 - detekce lidské pózy *(human pose detection)*
 
-## 8. Template matching
+## 9. Template matching
 
 - jednoduchá metoda pro lokalizaci objektů
 - potřebuju *template* a *zdrojový obraz* (source)
@@ -605,7 +927,7 @@ Jak porovnat *template* a *source*?
   - $CC=\sum\limits_{x,y}\left[ (I_1)_{x,y} \cdot (I_2)_{x,y}\right]$
 - odpovídající normované varianty a další
 
-## 9. Typy kernelů
+## 10. Typy kernelů
 
 - Sobel $3\times3$
   - $K_x=\begin{bmatrix}
@@ -635,7 +957,7 @@ Jak porovnat *template* a *source*?
     -1 & 5 & -1\\
     0 & -1 & 0\\\end{bmatrix}$
 
-## 10. Detekce objektů a rozpoznávání obličejů
+## 11. Detekce objektů a rozpoznávání obličejů
 
 - **Haar** (sliding window)
 - **HOG** (sliding window)
@@ -643,7 +965,7 @@ Jak porovnat *template* a *source*?
 - **SIFT, SURF** (zájmové body)
 - **CNNs** (hluboké učení)
 
-### 10.1. Sliding window
+### 11.1. Sliding window
 
 1. Vstupní obraz je snímán *obdélníkovým oknem* v několika měřítcích.
 2. Výsledkem procesu skenování je velké množství různých dílčích oken.
@@ -651,14 +973,14 @@ Jak porovnat *template* a *source*?
 4. Tento vektor se použije jako vstup pro klasifikátor. Tento klasifikátor musí být předem natrénovaný.
 5. Cílem je vytvořit *bounding box* okolo hledaného objektu.
 
-### 10.2. Proces rozpoznávání
+### 11.2. Proces rozpoznávání
 
 1. Detekce obličeje
 2. Extrakce ROI
 3. Extrakce příznaků
 4. Fáze rozpoznávání (klasifikace)
 
-### 10.3. Detekce obrazový zájmový bodů
+### 11.3. Detekce obrazový zájmový bodů
 
 - *facial landmark detection, keypoint detection*
 - obrazové zájmové body mohou být použity k lepšímu výřezu obličeje a zlepšit tak rozpoznávání
@@ -674,7 +996,7 @@ S jakými problémy musíme počítat?
 - výrazy obličeje, mimika
 - osvětlení, stíny, jas
 
-### 10.4. Haar features (příznaky)
+### 11.4. Haar features (příznaky)
 
 - Viola & Jones 2001
 - hlavní myšlenka - obličeje mají podobné vlastnosti
@@ -690,19 +1012,19 @@ Jak funguje a co to je kaskádový klasifikátor?
 - většina obrazu obvykle hledaný objekt neobsahuje, proto chceme tyto oblast co nejdříve zahodit
 - kaskádový klasifikátor má několik fází, pokud je pravděpodobnost hledaného objektu v okně velká, tak se pokračuje do další fáze, jinak se okno zahodí (nebo něco takového)
 
-#### 10.4.1. Kaskádová regrese (Cascaded Regression)
+#### 11.4.1. Kaskádová regrese (Cascaded Regression)
 
 - tato metoda začíná z průměrného tvaru obličeje a iterativně posouvá zájmové body podle obrazových příznaků
 
 ![Cascaded Regression](figures/cascaded_regrassion.png)
 
-#### 10.4.2. Knihovny pro detekci zájmový bodů obličeje
+#### 11.4.2. Knihovny pro detekci zájmový bodů obličeje
 
 - **OpenCV**
 - **DLIB**
 - **MediaPipe** (Google)
 
-## 11. Autonomí vozidla
+## 12. Autonomí vozidla
 
 Autonomní vozidlo *(AV - Autonomous Vehicle)* je vozidlo, které je schopné vnímat své okolí a bezpečně se pohybovat s malým nebo žádným lidským zásahem.
 
@@ -710,7 +1032,7 @@ Autonomní vozidlo *(AV - Autonomous Vehicle)* je vozidlo, které je schopné vn
 - drony (UAV)
 - NOMARS - No Manning Required Ship
 
-### 11.1. Senzory
+### 12.1. Senzory
 
 - Lidar ("light detection and ranging"; např. firma Velodyne)
 - Radar
@@ -739,7 +1061,7 @@ Jaké výhody a nevýhody mají kamery?
 - Kamerové systémy jsou téměř neviditelné.
 - Problémy za špatného světla.
 
-### 11.2. Úrovně autonomních vozidel
+### 12.2. Úrovně autonomních vozidel
 
 - Level 0 - žádná automatizace
   - Veškeré řízení provádí řidič,ale vozidlo může pomáhat s detekcí mrtvého úhlu, varováním před čelní srážkou a varováním před opuštěním jízdního pruhu.
@@ -762,7 +1084,7 @@ Jaké výhody a nevýhody mají kamery?
 
 ![Autonomous vehicles](figures/av.png)
 
-## 12. OpenCV
+## 13. OpenCV
 
 Load image:
 
