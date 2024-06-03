@@ -98,11 +98,15 @@ Gradientní metody využívají skutečnosti, že v místě hrany má absolutní
 
 Hranové operátory $\dfrac{\partial f}{\partial x}$ a $\dfrac{\partial f}{\partial y}$.
 
-Pro hrany v libovolném směru lze použít derivaci ve směru.
+Pro hrany v libovolném směru lze použít derivaci ve směru:
+
+$$
+\dfrac{\mathrm{d}f}{\mathrm{d}\mathbf{u}}(x,y)=\left\langle\nabla f(x,y),\dfrac{\mathbf{u}}{\lVert\mathbf{u}\rVert}\right\rangle.
+$$
 
 Velikost hrany vypočteme jako:
 
-$$e(x,y)=\sqrt{f_y^2(x,y) + f_x^2(x,y)}$$
+$$e(x,y)=\sqrt{\langle\nabla f(x,y),\nabla f(x,y)\rangle}=\sqrt{f_x^2(x,y) + f_y^2(x,y)}$$
 
 <img src="figures/edge-direction.png" alt="edge-direction" width="200px">
 
@@ -140,10 +144,11 @@ $$\psi(x,y) = \varphi(x,y) + \frac{\pi}{2}$$
 
 Jak funguje konvoluce?
 
-1. Střed kernelu je umístěn na určitý pixel vstupního obrazu.
-2. Každý prvek jádra je vynásoben s odpovídajícím pixelem ve vstupním obraze.
+1. Střed kernelu/filtru je umístěn na určitý pixel vstupního obrazu.
+2. Každý prvek jádra je vynásoben s odpovídajícím pixelem ve vstupním obraze (Hadamardův produkt $\odot$).
 3. Sečteme výsledek násobení.
 4. Tento výsledek můžeme uložit do nového obrazu (mapy hran).
+5. Podle délky kroku *(stride)* se tento postup opakuje pro celý obrázek.
 
 ### 1.2. Detekce hran hledáním průchodu nulou (též varianta s předchozím rozostřením)
 
@@ -153,7 +158,7 @@ Průběh obrazové funkce (jasu) a její první a druhé derivace v místě hran
 
 Laplacián (pro druhou derivaci):
 
-$$ \nabla^2f(x,y)=\dfrac{\partial^2 f(x,y)}{\partial x^2} + \dfrac{\partial^2 f(x,y)}{\partial y^2}=f_{xx}(x,y)+f_{yy}(x,y) $$
+$$ \Delta f(x,y)=\nabla^2f(x,y)=\dfrac{\partial^2 f(x,y)}{\partial x^2} + \dfrac{\partial^2 f(x,y)}{\partial y^2}=f_{xx}(x,y)+f_{yy}(x,y) $$
 
 Pro diskrétní obraz:
 
@@ -194,8 +199,6 @@ Výsledná funkce vznikla minimalizací funkcionálu, který měří lokalizačn
 - hrana $D$ je automaticky zahozena, protože $D < T_{lower}$
 
 ### 1.4. Segmentace pomocí prahování
-
-Výsledkem prahování je binární obraz.
 
 - binární prahování
   - $(I_{dst})_{x,y} = \left\{\begin{array}{ll}
@@ -242,29 +245,30 @@ Obr. určení prahu $t$ minimalizací chyby, za předpokladu dvou typů oblastí
 #### 1.5.3. Otevření (Opening)
 
 - eroze následování dilatací
-- odstranění šumu
+- *odstranění šumu*
 
 #### 1.5.4. Uzavření (Closing)
 
 - dilatace následování erozí
+- *vyplnění děr*
 
 #### 1.5.5. Morfologický gradient
 
-- rozdíl mezi dilatací a erozí (SAD)
+- rozdíl mezi dilatací a erozí
 
 ### 1.6. Detekce rohů
 
-Detekce rohů je často založena pozorování, že v místě rohu není křivost v žádném směru nulová.
+Detekce rohů je často založena na pozorování, že v místě rohu není křivost v žádném směru nulová.
 
 ### 1.7. Indexování objektů v binárním obraze
 
-<img src="figures/indexing.png" alt="indexing" width="300px">
+<img src="figures/indexing.png" alt="indexing" width="250px">
 
 ## 2. Příznakové metody analýzy obrazu
 
-Každý konkrétní vektor příznaků $\mathbf{x}\in\mathbb{R}^n$ reprezentuje bod v $n$-rozměrném prostoru $X^n$, který nazýváme **příznakovým prostorem**. Příznakový prostor s omezeným oborem hodnot označmě $\mathcal{X}$.
+Každý konkrétní vektor příznaků $\mathbf{x}\in\mathbb{R}^n$ reprezentuje bod v $n$-rozměrném prostoru $X^n$, který nazýváme **příznakovým prostorem**. Příznakový prostor s omezeným oborem hodnot označme $\mathcal{X}$.
 
-Příznakové metody jsou založené na myšlence, že podobnost nebo shoda objektů $o_1, o_2$ se projeví malou vzdáleností mezi příslušnými příznakovými vektory.
+Příznakové metody jsou založené na myšlence, že podobnost nebo shoda objektů se projeví malou vzdáleností mezi příslušnými příznakovými vektory.
 
 Je typické, že objekty jedné třídy tvoří v příznakovém prostoru shluky.
 
@@ -288,8 +292,7 @@ Plocha:
 
 Těžiště:
 
-- $x_t=\dfrac{m_{1,0}}{m_{0,0}}$
-- $y_t=\dfrac{m_{0,1}}{m_{0,0}}$
+- $x_t=\dfrac{m_{1,0}}{m_{0,0}}, \,\,y_t=\dfrac{m_{0,1}}{m_{0,0}}$
 
 Pokud uvažujeme souřadnou soustavu s *osami v těžišti*, tak:
 
@@ -344,7 +347,7 @@ Příznak může být např. plocha děleno suma.
 
 #### 2.1.6. Příznaky odvozené z histogramu jasu
 
-Vhodné pro objekty, které jsou charakteristické svojí texturou nebo jistým rozložením jasu. Buď $b$ jas pixelu, vypočteme histogram pixelů objektu $N(b)$ a provedem normalizaci $p(b)=N(b)/N$. Hodnota $p(b)$ pak odpovídá pravděpodobnosti, že pixel objektu má jas právě $b$.
+Vhodné pro objekty, které jsou charakteristické svojí texturou nebo jistým rozložením jasu. Buď $b$ jas pixelu, vypočteme histogram pixelů objektu $N(b)$ a provedem normalizaci $p(b)=N(b)/N$. Hodnota $p(b)$ pak odpovídá pravděpodobnosti, že pixel objektu má jas právě $b$. Potom jsme schopni použít metody popisné statistiky.
 
 - střední hodnota,
 - rozptyl,
@@ -406,7 +409,7 @@ Klasifikace diskriminačními funkcemi:
 
 Při klasifikaci pomocí diskriminačních funkcí uvažujeme $M$ reálných diskriminačních funkcí $g_1,\ldots,g_M$ definovaných nad prostorem příznaků $\mathcal{X}$, kde $n$ je počet tříd. Hledaná třída je zvolena jako $\argmax\limits_{m=1,\ldots,M} g_m(\mathbf{x})$.
 
-Jednotlivé hustoty odpovídají podmíněné pravděpodobnosti $g_m(\mathbb{x})=\mathcal{P}(\mathbb{x}|\omega_{m})$, kde $m$ je index třídy. Dále jsme schopni definovat funkce pro každou třídu a minimalizovat plochu pod křivkou (integrál). Dá se ukázat, že tato diskriminační funkce má tvar asi $\boxed{\mathcal{P}(\mathbf{x}|\omega_m)\mathcal{P}(\omega_m)}$.
+Jednotlivé hustoty odpovídají podmíněné pravděpodobnosti $g_m(\mathbf{x})=\mathcal{P}(\mathbf{x}|\omega_{m})$, kde $m$ je index třídy. Dále jsme schopni definovat funkce pro každou třídu a minimalizovat plochu pod křivkou (integrál). Dá se ukázat, že tato diskriminační funkce má tvar asi $\boxed{\mathcal{P}(\mathbf{x}|\omega_m)\mathcal{P}(\omega_m)}$.
 
 Nejjednodušší tvar diskriminační funkce je funkce lineární:
 
@@ -476,7 +479,7 @@ $$
 
 ### 2.7. Vyhodnocení účinnosti zvolené množiny příznaků a Karhunen-Loéveho transformace (PCA)
 
-Uvažujme dva vektory příznaků $x,y$, index $m$ označující třídu objektu a $N_m$ počet datavých bodů v jednotlivých třídách. Pak můžeme spočítat odhad střední hodnoty a rozptylu:
+Uvažujme dva vektory příznaků $x,y$, index $m$ označující třídu objektu a $N_m$ počet datových bodů v jednotlivých třídách. Pak můžeme spočítat odhad střední hodnoty a rozptylu:
 
 $$\hat{\mu}_{x,m}=\dfrac{1}{N_m}\sum\limits_{i=1}^{N_m}x_{i,m},$$
 
@@ -505,6 +508,8 @@ Vstupních uzlů je tolik, kolik je příznaků. Počet výstupních uzlu je rov
 ><img src="figures/neuron.png" alt="neuron" width="200px">
 
 ### 3.1. Aktivační funkce
+
+<img src="figures/activations.png" alt="activations" width="400px">
 
 1. **Sigmoid**:
    $$
@@ -617,11 +622,19 @@ kde $\eta\in\R^+$ je míra učení a $C$ je ztrátová funkce, která závisí n
 - Někdy je vhodné použít proměnnou velikost okna.
 
 <img src="figures/cnn.png" alt="cnn" width="600px">
-<img src="figures/res-block.png" alt="res-block" width="500px">
+
+<img src="figures/res-block.png" alt="res-block" width="600px">
 
 ### 3.6. Komponenty hlubokých CNN
 
 - Konvoluce
+
+```py
+x = np.random.rand(4, 10, 10, 128) # batch, width, height, channels
+y = keras.layers.Conv2D(32, 3, activation='relu')(x) # filters, kernel size
+print(y.shape) # (4, 8, 8, 32) ..."borders" are dropped - no padding is applied
+```
+
 - Pooling
 - Dropout
 - Softmax
@@ -718,10 +731,16 @@ Model kamery je dírková komora:
 
 <img src="figures/image-and-sensor.png" alt="image-and-sensor" width="400px">
 
+Z podobnosti trojúhelníků:
+
+$$
+\dfrac{u}{x_c}=\dfrac{f}{z_c}\quad\Longrightarrow\quad u = f\dfrac{x_c}{z_c}
+$$
+
 Pixely mohou být obdélníkové. Jestliže $m_x$ a $m_y$ jsou hustoty pixelů (pixely/mm) ve směru $x$ a $y$, pak souřadnice pixelů jsou:
 
 $$
-u = m_x x_i = m_x f \frac{x_c}{z_c} + o_x, \quad\quad\quad v = m_y y_i = m_y f \frac{y_c}{z_c}+o_y,
+u = m_x x_i + o_x = m_x f \frac{x_c}{z_c} + o_x, \quad\quad\quad v = m_y y_i +o_y = m_y f \frac{y_c}{z_c}+o_y,
 $$
 
 kde $f$ je ohnisková vzdálenost a $(o_x,o_y)$ je souřadnice, kde optická osa protíná senzor. Označme $f_x=m_xf$ a $f_y=m_yf$. Pak můžeme pro homogenní souřadnice $(u,v)=\left(\dfrac{\tilde{u}}{\tilde{w}},\dfrac{\tilde{u}}{\tilde{w}}\right)$ vyjádřit vnitřní *(intrinsic)* matici jako:
