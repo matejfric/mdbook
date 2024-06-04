@@ -1,95 +1,96 @@
 # PDBS
 
-- [1. Testovací databáze ProductOrderDb](#1-testovací-databáze-productorderdb)
-- [2. Tabulka typu halda (heap table)](#2-tabulka-typu-halda-heap-table)
-  - [2.1. Mazání záznamů](#21-mazání-záznamů)
-  - [2.2. Vkládání záznamů](#22-vkládání-záznamů)
-- [3. Indexy v DBS](#3-indexy-v-dbs)
-  - [3.1. B-strom](#31-b-strom)
-  - [3.2. B+strom](#32-bstrom)
-  - [3.3. Rozsahový dotaz](#33-rozsahový-dotaz)
-  - [3.4. Index](#34-index)
-  - [3.5. PL/SQL](#35-plsql)
-    - [3.5.1. Zjištění indexů vytvořených pro tabulku](#351-zjištění-indexů-vytvořených-pro-tabulku)
-    - [3.5.2. Počet bloků indexu](#352-počet-bloků-indexu)
-    - [3.5.3. Výška B+stromu](#353-výška-bstromu)
-    - [3.5.4. Další statistiky](#354-další-statistiky)
-  - [3.6. SQL Server](#36-sql-server)
-    - [3.6.1. Zjištění indexů vytvořených pro tabulku](#361-zjištění-indexů-vytvořených-pro-tabulku)
-    - [3.6.2. Počet bloků indexu](#362-počet-bloků-indexu)
-    - [3.6.3. Výška B+stromu](#363-výška-bstromu)
-    - [3.6.4. Další statistiky](#364-další-statistiky)
-- [4. Plán vykonávání dotazu (QEP)](#4-plán-vykonávání-dotazu-qep)
-  - [4.1. Zobrazení QEP](#41-zobrazení-qep)
-    - [4.1.1. Oracle](#411-oracle)
-    - [4.1.2. MS SQL Server](#412-ms-sql-server)
-  - [4.2. Čas zpracování sekvenčního průchodu haldou](#42-čas-zpracování-sekvenčního-průchodu-haldou)
-    - [4.2.1. Paralelizace MS SQL Server](#421-paralelizace-ms-sql-server)
-    - [4.2.2. Paralelizace Oracle](#422-paralelizace-oracle)
-  - [4.3. Operace haldy a indexu](#43-operace-haldy-a-indexu)
-  - [4.4. Složený klíč indexu](#44-složený-klíč-indexu)
-  - [4.5. Index pro multiatribut](#45-index-pro-multiatribut)
-  - [4.6. Pokrývající index](#46-pokrývající-index)
-- [5. Shlukovaná tabulka](#5-shlukovaná-tabulka)
-  - [5.1. Oracle](#51-oracle)
-  - [5.2. SQL Server](#52-sql-server)
-- [6. Operace spojení (JOIN)](#6-operace-spojení-join)
-  - [6.1. Nested loop join](#61-nested-loop-join)
-  - [6.2. Nested loop join with index](#62-nested-loop-join-with-index)
-  - [6.3. Merge Join (spojení sléváním)](#63-merge-join-spojení-sléváním)
-  - [6.4. Hash join](#64-hash-join)
-  - [6.5. Shrnutí](#65-shrnutí)
-  - [6.6. Použití indexu při ladění dotazů se spojením](#66-použití-indexu-při-ladění-dotazů-se-spojením)
-- [7. Stránkování výsledku dotazu](#7-stránkování-výsledku-dotazu)
-- [8. Komprimace v DBS](#8-komprimace-v-dbs)
-  - [8.1. MS SQL Server](#81-ms-sql-server)
-  - [8.2. Oracle](#82-oracle)
-- [9. Uložení dat v tabulce](#9-uložení-dat-v-tabulce)
-  - [9.1. Řádkové uložení dat](#91-řádkové-uložení-dat)
-  - [9.2. Sloupcové uložení dat](#92-sloupcové-uložení-dat)
-  - [9.3. Oracle](#93-oracle)
-  - [9.4. MS SQL Server](#94-ms-sql-server)
-- [10. Další možnosti fyzického návrhu (optimalizace)](#10-další-možnosti-fyzického-návrhu-optimalizace)
-- [11. CAP teorém](#11-cap-teorém)
-- [12. NoSQL databázové systémy](#12-nosql-databázové-systémy)
-  - [12.1. JSON (JavaScript Object Notation)](#121-json-javascript-object-notation)
-  - [12.2. MongoDB](#122-mongodb)
-    - [12.2.1. Struktura databáze](#1221-struktura-databáze)
-    - [12.2.2. Dotazy v MongoDB](#1222-dotazy-v-mongodb)
-      - [12.2.2.1. Agregace](#12221-agregace)
-      - [12.2.2.2. Aktualizace](#12222-aktualizace)
-      - [12.2.2.3. JavaScript](#12223-javascript)
-    - [12.2.3. Schéma v MongoDB](#1223-schéma-v-mongodb)
-  - [12.3. Případná konzistence](#123-případná-konzistence)
-  - [12.4. BASE](#124-base)
-- [13. Distribuovaný databázový systém (DDBS)](#13-distribuovaný-databázový-systém-ddbs)
-  - [13.1. Fragmentace dat](#131-fragmentace-dat)
-  - [13.2. Replikace dat](#132-replikace-dat)
-  - [13.3. Primární kopie](#133-primární-kopie)
-    - [13.3.1. Aktualizace sekundárních replik](#1331-aktualizace-sekundárních-replik)
-  - [13.4. Implementace DDBS](#134-implementace-ddbs)
-  - [13.5. MongoBD](#135-mongobd)
-- [14. Vícerozměrné datové struktury](#14-vícerozměrné-datové-struktury)
-  - [14.1. Dotazy](#141-dotazy)
-  - [14.2. Kvadrantový strom](#142-kvadrantový-strom)
-  - [14.3. R-strom](#143-r-strom)
-  - [14.4. SphereR-Tree (SpR-Tree)](#144-spherer-tree-spr-tree)
-- [15. Prostorová data](#15-prostorová-data)
-  - [15.1. SQL Server](#151-sql-server)
-- [16. Elastic Search](#16-elastic-search)
-  - [16.1. Vyhledávání podle podobnosti](#161-vyhledávání-podle-podobnosti)
-- [17. Full-text index pro MS-SQL](#17-full-text-index-pro-ms-sql)
-- [18. Poznámky](#18-poznámky)
+- [1. Tabulka typu halda (heap table)](#1-tabulka-typu-halda-heap-table)
+  - [1.1. Mazání záznamů](#11-mazání-záznamů)
+  - [1.2. Vkládání záznamů](#12-vkládání-záznamů)
+- [2. Indexy v DBS](#2-indexy-v-dbs)
+  - [2.1. B-strom](#21-b-strom)
+  - [2.2. B+strom](#22-bstrom)
+  - [2.3. Rozsahový dotaz](#23-rozsahový-dotaz)
+  - [2.4. Index](#24-index)
+  - [2.5. PL/SQL](#25-plsql)
+    - [2.5.1. Zjištění indexů vytvořených pro tabulku](#251-zjištění-indexů-vytvořených-pro-tabulku)
+    - [2.5.2. Počet bloků indexu](#252-počet-bloků-indexu)
+    - [2.5.3. Výška B+stromu](#253-výška-bstromu)
+    - [2.5.4. Další statistiky](#254-další-statistiky)
+  - [2.6. SQL Server](#26-sql-server)
+    - [2.6.1. Zjištění indexů vytvořených pro tabulku](#261-zjištění-indexů-vytvořených-pro-tabulku)
+    - [2.6.2. Počet bloků indexu](#262-počet-bloků-indexu)
+    - [2.6.3. Výška B+stromu](#263-výška-bstromu)
+    - [2.6.4. Další statistiky](#264-další-statistiky)
+- [3. Plán vykonávání dotazu (QEP)](#3-plán-vykonávání-dotazu-qep)
+  - [3.1. Zobrazení QEP](#31-zobrazení-qep)
+    - [3.1.1. Oracle](#311-oracle)
+    - [3.1.2. MS SQL Server](#312-ms-sql-server)
+  - [3.2. Čas zpracování sekvenčního průchodu haldou](#32-čas-zpracování-sekvenčního-průchodu-haldou)
+    - [3.2.1. Paralelizace MS SQL Server](#321-paralelizace-ms-sql-server)
+    - [3.2.2. Paralelizace Oracle](#322-paralelizace-oracle)
+  - [3.3. Operace haldy a indexu](#33-operace-haldy-a-indexu)
+  - [3.4. Složený klíč indexu](#34-složený-klíč-indexu)
+  - [3.5. Index pro multiatribut](#35-index-pro-multiatribut)
+  - [3.6. Pokrývající index](#36-pokrývající-index)
+- [4. Shlukovaná tabulka](#4-shlukovaná-tabulka)
+  - [4.1. Oracle](#41-oracle)
+  - [4.2. SQL Server](#42-sql-server)
+- [5. Operace spojení (JOIN)](#5-operace-spojení-join)
+  - [5.1. Nested loop join](#51-nested-loop-join)
+  - [5.2. Nested loop join with index](#52-nested-loop-join-with-index)
+  - [5.3. Merge Join (spojení sléváním)](#53-merge-join-spojení-sléváním)
+  - [5.4. Hash join](#54-hash-join)
+  - [5.5. Shrnutí](#55-shrnutí)
+  - [5.6. Použití indexu při ladění dotazů se spojením](#56-použití-indexu-při-ladění-dotazů-se-spojením)
+- [6. Stránkování výsledku dotazu](#6-stránkování-výsledku-dotazu)
+- [7. Komprimace v DBS](#7-komprimace-v-dbs)
+  - [7.1. MS SQL Server](#71-ms-sql-server)
+  - [7.2. Oracle](#72-oracle)
+- [8. Uložení dat v tabulce](#8-uložení-dat-v-tabulce)
+  - [8.1. Řádkové uložení dat](#81-řádkové-uložení-dat)
+  - [8.2. Sloupcové uložení dat](#82-sloupcové-uložení-dat)
+  - [8.3. Oracle](#83-oracle)
+  - [8.4. MS SQL Server](#84-ms-sql-server)
+- [9. Další možnosti fyzického návrhu (optimalizace)](#9-další-možnosti-fyzického-návrhu-optimalizace)
+- [10. CAP teorém](#10-cap-teorém)
+- [11. NoSQL databázové systémy](#11-nosql-databázové-systémy)
+  - [11.1. JSON (JavaScript Object Notation)](#111-json-javascript-object-notation)
+  - [11.2. MongoDB](#112-mongodb)
+    - [11.2.1. Struktura databáze](#1121-struktura-databáze)
+    - [11.2.2. Dotazy v MongoDB](#1122-dotazy-v-mongodb)
+      - [11.2.2.1. Agregace](#11221-agregace)
+      - [11.2.2.2. Aktualizace](#11222-aktualizace)
+      - [11.2.2.3. JavaScript](#11223-javascript)
+    - [11.2.3. Schéma v MongoDB](#1123-schéma-v-mongodb)
+  - [11.3. Případná konzistence](#113-případná-konzistence)
+  - [11.4. BASE](#114-base)
+- [12. Distribuovaný databázový systém (DDBS)](#12-distribuovaný-databázový-systém-ddbs)
+  - [12.1. Fragmentace dat](#121-fragmentace-dat)
+  - [12.2. Replikace dat](#122-replikace-dat)
+    - [12.2.1. Primární kopie](#1221-primární-kopie)
+    - [12.2.2. Aktualizace sekundárních replik](#1222-aktualizace-sekundárních-replik)
+  - [12.3. Implementace DDBS](#123-implementace-ddbs)
+  - [12.4. MongoBD](#124-mongobd)
+- [13. Vícerozměrné datové struktury](#13-vícerozměrné-datové-struktury)
+  - [13.1. Dotazy](#131-dotazy)
+  - [13.2. Kvadrantový strom](#132-kvadrantový-strom)
+  - [13.3. R-strom](#133-r-strom)
+  - [13.4. SphereR-Tree (SpR-Tree)](#134-spherer-tree-spr-tree)
+- [14. Prostorová data](#14-prostorová-data)
+  - [14.1. SQL Server](#141-sql-server)
+- [15. Elastic Search](#15-elastic-search)
+  - [15.1. Vyhledávání podle podobnosti](#151-vyhledávání-podle-podobnosti)
+- [16. Full-text index pro MS-SQL](#16-full-text-index-pro-ms-sql)
+- [17. Poznámky](#17-poznámky)
 
-## 1. Testovací databáze ProductOrderDb
+<details><summary> Testovací databáze ProductOrderDB </summary>
 
 <img src="figures/test-db.png" alt="test-db" width="700px">
 
-## 2. Tabulka typu halda (heap table)
+</details>
+
+## 1. Tabulka typu halda (heap table)
 
 > Lineární složitost vyhledávání a neprovádění fyzického mazání záznamů.
 
-- Základní datová struktura pro tabulky relačního datového modelu je **tabulka typu halda** (stránkované pole, resp. stránkovaný seznam).
+- Základní datová struktura pro tabulky relačního datového modelu je **tabulka typu halda** (stránkované pole, resp. **stránkovaný seznam**).
 - Záznamy jsou uloženy ve stránkách/blocích o velikosti nejčastěji 8 kB (používají se násobky alokační jednotky systému, nejčastěji 2kB).
 - Vyhledávání je *sekvenční* $\mathcal{O}(n)$.
 
@@ -98,7 +99,6 @@
 (Oracle) Počet stránek:
 
 ```sql
-SELECT COUNT(*) FROM Customer;
 SELECT blocks FROM users_segments
 WHERE segment_name = 'CUSTOMER';
 ```
@@ -132,9 +132,6 @@ END;
 /
 
 EXEC PrintPages('CUSTOMER', 'KRA28');
-
-SELECT blocks FROM user_segments
-WHERE segment_name = 'CUSTOMER';
 ```
 
 (MS SQL Server) Počet *využitých* stránek (hlubší rozbor):
@@ -176,18 +173,20 @@ EXEC PrintPagesHeap 'OrderItem';
 
 </details>
 
-### 2.1. Mazání záznamů
+### 1.1. Mazání záznamů
 
-- Záznamy v tabulce nejsou nijak uspořádány. Mazání po každé operaci delete, by v nejhorším případě, znamenalo přesouvání $n$ záznamů v hladě.
-- Operace mazání pouze *označí záznam jako smazaný*! Záznam musíme prvně najít, proto složitost $\mathcal{O}(n)$.
+- Záznamy v tabulce *nejsou* nijak *uspořádány*.
+- Mazání po každé operaci `DELETE` by v nejhorším případě znamenalo přesouvání $n$ záznamů v haldě.
+- Proto operace mazání pouze **označí záznam jako smazaný**! Tzn. počet bloků haldy se po operaci mazání nezmění.
+- Záznam musíme prvně najít, proto složitost $\mathcal{O}(n)$.
 
 <details><summary> Příklad: Fyzické mazání záznamů heap table </summary>
 
 Oracle:
 
 ```sql
-ALTER TABLE OrderItem ENABLE ROW MOVEMENT;
-ALTER TABLE OrderItem SHRINK SPACE;
+ALTER TABLE <TableName> ENABLE ROW MOVEMENT;
+ALTER TABLE <TableName> SHRINK SPACE;
 ```
 
 MS SQL Server:
@@ -198,67 +197,80 @@ ALTER TABLE <TableName> REBUILD;
 
 </details>
 
-### 2.2. Vkládání záznamů
+### 1.2. Vkládání záznamů
 
 Při vkládání je záznam umístěn na první nalezenou volnou pozici v tabulce (časová složitost $\mathcal{O}(n)$) nebo na konec pole (složitost $\mathcal{O}(1)$).
 
 Teoretická složitost vkládání do haldy je $\mathcal{O}(1)$, ale:
 
-- Pro *primární klíče* a *jedinečné atributy (unique)* je nutné kontrolovat jedinečnost hodnot atributů.
-- Referenční integrita - DBS musí kontrolovat hodnoty pro cizí klíče, zda se záznam vyskytuje v odkazované tabulce.
+- Pro *primární klíče* a *jedinečné atributy (unique)* je nutné kontrolovat **jedinečnost** hodnot atributů.
+- **Referenční integrita** - DBS musí kontrolovat hodnoty pro cizí klíče, zda se záznam vyskytuje v odkazované tabulce.
 
 V haldě mají tyto kontroly složitost v $\mathcal{O}(n)$. Halda je základní úložiště dat pro tabulku, potřebujeme ale také úložiště s lepší časovou složitostí základních operací.
 
-## 3. Indexy v DBS
+## 2. Indexy v DBS
 
-### 3.1. B-strom
+### 2.1. B-strom
 
 <img src="figures/b-tree.png" alt="b-tree" width="500px">
 
-### 3.2. B+strom
+Častěji se používá varianta $B^+$strom, která obsahuje indexované položky - **klíče** - pouze v listových uzlech.
 
-$B^+$-strom řádu $C$ má vlastnosti:
+### 2.2. B+strom
+
+Obr. $B^+$strom - klíče - indexované položky $\{1,2,\dots,7\}$, ukazatele na záznam v haldě $\{d_1,\dots,d_7\}$.
+
+<img src="figures/b+tree.png" alt="b+tree" width="350px">
+
+$B^+$strom řádu $C$ má vlastnosti:
 
 - Vnitřní/listový uzel/stránka obsahuje $C-1$ klíčů, vnitřní uzel obsahuje $C$ ukazatelů na dětské uzly.
-- **Stránkovatelný** (srovnáme s binárním stromem): C je nastaveno dle velikosti stránky např. 8kB.
+- **Stránkovatelný** (srovnáme s binárním stromem): $C$ je nastaveno dle velikosti stránky ( např. 8 kB).
 - **Vyvážený**: vzdálenost od všech listů ke kořenovému uzlu je stejná.
-- **Výška** $h$ je vzdálenost od kořene k listu (počet hran): $h\approx \lceil \log C(n) \rceil$ $\Rightarrow$ maximální počet klíčů $\boxed{N = C^{h+1} − 1}$.
+- **Výška** $h$ je vzdálenost od kořene k listu (počet hran): $h\approx \lceil \log C(n) \rceil$ $\Rightarrow$ maximální počet klíčů $\boxed{n = C^{h+1} − 1}$.
 - **Mazání, vkládání** a dotaz na jeden klíč (**bodový dotaz**) mají **časovou složitost** $\mathcal{O}(\log(n))$.
 - Počet uzlů/stránek (**IO cost**), které je nutné projít při bodovém dotazu, je $h + 1$.
 - Klíče jsou uloženy pouze v interních uzlech. Oproti $B$-stromu má hodnoty pouze v listových uzlech.
 - Listové uzly jsou propojené, což pomáhá v rozsahových dotazech.
 
-<img src="figures/b+tree.png" alt="b+tree" width="500px">
+- Pokud chceme vložit klíč do listového uzlu, který je plný, dojde k operaci **štěpení (split)**.
+- V původním uzlu se ponechá 50% položek, do nově vytvořeného uzlu se přesune 50% položek. Důsledkem je **50% využití stránek** $B$-stromu $\Rightarrow$ $B$-strom je tedy (teoreticky) cca. 2x větší než halda.
 
-Pokud chceme vložit klíč do listového uzlu, který je plný, dojde k operaci **štěpení (split)**. V původním uzlu se ponechá 50% položek, do nově vytvořeného uzlu se přesune 50% položek. Důsledkem je **50% využití stránek** $B$-stromu $\Rightarrow$ $B$-strom je tedy cca 2x větší než halda.
+Obr. štěpení uzlu pro $C=6$:
 
 <img src="figures/btree-split.png" alt="btree-split" width="300px">
 
-### 3.3. Rozsahový dotaz
+### 2.3. Rozsahový dotaz
 
 `between 42 and 420`
 
 1. Bodový dotaz pro nižší hodnotu v rozsahu $(42)$.
 2. Porovnávání dalších klíčů ve stránce dokud klíč $\leq 420$.
-3. Po porovnání všech klíčů stránky je načtena další listová stránka (Každá listová stránka $B^+$-stromu obsahuje odkaz na následující listovou stránku).
+3. Po porovnání všech klíčů stránky je načtena další listová stránka (Každá listová stránka $B^+$stromu obsahuje odkaz na následující listovou stránku).
 
 <img src="figures/b+tree-range-query.png" alt="b+tree-range-query" width="350px">
 
 <img src="figures/btree-range-query.png" alt="btree-range-query" width="350px">
 
-- IO cost = $h + b$
-    1. $h$: bodový dotaz (minimum).
+- $\boxed{\text{IO cost} = h + b}$
+    1. $h$: bodový dotaz bez přístupu k listovému uzlu.
     2. $b$: počet prohledávaných listových uzlů.
-- Nejhorší případ $\mathcal{O}(n)$ (průchod všech listových stránek).
-- Nejlepší případ: IO cost = $h+1$.
+- Nejhorší případ $\boxed{\mathcal{O}(n)}$ (průchod všech listových stránek).
+- Nejlepší případ: $\boxed{\text{IO cost} = h+1,}$ tzn. $\Omega(h)$.
 - Sousední listové stránky na *disku* jsou umístěny daleko od sebe, při načítání stránek z disku dochází k **náhodným přístupům** (o 2-3 řády pomalejší), proto je někdy pro plán vykonávání zvolen sekvenční průchod haldou.
   - Náhodný přístup v hlavní paměti není tak problematický díky **cache CPU**.
 
 > Pokud jsou stránky $B$-stromu umístěny v hlavní paměti, i pro vyšší $b$ je použit rozsahový dotaz nad $B$-stromem. Pokud jsou stránky umístěny na disku, i pro relativně nízké $b$, DBS použije sekvenční průchod v haldě.
 
-### 3.4. Index
+Propustnost DDR5 RAM je 32-64 GB/s, zatímco u (lepších) SSD disků max ~7GB/s. U náhodného čtení jsou tyto hodnoty mnohem nižší, nejhorší případ okolo ~100MB/s!
 
-> Index v DBS je většinou implementován jako $B$-strom.
+(Nicméně je třeba brát v úvahu latence - pro RAM je to RAS (Row Address Strobe) a CAS (Column Address Strobe), obojí okolo 12 ns, zatímco pro FLASH paměť jsou latence v řádech mikrosekund, přestože masivně paralelizované).
+
+### 2.4. Index
+
+> Index v DBS je většinou implementován jako $B^+$strom.
+
+<div class="warning">
 
 Index neobsahuje celé záznamy, ale pouze:
 
@@ -267,11 +279,13 @@ Index neobsahuje celé záznamy, ale pouze:
 
 Klíč a ROWID pak nazýváme **položkou** uzlu B-stromu.
 
+</div>
+
 Typy indexů:
 
-1. Automaticky vytvořený index:
+1. **Automaticky vytvořený index**:
    - Je vytvořen pro primární klíče a jedinečné atributy (unique), když je úložištěm tabulky halda (heap).
-2. Ručně vytvořený index:
+2. **Ručně vytvořený index**:
 
 ```sql
 CREATE INDEX <index name>
@@ -280,7 +294,7 @@ ON <table name>(<list of attributes>)
 
 - Klíč B-stromu obsahuje hodnoty atributů z `<list of attributes>`.
 
-Základní schéma úložiště pro tabulku:
+Obr. základní schéma úložiště pro tabulku:
 
 <img src="figures/basic-storage-schema.png" alt="basic-storage-schema" width="700px">
 
@@ -298,9 +312,9 @@ Proč automaticky vytvářené indexy?
 
 DBS nám **ne**umožní automaticky vytvořený index zrušit.
 
-### 3.5. PL/SQL
+### 2.5. PL/SQL
 
-#### 3.5.1. Zjištění indexů vytvořených pro tabulku
+#### 2.5.1. Zjištění indexů vytvořených pro tabulku
 
 ```sql
 SELECT index_name 
@@ -312,9 +326,9 @@ WHERE table_name = 'CUSTOMER';
 
 Tzn. pro primární klíč `idCustomer` je vytvořen index `SYS_C00552552`, B+strom, kde položka obsahuje hodnotu `idCustomer` a `ROWID`, které ukazuje na kompletní záznam do haldy.
 
-#### 3.5.2. Počet bloků indexu
+#### 2.5.2. Počet bloků indexu
 
-Počet alokovaných bloku (odhad - maximální hodnota):
+**Počet alokovaných bloku (odhad - maximální hodnota)**:
 
 ```sql
 SELECT blocks 
@@ -440,7 +454,7 @@ EXEC PrintPagesSpaceUsage(’CUSTOMER’, ’KRA28’, ’TABLE’);
 
 </details>
 
-#### 3.5.3. Výška B+stromu
+#### 2.5.3. Výška B+stromu
 
 ```sql
 SELECT index_name, blevel, leaf_blocks
@@ -457,7 +471,7 @@ SYS_C00552552            1         562
 - Jeden kořen a 562 listových uzlů
 - IO cost bodového dotazu $h+1=2$.
 
-#### 3.5.4. Další statistiky
+#### 2.5.4. Další statistiky
 
 Využijeme příkaz `ANALYZE INDEX <index_name> VALIDATE STRUCTURE;`, který naplní tabulku `index_stats`.
 
@@ -479,9 +493,9 @@ WHERE name = 'SYS_C00552552';
 |-----|--------|------------|-------------|------------|-------------|----------|
 | 1   | 640    | 562        | 1           | 300000     | 561         | 100      |
 
-### 3.6. SQL Server
+### 2.6. SQL Server
 
-#### 3.6.1. Zjištění indexů vytvořených pro tabulku
+#### 2.6.1. Zjištění indexů vytvořených pro tabulku
 
 ```sql
 CREATE OR ALTER PROCEDURE PrintIndexes
@@ -499,7 +513,7 @@ EXEC PrintIndexes 'Customer';
 -- indexName    PK__Customer__D058768742B8AE8D
 ```
 
-#### 3.6.2. Počet bloků indexu
+#### 2.6.2. Počet bloků indexu
 
 ```sql
 CREATE OR ALTER PROCEDURE PrintPagesIndex
@@ -535,7 +549,7 @@ EXEC PrintPagesIndex 'PK__Customer__D058768742B8AE8D';
 --PK__Customer__D058768742B8AE8D      300000      673         5.3             673         5.3
 ```
 
-#### 3.6.3. Výška B+stromu
+#### 2.6.3. Výška B+stromu
 
 ```sql
 SELECT i.name, s.index_depth - 1 AS height,
@@ -553,7 +567,7 @@ GROUP BY i.name, s.index_depth;
 
 - IO cost bodového dotazu $h+1=3$.
 
-#### 3.6.4. Další statistiky
+#### 2.6.4. Další statistiky
 
 ```sql
 SELECT
@@ -587,7 +601,7 @@ Využití listových stránek je téměř 100%, zřejmě důsledek optimalizace 
 
 Průměrná fragmentace uzlů `avg_frag` je míra shody logického a fyzického pořadí stránek. Pokud je hodnota nízká, použijeme `ALTER INDEX REORGANIZE`.
 
-## 4. Plán vykonávání dotazu (QEP)
+## 3. Plán vykonávání dotazu (QEP)
 
 Jakmile optimalizátor vybere nejlevnější (nejrychlejší) plán, dotaz je proveden a uživateli je navrácen výsledek.
 
@@ -607,9 +621,9 @@ Sekvenční průchod haldou:
   - Oracle: `TABLE ACCESS (FULL)`
   - SQL Server: `Table Scan`
 
-### 4.1. Zobrazení QEP
+### 3.1. Zobrazení QEP
 
-#### 4.1.1. Oracle
+#### 3.1.1. Oracle
 
 ```sql
 EXPLAIN PLAN FOR 
@@ -680,7 +694,7 @@ SET FEEDBACK OFF SQL_ID;
 
 </details>
 
-#### 4.1.2. MS SQL Server
+#### 3.1.2. MS SQL Server
 
 ```sql
 SET SHOWPLAN_TEXT ON; --OFF
@@ -692,7 +706,7 @@ SET STATISTICS IO ON; --OFF
 SET STATISTICS TIME ON; --OFF
 ```
 
-### 4.2. Čas zpracování sekvenčního průchodu haldou
+### 3.2. Čas zpracování sekvenčního průchodu haldou
 
 Oracle:
 
@@ -710,7 +724,7 @@ SQL Server:
 
 Zajímá nás především `CPU time`! Pokud bude počet operací nad databází v daný okamžik vyšší, pak DBS nebude moci paralelizovat jednotlivé operace a bude provádět dílčí operace postupně místo paralelně.
 
-#### 4.2.1. Paralelizace MS SQL Server
+#### 3.2.1. Paralelizace MS SQL Server
 
 - Implicitně je paralelizace zapnutá.
 - `OPTION (MAXDOP x)`, kde `x` značí počet jader. Pro sekvenční provedení použijeme $x=1$, pro paralelizaci bez omezení počtu jader použijeme $x=0$:
@@ -721,7 +735,7 @@ WHERE orderitem.unitprice BETWEEN 1 AND 300
 OPTION (MAXDOP 1);
 ```
 
-#### 4.2.2. Paralelizace Oracle
+#### 3.2.2. Paralelizace Oracle
 
 - Implicitně je paralelizace vypnutá.
 
@@ -746,7 +760,7 @@ WHERE oi.unitprice BETWEEN 1 AND 300;
 
 </div>
 
-### 4.3. Operace haldy a indexu
+### 3.3. Operace haldy a indexu
 
 Dotazy na hodnoty **indexovaného atributu** (např. PK) využívají (někdy) bodového nebo rozsahového dotazu v B-stromu:
 
@@ -776,7 +790,7 @@ Při selektivitě větší než $1\%$ DBS spíše zvolí sekvenční průchod ha
 
 </div>
 
-### 4.4. Složený klíč indexu
+### 3.4. Složený klíč indexu
 
 Pokud klíč obsahuje více než jeden atribut $a_1,a_2,\ldots,a_k$, mluvíme o
 složeném klíči.
@@ -808,11 +822,11 @@ Např. pro složený klíč o pěti atributech můžu přesně specifikovat prvn
 >
 >Při vytváření většího počtu indexů, můžeme snadno přesáhnout velikost haldy. Navíc budeme snižovat čas vykonání operací insert a update.
 
-### 4.5. Index pro multiatribut
+### 3.5. Index pro multiatribut
 
 - Multiatribut je např. `DATE` nebo `DATETIME`. Chová se jako složený klíč, tzn. musí být splněno lexikografické uspořádání.
 
-### 4.6. Pokrývající index
+### 3.6. Pokrývající index
 
 > Pokrývající index (covering index) umožňuje vyhodnotit dotaz bez přístupu do haldy.
 
@@ -854,13 +868,13 @@ Položka (list B-stromu) indexu `product_unitprice_id_p` obsahuje:
 
 - Klíč: atribut `unit_price`.
 - `RID`: odkaz na záznam v haldě tabulky `Product`.
-- Atributy: `id_product`
+- Atributy: `id_product`.
 
 B-strom je ale setřízen jen podle klíče.
 
 Obecně platí, že index se využívá pro selekci získávající malý počet záznamů (tzv. **vysoce selektivní dotazy**).
 
-## 5. Shlukovaná tabulka
+## 4. Shlukovaná tabulka
 
 > Shlukovaná tabulka obsahuje **kompletní záznamy**. Pro každou tabulku existuje **vždy jen jedna datová struktura obsahující kompletní záznamy**: halda nebo shlukovaná tabulka.
 
@@ -879,7 +893,7 @@ Záznamy ve shlukované tabulce jsou **setřízeny dle PK**. Pokud potřebujeme 
 
 Pokud jsou bloky umístěny na disku, je sekvenční průchod shlukované tabulky pomalejší než u haldy. Pro bloky v paměti je rozdíl zanedbatelný.
 
-### 5.1. Oracle
+### 4.1. Oracle
 
 `Index Organized Table` (IOT)
 
@@ -889,7 +903,7 @@ CREATE TABLE my_table (
 ) ORGANIZATION INDEX;
 ```
 
-### 5.2. SQL Server
+### 4.2. SQL Server
 
 `Clustered index` - Pozor není to index! Index je `nonclustered index`.
 
@@ -911,7 +925,7 @@ CREATE TABLE my_table (
 )
 ```
 
-## 6. Operace spojení (JOIN)
+## 5. Operace spojení (JOIN)
 
 Nejčastějším spojením je **spojení na rovnost hodnot atributů (equality join)**.
 
@@ -924,7 +938,7 @@ Algoritmy operace spojení:
 
 Vstupy algoritmu spojení:
 
-- Dvě relace $R_1, R_2, n_1, n_2$ záznamy a $b_1, b_2$ stránkami.
+- Dvě relace $R_1, R_2$ s $n_1, n_2$ záznamy a $b_1, b_2$ stránkami.
 - Pořadová čísla spojovaných atributů $R_1(x)$ a $R_2(y)$.
 
 Velikost výsledku: $[0, n_1\cdot n_2]$
@@ -934,7 +948,7 @@ Velikost výsledku: $[0, n_1\cdot n_2]$
 > - MS SQL - `RID Lookup`,
 > - Oracle - `Table Access by index ROWID`.
 
-### 6.1. Nested loop join
+### 5.1. Nested loop join
 
 - $\Theta(n_1\cdot n_2)$
 
@@ -956,16 +970,6 @@ Nebo stránkovaná verze:
 - IO cost $b_1 \cdot b_2$ (oproti $n_1\cdot n_2$)
 
 ```cpp
-for (int i = 0; i < b1; i++)
-{
-    B1 = readBlock(R1, i);
-    for (int j = 0; j < b2; j++)
-    {
-        B2 = readBlock(R2, j);
-        joinBlocks(B1, B2);
-    }
-}
-
 void joinBlocks(Block B1, Block B2)
 {
     for (int i = 0; i < B1.count; i++)
@@ -979,18 +983,28 @@ void joinBlocks(Block B1, Block B2)
         }
     }
 }
+
+for (int i = 0; i < b1; i++)
+{
+    Block B1 = readBlock(R1, i);
+    for (int j = 0; j < b2; j++)
+    {
+        Block B2 = readBlock(R2, j);
+        joinBlocks(B1, B2);
+    }
+}
 ```
 
-### 6.2. Nested loop join with index
+### 5.2. Nested loop join with index
 
 - $\Theta(n_1\cdot\log n_2)$
 - Předpoklad: pro spojovaný atribut $y$ relace $R_2$ je vytvořen index.
 
-### 6.3. Merge Join (spojení sléváním)
+### 5.3. Merge Join (spojení sléváním)
 
 - $\Theta(n_1 + n_2)$
 - IO cost $b_1 + b_2$
-- Předpoklad: Relace $R_1$ a $R_2$ setřízené dle spojovaných atributů $R_1.x$ resp. $R2.y$.
+- Předpoklad: Relace $R_1$ a $R_2$ jsou **setřízené** dle spojovaných atributů $R_1.x$ resp. $R2.y$.
 
 Algoritmus:
 
@@ -1004,48 +1018,58 @@ def merge_join(r1, r2, x, y):
     i = 0
     j = 0
     intersection = []
-    r1x = r1[x]
+
+    # select columns to join
+    r1x = r1[x]  
     r2y = r2[y]
+
     while i < len(r1x) and j < len(r2y):
-        if r1x[i] == r2y[j]:
-            intersection.append(r1x[i])
+        a = r1x[i]  # left
+        b = r2y[j]  # right
+        if a == b:
+            intersection.append(a)
             i += 1
             j += 1
-        elif r1x[i] < r2y[j]:
+        elif a < b:
             i += 1
         else:
             j += 1
+
     return intersection
 ```
 
-### 6.4. Hash join
+### 5.4. Hash join
 
 - $\Theta(n_1 + n_2)$ (neuvažujeme operace hashované tabulky)
 - IO cost $b_1 + b_2$ (neuvažujeme operace hashované tabulky)
-- Algoritmus je využíván, pokud je nutné spojovat větší nesetřízené relace nebo jedna z relací je menší.
+- Algoritmus je využíván, pokud je nutné spojovat **větší nesetřízené** relace nebo **jedna z relací je menší**.
 
 Algoritmus:
 
-1. Menší relace (tabulka) je vložena do hashovací tabulky (slovník), kde klíčem je spojovaný atribut.
+1. **Menší** relace (tabulka) je vložena **do hashovací tabulky** (slovník), kde **klíčem je spojovaný atribut**.
 2. Větší relace (tabulka) je procházena po záznamech:
    - Průchod po klíčích slovníku, záznamy se stejnou hodnotou spojovaných atributů přidáme do výsledku.
 
-### 6.5. Shrnutí
+### 5.5. Shrnutí
+
+<div class="warning">
 
 - **Nested loop join** se využívá pokud DBS spojuje menší, **nesetřízené** relace.
 - Pokud je u druhé relace k dispozici index, využívá se **Nested loop join s indexem** (stále se musí jednat o dotaz s vysokou selektivitou, a tedy malým počtem záznamů $<1\%$).
 - Pokud má DBS k dispozici obě relace **setřízené**, použije algoritmus **Merge join**.
 - **Hash join** se využívá, pokud je nutné spojovat **větší nesetřízené relace**, zvláště pokud jedna z relací je menší.
 
-### 6.6. Použití indexu při ladění dotazů se spojením
+</div>
 
-- Obecně platí, že index se využívá pro selekci získávající malý počet záznamů (tzv. vysoce selektivní dotazy).
-- V případě operace spojení se můžeme pokusit vytvořit složený klíč obsahující spojovaný cizí klíč a atributy tabulky, pro které se provádí selekce.
+### 5.6. Použití indexu při ladění dotazů se spojením
+
+- Obecně platí, že index se využívá pro selekci získávající malý počet záznamů (tzv. **vysoce selektivní dotazy**).
+- V případě operace spojení se můžeme pokusit vytvořit **složený klíč** obsahující spojovaný **cizí klíč** a atributy tabulky, pro které se provádí **selekce**.
 - Pro dotazy `SELECT *` se složený index využije jen v případě dotazů s vyšší selektivitou.
 - Pokud dotaz obsahuje projekci jinou než `*`, dáme atributy projekce na konec složeného klíče indexu. Vyhneme se drahým přístupům ke kompletnímu záznamu tabulky a složený index bude spíše využit. Pokud bude takový složený index využit, namísto sekvenčních
 průchodů tabulkou získáme výrazně nižší čas vykonání dotazu.
 
-## 7. Stránkování výsledku dotazu
+## 6. Stránkování výsledku dotazu
 
 Někdy nepotřebujeme v aplikaci zobrazit všechny výsledky dotazu najednou. Např. tabulka obsahuje 100 000 záznamů, ale v UI se uživateli zobrazuje jen jedna stránka záznamů, např. 100.
 
@@ -1075,7 +1099,7 @@ OFFSET 15500 -- 15 570 records
 ROWS FETCH NEXT 100 ROWS ONLY;
 ```
 
-## 8. Komprimace v DBS
+## 7. Komprimace v DBS
 
 Využívají se jednodušší, starší, spíše rychlé algoritmy, např. **RLE (Run-Length-Encoding)**. Upřednostňujeme **propustnost** *(rychlost komprese/dekomprese)* před **kompresním poměrem** *(kolik se uvolní místa)*.
 
@@ -1085,7 +1109,7 @@ Kódy proměnné délky *(Eliasovy, Fibonacciho, atd.)* se spíše nepoužívaj�
 
 Kdy se vyplatí vyšší komprimace i za cenu pomalejší rychlosti dotazu *(vyšší komprimační poměr, nižší propustnost)*? Např. pro **historická data**, které se nepoužívají příliš často.
 
-### 8.1. MS SQL Server
+### 7.1. MS SQL Server
 
 Typy komprimace:
 
@@ -1103,7 +1127,7 @@ ALTER INDEX <index> ON <table> REBUILD PARTITION = ALL
 WITH (DATA_COMPRESSION = <type>);
 ```
 
-### 8.2. Oracle
+### 7.2. Oracle
 
 Typy komprimace:
 
@@ -1126,9 +1150,9 @@ CREATE INDEX <index> ON <table> (<...>) COMPRESS ADVANCED LOW;
 ALTER INDEX <index> REBUILD COMPRESS ADVANCED LOW;
 ```
 
-## 9. Uložení dat v tabulce
+## 8. Uložení dat v tabulce
 
-### 9.1. Řádkové uložení dat
+### 8.1. Řádkové uložení dat
 
 V blocích haldy jsou data uložena po záznamech, mluvíme o **řádkovém uložení** **(rowstore)**.
 
@@ -1141,7 +1165,7 @@ Naopak je řádkové uložení **nevýhodné** v případě **projekce na nízk�
 
 - `SELECT AVG(sysdate - birthday) FROM Customer` – sekvenční průchod tabulkou a počítání součtu věku, bloky ovšem obsahují i hodnoty ostatních atributů.
 
-### 9.2. Sloupcové uložení dat
+### 8.2. Sloupcové uložení dat
 
 Pokud v dotazech pracujeme jen s několika málo atributy (reálné tabulky mohou mít desítky atributů), můžeme uvažovat o tzv. **sloupcovém uložení dat (columnstore)**.
 
@@ -1153,7 +1177,7 @@ Při sloupcovém uložení můžeme dosáhnout **vyššího kompresního poměru
 
 Sloupcové uložení je výhodné zejména, pokud dotazy pracují s **malým počtem atributů** tabulky (např. agregace - sekvenční průchod haldou). Je to tedy "opačný" koncept ke konceptu indexu - sekvenční průchod menším objemem dat při nízké selektivitě dotazů.
 
-### 9.3. Oracle
+### 8.3. Oracle
 
 **Oracle In-Memory Column Store** - uložení v hlavní paměti.
 
@@ -1184,18 +1208,18 @@ Kde `<type>` může být:
 - `CAPACITY LOW`
 - `CAPACITY HIGH` - nejvyšší komprese
 
-### 9.4. MS SQL Server
+### 8.4. MS SQL Server
 
 - **Clustered columnstore index** - sloupcová tabulka
 - **Nonclustered columnstore index** - sloupcový index
 
-## 10. Další možnosti fyzického návrhu (optimalizace)
+## 9. Další možnosti fyzického návrhu (optimalizace)
 
 **Materializované pohledy** - uložení výsledku dotazu, vhodné pro časté, složitější dotazy. Nevýhodou je pomalejší aktualizace databáze.
 
 **Rozdělení dat (data partitioning)** - určené pro velké tabulky obsahující např. dlouhodobá měření. Jednotlivé části (tabulky a indexy) pak obsahují data jen za určitý časový úsek.
 
-## 11. CAP teorém
+## 10. CAP teorém
 
 Mějme **distribuovaný DBS** rozložený na více počítačích sítě, tzv. **uzlech**.
 
@@ -1203,14 +1227,14 @@ Mějme **distribuovaný DBS** rozložený na více počítačích sítě, tzv. *
 
 - **Konzistence (Consistency)**: každé čtení vrátí buď výsledek posledního zápisu nebo chybu.
 - **Dostupnost (Availability)**: každé čtení vrátí výsledek (nikdy ne chybu), nemusí se ale jednat o výsledek posledního zápisu.
-- **Odolnost k přerušení (síť) (Partition tolerance)**: systém pracuje dál i v případě, že dojde ke ztrátě nebo zdržení libovolného počtu zpráv mezi uzly.
+- **Odolnost k přerušení sítě (Partition tolerance)**: systém pracuje dál i v případě, že dojde ke ztrátě nebo zdržení libovolného počtu zpráv mezi uzly.
 
 V případě výskytu přerušení sítě, systém musí vybírat mezi dvěma akcemi:
 
 1. Zrušit operaci a tak snížit dostupnost, ale zajistit konzistenci. V případě výskytu přerušení, systém vrátí chybu.
 2. Vykonat operaci a tak zachovat dostupnost, ale riskovat nekonzistenci. V případě výskytu přerušení, systém vrátí dostupnou verzi výsledku, nemusí se tedy jednat o výsledek posledního zápisu.
 
-Jinými slovy, při výskytu přerušení, volí systém mezi dostupností a konzistencí, není možné zajistit oboje. Dostupnost a konzistenci je možné zajistit jen v případě neexistence přerušení.
+Jinými slovy, **při výskytu přerušení systém volí mezi dostupností a konzistencí**, není možné zajistit oboje. Dostupnost a konzistenci je možné zajistit jen v případě neexistence přerušení.
 
 Při platnosti dvou vlastností ze tří, rozlišujeme tyto DDBS:
 
@@ -1220,7 +1244,7 @@ Při platnosti dvou vlastností ze tří, rozlišujeme tyto DDBS:
 - **AP**: Dostupnost a odolnost k přerušení (Availability & Partition tolerance) - systém tedy upřednostňuje dostupnost před konzistencí:
   - DBS s podporou **BASE**, zjednodušeně NoSQL databázové systémy.
 
-## 12. NoSQL databázové systémy
+## 11. NoSQL databázové systémy
 
 NoSQL databázové systémy jsou označení poměrně široké třídy DBS, které (spíše):
 
@@ -1230,11 +1254,11 @@ NoSQL databázové systémy jsou označení poměrně široké třídy DBS, kter
 - Používají model **klíč-hodnota** (např. JSON dokument) nebo komplikovanější datový model (**strom** pro XML dokumenty nebo **graf**),
 - Nejsou konkurenční k relačním DBS, jsou určeny pro jiné problémy.
 
-Oracle a MS SQL taky umožňují ukládání grafů XML dokumentů apod. Nicméně pracaují s těmito daty pomocí modelu ACID.
+Oracle a MS SQL taky umožňují ukládání grafů, XML dokumentů apod. Nicméně pracaují s těmito daty pomocí modelu ACID.
 
 Nelze tvrdit, že NoSQL je lepší než transakční model. Záleží na aplikaci.
 
-### 12.1. JSON (JavaScript Object Notation)
+### 11.1. JSON (JavaScript Object Notation)
 
 - Textový formát nezávislý na žádném programovacím jazyku.
 - JSON je postavený na dvou strukturách
@@ -1254,7 +1278,7 @@ Nelze tvrdit, že NoSQL je lepší než transakční model. Záleží na aplikac
 
 **Hodnota** může být: řetězec uvozený znaky `"`, číslo, `true/false`, `null`, objekt nebo pole.
 
-### 12.2. MongoDB
+### 11.2. MongoDB
 
 - **Dokumentová databáze** typu **klíč-hodnota**, kde dokumentem je formát podobný **JSON** (**BSON**).
 
@@ -1263,7 +1287,7 @@ Nelze tvrdit, že NoSQL je lepší než transakční model. Záleží na aplikac
 - **Nevýhoda**: **redundance**, není možná validace dat dle schématu.
 - **Výhoda**: **jednodušší dotazování**, ptáme se na dokument, **nepoužíváme operaci spojení** pro spojování entit.
 
-#### 12.2.1. Struktura databáze
+#### 11.2.1. Struktura databáze
 
 Uživatel má přístup k $N$ **databázím**, např. `<login>`, aktuální databázi zvolíme příkazem: `use <login>;`.
 
@@ -1278,7 +1302,7 @@ mongosh.exe mongodb://fri0089:fri0089@dbsys.cs.vsb.cz:27017
 use fri0089
 ```
 
-#### 12.2.2. Dotazy v MongoDB
+#### 11.2.2. Dotazy v MongoDB
 
 Jak smazat všechny dokumenty z databáze `moviedb`?
 
@@ -1286,7 +1310,7 @@ Jak smazat všechny dokumenty z databáze `moviedb`?
 db.moviedb.deleteMany({});
 ```
 
-##### 12.2.2.1. Agregace
+##### 11.2.2.1. Agregace
 
 ```js
 db.moviedb.aggregate([
@@ -1302,18 +1326,18 @@ db.moviedb.aggregate([
 - `$match` provádí selekci.
 - `$group` provádí seskupování vybraných dokumentů podle zadaných pravidel.
 
-##### 12.2.2.2. Aktualizace
+##### 11.2.2.2. Aktualizace
 
 ```js
 db.collection.updateOne(query, update, options);
 db.collection.updateMany(query, update, options);
 ```
 
-##### 12.2.2.3. JavaScript
+##### 11.2.2.3. JavaScript
 
 V `mongoshell` musíme povolit JS `snippet install mongocompat`.
 
-#### 12.2.3. Schéma v MongoDB
+#### 11.2.3. Schéma v MongoDB
 
 ```js
 db.createCollection("moviedb", {
@@ -1345,21 +1369,21 @@ db.createCollection("moviedb", {
 - `properties` obsahuje definice pro jednotlivé vlastnosti, jako je `name`, `year`, a další.
 - Každá vlastnost může obsahovat atributy jako `bsonType`, `minimum`, `maximum`, a `description` pro specifikaci validace.
 
-### 12.3. Případná konzistence
+### 11.3. Případná konzistence
 
 **Případná konzistence (Eventual consistency)** je model konzistence používaný v **distribuovaných** databázových systémech k dosažení vysoké dostupnosti.
 
-Případná konzistence znamená, že pokud provedeme nějaké zápisy a systém bude pracovat dostatečně dlouho bez dalších zápisů, data se nakonec zkonsolidují: další čtení pak budou vracet stejnou hodnotu (posledního zápisu).
+Případná konzistence znamená, že pokud provedeme nějaké zápisy a systém bude pracovat **dostatečně dlouho bez dalších zápisů, data se nakonec zkonsolidují**: další čtení pak budou vracet stejnou hodnotu (posledního zápisu).
 
-### 12.4. BASE
+### 11.4. BASE
 
 Systémy založené na **případné konzistenci** jsou často klasifikovány jako systémy s vlastností **BASE**:
 
 - **V podstatě dostupné (Basically-available)**: Čtení a zápis jsou **maximálně dostupné** s použitím všech uzlů sítě, ale **nemusí být konzistentní**, což znamená, že **čtení nemusí vracet poslední zápis**.
-- **Soft-state**: Není garantována konzistence. Po zápisech a nějakém čase chodu systému existuje pouze určitá pravděpodobnost konvergence dat.
+- **Soft-state**: Není garantována konzistence. Po zápisech a nějakém čase chodu systému existuje pouze určitá pravděpodobnost konvergence dat $\Rightarrow$ případná konzistence.
 - **Případná konzistence (Eventual consistency)**.
 
-## 13. Distribuovaný databázový systém (DDBS)
+## 12. Distribuovaný databázový systém (DDBS)
 
 Hlavním důvodem pro DDBS je **zvýšení dostupnosti** *(availability)*.
 
@@ -1379,7 +1403,7 @@ Proč neuvažujeme centrální uzel?
 
 V implementacích DDBS se některý uzel v určitém čase může stát nadřazeným uzlem, ale jeho pád neohrozí dostupnost.
 
-### 13.1. Fragmentace dat
+### 12.1. Fragmentace dat
 
 > **Fragmentace dat** znamená, že data jsou rozdělena na části (fragmenty). Fragmenty jsou **disjunktní**, každá část obsahuje unikátní informace.
 
@@ -1395,7 +1419,7 @@ Fragmentaci rozdělujeme na **horizontální** a **vertikální**:
 - Při dotazování fragmentů, DBS z katalogu přečte, na kterém uzlu je daný fragment uložen, a nebude přistupovat k ostatním uzlům (například, pokud správce chce získat sumu na účtech pobočky B1, přistupuje pouze k uzlu Ostrava).
 - Aktualizace fragmentů má mnoho společného s aktualizací pohledů. Záznam může být přesunut z jednoho uzlu na druhý, pokud po aktualizaci nesplňuje podmínky původního uzlu.
 
-### 13.2. Replikace dat
+### 12.2. Replikace dat
 
 > **Replikace dat** znamená, že data jsou uložena v několika kopiích (replikách) na uzlech systému.
 
@@ -1407,7 +1431,7 @@ V ACID databázových systémech znamená aktualizace záznamu aktualizaci všec
 
 Okamžitá propagace aktualizace na všechny uzly může snížit dostupnost, protože transakce se dokončí pouze tehdy, když je aktualizace provedena na všech uzlech. Z tohoto důvodu byly vyvinuty databázové systémy, které používají **případnou konzistenci**. To není omezeno pouze na NoSQL databáze, podobné rysy můžeme vidět i u relačních databázových systémů.
 
-### 13.3. Primární kopie
+#### 12.2.1. Primární kopie
 
 Časté řešení **propagace aktualizace** se nazývá **primární kopie**:
 
@@ -1416,7 +1440,7 @@ Okamžitá propagace aktualizace na všechny uzly může snížit dostupnost, pr
 - Aktualizace se považuje za **dokončenou**, právě tehdy, když je aktualizována **primární kopie**. Uzel obsahující tuto kopii je pak zodpovědný za propagaci aktualizace ke všem sekundárním kopiím.
 - Primární kopie porušuje podmínku **neexistence centrálního prvku**. Transakce selže, pokud je primární kopie nedostupná. U NoSQL databázových systémů se v takovém případě volí nová primární kopie, aby bylo možné pokračovat v provozu.
 
-#### 13.3.1. Aktualizace sekundárních replik
+#### 12.2.2. Aktualizace sekundárních replik
 
 1. **Synchronní replikace**: Propagace aktualizace musí být provedena před ukončením transakce, je **dodržen ACID**.
 
@@ -1424,11 +1448,11 @@ Okamžitá propagace aktualizace na všechny uzly může snížit dostupnost, pr
    - Toto je méně ambiciózní podoba aktualizace, podporovaná v mnoha databázových systémech.
    - **Není garantována konzistence** databáze v každém okamžiku. Uživatel dokonce nemusí být schopen zjistit, zda je databáze konzistentní či nikoli (případná konzistence).
 
-### 13.4. Implementace DDBS
+### 12.3. Implementace DDBS
 
 **Oracle** implementuje **primární kopii** (také známou jako řídící tabulka – `control table` nebo `master table`). Repliku je možné vytvořit příkazem `CREATE SNAPSHOT`.
 
-### 13.5. MongoBD
+### 12.4. MongoBD
 
 - Dokumenty mohou být uloženy na různých uzlech sítě v kopiích - **replikách** (primární, sekundární)
 
@@ -1440,7 +1464,7 @@ Okamžitá propagace aktualizace na všechny uzly může snížit dostupnost, pr
   - **Dotazovací router**: Poskytuje rozhraní mezi klientem a shlukem.
   - **Konfigurační server**: Ukládá metadata a nastavení shluku.
 
-## 14. Vícerozměrné datové struktury
+## 13. Vícerozměrné datové struktury
 
 K čemu to je dobré? Efektivní **rozsahové dotazy**. Typicky ukládáme body v $n$-rozměrném prostoru.
 
@@ -1461,7 +1485,7 @@ Vektorové vícerozměrné datové struktury rozlišujeme:
 
 Rozlišujeme také reálné a diskrétní domény indexovaných prostorů.
 
-### 14.1. Dotazy
+### 13.1. Dotazy
 
 - **bodový dotaz** na existenci vektoru - IO cost $h+1$
 - **hyperkvádr** (rozsahový dotaz)
@@ -1470,26 +1494,26 @@ Rozlišujeme také reálné a diskrétní domény indexovaných prostorů.
 
 Prokletí dimenzionality: v některých případech jsou vícerozměrné datové struktury nepoužitelné už pro $d>32$ (pomalejší než sekvenční průchod).
 
-### 14.2. Kvadrantový strom
+### 13.2. Kvadrantový strom
 
 Používá se pro dimenze 2 nebo 3 (oktantový strom). Nepoužívá se pro prostory vyšších dimenzí, protože stupeň uzlu roste exponenciálně s dimenzí $2^d\Rightarrow2^{10}=1024$.
 
 - bodový dotaz na existenci vektoru - IO cost $h+1$
 - rozsahový dotaz - průchod stromem od kořene k listům. Průchod $r$ kvadranty protínající dotazovací hyperkvádr IO cost $r(h+1)$
 
-### 14.3. R-strom
+### 13.3. R-strom
 
 - Oracle Spatial
 - Proč? **Vyváženost** a **stránkování**.
 
-### 14.4. SphereR-Tree (SpR-Tree)
+### 13.4. SphereR-Tree (SpR-Tree)
 
 - $d$-rozměrné koule (hyperkoule)
 - Vyvážený strom, garance využití stránek $\geq50\%$, protínání regionů, volba arity stromu pro velikost stránky.
 
-## 15. Prostorová data
+## 14. Prostorová data
 
-### 15.1. SQL Server
+### 14.1. SQL Server
 
 Dva **datové typy**:
 
@@ -1563,7 +1587,7 @@ FROM Person.Address
 
 </details>
 
-## 16. Elastic Search
+## 15. Elastic Search
 
 - Distribuovaný systém pro vyhledávání a analýzu dat.
 - NoSQL DBS.
@@ -1587,7 +1611,7 @@ Rozšíření pro:
 - dotazování geografických dat (položky `geo` a `shape`)
 - dotazování na termy (existence termu v dokumentu)
 
-### 16.1. Vyhledávání podle podobnosti
+### 15.1. Vyhledávání podle podobnosti
 
 **Skóre relevance**: výsledek dotazu je sestupně setřízen podle položky `_score`. Skóre relevance je kladné reálné číslo, které není porovnatelné napříč dotazy.
 
@@ -1595,7 +1619,7 @@ Rozšíření pro:
 
 **Filtrovací kontext** *(filter context)* - `filter`. Nepodílí se na výpočtu skóre relevance. Ekvivalent selekce.
 
-## 17. Full-text index pro MS-SQL
+## 16. Full-text index pro MS-SQL
 
 ```sql
 CREATE FULLTEXT INDEX ON Product(description)
@@ -1605,7 +1629,7 @@ FROM Product p
 WHERE CONTAINS(p.description, "¯\_(ツ)_/¯")
 ```
 
-## 18. Poznámky
+## 17. Poznámky
 
 Jak vytvořit kopii tabulky:
 
