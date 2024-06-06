@@ -40,9 +40,10 @@
   - [3.6. Komponenty hlubokých CNN](#36-komponenty-hlubokých-cnn)
   - [3.7. Sítě pro detekci bez sliding window](#37-sítě-pro-detekci-bez-sliding-window)
     - [3.7.1. Region proposal](#371-region-proposal)
-    - [3.7.2. Fast R-CNN](#372-fast-r-cnn)
-    - [3.7.3. Faster R-CNN](#373-faster-r-cnn)
-    - [3.7.4. YOLO](#374-yolo)
+    - [3.7.2. R-CNN](#372-r-cnn)
+    - [3.7.3. Fast R-CNN](#373-fast-r-cnn)
+    - [3.7.4. Faster R-CNN](#374-faster-r-cnn)
+    - [3.7.5. YOLO](#375-yolo)
   - [3.8. Sítě pro použití s časem](#38-sítě-pro-použití-s-časem)
     - [3.8.1. Rekurentní sítě (RNN)](#381-rekurentní-sítě-rnn)
     - [3.8.2. LSTM](#382-lstm)
@@ -239,7 +240,7 @@ Obr. určení prahu $t$ minimalizací chyby, za předpokladu dvou typů oblastí
 
 #### 1.5.2. Eroze (Errosion)
 
-- pixel bude mít hodnotu **1** právě tehdy, když **všechny** jeden pixel "pod" kernelem má hodnotu **1**
+- pixel bude mít hodnotu **1** právě tehdy, když **všechny** pixely "pod" kernelem mají hodnotu **1**
 - ztmavuje barevný obraz
 
 #### 1.5.3. Otevření (Opening)
@@ -258,7 +259,7 @@ Obr. určení prahu $t$ minimalizací chyby, za předpokladu dvou typů oblastí
 
 ### 1.6. Detekce rohů
 
-Detekce rohů je často založena na pozorování, že v místě rohu není křivost v žádném směru nulová.
+Detekce rohů je často založena na pozorování, že **v místě rohu není křivost v žádném směru nulová**.
 
 ### 1.7. Indexování objektů v binárním obraze
 
@@ -274,7 +275,7 @@ Je typické, že objekty jedné třídy tvoří v příznakovém prostoru shluky
 
 ### 2.1. Příznaky používané v příznakové analýze obrazů
 
-Několik příkladů příznaků a způsob jejich výpočtu. Příznaky otvozené ze tvaru, tvaru hranice a jasu.
+Několik příkladů příznaků a způsob jejich výpočtu. Příznaky odvozené ze tvaru, tvaru hranice a jasu.
 
 #### 2.1.1. Momenty
 
@@ -382,7 +383,7 @@ Potom obraz rozdělíme do bloků $B_x\times B_y$ a bloky rozdělíme do buněk 
 
 Vytvoříme histogram orientovaných gradientů pro každou buňku. Orientace rozdělíme do $N$ boxů (např. 9 pro orientace 0° až 180° s krokem 20°). Pro každý pixel dáme hodnotu gradientu do boxu podle orientace gradientu. Histogramy normalizujeme napříč bloky.
 
-Délka výsledného vektoru příznaků zavisí na počtu boxů, bloků a buněk.
+Délka výsledného vektoru příznaků závisí na počtu boxů, bloků a buněk.
 
 #### 2.2.2. Local Binary Patterns (LBP)
 
@@ -407,15 +408,15 @@ Klasifikace diskriminačními funkcemi:
 
 <img src="figures/clf-discriminative-funs.png" alt="clf-discriminative-funs" width="350px">
 
-Při klasifikaci pomocí diskriminačních funkcí uvažujeme $M$ reálných diskriminačních funkcí $g_1,\ldots,g_M$ definovaných nad prostorem příznaků $\mathcal{X}$, kde $n$ je počet tříd. Hledaná třída je zvolena jako $\argmax\limits_{m=1,\ldots,M} g_m(\mathbf{x})$.
+Při klasifikaci pomocí diskriminačních funkcí uvažujeme $M$ reálných diskriminačních funkcí $g_1,\ldots,g_M$ definovaných nad prostorem příznaků $\mathcal{X}$, kde $M$ je počet tříd. Hledaná třída je zvolena jako $\argmax\limits_{m=1,\ldots,M} g_m(\mathbf{x})$.
 
 Jednotlivé hustoty odpovídají podmíněné pravděpodobnosti $g_m(\mathbf{x})=\mathcal{P}(\mathbf{x}|\omega_{m})$, kde $m$ je index třídy. Dále jsme schopni definovat funkce pro každou třídu a minimalizovat plochu pod křivkou (integrál). Dá se ukázat, že tato diskriminační funkce má tvar asi $\boxed{\mathcal{P}(\mathbf{x}|\omega_m)\mathcal{P}(\omega_m)}$.
 
 Nejjednodušší tvar diskriminační funkce je funkce lineární:
 
-$$\boxed{g_r(\mathbf{x})= b_m + \sum\limits_{i=1}^{N}a_{m,i}x_i,}$$
+$$\boxed{g_m(\mathbf{x})= b_m + \sum\limits_{i=1}^{N}a_{m,i}x_i,}$$
 
-kde $b_r, a_{m,1},\ldots, a_{m,n}\in\mathbb{R}$ a $N\in\mathbb{N}$ je dimenze prostoru příznaků.
+kde $b_m, a_{m,1},\ldots, a_{m,n}\in\mathbb{R}$ a $N\in\mathbb{N}$ je dimenze prostoru příznaků.
 
 ### 2.4. Klasifikace pomocí etalonů
 
@@ -493,11 +494,12 @@ $$\hat{\sigma}^2_{xy,m}=\dfrac{1}{N_m\hat{\sigma}^2_{x,m}\hat{\sigma}^2_{y,m}}\s
 
 Hodnota $0$ znamená nezávislé příznaky, hodnota $1$ nebo $-1$ zcela závislé (můžeme jeden z nich vypustit).
 
-PCA se snaží odstranit korelaci mezi příznaky.
+PCA se snaží vysvětlit variabilitu (rozptyl) mezi příznaky.
 
 - metoda redukce dimenze
 - vlastní čísla vyjadřují důležitost dané dimenze
 - speciální případ SVD
+- výsledné hlavní komponenty jsou lineárně nekorelované
 
 ## 3. Neuronové sítě
 
@@ -610,9 +612,12 @@ kde $\eta\in\R^+$ je míra učení a $C$ je ztrátová funkce, která závisí n
 
 ### 3.4. Předchůdci hlubokých neuronových sítí
 
-- 1995 HoG + SVM pro detekci lidí
 - 1998 LeNet
+- 2005 Sliding window + HoG + SVM pro detekci lidí
 - 2012 AlexNet
+- 2013 ZFNet
+- 2015 VGG
+- 2015 GoogleNet - **inception module**
 - 2015 ResNet
 
 ### 3.5. Detekce objektů pomocí sliding window
@@ -658,19 +663,26 @@ print(y.shape) # (4, 8, 8, 32) ..."borders" are dropped - no padding is applied
 
 <img src="figures/region-proposal-edge-detection.png" alt="region-proposal-edge-detection" width="400px">
 
-#### 3.7.2. Fast R-CNN
+#### 3.7.2. R-CNN
+
+1. Selective search region proposal
+2. Resize selected regions to $227\times227$
+3. CNN extrakce příznaků
+4. SVM pro klasifikaci
+
+#### 3.7.3. Fast R-CNN
 
 Používá vícekriteriální cenovou funkci - klasifikace a lokalizace.
 
 <img src="figures/fast-r-cnn.png" alt="fast-r-cnn" width="600px">
 
-#### 3.7.3. Faster R-CNN
+#### 3.7.4. Faster R-CNN
 
 Detektor Faster R-CNN přidává **Region Proposal Network (RPN)**, která generuje návrhy oblastí přímo v síti namísto použití externího algoritmu, jako jsou Edge Boxes nebo Selective Search. Síť RPN přijímá vstupní obrázek (libovolné velikosti) a vypisuje sadu návrhů ohraničujících obdélníků, z nichž každý má skóre objektovosti. Generování návrhů oblastí v síti je rychlejší než v případě selektivního vyhledávání nebo edge boxů.
 
 <img src="figures/rpn.png" alt="rpn" width="300px">
 
-#### 3.7.4. YOLO
+#### 3.7.5. YOLO
 
 - You Only Look Once
 - YOLO přistupuje k detekci objektů spíše jako k regresnímu problému (než ke klasifikaci).
@@ -698,7 +710,8 @@ YOLO predikuje všechny bboxy najednou, globálně. Každý bbox má 5 hodnot: $
 
 #### 3.8.2. LSTM
 
-- **forget gate** - sigmoid, $1\Rightarrow$ forget, $0\Rightarrow$ keep processing
+- [Christopher Olah: Understanding LSTMs](https://colah.github.io/posts/2015-08-Understanding-LSTMs/)
+- **forget gate** - sigmoid, $0\Rightarrow$ forget/ignore, $1\Rightarrow$ keep this information
 - **input gate** - sigmoid rozhodne, které hodnoty aktualizovat, $\tanh$ aktualizuje
 
 <img src="figures/lstm.png" alt="lstm" width="400px">
@@ -707,9 +720,8 @@ YOLO predikuje všechny bboxy najednou, globálně. Každý bbox má 5 hodnot: $
 
 - Myšlenka je taková, že to, co není důležité, můžeme zahodit. Naopak *důležité* věci si zapamatujeme.
 - Attention vrstva potlačuje *forget gate*. V principu nastavuje váhy tokenů po *bidirectional LSTM* vrstvě.
-- *Self-attention* - v rámci řetězce se vypočte *attention* vůči všem tokenům.
-- Tři matice $Q, K, V$ (query, key, value)
-- Vision Transformer (ViT)
+- *Self-attention* - v rámci řetězce se vypočte *attention* vůči všem tokenům - nad maticemi $Q, K, V$ (query, key, value).
+- Vision Transformer (ViT).
 
 ## 4. Zpětná stereoprojekce
 
