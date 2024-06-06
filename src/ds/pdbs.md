@@ -224,7 +224,7 @@ Obr. $B^+$strom - klíče - indexované položky $\{1,2,\dots,7\}$, ukazatele na
 
 $B^+$strom řádu $C$ má vlastnosti:
 
-- Vnitřní/listový uzel/stránka obsahuje $C-1$ klíčů, vnitřní uzel obsahuje $C$ ukazatelů na dětské uzly.
+- Listový uzel (stránka) obsahuje $C-1$ klíčů, vnitřní uzel obsahuje $C$ ukazatelů na dětské uzly.
 - **Stránkovatelný** (srovnáme s binárním stromem): $C$ je nastaveno dle velikosti stránky ( např. 8 kB).
 - **Vyvážený**: vzdálenost od všech listů ke kořenovému uzlu je stejná.
 - **Výška** $h$ je vzdálenost od kořene k listu (počet hran): $h\approx \lceil \log C(n) \rceil$ $\Rightarrow$ maximální počet klíčů $\boxed{n = C^{h+1} − 1}$.
@@ -870,8 +870,6 @@ Položka (list B-stromu) indexu `product_unitprice_id_p` obsahuje:
 - `RID`: odkaz na záznam v haldě tabulky `Product`.
 - Atributy: `id_product`.
 
-B-strom je ale setřízen jen podle klíče.
-
 Obecně platí, že index se využívá pro selekci získávající malý počet záznamů (tzv. **vysoce selektivní dotazy**).
 
 ## 4. Shlukovaná tabulka
@@ -1004,7 +1002,7 @@ for (int i = 0; i < b1; i++)
 
 - $\Theta(n_1 + n_2)$
 - IO cost $b_1 + b_2$
-- Předpoklad: Relace $R_1$ a $R_2$ jsou **setřízené** dle spojovaných atributů $R_1.x$ resp. $R2.y$.
+- Předpoklad: Relace $R_1$ a $R_2$ jsou **setřízené** dle spojovaných atributů $R_1.x$ resp. $R_2.y$.
 
 Algoritmus:
 
@@ -1225,7 +1223,7 @@ Mějme **distribuovaný DBS** rozložený na více počítačích sítě, tzv. *
 
 **CAP teorém** (**Brewerův teorém**) tvrdí, že pro distribuovaný DBS není možné dodržet více než dvě vlastnosti z těchto tří:
 
-- **Konzistence (Consistency)**: každé čtení vrátí buď výsledek posledního zápisu nebo chybu.
+- **Konzistence (Consistency)**: každé čtení vrátí buď výsledek posledního zápisu, nebo chybu.
 - **Dostupnost (Availability)**: každé čtení vrátí výsledek (nikdy ne chybu), nemusí se ale jednat o výsledek posledního zápisu.
 - **Odolnost k přerušení sítě (Partition tolerance)**: systém pracuje dál i v případě, že dojde ke ztrátě nebo zdržení libovolného počtu zpráv mezi uzly.
 
