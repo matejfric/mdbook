@@ -42,6 +42,9 @@
 - [6. Stránkování výsledku dotazu](#6-stránkování-výsledku-dotazu)
 - [7. Komprimace v DBS](#7-komprimace-v-dbs)
   - [7.1. MS SQL Server](#71-ms-sql-server)
+    - [7.1.1. Prefixová komprimace](#711-prefixová-komprimace)
+    - [7.1.2. Slovníková komprimace](#712-slovníková-komprimace)
+    - [7.1.3. SQL](#713-sql)
   - [7.2. Oracle](#72-oracle)
 - [8. Uložení dat v tabulce](#8-uložení-dat-v-tabulce)
   - [8.1. Řádkové uložení dat](#81-řádkové-uložení-dat)
@@ -239,6 +242,13 @@ $B^+$strom řádu $C$ má vlastnosti:
 Obr. štěpení uzlu pro $C=6$:
 
 <img src="figures/btree-split.png" alt="btree-split" width="300px">
+
+Jaký je maximální počet klíčů v B-stromu řádu $C = 600$ pro $h = 1$ a
+$h = 2$?
+
+- Buď $n$ počet klíčů. Pak $\boxed{n=C^{h+1}−1}$.
+- $h=1$: $n=359999$
+- $h=2$: $n=215\mathrm{e}6 - 1$
 
 ### 2.3. Rozsahový dotaz
 
@@ -1111,9 +1121,26 @@ Kdy se vyplatí vyšší komprimace i za cenu pomalejší rychlosti dotazu *(vy�
 
 Typy komprimace:
 
-- `row` - kódování proměnné délky pro čísla i řetězce
-- `page` - řádková, prefixová a slovníková komprimace (v tomto pořadí)
+- `row` - kódování proměnné délky pro čísla i řetězce (tzn. místo sloupce fixní délky např. `VARCHAR(30)`, budou mít záznamy variabilní délku)
+- `page` - řádková (`row`) a navíc prefixová a slovníková komprimace (v tomto pořadí)
 - `none`
+
+#### 7.1.1. Prefixová komprimace
+
+1. Pro každý sloupec je určena hodnota, kterou lze použít ke zmenšení úložného prostoru pro hodnoty v každém sloupci.
+2. Tyto hodnoty jsou uloženy jako metadata *(compression information - CI)* za hlavičkou tabulky.
+3. Shodující se prefixy jsou nahrazeny referencemi do *CI*.
+
+<img src="figures/prefix-compression-before.png" alt="prefix-compression-before" width="200px">
+<img src="figures/prefix-compression-after.png" alt="prefix-compression-after" width="200px">
+
+#### 7.1.2. Slovníková komprimace
+
+Slovníková komprimace je aplikována po prefixové. Není omezena jen na jednotlivé sloupce, funguje nad celou tabulkou. Zjednodušeně se kódují opakující se sekvence (kód je umístěn do *CI*).
+
+<img src="figures/dict-compression.png" alt="dict-compression" width="200px">
+
+#### 7.1.3. SQL
 
 ```sql
 ALTER TABLE <table> REBUILD PARTITION = ALL
@@ -1167,7 +1194,12 @@ Naopak je řádkové uložení **nevýhodné** v případě **projekce na nízk�
 
 Pokud v dotazech pracujeme jen s několika málo atributy (reálné tabulky mohou mít desítky atributů), můžeme uvažovat o tzv. **sloupcovém uložení dat (columnstore)**.
 
-Jednotlivé hodnoty neobsahují identifikátor řádku (klíč, RID atd.). **Záznamy jsou rekonstruovány podle pořadí hodnot ve sloupci**.
+Jednotlivé hodnoty neobsahují identifikátor řádku (klíč, RID atd.). **Záznamy jsou rekonstruovány podle pořadí hodnot ve sloupci!**
+
+Je výhodné data ve sloupcích třídit? Kvůli komprimaci a vykonávání
+některých dotazů ano, nicméně, *kvůli rekonstrukci záznamů, musíme
+zachovat stejné pořadí* v jednotlivých sloupcích, případně k setříděným
+sloupcům uložit klíč (nebo RID).
 
 Interně může být každý sloupec reprezentovaný jednou haldou.
 
@@ -1208,8 +1240,8 @@ Kde `<type>` může být:
 
 ### 8.4. MS SQL Server
 
-- **Clustered columnstore index** - sloupcová tabulka
-- **Nonclustered columnstore index** - sloupcový index
+- **Clustered columnstore index** - sloupcová tabulka (řádková tabulka bude zrušena)
+- **Nonclustered columnstore index** - sloupcový index (může jich být i více, kompromis mezi řadkovým a sloupcovým uložením)
 
 ## 9. Další možnosti fyzického návrhu (optimalizace)
 
