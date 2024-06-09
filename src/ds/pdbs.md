@@ -1252,7 +1252,7 @@ NoSQL databázové systémy jsou označení poměrně široké třídy DBS, kter
 - Používají model **klíč-hodnota** (např. JSON dokument) nebo komplikovanější datový model (**strom** pro XML dokumenty nebo **graf**),
 - Nejsou konkurenční k relačním DBS, jsou určeny pro jiné problémy.
 
-Oracle a MS SQL taky umožňují ukládání grafů, XML dokumentů apod. Nicméně pracaují s těmito daty pomocí modelu ACID.
+Oracle a MS SQL taky umožňují ukládání grafů, XML dokumentů apod. Nicméně pracují s těmito daty pomocí modelu ACID.
 
 Nelze tvrdit, že NoSQL je lepší než transakční model. Záleží na aplikaci.
 
@@ -1442,7 +1442,7 @@ Okamžitá propagace aktualizace na všechny uzly může snížit dostupnost, pr
 
 1. **Synchronní replikace**: Propagace aktualizace musí být provedena před ukončením transakce, je **dodržen ACID**.
 
-2. **Asynchronní replikace**: Propagace změn k sekundárním kopiím není provedena v rámci transakce, ale v nějakém čse později (často nastavitelném uživatelem).
+2. **Asynchronní replikace**: Propagace změn k sekundárním kopiím není provedena v rámci transakce, ale v nějakém čase později (často nastavitelném uživatelem).
    - Toto je méně ambiciózní podoba aktualizace, podporovaná v mnoha databázových systémech.
    - **Není garantována konzistence** databáze v každém okamžiku. Uživatel dokonce nemusí být schopen zjistit, zda je databáze konzistentní či nikoli (případná konzistence).
 
