@@ -8,16 +8,17 @@
   - [2.2. B+strom](#22-bstrom)
   - [2.3. Rozsahový dotaz](#23-rozsahový-dotaz)
   - [2.4. Index](#24-index)
-  - [2.5. PL/SQL](#25-plsql)
-    - [2.5.1. Zjištění indexů vytvořených pro tabulku](#251-zjištění-indexů-vytvořených-pro-tabulku)
-    - [2.5.2. Počet bloků indexu](#252-počet-bloků-indexu)
-    - [2.5.3. Výška B+stromu](#253-výška-bstromu)
-    - [2.5.4. Další statistiky](#254-další-statistiky)
-  - [2.6. SQL Server](#26-sql-server)
+  - [2.5. Porovnání halda vs. index](#25-porovnání-halda-vs-index)
+  - [2.6. PL/SQL](#26-plsql)
     - [2.6.1. Zjištění indexů vytvořených pro tabulku](#261-zjištění-indexů-vytvořených-pro-tabulku)
     - [2.6.2. Počet bloků indexu](#262-počet-bloků-indexu)
     - [2.6.3. Výška B+stromu](#263-výška-bstromu)
     - [2.6.4. Další statistiky](#264-další-statistiky)
+  - [2.7. SQL Server](#27-sql-server)
+    - [2.7.1. Zjištění indexů vytvořených pro tabulku](#271-zjištění-indexů-vytvořených-pro-tabulku)
+    - [2.7.2. Počet bloků indexu](#272-počet-bloků-indexu)
+    - [2.7.3. Výška B+stromu](#273-výška-bstromu)
+    - [2.7.4. Další statistiky](#274-další-statistiky)
 - [3. Plán vykonávání dotazu (QEP)](#3-plán-vykonávání-dotazu-qep)
   - [3.1. Zobrazení QEP](#31-zobrazení-qep)
     - [3.1.1. Oracle](#311-oracle)
@@ -74,6 +75,7 @@
 - [13. Vícerozměrné datové struktury](#13-vícerozměrné-datové-struktury)
   - [13.1. Dotazy](#131-dotazy)
   - [13.2. Kvadrantový strom](#132-kvadrantový-strom)
+    - [13.2.1. Bodový dotaz](#1321-bodový-dotaz)
   - [13.3. R-strom](#133-r-strom)
   - [13.4. SphereR-Tree (SpR-Tree)](#134-spherer-tree-spr-tree)
 - [14. Prostorová data](#14-prostorová-data)
@@ -221,7 +223,7 @@ V haldě mají tyto kontroly složitost v $\mathcal{O}(n)$. Halda je základní 
 
 ### 2.2. B+strom
 
-Obr. $B^+$strom - klíče - indexované položky $\{1,2,\dots,7\}$, ukazatele na záznam v haldě $\{d_1,\dots,d_7\}$.
+Obr. $B^+$strom: klíče / indexované položky $\{1,2,\dots,7\}$, ukazatele na záznam v haldě $\{d_1,\dots,d_7\}$.
 
 <img src="figures/b+tree.png" alt="b+tree" width="350px">
 
@@ -229,7 +231,7 @@ $B^+$strom řádu $C$ má vlastnosti:
 
 - Listový uzel (stránka) obsahuje $C-1$ klíčů, vnitřní uzel obsahuje $C$ ukazatelů na dětské uzly.
 - **Stránkovatelný** (srovnáme s binárním stromem): $C$ je nastaveno dle velikosti stránky ( např. 8 kB).
-- **Vyvážený**: vzdálenost od všech listů ke kořenovému uzlu je stejná.
+- **Vyvážený**: vzdálenost od všech listů ke kořenovému uzlu je stejná. Tzn. všechny listy jsou ve stejné hloubce.
 - **Výška** $h$ je vzdálenost od kořene k listu (počet hran): $h\approx \lceil \log C(n) \rceil$ $\Rightarrow$ maximální počet klíčů $\boxed{n = C^{h+1} − 1}$.
 - **Mazání, vkládání** a dotaz na jeden klíč (**bodový dotaz**) mají **časovou složitost** $\mathcal{O}(\log(n))$.
 - Počet uzlů/stránek (**IO cost**), které je nutné projít při bodovém dotazu, je $h + 1$.
@@ -269,6 +271,8 @@ $h = 2$?
 - Nejlepší případ: $\boxed{\text{IO cost} = h+1,}$ tzn. $\Omega(h)$.
 - Sousední listové stránky na *disku* jsou umístěny daleko od sebe, při načítání stránek z disku dochází k **náhodným přístupům** (o 2-3 řády pomalejší), proto je někdy pro plán vykonávání zvolen sekvenční průchod haldou.
   - Náhodný přístup v hlavní paměti není tak problematický díky **cache CPU**.
+
+Bodový dotaz je použit pouze v případě, kdy DBS předem ví, že **velikost výsledku bude nejvýše 1** (selekce na PK nebo jedinečný atribut). Ve všech ostatních případech musí být použit **rozsahový dotaz**.
 
 > Pokud jsou stránky $B$-stromu umístěny v hlavní paměti, i pro vyšší $b$ je použit rozsahový dotaz nad $B$-stromem. Pokud jsou stránky umístěny na disku, i pro relativně nízké $b$, DBS použije sekvenční průchod v haldě.
 
@@ -322,9 +326,39 @@ Proč automaticky vytvářené indexy?
 
 DBS nám **ne**umožní automaticky vytvořený index zrušit.
 
-### 2.5. PL/SQL
+> Operace načtení záznamu podle odkazu do haldy (v B-stromu):
+>
+> - MS SQL - `RID Lookup`,
+> - Oracle - `Table Access by index ROWID`.
 
-#### 2.5.1. Zjištění indexů vytvořených pro tabulku
+Jaký je rozdíl ve fyzických operacích `TABLE ACCESS BY INDEX ROWID` a `TABLE ACCESS BY INDEX ROWID BATCHED` v Oracle? Pokud pořadí klíčů v indexu odpovídá pořadí záznamů v haldě:
+
+1. Pak DBS prochází položky listového uzlu B-stromu.
+2. Dokud získané `ROWID` náleží ke stejnému bloku haldy, zapisuje si jen pozice záznamů v bloku.
+3. Jedním přístupem získá všechny záznamy bloku haldy (`BY INDEX ROWID BATCHED`).
+4. Pokračuje, dokud klíče B-stromu $\leq$ horní hodnota rozsahu dotazu.
+
+Není tedy nutné provést po každém získání `ROWID` přístup do haldy (`BY INDEX ROWID`).
+
+### 2.5. Porovnání halda vs. index
+
+Uvažujme $300\,000$ záznamů, průměrnou velikost záznamu $48$ B, velikost stránky $8$ kB. Pak odhad počtu stránek haldy je:
+
+$$
+\dfrac{300\,000}{\dfrac{8\,192}{48}}\approx1\,758.
+$$
+
+Uvažujme velikost položky indexu `(id_customer, ROWID)` $4 + 10$ B. Pak odhad počtu listových stránek B+stromu za 50\% využití stránek je:
+
+$$
+\dfrac{300\,000}{0.5\cdot\dfrac{8192}{14}}\approx1024.
+$$
+
+Tzn. index může snadno mít větší velikost než celá halda.
+
+### 2.6. PL/SQL
+
+#### 2.6.1. Zjištění indexů vytvořených pro tabulku
 
 ```sql
 SELECT index_name 
@@ -336,9 +370,9 @@ WHERE table_name = 'CUSTOMER';
 
 Tzn. pro primární klíč `idCustomer` je vytvořen index `SYS_C00552552`, B+strom, kde položka obsahuje hodnotu `idCustomer` a `ROWID`, které ukazuje na kompletní záznam do haldy.
 
-#### 2.5.2. Počet bloků indexu
+#### 2.6.2. Počet bloků indexu
 
-**Počet alokovaných bloku (odhad - maximální hodnota)**:
+**Počet alokovaných bloků (odhad - maximální hodnota)**:
 
 ```sql
 SELECT blocks 
@@ -464,7 +498,7 @@ EXEC PrintPagesSpaceUsage(’CUSTOMER’, ’KRA28’, ’TABLE’);
 
 </details>
 
-#### 2.5.3. Výška B+stromu
+#### 2.6.3. Výška B+stromu
 
 ```sql
 SELECT index_name, blevel, leaf_blocks
@@ -481,7 +515,7 @@ SYS_C00552552            1         562
 - Jeden kořen a 562 listových uzlů
 - IO cost bodového dotazu $h+1=2$.
 
-#### 2.5.4. Další statistiky
+#### 2.6.4. Další statistiky
 
 Využijeme příkaz `ANALYZE INDEX <index_name> VALIDATE STRUCTURE;`, který naplní tabulku `index_stats`.
 
@@ -503,9 +537,9 @@ WHERE name = 'SYS_C00552552';
 |-----|--------|------------|-------------|------------|-------------|----------|
 | 1   | 640    | 562        | 1           | 300000     | 561         | 100      |
 
-### 2.6. SQL Server
+### 2.7. SQL Server
 
-#### 2.6.1. Zjištění indexů vytvořených pro tabulku
+#### 2.7.1. Zjištění indexů vytvořených pro tabulku
 
 ```sql
 CREATE OR ALTER PROCEDURE PrintIndexes
@@ -523,7 +557,7 @@ EXEC PrintIndexes 'Customer';
 -- indexName    PK__Customer__D058768742B8AE8D
 ```
 
-#### 2.6.2. Počet bloků indexu
+#### 2.7.2. Počet bloků indexu
 
 ```sql
 CREATE OR ALTER PROCEDURE PrintPagesIndex
@@ -559,7 +593,7 @@ EXEC PrintPagesIndex 'PK__Customer__D058768742B8AE8D';
 --PK__Customer__D058768742B8AE8D      300000      673         5.3             673         5.3
 ```
 
-#### 2.6.3. Výška B+stromu
+#### 2.7.3. Výška B+stromu
 
 ```sql
 SELECT i.name, s.index_depth - 1 AS height,
@@ -577,7 +611,7 @@ GROUP BY i.name, s.index_depth;
 
 - IO cost bodového dotazu $h+1=3$.
 
-#### 2.6.4. Další statistiky
+#### 2.7.4. Další statistiky
 
 ```sql
 SELECT
@@ -818,7 +852,7 @@ Složený klíč je **lexikograficky uspořádán**. Záleží tedy na pořadí 
 
 Důsledek: pro dotaz na `ID_PRODUCT` bude použit sekvenční průchod haldou! Záznamy nejsou seřazené, a tedy index nebude využit.
 
-Lexikografickému uspořádání pro klíč $a_1, a_2,\ldots, a_k$ odpovídají dotazy obsahující **bodové dotazy** pro atributy $a_1,\ldots, a_l$, kde $l\leq k$. Pro atribut $a_{l+1}$ může být specifikován **rozsah**, zatímco atributy $a_{l+2},\ldots, a_k$ mohou zůstat nespecifikované.
+Lexikografickému uspořádání pro klíč $a_1, a_2,\ldots, a_k$ odpovídají dotazy obsahující **bodové dotazy** *(tzn. selekce na konkrétní hodnotu atributu)* pro atributy $a_1,\ldots, a_l$, kde $l\leq k$. Pro atribut $a_{l+1}$ může být specifikován **rozsah**, zatímco atributy $a_{l+2},\ldots, a_k$ mohou zůstat nespecifikované.
 
 Jakýkoliv jiný dotaz znamená **nevyužití indexu** (dotaz není kompatibilní s lexikografickým uspořádáním indexu). Výjimkou je optimalizace `INDEX SKIP SCAN` v Oracle.
 
@@ -835,6 +869,35 @@ Např. pro složený klíč o pěti atributech můžu přesně specifikovat prvn
 ### 3.5. Index pro multiatribut
 
 - Multiatribut je např. `DATE` nebo `DATETIME`. Chová se jako složený klíč, tzn. musí být splněno lexikografické uspořádání.
+
+Níže jsou varianty, pro které může být použit index.
+
+```sql
+-- Index pro multiatribut typu DATE:
+CREATE INDEX customer_birthday ON Customer(birthday);
+
+-- Oracle:
+SELECT * 
+FROM Customer
+WHERE birthday BETWEEN 
+  TO_DATE('2005.01.01', 'yyyy.mm.dd') AND
+  TO_DATE('2005.01.31', 'yyyy.mm.dd');
+
+-- MS SQL Server:
+SELECT * 
+FROM Customer
+WHERE birthday BETWEEN '2005-01-01' AND '2005-01-31';
+```
+
+Funkce pro rok/měsíc/den vedou k nevyužití indexu.
+
+```sql
+-- Oracle:
+EXTRACT(MONTH FROM birthday) = 1
+
+-- MS SQL Server:
+MONTH(birthday) = 1
+```
 
 ### 3.6. Pokrývající index
 
@@ -897,9 +960,21 @@ Využití stránek:
 - Halda $\approx 100\%$
 - Shlukovaná tabulka $\approx 50\%$
 
+Pokud jsou bloky umístěny na disku, je sekvenční průchod shlukované tabulky pomalejší než u haldy. Pro bloky v paměti je rozdíl zanedbatelný.
+
+Proč se shlukovaná tabulka často používá? **Eliminuje přístup do haldy** pro kompletní záznam, což je kritické zejména u rozsahových dotazů nad primárním klíčem s vyšším počtem záznamů výsledku.
+
+Fyzické mazání záznamů má logaritmickou složitost, ale ne vždy ho DBS provádí.
+
+<div class="warning">
+
 Záznamy ve shlukované tabulce jsou **setřízeny dle PK**. Pokud potřebujeme rychlejší přístup k hodnotám dalších atributů, musíme vytvořit index na tyto atributy.
 
-Pokud jsou bloky umístěny na disku, je sekvenční průchod shlukované tabulky pomalejší než u haldy. Pro bloky v paměti je rozdíl zanedbatelný.
+Vzhledem k dynamičnosti shlukované tabulky (B+stromu) neobsahují položky indexu oproti haldě `ROWID`, ale hodnotu PK. Celý záznam pak musí být získán pomocí bodového dotazu ve shlukované tabulce, tzn. $\boxed{\text{IO cost} = h + 1}$ namísto $1$.
+
+Buď $h_c$ hloubka shlukované tabulky a buď $h_i$ hloubka indexu. Pak pro rozsahový dotaz v indexu platí $\boxed{\text{IO cost} = h_i + b + r(h_c + 1).}$ Tzn. IO cost je $(h_c + 1)$ krát vyšší oproti  haldě a indexu.
+
+</div>
 
 ### 4.1. Oracle
 
@@ -935,7 +1010,9 @@ CREATE TABLE my_table (
 
 ## 5. Operace spojení (JOIN)
 
-Nejčastějším spojením je **spojení na rovnost hodnot atributů (equality join)**.
+Při návrhu databáze provádíme **dekompozici schématu do příslušné normální formy**, důvodem je především **odstranění redundance**. Důsledkem potom je nutnost použít operaci **spojení** při dotazování, tak abychom spojovali záznamy v různých tabulkách na základě hodnot atributů.
+
+Nejčastějším spojením je **spojení na rovnost hodnot atributů (equality join)**, kde typicky spojujeme dle cizího klíče jedné tabulky a primárního klíče tabulky druhé. Operace spojení je **častá a drahá**, má tedy radikální dopad na efektivitu provádění dotazů aplikace.
 
 Algoritmy operace spojení:
 
@@ -951,14 +1028,10 @@ Vstupy algoritmu spojení:
 
 Velikost výsledku: $[0, n_1\cdot n_2]$
 
-> Operace načtení záznamu podle odkazu do haldy (v B-stromu):
->
-> - MS SQL - `RID Lookup`,
-> - Oracle - `Table Access by index ROWID`.
-
 ### 5.1. Nested loop join
 
-- $\Theta(n_1\cdot n_2)$
+- $\mathcal{O}(n_1\cdot n_2), \Theta(n_1\cdot n_2)$
+- $\text{IO cost} = n_1\cdot n_2$
 
 ```cpp
 for (int i = 0; i < n1; i++)
@@ -973,9 +1046,7 @@ for (int i = 0; i < n1; i++)
 }
 ```
 
-Nebo stránkovaná verze:
-
-- IO cost $b_1 \cdot b_2$ (oproti $n_1\cdot n_2$)
+Nebo **stránkovaná verze**, kde složitost zůstává stejná, ale $\boxed{\text{IO cost} = b_1 \cdot b_2}$ (oproti $n_1\cdot n_2$)
 
 ```cpp
 void joinBlocks(Block B1, Block B2)
@@ -1006,12 +1077,26 @@ for (int i = 0; i < b1; i++)
 ### 5.2. Nested loop join with index
 
 - $\Theta(n_1\cdot\log n_2)$
+- $\text{IO cost} \in [b_1 \cdot (h+1), b_1 \cdot (h+2)]$
+  - Pokud není nalezena společná hodnota atributu, tak není potřeba provádět čtení záznamu z haldy, tzn. je proveden pouze bodový dotaz v B+stromu $\Rightarrow\text{IO cost} =h+1$.
 - Předpoklad: pro spojovaný atribut $y$ relace $R_2$ je vytvořen index.
+
+```c++
+for (int i = 0; i < n1; i++) {
+    { ROWID } = RangeScan(I2y, R1[i].x);
+    for (int j = 0; j < |{ ROWID }|; j++) {
+        r = ReadRecord(R2, ROWID[j]);
+        AddToResult(R1[i], r);
+    }
+}
+```
+
+Pokud budou relace a index umístěny na disku, pak rozsahový dotaz indexu bude zpomalen náhodnými diskovými operacemi. **IO cost poroste s velikostí výsledku spojení** (kvůli přístupu k záznamu v $R_2$). IO cost tedy významně redukujeme, pokud v indexu $I_2.y$ budou k dispozici všechny atributy projekce $\Longrightarrow$ **shlukovaná tabulka, pokrývající index**.
 
 ### 5.3. Merge Join (spojení sléváním)
 
 - $\Theta(n_1 + n_2)$
-- IO cost $b_1 + b_2$
+- $\text{IO cost} = b_1 + b_2$
 - Předpoklad: Relace $R_1$ a $R_2$ jsou **setřízené** dle spojovaných atributů $R_1.x$ resp. $R_2.y$.
 
 Algoritmus:
@@ -1049,14 +1134,15 @@ def merge_join(r1, r2, x, y):
 ### 5.4. Hash join
 
 - $\Theta(n_1 + n_2)$ (neuvažujeme operace hashované tabulky)
-- IO cost $b_1 + b_2$ (neuvažujeme operace hashované tabulky)
+- $\text{IO cost} = b_1 + b_2$ (neuvažujeme operace hashované tabulky)
 - Algoritmus je využíván, pokud je nutné spojovat **větší nesetřízené** relace nebo **jedna z relací je menší**.
 
 Algoritmus:
 
 1. **Menší** relace (tabulka) je vložena **do hashovací tabulky** (slovník), kde **klíčem je spojovaný atribut**.
-2. Větší relace (tabulka) je procházena po záznamech:
-   - Průchod po klíčích slovníku, záznamy se stejnou hodnotou spojovaných atributů přidáme do výsledku.
+2. **Větší** relace (tabulka) je procházena po záznamech:
+   1. Pro každý záznam větší tabulky se vypočte hash.
+   2. Průchod po klíčích slovníku, záznamy se stejnou hodnotou spojovaných atributů přidáme do výsledku.
 
 ### 5.5. Shrnutí
 
@@ -1205,7 +1291,7 @@ Interně může být každý sloupec reprezentovaný jednou haldou.
 
 Při sloupcovém uložení můžeme dosáhnout **vyššího kompresního poměru**.
 
-Sloupcové uložení je výhodné zejména, pokud dotazy pracují s **malým počtem atributů** tabulky (např. agregace - sekvenční průchod haldou). Je to tedy "opačný" koncept ke konceptu indexu - sekvenční průchod menším objemem dat při nízké selektivitě dotazů.
+Sloupcové uložení je výhodné zejména, pokud dotazy pracují s **malým počtem atributů** při **sekvenčním průchodu** tabulky (typicky agregace). Je to tedy "opačný" koncept ke konceptu indexu - sekvenční průchod menším objemem dat při nízké selektivitě dotazů.
 
 ### 8.3. Oracle
 
@@ -1311,9 +1397,10 @@ Nelze tvrdit, že NoSQL je lepší než transakční model. Záleží na aplikac
 ### 11.2. MongoDB
 
 - **Dokumentová databáze** typu **klíč-hodnota**, kde dokumentem je formát podobný **JSON** (**BSON**).
-
+- Dokument je záznam v dokumentové databázi.
 - V JSON dokumentech nepoužíváme dekompozici na entitní typy: ukládáme entity v jednom dokumentu.
 - Neexistuje schéma databáze (můžeme ale použít, pokud chceme).
+- Položky v dokumentu odpovídají roli sloupců v SQL databázi a lze je indexovat pro zvýšení rychlosti vyhledávání.
 - **Nevýhoda**: **redundance**, není možná validace dat dle schématu.
 - **Výhoda**: **jednodušší dotazování**, ptáme se na dokument, **nepoužíváme operaci spojení** pro spojování entit.
 
@@ -1524,24 +1611,59 @@ Rozlišujeme také reálné a diskrétní domény indexovaných prostorů.
 
 Prokletí dimenzionality: v některých případech jsou vícerozměrné datové struktury nepoužitelné už pro $d>32$ (pomalejší než sekvenční průchod).
 
+Vícerozměrné datové struktury jsou efektivní pouze pro dotazy s vysokou selektivitou (tj. s malým počtem položek ve výsledku).
+
 ### 13.2. Kvadrantový strom
 
 Používá se pro dimenze 2 nebo 3 (oktantový strom). Nepoužívá se pro prostory vyšších dimenzí, protože stupeň uzlu roste exponenciálně s dimenzí $2^d\Rightarrow2^{10}=1024$.
 
-- bodový dotaz na existenci vektoru - IO cost $h+1$
-- rozsahový dotaz - průchod stromem od kořene k listům. Průchod $r$ kvadranty protínající dotazovací hyperkvádr IO cost $r(h+1)$
+- Bodový dotaz na existenci vektoru - IO cost $h+1$.
+- Rozsahový dotaz - průchod stromem od kořene k listům. Průchod $r$ kvadranty protínající dotazovací hyperkvádr IO cost $r(h+1)$.
+- Varianta kvadrantového stromu se používá v MS SQL Serveru. Klíče jsou uložené v B+stromu.
+
+#### 13.2.1. Bodový dotaz
+
+Uvažujme $x\in\mathbb{R}$. Ve vnitřním uzlu spočítáme souřadnice ohraničujícího obdélníku (bbox) aktuálního kvadrantu aktuálního uzlu ze souřadnic (pod)prostoru:
+
+1. Pokud $x$ leží v bboxu, pak načteme dětský uzel.
+2. Pokud neleží, přejdeme na další kvadrant.
+3. Pokud v uzlu neexistuje žádný takový region, ukončíme algoritmus.
 
 ### 13.3. R-strom
 
 - Oracle Spatial
 - Proč? **Vyváženost** a **stránkování**.
 
+Prostor je rekurzivně dělen na regiony *(MBR - minimal bounding rectangle)*. MBR mají na stejné úrovní stromu různou velikost a mohou se protínat (efektivita se zhoršuje s rostoucí dimenzí).
+
+<img src="figures/r-tree.png" alt="r-tree" width="400px">
+
+Rozsahový dotaz hledá všechny vektory prostoru ležící v dotazovacím hyperkvádru QR (ten je definován dvěma vektory $Q_L$ a $Q_H$), dotaz se vykoná průchodem stromu do hloubky (používáme rekurzi nebo zásobník):
+
+1. Ve vnitřním uzlu testujeme aktuální MBR aktuálního uzlu:
+   1. Pokud QR protíná MBR, pak načteme dětský uzel (Goto 1).
+   2. Pokud neprotíná, přejdeme na další MBR v uzlu (Goto 1).
+2. V listovém uzlu zjistíme, zda vektory/MBR leží/protínají QR, pokud ano, zařadíme do výsledku. Pokračujeme v prohledávání stromu.
+
+Bodový i rozsahový dotaz má $\text{IO cost}=r\cdot h$, kde $r$ je počet regionů listových uzlů.
+
+Algoritmus štěpení má exponenciální složitost. Obvykle se místo toho používá nějaká heuristika s lineární složitostí.
+
 ### 13.4. SphereR-Tree (SpR-Tree)
 
-- $d$-rozměrné koule (hyperkoule)
+- Varianta R-stromu.
+- $d$-rozměrné koule (hyperkoule).
 - Vyvážený strom, garance využití stránek $\geq50\%$, protínání regionů, volba arity stromu pro velikost stránky.
+- Listové uzly mají poloměr $r=0.0$.
+- Vnitřní uzly obsahují $d$-rozměrné koule a ukazatele na dětské uzly.
+
+<img src="figures/sphere-r-tree.png" alt="sphere-r-tree" width="400px">
 
 ## 14. Prostorová data
+
+- Využívána v geografických informačních systémech (GIS).
+- Prostorové DBS využívají prostorové operace.
+- Typy dat: bod, line string, polygon, multi-polygon a další.
 
 ### 14.1. SQL Server
 
@@ -1565,7 +1687,7 @@ WITH (
 )
 ```
 
-Geometrii můžeme definovat jak **WKT**, **WKB** (binární alternativa WKT), **GML** (XML soubor) nebo jako výsledek **prostorové operace** nad prostorovými daty (např. `STIntersects`, `STContains` atd.).
+Geometrii můžeme definovat jak **WKT**, **WKB** (binární alternativa WKT), **GML** (XML soubor) nebo jako výsledek **prostorové operace** nad prostorovými daty (např. `STIntersects`, `STContains`, `STTouches`, `STEquals`, `STOverlaps`, `STWithin` atd.).
 
 <details><summary> Příklad definování geometrie </summary>
 
@@ -1620,8 +1742,9 @@ FROM Person.Address
 ## 15. Elastic Search
 
 - Distribuovaný systém pro vyhledávání a analýzu dat.
-- NoSQL DBS.
-- RESTful API - téměř každá akce může být provedena pomocí JSON dokumentu přes protokol HTML.
+- **NoSQL** DBS.
+- **RESTful** API - téměř každá akce může být provedena pomocí **JSON** dokumentu přes protokol **HTML**.
+- Můžeme používat nějaký HTTP klient, např. `curl`.
 - Termín `index` označuje konkrétní databázi.
 
 HTML metody (requests):
@@ -1633,7 +1756,7 @@ HTML metody (requests):
 
 Vkládání dokumentu pod stejným `id` vede ke vložení **nové verze**.
 
-Musíme znát **HTTP metodu**, **přístupový bod** (např. `kra28_index/_search`) a **specifikaci dotazu** (JSON).
+Musíme znát **HTTP metodu**, **přístupový bod** (např. `kra28_index/_search`) a **specifikaci dotazu** (JSON). Dotazujeme se pomocí **Query DSL**.
 
 Rozšíření pro:
 
@@ -1658,6 +1781,12 @@ SELECT *
 FROM Product p
 WHERE CONTAINS(p.description, "¯\_(ツ)_/¯")
 ```
+
+- Vyhledávání **podobného textu** `FREETEXT`.
+- Vyhledávání **prefixů**.
+- Vyhledávání **frází** (n-gramů).  
+- Vyhledávání s využitím **tezauru** (všech tvarů slova user: *user, users* atd.).
+- Vyhledávání s využitím **váhování termů** (tzn. můžu hledaným slovům nastavit důležitost).
 
 ## 17. Poznámky
 
