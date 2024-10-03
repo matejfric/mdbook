@@ -7,8 +7,13 @@
   - [1.4. Aplikace](#14-aplikace)
 - [2. Bezkontextové jazyky](#2-bezkontextové-jazyky)
   - [2.1. Zásobníkový automat](#21-zásobníkový-automat)
-  - [2.2. Turingův stroj](#22-turingův-stroj)
-  - [2.3. Chomského hierarchie](#23-chomského-hierarchie)
+- [3. Chomského hierarchie](#3-chomského-hierarchie)
+- [4. Turingův stroj](#4-turingův-stroj)
+  - [4.1. Church-Turingova teze](#41-church-turingova-teze)
+  - [4.2. Turingovsky úplné jazyky](#42-turingovsky-úplné-jazyky)
+- [5. Stroj RAM](#5-stroj-ram)
+- [6. Miscellaneous](#6-miscellaneous)
+  - [6.1. SAT problém](#61-sat-problém)
 
 **Algoritmus** — mechanický postup, jak něco spočítat. Algoritmy slouží k řešení různých problémů. Konkrétní vstup nějakého problému se nazývá **instance** problému.
 
@@ -17,6 +22,18 @@ V zadání problému musí být určeno:
 - co je množinou možných vstupů,
 - co je množinou možných výstupů,
 - jaký je vztah mezi vstupy a výstupy.
+
+<div class="warning">
+
+Algoritmický problém je trojice (`IN`, `OUT` a `R`), kde `IN` je množina možných vstupů, `OUT` je množina možných výstupů a `R` je relace mezi vstupy a výstupy.
+
+</div>
+
+Problémům, kde množina výstupů je `{Ano/Ne}` se říká **rozhodovací problémy**.
+
+**Optimalizační problém** je hledání nejlepšího řešení v množině různých řešení podle daného kritéria.
+
+Problém je **řešitelný** právě tehdy, když existuje algoritmus, který pro libovolný přípustný vstup vrátí správný výstup v konečném čase.
 
 Algoritmus **řeší** daný problém, pokud:
 
@@ -117,19 +134,7 @@ Ke každé bezkontextové gramtice $G$ lze sestrojit ekvivalentní (nedeterminis
 
 </div>
 
-### 2.2. Turingův stroj
-
-Oproti zásobníkovému automatu umožňuje navíc:
-
-- pohyb "hlavy" oběma směry,
-- možnost zápisu na "pásku" na aktuální pozici "hlavy",
-- "páska" je nekonečná.
-
-Příklad *přechodové funkce*: $\boxed{\delta(q_1, b)=(q_2,x,+1)}$. Jsem ve stavu $g_1$ a na pásce je znak $b$. Přejdu do stavu $q_2$, přepíšu znak na pásce na $x$ a posunu se na pásce o jedno pole doprava.
-
-**Church-Turingova teze.** Každý algoritmus lze realizovat Turingovým strojem.
-
-### 2.3. Chomského hierarchie
+## 3. Chomského hierarchie
 
 <img src="figures/chomsky-hierarchy.png" alt="chomsky-hierarchy" width="250px">
 
@@ -149,3 +154,67 @@ Příklad *přechodové funkce*: $\boxed{\delta(q_1, b)=(q_2,x,+1)}$. Jsem ve st
   - regulární gramatiky
   - konečné automaty (deterministické, nedeterministické)
   - regulární výrazy
+
+## 4. Turingův stroj
+
+> Formálně je **Turingův stroj** definován jako šestice $\mathcal{M} = (Q, \Sigma, \Gamma, \delta, q_0, F)$ kde:
+>
+> - $Q$ je konečná neprázdná množina **stavů**.
+> - $\Gamma$ je konečná neprázdná množina **páskových symbolů** (pásková abeceda).
+> - $\Sigma \subseteq \Gamma$ je konečná neprázdná množina **vstupních symbolů** (vstupní abeceda).
+> - $\delta : (Q \setminus F) \times \Gamma \to Q \times \Gamma \times \{-1, 0, +1\}$ je **přechodová funkce**.
+> - $q_0 \in Q$ je **počáteční stav**.
+> - $F \subseteq Q$ je množina **konečných stavů**.
+>
+> Předpokládáme, že v $\Gamma\setminus\Sigma$ je vždy speciální prvek $\square$ označující prázdný znak.
+
+Oproti zásobníkovému automatu umožňuje navíc:
+
+- pohyb "hlavy" oběma směry,
+- možnost zápisu na "pásku" na aktuální pozici "hlavy",
+- "páska" je nekonečná.
+
+Příklad *přechodové funkce*: $\boxed{\delta(q_1, b)=(q_2,x,+1)}$. Jsem ve stavu $g_1$ a na pásce je znak $b$. Přejdu do stavu $q_2$, přepíšu znak na pásce na $x$ a posunu se na pásce o jedno pole doprava.
+
+### 4.1. Church-Turingova teze
+
+> Každý algoritmus lze realizovat Turingovým strojem.
+
+<div class="warning">
+
+Převod problému:
+
+1. Program ve vyšším programovacím jazyce
+2. Graf řídícího toku
+3. Stroj RAM
+4. Vícepáskový Turingův stroj
+5. Jednopáskový Turingův stroj
+
+</div>
+
+### 4.2. Turingovsky úplné jazyky
+
+Jazykům (resp. strojům), které jsou dostatečně obecné na to, aby se do nich (resp. do jejich instrukcí) daly přeložit programy napsané v libovolném jiném programovacím jazyce, se říká **Turingovsky úplné**.
+
+## 5. Stroj RAM
+
+**Stroj RAM (Random Access Machine)** je idealizovaný model počítače. Skládá se z těchto částí:
+
+- **Programová jednotka** – obsahuje **program** stroje RAM a **ukazatel** na právě prováděnou instrukci.
+- **Pracovní paměť** – tvořená buňkami očíslovanými $0, 1, 2, \dots$
+  - Značíme $R_0, R_1, R_2, \dots$  
+  - Obsah buněk je možné číst i do nich zapisovat.
+- **Vstupní páska** – z ní je možné pouze číst.
+- **Výstupní páska** – na ni je možné pouze zapisovat.
+
+<img src="figures/ram.png" alt="ram" width="500px">
+
+## 6. Miscellaneous
+
+### 6.1. SAT problém
+
+Je booleovská formule splnitelná?
+
+$\varphi = x_1 \wedge (\neg x_2 \vee x_3)$
+
+Lze nastavit $x_1,x_2,x_3$ tak, aby $\varphi$ byla pravdivá?
