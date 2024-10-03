@@ -30,6 +30,14 @@ Motto: *"Safety, concurrency and speed."*
   - [7.2. Result](#72-result)
 - [8. Closures](#8-closures)
 - [9. Concurrency](#9-concurrency)
+- [10. Macros](#10-macros)
+- [11. Pattern Matching](#11-pattern-matching)
+  - [11.1. Irrefutable Patterns](#111-irrefutable-patterns)
+  - [11.2. Refutable Patterns](#112-refutable-patterns)
+- [12. Sound Code Principles](#12-sound-code-principles)
+  - [12.1. Newtype Design Pattern](#121-newtype-design-pattern)
+  - [12.2. Encapsulation](#122-encapsulation)
+  - [12.3. Product Types and Sum Types](#123-product-types-and-sum-types)
 
 ## 1. Cargo
 
@@ -40,6 +48,9 @@ Motto: *"Safety, concurrency and speed."*
 - Checking that the project compiles: `cargo check`
 - Building for release: `cargo build --release`
 - Static checker: `cargo clippy`
+- See the code with added Prelude and replaced macros: `cargo expand`
+
+Translation unit in Rust is called a crate and all source files are compiled as a whole. Contrary to C, where for each file, an object file is created and the object files are then linked together to create a binary.
 
 ## 2. Variables
 
@@ -157,11 +168,12 @@ pub fn my_util() {
 // ./lib.rs
 pub mod my_utils;  // import file `./my_utils.rs`
 
-pub fn greet(str) {
+pub fn greet() {
     println!("Hello!");
 }
 
 // ./main.rs
+// `hello` is the name of the cargo project (==> and the name of the library)
 use hello::greet;
 
 fn main() {
@@ -203,6 +215,11 @@ num = if condition {} else {};
 ### 4.2. Loops
 
 ```rust
+let my_range: Range<i32> = 1..10;
+let my_range_inc: Range<i32> = 1..=10;
+```
+
+```rust
 // Unconditional loop
 'my_loop: loop {
     loop {
@@ -211,6 +228,13 @@ num = if condition {} else {};
         // Break the inner-most loop
         break;
     }
+}
+```
+
+```rust
+let a = loop {
+    // do stuff
+    break 5  // assign 5 to `a` (no `;`)
 }
 ```
 
@@ -437,5 +461,238 @@ fn main() {
 
     // barrier (wait for the thread)
     handle.join().unwrap();
+}
+```
+
+## 10. Macros
+
+- Macros are inlined in compile time, i.e., a macro is replaced with the code defined in the macro.
+
+## 11. Pattern Matching
+
+### 11.1. Irrefutable Patterns
+
+- Must always match.
+
+```rust
+struct Product {
+    id: i32,
+    name: String,
+    price: f32,
+    // If we add a new field, we need to update all the pattern matches.
+    // If we forget to update one, we get a compile time error.
+    // If we didn't use pattern matching, we might forget to update some places.
+    // discount: f32,
+}
+
+fn foo(
+    Product {
+        id,
+        name,
+        price,
+    }: Product,
+) {
+    println!("product id: {}, name: {}, price: {}", id, name, price);
+}
+
+fn main() {
+    let product = Product {
+        id: 123,
+        name: "product".to_string(),
+        price: 9.99,
+    };
+    let Product{ id: product_id, price , ..} = product;
+    println!("id: {}, price: {}", product_id, price);
+    foo(product);
+
+    let my_tuple = (1, 2, 3);
+    let (a, b, c) = my_tuple; // irrefutable
+
+    for (a, b, c) in vec![(1, 2, 3), (4, 5, 6)] {
+        println!("a: {}, b: {}, c: {}", a, b, c);
+    }
+}
+```
+
+### 11.2. Refutable Patterns
+
+- May not match.
+- `if let <pattern> = <expression> { /* do stuff */ }`
+
+```rust
+let my_tuple = (true, 2);
+if let (true, 2) = my_tuple {
+    // matches
+    println!("true and 2");
+} else {
+    // does not match
+    println!("not true and 2");
+}
+```
+
+- `if let struct`
+
+```rust
+struct Product {
+    id: i32,
+    name: String,
+    price: f32,
+}
+
+let product = Product {
+    id: 100,
+    name: "product".to_string(),
+    price: 9.99,
+};
+
+if let Product {id: 0..=100, ..} = product {
+    println!("id is between 0 and 100");
+}
+```
+
+- `while let`
+
+```rust
+// while let
+let mut my_vec = vec![1, 2, 3];
+while let Some(x) = my_vec.pop() {
+    println!("{}", x);
+}
+```
+
+- `let <pattern> = match <expression> { <pattern> => { /* do stuff */ } }`
+
+```rust
+let my_tuple = (true, 42);
+match my_tuple {
+    (true, 2) => {
+        println!("true and 2");
+    },
+    (true, a) | (false, a) => {
+        println!("true or false and {}", a);
+    },
+    // match everything else
+    _ => {
+        println!("glitch in the matrix");
+    },
+}
+```
+
+## 12. Sound Code Principles
+
+### 12.1. Newtype Design Pattern
+
+What's wrong in this snippet?
+
+```rust
+fn get_car_id() -> u32 {
+    0
+}
+
+fn get_driver_id() -> u32 {
+    0
+}
+
+fn order_taxi(car_id: u32, driver_id: u32) {}
+
+fn main() {
+    let car_id = get_car_id();
+    let driver_id = get_driver_id();
+    order_taxi(driver_id, car_id);
+}
+```
+
+The `driver_id` and `car_id` arguments are swapped in the `order_taxi` function call! How can we mitigate hard-to-detect bugs like this? The **Newtype pattern** comes into play!
+
+```rust
+struct CarId(u32); // newtype
+struct DriverId(u32);
+
+fn get_car_id() -> CarId {
+    CarId(0)
+}
+
+fn get_driver_id() -> DriverId {
+    DriverId(0)
+}
+
+fn order_taxi(car_id: CarId, driver_id: DriverId) {}
+
+fn main() {
+    let car_id = get_car_id();
+    let driver_id = get_driver_id();
+
+    // If we swapped the arguments now,
+    // a compile time error would occur.
+    order_taxi(car_id, driver_id);
+}
+```
+
+Another example would be units such as degrees Celsius, meters, kilograms, etc.
+
+```rust
+struct Years(i64);
+
+struct Days(i64);
+
+impl Years {
+    pub fn to_days(&self) -> Days {
+        Days(self.0 * 365)
+    }
+}
+
+
+impl Days {
+    /// truncates partial years
+    pub fn to_years(&self) -> Years {
+        Years(self.0 / 365)
+    }
+}
+```
+
+### 12.2. Encapsulation
+
+- Implementation hiding.
+- Invariants that cannot be affected from outside of a module.
+- Outside of a module (either a single source file or an explicit module block `mod /*name*/ { /*content*/}`), everything is private by default.
+
+```rust
+mod email {
+    // Invariant ("assumption"): `email` is a valid e-mail address (always)
+    pub struct Email {
+        // If this field was public, anybody could change it
+        // and violate the invariant.
+        email: String,
+    }
+
+    pub fn create_email(text: String) -> Email {
+        assert!(text.contains("@"));
+        Email { email: text }
+    }
+}
+
+fn main() {
+    let email = email::create_email("foo".to_string());
+}
+```
+
+### 12.3. Product Types and Sum Types
+
+- Typically `struct` is a *product type* and `enum` is a *sum type*.
+
+```rust
+// Product type
+struct Person {
+    id: u8,           // 256 options
+    is_student: bool, // 2 options
+}
+// ==> 256 * 2 = 512 options/combinations
+
+
+// Sum type
+enum ComputerState {
+    OFF,
+    ON(u64), // tuple struct (e.g., uptime)
+    SLEEPING { uptime: u64, sleep_time: u64 } // struct
 }
 ```
