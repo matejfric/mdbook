@@ -13,6 +13,8 @@
   - [3.4. Assignment Problem](#34-assignment-problem)
     - [3.4.1. Hungarian Algorithm](#341-hungarian-algorithm)
 - [4. Additional Resources](#4-additional-resources)
+- [5. Integer Linear Programming (ILP)](#5-integer-linear-programming-ilp)
+  - [5.1. Binary ILP](#51-binary-ilp)
 
 > "The scientists were asked to do **research on** (military) **operations**" $\Rightarrow$ Operations Research.
 
@@ -286,3 +288,37 @@ The Hungarian algorithm consists of the four steps below. The first two steps ar
 ## 4. Additional Resources
 
 - [Algorithms visualized](https://visualgo.net/en)
+
+# Operations Research II
+
+Practical examples? E.g., university timetable; traffic lights; factories and stock with limited capacity and minimum requrements, ...
+
+## 5. Integer Linear Programming (ILP)
+
+$$
+\begin{align*}
+& \underset{\mathbf{x} \in \mathbb{Z}^n}{\text{maximize}}   && \mathbf{c}^\mathrm{T} \mathbf{x}\\
+& \text{subject to} && A \mathbf{x} \le \mathbf{b}, \\
+&  && \mathbf{x} \ge \mathbf{0}
+\end{align*}
+$$
+
+<img src="figures/ip.png" alt="ip" width="500px">
+
+The feasible integer points are shown in red, and the red dashed lines indicate their convex hull, which is the smallest convex polyhedron that contains all of these points.
+
+The blue lines together with the coordinate axes define the polyhedron of the LP relaxation, which is given by the inequalities *without the integrality constraint*.
+
+The goal of the optimization is to move the black dashed line as far upward while still touching the polyhedron. The optimal solutions of the integer problem are the points $(1,2)$ and $(2,2)$ that both have an objective value of $2$. The unique optimum of the relaxation $(1.8, 2.8)$ with objective value of $2.8$.
+
+If the solution of the relaxation is rounded to the nearest integers, it is not feasible for the ILP!
+
+### 5.1. Binary ILP
+
+1. Solve the relaxation (LP)
+2. If the solution is an integer solution, we are done.
+3. Otherwise, branch-and-bound algorithm until an integer solution is found:
+   1. Set constraints for the 1st variable and evaluate. We set $x_1=0 \Rightarrow$ no solution, and $x_1=1 \Rightarrow$ non-integer solution.
+   2. Evaluate the branches (we do not continue with the branch $x_1=0$, because there the solution does not satisfy the constraints). In our example, evaluate $x_2=0$ and $x_2=1$.
+
+<img src="figures/binary-ilp.png" alt="binary-ilp" width="500px">
