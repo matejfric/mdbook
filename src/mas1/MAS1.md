@@ -83,6 +83,10 @@
   - [8.1. Motivace](#81-motivace)
   - [8.2. Perkolace](#82-perkolace)
     - [8.2.1. Perkolace ve scale-free sítích](#821-perkolace-ve-scale-free-sítích)
+- [9. Dynamické sítě](#9-dynamické-sítě)
+  - [9.1. Vyvíjející se sítě](#91-vyvíjející-se-sítě)
+  - [9.2. Temporální sítě](#92-temporální-sítě)
+    - [9.2.1. Spoluautorská síť (informatika)](#921-spoluautorská-síť-informatika)
 
 ## 1. Základní pojmy
 
@@ -765,3 +769,43 @@ Odstranění jednoho uzlu má jen omezený dopad na celistvost (souvislost sít�
 V bezškálové síti máme mnohem více vrcholů s malým stupněm než hubů (center). Proto náhodné odstranění vrcholu vede k tomu, že se odstraňují převážně vrcholy s malým stupněm a šance na náhodné odstranění hubu je zanedbatelná. Vrcholy s malým stupněm přispívají k robustnosti sítě.
 
 Cílený útok na centra - po odstranění několika málo center se síť rozpadne do malých shluků.
+
+# Network Science II
+
+- **information spreading** - šíření informací
+- **link prediction** - např. doporučování kontaktů v sociálních sítích
+- **network embedding** - odstranění hran
+
+Pokud jsme schopni síť vizualizovat, můžeme ji označit jako malou, pokud ji nejsme schopni vizualizovat, můžeme ji označit jako velkou a musíme se spoléhat na analýzy a algoritmy.
+
+Typické charakteristiky sítí:
+
+- sociální - velké huby, šum
+- spolupráce - kliky
+- komunikační - kliky, hvězdy
+- biologické - nepřesné
+
+## 9. Dynamické sítě
+
+- Základní charakteristikou je *stochastický přístup k analýze*.
+- Pracuje se *pravděpodobností existence* (nebo mírou aktivity)
+vrcholu, resp. hrany, v daném časovém okamžiku.
+- Jevy se často v dynamických sítích modelují pomocí *simulace*.
+- Často se také předpokládá, že vrcholy sítě mohou být různého
+typu (heterogenní síť).
+
+### 9.1. Vyvíjející se sítě
+
+- V čase přibývají vrcholy a hrany.
+- Lze jednoduše simulovat např. pomocí Barabasi-Albert modelu.
+
+### 9.2. Temporální sítě
+
+- "time-varying networks"
+- Hrany existují jen v jistém čase a mohou mít měnící se váhu.
+- Hrany mohou existovat "přerušovaně", tedy v určitých časových intervalech v síti jsou a v jiných ne.
+
+#### 9.2.1. Spoluautorská síť (informatika)
+
+- Simplexem je klika (jedna publikace, na níž má hranu každý s každým spoluautorem)
+- [https://www.cs.cornell.edu/~arb/data/coauth-DBLP/](https://www.cs.cornell.edu/~arb/data/coauth-DBLP/)
