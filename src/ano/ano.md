@@ -1,4 +1,4 @@
-# Analýza obrazu I
+# Analýza obrazu
 
 - [1. Segmentace obrazu](#1-segmentace-obrazu)
   - [1.1. Detekce hran s využitím gradientu](#11-detekce-hran-s-využitím-gradientu)
@@ -76,6 +76,10 @@
   - [12.1. Senzory](#121-senzory)
   - [12.2. Úrovně autonomních vozidel](#122-úrovně-autonomních-vozidel)
 - [13. OpenCV](#13-opencv)
+- [14. Integrální obraz](#14-integrální-obraz)
+- [15. Haar Features](#15-haar-features)
+- [16. Random Forest](#16-random-forest)
+- [17. AdaBoost](#17-adaboost)
 
 ## 1. Segmentace obrazu
 
@@ -1205,3 +1209,35 @@ cv::imshow("Gradient", gradient_8uc1_img);
 ```
 
 </details>
+
+# ANO II
+
+## 14. Integrální obraz
+
+<img src="figures/integral_image.png" alt="integral_image" width="400px">
+
+Proč přičítáme $ii_1$? Protože jsme ho v rámci $ii_2$ a $ii_3$ odečetli.
+
+Integrální obraz lze využít k výpočtu Haarových příznaků v konstantním čase.
+
+## 15. Haar Features
+
+<img src="figures/haar-features.png" alt="haar-features" width="400px">
+
+Suma přes obdélník, černou oblast odečítám, bílou přičítám.
+
+## 16. Random Forest
+
+<img src="figures/random-forest.png" alt="random-forest" width="400px">
+
+## 17. AdaBoost
+
+<img src="figures/adaboost.png" alt="adaboost" width="400px">
+
+1. Dataset se dvěmi třídami.
+2. Inicializace vah, každému pozorování přiřadíme váhu $\dfrac{1}{\#\text{pozorování}}$
+3. For #iterations:
+   1. Train a weak classifier.
+   2. Assign a weight to the classifier.
+   3. Update weights: lower the weight for correct prediction, increase for incorrect, then normalize the weights.
+4. Produce strong classifier as a linear combinations of the weak classifiers.
