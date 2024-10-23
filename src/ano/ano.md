@@ -399,6 +399,9 @@ Délka výsledného vektoru příznaků závisí na počtu boxů, bloků a buně
 <img src="figures/lbp2.png" alt="lbp2" width="500px">
 
 - z LBP obrazu následně můžeme sestavit histogram atd.
+- LBP jsou invariantní vůči jasu, úpravou lze dosáhnout i invariance vůči rotaci
+
+<img src="figures/lbp-illumination-invariance.png" alt="lbp-illumination-invariance" width="300px">
 
 ### 2.3. Klasifikátor a klasifikace pomocí diskriminačních funkcí
 
