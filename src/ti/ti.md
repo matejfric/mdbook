@@ -14,6 +14,19 @@
 - [5. Stroj RAM](#5-stroj-ram)
 - [6. Miscellaneous](#6-miscellaneous)
   - [6.1. SAT problém](#61-sat-problém)
+- [7. Konfigurace strojů](#7-konfigurace-strojů)
+  - [7.1. Jednopáskový Turingův stroj](#71-jednopáskový-turingův-stroj)
+  - [7.2. Vícepáskový Turingův stroj](#72-vícepáskový-turingův-stroj)
+  - [7.3. Stroj RAM](#73-stroj-ram)
+  - [7.4. Graf řídícího toku](#74-graf-řídícího-toku)
+  - [7.5. Minského stroj](#75-minského-stroj)
+- [8. Rozhodovací problémy](#8-rozhodovací-problémy)
+  - [8.1. Nerozhodnutelné problémy](#81-nerozhodnutelné-problémy)
+    - [8.1.1. Halting problem](#811-halting-problem)
+    - [8.1.2. Kachličkování roviny](#812-kachličkování-roviny)
+  - [8.2. Částečně rozhodnutelné problémy](#82-částečně-rozhodnutelné-problémy)
+  - [8.3. Doplňkové problémy](#83-doplňkové-problémy)
+- [9. Převody mezi problémy](#9-převody-mezi-problémy)
 
 **Algoritmus** — mechanický postup, jak něco spočítat. Algoritmy slouží k řešení různých problémů. Konkrétní vstup nějakého problému se nazývá **instance** problému.
 
@@ -218,3 +231,107 @@ Je booleovská formule splnitelná?
 $\varphi = x_1 \wedge (\neg x_2 \vee x_3)$
 
 Lze nastavit $x_1,x_2,x_3$ tak, aby $\varphi$ byla pravdivá?
+
+## 7. Konfigurace strojů
+
+### 7.1. Jednopáskový Turingův stroj
+
+- stav řídící jednotky
+- obsah pásky
+- pozice hlavy
+
+### 7.2. Vícepáskový Turingův stroj
+
+- stav řídící jednotky
+- obsahy všech pásek
+- pozice všech hlav
+
+### 7.3. Stroj RAM
+
+- adresa prováděné instrukce
+- obsah pracovní paměti
+- obsah vstupní a výstupní pásky
+
+### 7.4. Graf řídícího toku
+
+- řídící stav (vrchol v grafu řídícího toku)
+- obsah paměti (hodnoty jednotlivých proměnných)
+
+### 7.5. Minského stroj
+
+- stav řídící jednotky
+- hodnoty všech čítačů
+
+## 8. Rozhodovací problémy
+
+### 8.1. Nerozhodnutelné problémy
+
+#### 8.1.1. Halting problem
+
+- **Vstup:** Zdrojový kód programu P v jazyce L, vstupní data x.
+- **Otázka:** Zastaví se program P po nějakém konečném počtu kroků, pokud dostane jako vstup data x?
+
+Lze dokázat, že halting problem je nerozhodnutelný, ale je částečně rozhodnutelný.
+
+<details><summary> Důkaz, že Halting problem je nerozhodnutelný </summary>
+
+Předpokládejme, že existuje Turingův stroj $A$, který řeší Halting problem. Dále definujme nový Turingův stroj $B$, který příjímá vstup $x$ a simuluje běh $A$ na vstupu $x$. Pokud se $A$ zastaví, tak $B$ se zastaví a naopak. Tedy $B$ řeší Halting problem, což je spor.
+
+Co se stane, pokud $B$ dostane na vstup $\langle B \rangle$
+
+Tzn. pro každý algoritmus $A$ a vstup $x$ vždy správně rozhodne, zda $A$ se zastaví pro vstup $x$.
+
+TODO
+
+</details>
+
+#### 8.1.2. Kachličkování roviny
+
+Vstupem je množina typů kachliček, jako třeba:
+
+<img src="figures/tiling-problem.png" alt="tiling-problem" width="250px">
+
+Otázka je, zda je možné použitím daných typů kachliček pokrýt celou nekonečnou rovinu tak, aby všechny kachličky spolu sousedily stejnými barvami.
+
+### 8.2. Částečně rozhodnutelné problémy
+
+Rozhodovací problém $P$ je částečně rozhodnutelný, jestliže existuje algoritmus $A$, který:
+
+- Pokud dostane jako vstup instanci problému $P$, pro kterou je správná odpověď **Ano**, tak se na tomto vstupu po konečném počtu kroků zastaví a dá odpověď **Ano**.
+- Pokud dostane jako vstup instanci problému $P$, pro kterou je správná odpověď **Ne**, tak se na tomto vstupu *buď zastaví* a dá odpověď **Ne** *nebo* se na tomto vstupu *nikdy nezastaví*.
+
+### 8.3. Doplňkové problémy
+
+> Doplňkový problém k danému rozhodovacímu problému P je problém, kde vstupy jsou stejné jako u problému P a otázka je negací otázky z problému P.
+
+<details><summary> Doplňkový problém k Halting problému: </summary>
+
+- **Vstup:** Zdrojový kód programu P v jazyce L, vstupní data x.
+- **Otázka:** Pokud program P dostane jako vstup data x, poběží do nekonečna (tj. nezastaví se na nich)?
+
+</details>
+
+<details><summary> Doplňkový problém k problému SAT: </summary>
+
+```language
+- **Vstup:** Booleovská formule ϕ.
+- **Otázka:** Je formule ϕ nesplnitelná (tj. je kontradikcí)?
+```
+
+</details>
+
+> **Postova věta**
+>
+> Pro každý rozhodovací problém P platí, že jestliže problém P i jeho doplňkový problém jsou částečně rozhodnutelné, pak je problém P rozhodnutelný.
+
+## 9. Převody mezi problémy
+
+> Pokud máme o nějakém (rozhodovacím) problému dokázáno, že je nerozhodnutelný, můžeme ukázat nerozhodnutelnost dalších problémů pomocí *redukcí (převodů) mezi problémy*.
+
+Problém $P_1$ je převeditelný na problém $P_2$, jestliže existuje algoritmus $\text{Alg}$ takový, že:
+
+- Jako vstup může dostat libovolnou instanci problému $P_1$.
+- K instanci problému $P_1$, kterou dostane jako vstup (označme ji $w$), vyprodukuje jako svůj výstup instanci problému $P_2$ (označme ji $\text{Alg}(w)$).
+- Platí, že pro vstup $w$ je v problému $P_1$ odpověď **Ano** právě tehdy, když pro vstup $\text{Alg}(w)$ je v problému $P_2$ odpověď **Ano**.
+
+<img src="figures/reduction.png" alt="reduction" width="400px">
