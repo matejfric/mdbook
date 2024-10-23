@@ -38,6 +38,18 @@ Motto: *"Safety, concurrency and speed."*
   - [12.1. Newtype Design Pattern](#121-newtype-design-pattern)
   - [12.2. Encapsulation](#122-encapsulation)
   - [12.3. Product Types and Sum Types](#123-product-types-and-sum-types)
+  - [12.4. Typestate Design Pattern](#124-typestate-design-pattern)
+  - [12.5. Copy on write (COW)](#125-copy-on-write-cow)
+- [13. Memory Safety Principles](#13-memory-safety-principles)
+  - [13.1. Ownership](#131-ownership)
+  - [13.2. Borrowing](#132-borrowing)
+  - [13.3. Lifetimes](#133-lifetimes)
+- [14. Traits](#14-traits)
+  - [14.1. Binary Relations](#141-binary-relations)
+  - [14.2. Trade-offs of Traits and Enums](#142-trade-offs-of-traits-and-enums)
+- [15. Heap](#15-heap)
+- [16. Reference Counting](#16-reference-counting)
+- [17. Closure](#17-closure)
 
 ## 1. Cargo
 
@@ -694,5 +706,351 @@ enum ComputerState {
     OFF,
     ON(u64), // tuple struct (e.g., uptime)
     SLEEPING { uptime: u64, sleep_time: u64 } // struct
+}
+```
+
+### 12.4. Typestate Design Pattern
+
+```rust
+struct RequestBuilder;
+impl RequestBuilder {
+    fn http_auth(&self) {}
+    fn token_auth(&self) {}
+    fn build(&self) {}
+}
+```
+
+Make sure that `RequestBuilder` is always built with one and only one type of `auth`.
+
+```rust
+struct RequestBuilder<Auth> {
+    auth: Auth,
+}
+
+impl RequestBuilder<()> {
+    fn new() -> Self {
+        RequestBuilder { auth: () }
+    }
+
+    fn http_auth(self) -> RequestBuilder<HttpAuth> {
+        RequestBuilder { auth: HttpAuth }
+    }
+
+    fn token_auth(self) -> RequestBuilder<TokenAuth> {
+        RequestBuilder { auth: TokenAuth }
+    }
+}
+
+impl RequestBuilder<HttpAuth> {
+    fn build(&self) {
+        println!("Building with HTTP Auth");
+        // Build logic for HTTP auth
+    }
+}
+
+impl RequestBuilder<TokenAuth> {
+    fn build(&self) {
+        println!("Building with Token Auth");
+        // Build logic for Token auth
+    }
+}
+
+// Empty struct to represent state for HTTP authentication
+struct HttpAuth;
+
+// Empty struct to represent state for Token authentication
+struct TokenAuth;
+
+fn main() {
+    let builder = RequestBuilder::new();
+    let http_builder = builder.http_auth();
+    http_builder.build();
+
+    let token_builder = RequestBuilder::new().token_auth();
+    token_builder.build();
+
+    // The following would cause a compile error because the default builder cannot call `build`
+    // let invalid_builder = RequestBuilder::new();
+    // invalid_builder.build();  // ERROR
+}
+```
+
+Key Points:
+
+1. `RequestBuilder` is generic over an authentication state.
+2. Initially, the builder starts in an "empty" state (`RequestBuilder<()>`), which can't call `build`.
+3. Calling either `http_auth` or `token_auth` transitions the builder to the appropriate state.
+4. The `build` method is only available when the builder is in a valid state, such as `HttpAuth` or `TokenAuth`.
+
+### 12.5. Copy on write (COW)
+
+```rust
+use std::borrow::Cow;
+
+// This is equivalent to `Cow` - Copy on write
+enum OwnedOrBorrowed<'a> {
+    Owned(String),
+    Borrowed(&'a str),
+}
+
+fn to_upper_if_needed(s: &str) -> OwnedOrBorrowed {
+    if s.chars().all(|c| c.is_uppercase()) {
+        OwnedOrBorrowed::Borrowed(s)
+    } else {
+        OwnedOrBorrowed::Owned(s.to_uppercase())
+    }
+}
+
+// with Cow:
+fn to_upper_if_needed_cow(s: &str) -> Cow<str> {
+    if s.chars().all(|c| c.is_uppercase()) {
+        Cow::Borrowed(s)
+    } else {
+        Cow::Owned(s.to_uppercase())
+    }
+}
+
+fn main() {
+    let s = "HELLO";
+    match to_upper_if_needed(s) {
+        OwnedOrBorrowed::Owned(s) => println!("Owned: {}", s),
+        OwnedOrBorrowed::Borrowed(s) => println!("Borrowed: {}", s),
+    }
+
+    let s = "HELLO";
+    let s = to_upper_if_needed_cow(s);
+    println!("{}", s);
+}
+```
+
+## 13. Memory Safety Principles
+
+Memory errors:
+
+- Ouf of bounds access
+- Double free
+- Use after free
+- Dangling pointers
+- Null pointer dereference
+- ...
+
+Memory errors occur most often when using aliasing together with mutability.
+
+```cpp
+std::vector<int> v = {1, 2, 3};
+int& p = v[0];
+v.push_back(4);
+
+// Undefined behavior (UB):
+// `v` was reallocated and `p` is now dangling.
+*p = 42;
+```
+
+<div class="warning">
+
+Rust solution:
+
+> You can alias or mutate, but not both at the same time (w.r.t. a single variable).
+
+</div>
+
+### 13.1. Ownership
+
+<div class="warning">
+
+- Every value has exactly one owner.
+- When the owner goes out of scope, the value is dropped (released).
+
+</div>
+
+### 13.2. Borrowing
+
+- **Immutable/shared** reference: `&T` (multiple at a time)
+- **Mutable/unique** reference: `&mut T` (only one at a time)
+
+### 13.3. Lifetimes
+
+<img src="figures/lifetimes.png" alt="lifetimes" width="350px">
+
+## 14. Traits
+
+- Similar to interfaces in other languages.
+
+```rust
+trait Animal {
+    fn make_sound(&self);
+}
+
+#[derive(
+    Debug,     // `println!("{:?}", elephant);`
+    PartialEq, // for equality comparison
+    Hash,
+    Default, // `Elephant::default()` - call the default constructor for all fields
+)]
+struct Elephant {
+    name: String,
+    age: u32,
+}
+
+struct Giraffe {
+    name: String,
+    age: u32,
+}
+
+impl Animal for Elephant {
+    fn make_sound(&self) {
+        println!("Elephant sound");
+    }
+}
+
+impl Animal for Giraffe {
+    fn make_sound(&self) {
+        println!("Giraffe sound");
+    }
+}
+
+/// `dyn` is short for "dynamic dispatch".
+/// I.e., the actual implementation is determined at runtime
+/// by looking into the **vtable**.
+fn make_sound(animal: &dyn Animal) {
+    animal.make_sound();
+}
+
+// We don't know the size of the object at compile time.
+// Therefore, we need to use a smart pointer to heap.
+fn zoo(animals: Vec<Box<dyn Animal>>) {
+    for animal in animals {
+        animal.make_sound();
+    }
+}
+
+fn main() {
+    let elephant = Elephant {
+        name: "Dumbo".to_string(),
+        age: 42,
+    };
+    let giraffe = Giraffe {
+        name: "Melman".to_string(),
+        age: 7,
+    };
+
+    zoo(vec![
+        Box::new(Elephant {
+            name: "Dumbo".to_string(),
+            age: 42,
+        }),
+        Box::new(Giraffe {
+            name: "Melman".to_string(),
+            age: 7,
+        }),
+    ]);
+}
+```
+
+Dynamic dispatch is necessary, because the actual implementation is determined at runtime. Compiler doesn't know the *actual type and size* of the object at compile time; therefore, the code cannot be "statically generated" at compile time. Instead, **VTABLE** is used to look up the actual implementation at runtime.
+
+### 14.1. Binary Relations
+
+```rust
+use std::cmp::{PartialEq, Eq, PartialOrd, Ord};
+use std::fmt::{Display, Formatter};
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+struct Vec2D {
+    a: u32,
+    b: u32,
+}
+
+fn main() {
+    let v = Vec2D { a: 42, b: 7 };
+    let w = Vec2D { a: 42, b: 7 };
+    if v == w {
+        println!("equal");
+    }
+    
+    // IEEE standard says NaN != NaN
+    // => f32 does not implement Eq
+    let same = f32::NAN == f32::NAN;
+    println!("{:?}", same);
+}
+```
+
+- `Eq` is rexlexive, symmetric, and transitive.
+- `PartialEq` is symmetric and transitive.
+- Similarly for `Ord` and `PartialOrd`.
+
+### 14.2. Trade-offs of Traits and Enums
+
+When we have a **fixed** set of types, we can use an `enum`. If we need to add a **new type**, we have to update all the places where the enum is used. Static dispatch.
+
+When we have a **variable** set of types, we can use a `trait`. If we need to add a new type, we only need to implement the trait for the new type. However, if we need to add a **new behavior** (method), we have to update all types that implement the trait. Dynamic dispatch.
+
+## 15. Heap
+
+How to add something to heap?
+
+```rust
+let x = Box::new(42);
+```
+
+Either large objects or objects with unknown size (e.g., recursive data structures).
+
+## 16. Reference Counting
+
+One object can have multiple owners, when the object is dropped, the reference count is decremented. When the reference count reaches zero, the object is dropped. We cannot mutate the object, because it is shared (aliasing + mutability rule).
+
+```rust
+use std::rc::Rc;
+
+struct Person {
+    name: String,
+}
+
+fn main() {
+    let p = Person { name: "Alice".to_string() };
+    let p = Rc::new(p);
+    let p2 = p.clone(); // shared reference count +1
+}
+```
+
+Reference counted pointer allows us work with multiple pointers without lifetimes at the cost of a small overhead.
+
+```rust
+use std::cell::RefCell;
+
+let c = RefCell::new(String::new());
+let ref1 = c.borrow();
+let ref2 = c.borrow_mut(); // panic (aliasing + mutability)
+```
+
+`RefCell` transfers the responsibility of checking the aliasing + mutability rule to runtime. If the rule is violated, the program panics.
+
+## 17. Closure
+
+- `FnMut` - may mutably borrow a value.
+- `FnOnce` - may consumes a value; therefore cannot be called more than once.
+- `Fn` - may only immutably borrow a value.
+- `Fn` $\subseteq$ `FnOnce` $\subseteq$ `FnMut`
+
+```rust
+fn time_code<F: FnOnce(u32) -> ()>(func: F) {
+    let start = std::time::Instant::now();
+    func(42);
+    let duration = start.elapsed();
+    println!("Time elapsed: {:?}", duration);
+}
+
+fn create_adder(x: u32) -> impl Fn(u32) -> u32 {
+    //|y| x + y // captures `x`, `y` may outlive `x`
+    move |y| x + y // `struct Closure{x: u32}`
+}
+
+fn main() {
+    time_code(|x| {
+        println!("Hello, world! {}", x);
+    });
+
+    let adder = create_adder(42);
+    println!("{}", adder(7));
 }
 ```
