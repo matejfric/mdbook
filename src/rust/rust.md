@@ -49,7 +49,8 @@ Motto: *"Safety, concurrency and speed."*
   - [14.2. Trade-offs of Traits and Enums](#142-trade-offs-of-traits-and-enums)
 - [15. Heap](#15-heap)
 - [16. Reference Counting](#16-reference-counting)
-- [17. Closure](#17-closure)
+- [17. Interior Mutability](#17-interior-mutability)
+- [18. Closure](#18-closure)
 
 ## 1. Cargo
 
@@ -1016,6 +1017,46 @@ fn main() {
 Reference counted pointer allows us work with multiple pointers without lifetimes at the cost of a small overhead.
 
 ```rust
+use std::rc::Rc;
+
+#[derive(Debug)]
+struct Truck {
+    capacity: u32,
+}
+
+let (truck_a, truck_b, truck_c) = (
+    Rc::new(Truck { capacity: 1 }),
+    Rc::new(Truck { capacity: 2 }),
+    Rc::new(Truck { capacity: 3 }),
+);
+
+let facility_one: Vec<Rc<Truck>> = vec![truck_a, Rc::clone(&truck_b)];
+let facility_two: Vec<Rc<Truck>> = vec![truck_b, truck_c];
+
+println!("Facility one {:?}", facility_one);
+println!("Facility two {:?}", facility_two);
+
+std::mem::drop(facility_two);
+
+println!("Facility one after drop {:?}", facility_one);
+```
+
+## 17. Interior Mutability
+
+```rust
+use std::cell::Cell;
+
+let cell = Cell::new(42);
+println!("Initial value: {}", cell.get());
+
+// Mutate the value inside the cell,
+// even though we only have an
+// immutable reference to it.
+cell.set(10);
+println!("Updated value: {}", cell.get());
+```
+
+```rust
 use std::cell::RefCell;
 
 let c = RefCell::new(String::new());
@@ -1023,9 +1064,11 @@ let ref1 = c.borrow();
 let ref2 = c.borrow_mut(); // panic (aliasing + mutability)
 ```
 
-`RefCell` transfers the responsibility of checking the aliasing + mutability rule to runtime. If the rule is violated, the program panics.
+A `Cell` is a container that allows for modifying its value, even when accessed through an immutable reference. However, the type stored in a `Cell` must implement the `Copy` trait.
 
-## 17. Closure
+In contrast, a `RefCell` doesn't require the type to implement `Copy`. Instead, it shifts the responsibility for enforcing aliasing and mutability rules to runtime. If these rules are violated, the program will panic.
+
+## 18. Closure
 
 - `FnMut` - may mutably borrow a value.
 - `FnOnce` - may consumes a value; therefore cannot be called more than once.
