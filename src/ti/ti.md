@@ -27,6 +27,14 @@
   - [8.2. Částečně rozhodnutelné problémy](#82-částečně-rozhodnutelné-problémy)
   - [8.3. Doplňkové problémy](#83-doplňkové-problémy)
 - [9. Převody mezi problémy](#9-převody-mezi-problémy)
+- [10. Složitost algoritmů](#10-složitost-algoritmů)
+  - [10.1. Turingův stroj](#101-turingův-stroj)
+  - [10.2. RAM stroj](#102-ram-stroj)
+  - [10.3. Časová a prostorová složitost](#103-časová-a-prostorová-složitost)
+  - [10.4. Asymptotická notace](#104-asymptotická-notace)
+  - [10.5. Vzorce](#105-vzorce)
+  - [10.6. Analýza rekurzivních algoritmů](#106-analýza-rekurzivních-algoritmů)
+  - [10.7. Práce s velkými čísly](#107-práce-s-velkými-čísly)
 
 **Algoritmus** — mechanický postup, jak něco spočítat. Algoritmy slouží k řešení různých problémů. Konkrétní vstup nějakého problému se nazývá **instance** problému.
 
@@ -335,3 +343,218 @@ Problém $P_1$ je převeditelný na problém $P_2$, jestliže existuje algoritmu
 - Platí, že pro vstup $w$ je v problému $P_1$ odpověď **Ano** právě tehdy, když pro vstup $\text{Alg}(w)$ je v problému $P_2$ odpověď **Ano**.
 
 <img src="figures/reduction.png" alt="reduction" width="400px">
+
+## 10. Složitost algoritmů
+
+Uvažujme stroj $\mathcal{M}$. Můžeme definivat funkce **doba výpočtu** na daným vstupem a **množství paměti** použité při výpočtu nad daným vstupem:
+
+$$
+\begin{align*}
+  \mathrm{time}_{\mathcal{M}}: \mathrm{input} \rightarrow \mathbb{N} \cup \{\infty\} \\
+  \mathrm{space}_{\mathcal{M}}: \mathrm{input} \rightarrow \mathbb{N} \cup \{\infty\}
+\end{align*}
+$$
+
+### 10.1. Turingův stroj
+
+Buď TM $M=(Q,\Sigma,\Gamma,\delta,q_0,F)$:
+
+$$
+\mathrm{time}_{\mathcal{M}}: \Sigma^* \rightarrow \mathbb{N} \cup \{\infty\}
+$$
+
+Pro $w\in\Sigma^*$ je $\mathrm{time}_{\mathcal{M}}(w)$ počet kroků, které $\mathcal{M}$ vykoná při výpočtu nad vstupem $w$.
+
+$$
+\mathrm{space}_{\mathcal{M}}: \Sigma^* \rightarrow \mathbb{N} \cup \{\infty\},
+$$
+
+Pro $w\in\Sigma^*$ je $\mathrm{space}_{\mathcal{M}}(w)$ počet políček pásky, které $\mathcal{M}$ během výpočtu nad vstupem $w$ navštíví.
+
+### 10.2. RAM stroj
+
+Pro RAM stroj můžeme dobu výpočtu definovat dvěma způsoby:
+
+- Jednotková míra - počet provedených instrukcí.
+- Logaritmická míra - součet doby trvání jednotlivých instrukcí, doba trvání instrukce závisí na počtu bitů hodnot, se kterými pracuje (např. násobení dvou $n$-bitových čísel má logaritmickou míru $n^2$).
+
+Pro množství paměti:
+
+- Jednotková míra - počet použitých paměťových buněk.
+- Logaritmická míra - maximální počet použitých paměťových buněk, které bylo potřeba v nějaké konfiguraci.
+
+### 10.3. Časová a prostorová složitost
+
+Buď $\mathrm{size(x)}$ **velikost vstupu** $x$. Pak **časovou složitost v nejhorším případě** definujeme jako:
+
+$$
+T(n) = \max\{\mathrm{time}_{\mathcal{M}}(x) \mid x\in\mathrm{input} \wedge \mathrm{size}(x) = n\}
+$$
+
+tj., funkci, která pro daný algoritmus a danou velikost vstupu přiřazuje každému přirozenému číslu $n$ maximální počet instrukcí, které algoritmus provede, pokud dostane vstup velikosti $n$.
+
+Analogicky definujeme **prostorovou složitost v nejhorším případě**:
+
+$$
+S(n) = \max\{\mathrm{space}_{\mathcal{M}}(x) \mid x\in\mathrm{input} \wedge \mathrm{size}(x) = n\}
+$$
+
+**Časovou složitost v průměrném případě** definujeme jako aritmetický průměr $T(n)$.
+
+### 10.4. Asymptotická notace
+
+Buď $g : \mathbb{N} \to \mathbb{N}$. Pak pro $f : \mathbb{N} \to \mathbb{N}$ platí:
+
+1. $\boxed{f \in \mathcal{O}(g)}\iff(\exists c > 0)(\exists n_0 \geq 0)(\forall n \geq n_0) :$
+
+    $$
+    \boxed{f(n) \leq c \cdot g(n)}
+    $$
+
+2. $\boxed{f \in \Omega(g)}\iff(\exists c > 0)(\exists n_0 \geq 0)(\forall n \geq n_0) :$
+
+    $$
+    \boxed{f(n) \geq c \cdot g(n)}
+    $$
+
+3. $\boxed{f \in \Theta(g)}\iff$
+
+    $$
+    \boxed{f \in \mathcal{O}(g) \wedge f \in \Omega(g)}
+    $$
+
+4. $\boxed{f \in \omicron(g)}\iff(\exists c > 0)(\exists n_0 \geq 0)(\forall n \geq n_0) :$
+
+    $$
+    \boxed{f(n) < c \cdot g(n)}
+    $$
+    $$
+    \Updownarrow
+    $$
+    $$
+    \boxed{\lim_{n \to +\infty} \frac{f(n)}{g(n)} = 0}
+    $$
+
+5. $\boxed{f \in \omega(g)}\iff(\exists c > 0)(\exists n_0 \geq 0)(\forall n \geq n_0) :$
+
+    $$
+    \boxed{f(n) > c \cdot g(n)}
+    $$
+    $$
+    \Updownarrow
+    $$
+    $$
+    \boxed{\lim_{n \to +\infty} \frac{f(n)}{g(n)} = +\infty}
+    $$
+
+> Poznámka: Existují dvojice funkcí $f,g\colon\mathbb{N}\rightarrow\mathbb{N}$, s.t.
+>
+>$$f\in\mathcal{O}(g) \quad\text{a}\quad g\notin\mathcal{O}(f),$$
+>
+>např.:
+>
+> $$
+f(n)=n \quad\text{a}\quad
+g(n) =
+\begin{cases}
+n^2 & \text{if } n \bmod 2 = 0, \\
+\lceil \log_2 n \rceil & \text{otherwise.}
+\end{cases}
+$$
+
+Platí, že pokud $f\in\mathcal{O}(g)$, tak i $f + g\in\mathcal{O}(g)$.
+
+Často se proto při analýze celkové časové složitosti $T(n)$ omezíme jen na analýzu nejčastěji prováděné instrukce.
+
+> O funkci $f$ řekneme, že je:
+>
+> - **logaritmická**, pokud $f(n) \in \Theta(\log n)$
+> - **lineární**, pokud $f(n) \in \Theta(n)$
+> - **kvadratická**, pokud $f(n) \in \Theta(n^2)$
+> - **kubická**, pokud $f(n) \in \Theta(n^3)$
+> - **polynomiální**, pokud $f(n) \in O(n^k)$ pro nějaké $k > 0$
+> - **exponenciální**, pokud $f(n) \in O(c^{n^k})$ pro nějaké $c > 1$ a $k > 0$
+
+Pro konkrétní problém můžeme mít dva algoritmy takové, že jeden má menší prostorovou složitost a druhý zase menší časovou složitost.
+
+Pokud je časová složistost v $\mathcal{O}(f(n))$, pak je i prostorová složitost v $\mathcal{O}(f(n))$.
+
+>Funkce $f$ je **polynomiální**, jestliže je shora omezena nějakým polynomem, tj. jestliže existuje nějaká konstanta $k$ taková, že $f \in O(n^k)$.
+>
+>Polynomiální jsou například funkce, které patří do následujících tříd:
+>$$O(n), \quad O(n \log n), \quad O(n^2), \quad O(n^5), \quad O(\sqrt{n}), \quad O(n^{100})$$
+>
+>**Polynomiální algoritmus** je algoritmus, jehož časová složitost je polynomiální — tj. shora omezená nějakým polynomem (tedy v $O(n^k)$, kde $k$ je nějaká konstanta).
+
+### 10.5. Vzorce
+
+Logaritmus:
+
+$$
+\log_a b = x \iff a^x = b
+$$
+
+Součet aritmetické posloupnosti:
+$$
+\sum_{i=0}^{n-1} a_i = \frac{1}{2} n (a_0 + a_{n-1})
+$$
+
+Součet geometrické posloupnosti (kde $q \neq 1$):
+
+$$
+\sum_{i=0}^{n} a_i = a_0 \frac{q^{n+1} - 1}{q - 1}
+$$
+
+### 10.6. Analýza rekurzivních algoritmů
+
+**Rekurzivní algoritmus** je algoritmus, který převede řešení původního problému na řešení několika podobných problémů pro menší instance.
+
+> Master Theorem
+>
+> Předpokládejme, že $a \geq 1$ a $b > 1$ jsou konstanty, že $f:\mathbb{N}\rightarrow\mathbb{N}$, a že funkce $T(n)$ je definována rekurentním předpisem
+>
+> $$T(n) = a \cdot T\left(\frac{n}{b}\right) + f(n)$$
+>
+> (kde $n/b$ může být buď $\lfloor n/b \rfloor$ nebo $\lceil n/b \rceil$). Pak platí:
+>
+> 1. Pokud $f(n) \in O(n^{\log_b a - \varepsilon})$ pro nějakou konstantu $\varepsilon > 0$, pak
+>    $$ T(n) = \Theta(n^{\log_b a}).$$
+>
+> 2. Pokud $f(n) \in \Theta(n^{\log_b a})$, pak
+>    $$T(n) = \Theta(n^{\log_b a} \log n).$$
+>
+> 3. Pokud $f(n) \in \Omega(n^{\log_b a + \varepsilon})$ pro nějakou konstantu $\varepsilon > 0$ a pokud $a \cdot f\left (\frac{n}{b}\right) \leq c \cdot f(n)$ pro nějakou konstantu $c < 1$ a všechna dostatečně velká $n$, pak
+>    $$T(n) = \Theta(f(n)).$$
+
+Master theorem je možné použít pro analýzu složitosti takových rekurzivních algoritmů, kde:
+
+1. Řešení jednoho podproblému velikosti $n$, kde $n > 1$, se převede na řešení $a$ podproblémů, z nichž každý má velikost $\frac{n}{b}$.
+2. Doba, která se stráví řešením jednoho podproblému velikosti $n$, bez doby v rekurzivních voláních, je určena funkcí $f(n)$.
+
+<details><summary> Příklad: Algoritmus Merge-Sort </summary>
+
+Pro algoritmus Merge-Sort máme:
+
+- $a = 2$ ...počet podproblémů
+- $b = 2$ ...velikost podproblému $n/2$
+- $f(n) \in \Theta(n)$ ...spojení dvou seřazených sekvencí v čase $\Theta(n)$
+
+Platí, že $f(n) \in \Theta(n^{\log_b a}) = \Theta(n)$, takže podle Master theorem máme:
+
+$$
+T(n) \in \Theta(n^{\log_b a} \log n) = \Theta(n \log n).
+$$
+
+</details>
+
+### 10.7. Práce s velkými čísly
+
+$$
+u = \sum_{i=0}^{n-1} U[i] \cdot q^i
+$$
+
+Na takto uložené číslo se můžeme dívat tak, že jde o zápis čísla $u$ v číselné soustavě o základu $q$, a prvky pole $U$ představují jednotlivé "čílice" tohoto zápisu.
+
+Sčítání/odčítání lze provést "školním" způsobem $\mathcal{O}(n)$. Násobení "školním" způsobem $\mathcal{O}(n^2)$. Nicméně existuje rekurzivní algoritmus - **Karacubovo násobení** - který má složitost $\mathcal{O}(n^{\log_2 3}) \sim \mathcal{O}(n^{1.59})$.
+
+Podobně existuje **Strassenův algoritmus** pro násobení matic s časovou složitostí $\mathcal{O}(n^{\log_2 7}) \sim \mathcal{O}(n^{2.81})$.
