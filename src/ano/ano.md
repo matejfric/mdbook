@@ -80,6 +80,9 @@
 - [15. Haar Features](#15-haar-features)
 - [16. Random Forest](#16-random-forest)
 - [17. AdaBoost](#17-adaboost)
+- [18. Architektury CNN](#18-architektury-cnn)
+  - [18.1. Jak v CNN redukovat počet kanálů?](#181-jak-v-cnn-redukovat-počet-kanálů)
+  - [18.2. VGG](#182-vgg)
 
 ## 1. Segmentace obrazu
 
@@ -1244,3 +1247,25 @@ Suma přes obdélník, černou oblast odečítám, bílou přičítám.
    2. Assign a weight to the classifier.
    3. Update weights: lower the weight for correct prediction, increase for incorrect, then normalize the weights.
 4. Produce strong classifier as a linear combinations of the weak classifiers.
+
+## 18. Architektury CNN
+
+### 18.1. Jak v CNN redukovat počet kanálů?
+
+- **1x1 konvoluce** - redukce počtu kanálů
+
+3D konvoluce s kernel $3\times3\times3$:
+
+<img src="figures/3d-conv.png" alt="3d-conv" width="350px">
+
+1D konvoluce:
+
+<img src="figures/1d-conv.png" alt="1d-conv" width="350px">
+
+1D konvoluce byla milník pro vytváření hlubokých CNN.
+
+### 18.2. VGG
+
+- Pouze kernely $3\times3$ a pooling $2\times2$.
+- Myšlenka, že dvě vrstvy $3\times3$ jsou ekvivalentní jedné vrstvě $5\times5$ a obdobně tři vrstvy $3\times3$ jsou ekvivalentní jedné vrstvě $7\times7$ (uvažujeme padding 1 a stride 1) $\rightarrow$ **reception net**.
+- 2 vrstvy $3\times3$ mají méně parametrů než 1 vrstva $5\times5$.
