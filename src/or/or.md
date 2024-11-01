@@ -15,6 +15,7 @@
 - [4. Additional Resources](#4-additional-resources)
 - [5. Integer Linear Programming (ILP)](#5-integer-linear-programming-ilp)
   - [5.1. Binary ILP](#51-binary-ilp)
+  - [5.2. Multi-objective optimization](#52-multi-objective-optimization)
 
 > "The scientists were asked to do **research on** (military) **operations**" $\Rightarrow$ Operations Research.
 
@@ -322,3 +323,7 @@ If the solution of the relaxation is rounded to the nearest integers, it is not 
    2. Evaluate the branches (we do not continue with the branch $x_1=0$, because there the solution does not satisfy the constraints). In our example, evaluate $x_2=0$ and $x_2=1$.
 
 <img src="figures/binary-ilp.png" alt="binary-ilp" width="500px">
+
+### 5.2. Multi-objective optimization
+
+- Non-dominated Sorting Genetic Algorithm II ([NSGA-II](https://ieeexplore.ieee.org/document/996017))
