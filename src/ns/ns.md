@@ -117,7 +117,10 @@
   - [11.14. Nevážený flattening](#1114-nevážený-flattening)
   - [11.15. Vážený flattening](#1115-vážený-flattening)
   - [11.16. Projekce](#1116-projekce)
-- [12. Miscellaneous](#12-miscellaneous)
+- [12. Vizualizace](#12-vizualizace-1)
+  - [12.1. Quasi-Clique](#121-quasi-clique)
+  - [12.2. Kliky ve vícevrstvých sítích](#122-kliky-ve-vícevrstvých-sítích)
+- [13. Miscellaneous](#13-miscellaneous)
 
 ## 1. Základní pojmy
 
@@ -990,6 +993,8 @@ $$
 
 ### 11.10. Random walk closeness
 
+Buď $D$ počet kroků náhodného chodce.
+
 ### 11.11. Random walk betweenness
 
 ### 11.12. Relevance aktéra ve vrstvě
@@ -1018,6 +1023,27 @@ kde $\Theta\in\mathbb{R}^{|\mathcal{L}|\times |\mathcal{L}|}$ je matice vah pře
 
 ### 11.16. Projekce
 
-## 12. Miscellaneous
+## 12. Vizualizace
 
-**Asortativita** znamená, že vrcholy s podobnými vlastnostmi jsou spojeny častěji než vrcholy s různými vlastnostmi.
+- Např. *layout* algoritmy založené na vyvažování sil (např. `Force Atlas`).
+- Vizualizace metrik (např. centralita, vzdálenost, komunity).
+- Augmentace (např. popis vrcholů a hran).
+- Zjednodušená vizualizace (např. $k$-core, tzn. vrcholy se stupněm nižší než $k$ se odstraní).
+- Vlastnosti (např. histogram stupňů, distribuce vzdáleností, distribuce komunit).
+- U vícevrstvých sítí obvykle analyzujeme buď každou vrstvu zvlášť, nebo provedeme zploštění *(flattening)*. Zploštění může "zašumnět" data, což může znesnadnit detekci komunit (může tam být příliš mnoho hran). Exkluzivní hrany nás obvykle tolik nezajímají.
+
+### 12.1. Quasi-Clique
+
+Stanovíme práh hustoty $\gamma$. Potom quasi-klika s prahem $\gamma$ je množina vrcholů, která má hustotu větší než $\gamma$. 
+
+Hustotu definujeme jako $\dfrac{2|E|}{|V|(|V|-1)}$.
+
+### 12.2. Kliky ve vícevrstvých sítích
+
+Buď $L$ množina vrstev. **Vícevrstvá klika** je množina aktérů propojených se všemi ostatními aktéry v klice na každé z těchto vrstev.
+
+**Vícevrstvá kvaziklika** je množina aktérů, kde je každý aktér spojen s alespoň zlomkem $\gamma$ ostatních aktérů v kvazikliku na alespoň zlomku $\lambda$ vrstev tvořících vícevrstvou síť.
+
+## 13. Miscellaneous
+
+**Asortativita** znamená, že vrcholy s podobnými vlastnostmi jsou spojeny častěji než vrcholy s různými vlastnostmi (např. bohatí s bohatými atd.).
