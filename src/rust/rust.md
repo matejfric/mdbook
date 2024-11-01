@@ -51,6 +51,10 @@ Motto: *"Safety, concurrency and speed."*
 - [16. Reference Counting](#16-reference-counting)
 - [17. Interior Mutability](#17-interior-mutability)
 - [18. Closure](#18-closure)
+- [19. Macros](#19-macros)
+  - [19.1. Declarative Macros](#191-declarative-macros)
+  - [19.2. Procedural Macros](#192-procedural-macros)
+- [20. Crates](#20-crates)
 
 ## 1. Cargo
 
@@ -1097,3 +1101,93 @@ fn main() {
     println!("{}", adder(7));
 }
 ```
+
+## 19. Macros
+
+### 19.1. Declarative Macros
+
+```rust
+macro_rules! my_macro {
+    ($x:expr) => {
+        println!("Hello, {}", $x);
+    };
+}
+my_macro!("world");
+```
+
+We can generate function and struct definitions with macros, but not variables.
+
+```rust
+macro_rules! create_function {
+    ($func_name:ident) => {
+        fn $func_name() {
+            println!("You called {:?}()", stringify!($func_name));
+        }
+    };
+}
+
+create_function!(foo);
+foo();
+```
+
+Macros can take variadic arguments.
+
+### 19.2. Procedural Macros
+
+Must be defined in a separate crate.
+
+Crates:
+
+- `proc-macro2` - procedural macros outside of the compiler
+- `syn` - parsing Rust code
+- `quote` - generating Rust code
+
+```rust
+use proc_macro::TokenStream;
+use quote;
+use syn;
+
+#[proc_macro_derive(WhatsMyName)]
+pub fn derive_whats_my_name(stream: TokenStream) -> TokenStream {
+    // impl <name-of-struct> {
+    //     fn what_is_my_name() -> &'static str {
+    //         stringify!(<name-of-struct>)
+    //     }
+    // }
+    let input = syn::parse_macro_input!(stream as syn::DeriveInput);
+    let name = &input.ident;
+
+    // let output = quote::quote! {
+    //     impl #name {
+    //         fn what_is_my_name(&self) -> &'static str {
+    //             stringify!(#name)
+    //         }
+    //     }
+    // };
+    let output = quote::quote_spanned! {
+        impl #name {
+            fn what_is_my_name(&self) -> &'static str {
+                compile_error!("This is a compile time error");
+                stringify!(#name)
+            }
+        }
+    };
+    output.into()
+}
+
+// Usage
+// #[derive(WhatsMyName)]
+// struct MyStruct;
+// let my_struct = MyStruct;
+// println!("{}", my_struct.what_is_my_name());
+```
+
+For example `#[derive(Debug)]` is a procedural macro.
+
+## 20. Crates
+
+- `serde` - serialization and deserialization
+- `rand` - random number generation
+- `rayon` - data parallelism
+- `tokio` - async I/O
+- `clap` - command line argument parsing
