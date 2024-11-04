@@ -35,6 +35,11 @@
   - [10.5. Vzorce](#105-vzorce)
   - [10.6. Analýza rekurzivních algoritmů](#106-analýza-rekurzivních-algoritmů)
   - [10.7. Práce s velkými čísly](#107-práce-s-velkými-čísly)
+- [11. Třídy složitosti](#11-třídy-složitosti)
+  - [11.1. Vztahy mezi třídami složitosti](#111-vztahy-mezi-třídami-složitosti)
+  - [11.2. Horní a dolní odhady složitosti problémů](#112-horní-a-dolní-odhady-složitosti-problémů)
+- [12. Nedeterminismus](#12-nedeterminismus)
+  - [12.1. Nedeterministické třídy složitosti](#121-nedeterministické-třídy-složitosti)
 
 **Algoritmus** — mechanický postup, jak něco spočítat. Algoritmy slouží k řešení různých problémů. Konkrétní vstup nějakého problému se nazývá **instance** problému.
 
@@ -197,6 +202,8 @@ Oproti zásobníkovému automatu umožňuje navíc:
 
 Příklad *přechodové funkce*: $\boxed{\delta(q_1, b)=(q_2,x,+1)}$. Jsem ve stavu $g_1$ a na pásce je znak $b$. Přejdu do stavu $q_2$, přepíšu znak na pásce na $x$ a posunu se na pásce o jedno pole doprava.
 
+**Konfigurací Turingova stroje** je trojice $(q, w, i)$, kde $q$ je stav řídící jednotky, $w$ je obsah pásky (resp. pásek) a $i$ je pozice hlavy (resp. hlav) na pásce.
+
 ### 4.1. Church-Turingova teze
 
 > Každý algoritmus lze realizovat Turingovým strojem.
@@ -229,6 +236,8 @@ Jazykům (resp. strojům), které jsou dostatečně obecné na to, aby se do nic
 - **Výstupní páska** – na ni je možné pouze zapisovat.
 
 <img src="figures/ram.png" alt="ram" width="500px">
+
+**Konfigurace stroje RAM** je dána obsahem paměti, obsahem všech registů (včetně *instruction pointer* (IP)), obsahem vstupní a výstupní pásky a pozicemi čtecí a zapisovací hlavy.
 
 ## 6. Miscellaneous
 
@@ -345,6 +354,11 @@ Problém $P_1$ je převeditelný na problém $P_2$, jestliže existuje algoritmu
 <img src="figures/reduction.png" alt="reduction" width="400px">
 
 ## 10. Složitost algoritmů
+
+Různé algoritmické problémy jsou různě těžké. Obtížnější problémy vyžadují *více času a paměti* k řešení.
+
+- **Složitost algoritmu** je funkce, která popisuje, jak se časová (resp. prostorová) složitost mění s velikostí vstupu.
+- **Složitost problému** je složitost "nejefektivnějšího" algoritmu, který problém řeší.
 
 Uvažujme stroj $\mathcal{M}$. Můžeme definivat funkce **doba výpočtu** na daným vstupem a **množství paměti** použité při výpočtu nad daným vstupem:
 
@@ -558,3 +572,158 @@ Na takto uložené číslo se můžeme dívat tak, že jde o zápis čísla $u$ 
 Sčítání/odčítání lze provést "školním" způsobem $\mathcal{O}(n)$. Násobení "školním" způsobem $\mathcal{O}(n^2)$. Nicméně existuje rekurzivní algoritmus - **Karacubovo násobení** - který má složitost $\mathcal{O}(n^{\log_2 3}) \sim \mathcal{O}(n^{1.59})$.
 
 Podobně existuje **Strassenův algoritmus** pro násobení matic s časovou složitostí $\mathcal{O}(n^{\log_2 7}) \sim \mathcal{O}(n^{2.81})$.
+
+## 11. Třídy složitosti
+
+<div class="warning">
+
+Třídy složitosti jsou podmnožiny množiny všech (algoritmických) problémů.
+
+Daná konkrétní třída složitosti je vždy charakterizována nějakou vlastností,
+kterou mají problémy do ní patřící.
+
+</div>
+
+>Pro libovolnou funkci $f : \mathbb{N} \to \mathbb{N}$ definujeme třídu $\text{D}_{time}\big(f(n)\big)$, resp. $\text{D}_{space}\big(f(n)\big)$, jako třídu obsahující právě ty *rozhodovací* problémy, pro něž existuje algoritmus s časovou, resp. prostorovou, složitostí $\mathcal{O}(f(n))$.
+>
+> Dále definuje třídy složitosti pro *rozhodovací* problémy, pro které existuje algoritmus s polynomiální složitostí:
+> $$\begin{align*}\text{P}_{time} &= \bigcup\limits_{k\geq0}\text{D}_{time}(n^k)\\ \text{P}_{space} &=\bigcup\limits_{k\geq0}\text{D}_{space}(n^k)\end{align*}$$
+
+**Poznámka**: Za *rozumné* sekvenční výpočetní modely jsou považovány ty, které se umí vzájemně simulovat s Turingovými stroji tak, že doba výpočtu vzroste při takové simulaci nanejvýš *polynomiálně*.
+
+- Za *rozumné* považujeme varianty Turingových strojů, RAM stroje při použití logaritmické míry (závisí na počtu bitů hodnot, se kterými RAM stroj pracuje) a další.
+- Naopak např. Minského stroje nejsou považovány za *rozumné* (simulace Turingova stroje s exponenciální složitostí).
+
+> Řekneme, že třída složitosti je **robustní**, právě tehdy, když pro všechny *rozumné* sekvenční výpočetní modely obsahuje stejné problémy.
+
+Tzn. definice tříd $\text{P}_{time}$ a $\text{P}_{space}$ nezávisí na použitém *rozumném* výpočetním modelu.
+
+Analogicky definujeme třídy:
+
+- $\text{EXP}_{time}$ a $\text{EXP}_{space}$ pro problémy s exponenciální složitostí $2^{\mathcal{O}(n^k)}\Leftrightarrow \mathcal{O}(c^{n^k})$,
+- $\text{LOG}_{time}$ a $\text{LOG}_{space}$ pro problémy s logaritmickou složitostí $\mathcal{O}(\log n)$,
+- $\text{2-EXP}_{time}$ a $\text{2-EXP}_{space}$ pro problémy s exponenciální složitostí $2^{2^{\mathcal{O}(n^k)}}$,
+- $\text{ELEMENTARY}$ pro problémy se složitostí $2^{2^{2^{^{.^{.^{.^{2^{\mathcal{O}(n^k)}}}}}}}}$
+
+### 11.1. Vztahy mezi třídami složitosti
+
+Pokud Turingův stroj provede $m$ kroků, tak použije maximálně $m$ políček na pásce. Tzn. pokud existuje pro nějaký problém algoritmus s časovou složitostí $\mathcal{O}(f(n))$, tak má tento algoritmus prostorovou složitost (nejvýše) $\mathcal{O}(f(n))$.
+
+> Pro libovolnou funkci $f: \mathbb{N} \to \mathbb{N}$ platí $\text{D}_{time}\big(f(n)\big) \subseteq \text{D}_{space}\big(f(n)\big)$.
+
+Z toho plyne, že $\text{P}_{time} \subseteq \text{P}_{space}$ atd.
+
+Konfigurace libovolného stroje můžeme reprezentovat pomocí slova $w$ v nějaké abecedě $\Sigma$. Pro abecedu s počtem slov odpovídajícím počtu konfigurací stroje $|\Sigma|=c$ platí, že počet slov délky $n$ je $c^n$, tj. $2^{\Theta(n)}$. Během výpočtu korektního algoritmu se žádná konfigurace neopakuje, jinak by algoritmus běžel donekonečna. Tzn. pro algoritmus s prostorovou složitostí $\mathcal{O}(f(n))$ existuje $2^{\mathcal{O}(f(n))}$ konfigurací.
+
+> Pro libovolnou funkci $f: \mathbb{N} \to \mathbb{N}$ platí, že pokud je nějaký problém $P$ řešený algoritmem s prostorovou složitostí $O(f(n))$, pak časová složitost tohoto algoritmu je $2^{\mathcal{O}(f(n))}$.
+>
+> Pokud je tedy problém $P$ ve třídě $\text{D}_{space}(f(n))$, pak je i ve třídě $\text{D}_{time}(2^{c \cdot f(n)})$ pro nějaké $c > 0$
+
+$$
+\text{LOGSPACE} \subseteq \text{PTIME} \subseteq \text{PSPACE} \subseteq \text{EXPTIME} \subseteq \text{EXPSPACE} \subseteq \\
+2\text{-EXPTIME} \subseteq 2\text{-EXPSPACE} \subseteq \cdots \subseteq \text{ELEMENTARY}
+$$
+
+### 11.2. Horní a dolní odhady složitosti problémů
+
+**Horním odhadem složitosti** problému rozumíme to, že složitost problému není vyšší než nějaká uvedená. Např
+
+- Problém *dosažitelnosti v grafu* je v $\text{PTIME}$.
+- Problém *ekvivalence dvou regulárních výrazů* je v $\text{EXPSPACE}$.
+
+Pokud chceme zjistit nějaký horní odhad složitosti problému, stačí ukázat, že existuje algoritmus s danou složitostí.
+
+**Dolním odhadem složitosti** problému rozumíme to, že složitost problému je alespoň taková jako nějaká uvedená. Obecně je zjišťování (netriviálních) dolních odhadů složitosti problémů mnohem obtížnější než zjišťování horních odhadů. Pro odvození dolního odhadu musíme totiž ukázat, že **každý** algoritmus řešící daný problém má danou složitost.
+
+## 12. Nedeterminismus
+
+Řekneme, že algoritmus je **nedeterministický**, pokud v každém kroku může vybrat z několika možností, kterou instrukcí pokračovat.
+
+> Nedeterministický algoritmus dává pro daný vstup $x$ odpověď "Ano", právě tehdy, když existuje alespoň jeden jeho výpočet, který vede k odpovědi "Ano".
+
+<img src="figures/non-determinism.png" alt="non-determinism" width="350px">
+
+Například u jednopáskového Turingova stroje se bude deterministická a nedeterministická varianta lišit pouze v definici přechodové funkce $\delta$:
+
+- **Deterministická:** $\delta: (Q - F) \times \Gamma \to Q \times \Gamma \times \{-1, 0, +1\}$,
+- **Nedeterministická:** $\delta: (Q - F) \times \Gamma \to 2^{(Q \times \Gamma \times \{-1, 0, +1\})}$
+
+**Nedeterministický RAM stroj** má oproti deterministickému RAMu navíc instrukci
+$\boxed{\texttt{nd\_goto } s_1, s_2}$, která umožňuje RAM stroji vybrat si jedno z možných pokračování (návěstí).
+
+### 12.1. Nedeterministické třídy složitosti
+
+> Pro funkci $f: \mathbb{N} \to \mathbb{N}$ rozumíme třídou časové složitosti $\text{N}_{time}(f)$ množinu těch rozhodovacích problémů, které jsou řešeny nedeterministickými RAMy s časovou složitostí v $\mathcal{O}(f(n))$.
+>
+> Pro funkci $f: \mathbb{N} \to \mathbb{N}$ rozumíme třídou prostorové složitosti $\text{N}_{space}(f)$ množinu těch rozhodovacích problémů, které jsou řešeny nedeterministickými RAMy s prostorovou složitostí v $\mathcal{O}(f(n))$.
+>
+> $$\text{NP}_{time} = \bigcup\limits_{k\geq0}\text{N}_{time}(n^k)$$
+
+| Symbol       | Třída složitosti     |
+|--------------|----------------------|
+| $\text{LS}$      | $\text{LOG}_{\text{space}}$   |
+| $\text{NLS}$     | $\text{NLOG}_{space}$            |
+| $\text{PT}$      | $\text{P}_{time}$               |
+| $\text{NPT}$     | $\text{NP}_{time}$              |
+| $\text{EXPT}$    | $\text{EXP}_{time}$             |
+| $\text{NEXPT}$   | $\text{NEXP}_{time}$            |
+
+Zřejmě platí, že na deterministické algoritmu se můžeme dívat jako na speciální případ nedeterministických.
+
+$$
+\begin{align*}
+  \text{LS} &\subseteq \text{NLS}\\
+  \text{PT} &\subseteq \text{NPT}\\
+  \text{PS} &\subseteq \text{NPS}\\
+  \text{EXPT} &\subseteq \text{NEXPT}\\
+  \text{EXPS} &\subseteq \text{NEXPS}\\
+  &\,\,\,\vdots
+\end{align*}
+$$
+
+Navíc ani nedeterministický algoritmus nemůže použít řádově více buněk paměti něž kolik udělá kroků, tzn.
+
+$$
+\begin{align*}
+  \text{NPT} &\subseteq \text{NPS}\\
+  \text{NEXPT} &\subseteq \text{NEXPS}\\
+  &\,\,\,\vdots
+\end{align*}
+$$
+
+> Nedeterministický algoritmus s časovou složitostí $\mathcal{O}\big(f(n)\big)$ je možné simulovat deterministickým algoritmem s prostorovou složitostí $\mathcal{O}\big(f(n)\big)$.
+
+Myšlenka důkazu: Deterministický algoritmus bude procházet *strom výpočtů nedeterministického algoritmu do hloubky pomocí zásobníku*.
+
+Z toho plyne, že
+
+$$
+\begin{align*}
+  \text{NPT} &\subseteq \text{PS}\\
+  \text{NEXPT} &\subseteq \text{EXPS}\\
+  &\,\,\,\vdots
+\end{align*}
+$$
+
+Počet kroků nedeterministického algoritmu v rámci jedné větve výpočtu může být až $2^{\mathcal{O}(f(n))}$. Simulace všech větví deterministickým algoritmem by měla složitost $2^{2^{\mathcal{O}(f(n))}}$. Nicméně lze postupovat chytřeji, konkrétně vytvořit graf o $2^{\mathcal{O}(f(n))}$ vrcholech (pro všechny konfigurace) a orientovaných hranách (přechody mezi konfiguracemi). Poté lze vytvořit deterministický algoritmus, který bude procházet tento graf a hledat cestu z počáteční do koncové konfigurace, kdy výsledek je "Ano". Tento algoritmus bude mít složitost $2^{\mathcal{O}(f(n))}$. Tzn.:
+
+> Činnost **ne**deterministického algoritmu, jehož *prostorová* složitost je $\mathcal{O}(f(n))$, je možné simulovat deterministickým algoritmem, jehož *časová* složitost je $2^{\mathcal{O}(f(n))}$.
+
+Z toho plyne, že
+
+$$
+\begin{align*}
+  \text{NLS} &\subseteq \text{PT}\\
+  \text{NPS} &\subseteq \text{EXPT}\\
+  \text{NEXPS} &\subseteq \text{2-EXPT}\\
+  &\,\,\,\vdots
+\end{align*}
+$$
+
+> Věta (Savitch). Činnost **ne**deterministického algoritmu s *prostorovou* složitostí $\mathcal{O}\big(f(n)\big)$ je možné simulovat deterministickým algoritmem s *prostorovou* složitostí $\mathcal{O}\big(f(n)^2\big)$.
+
+Hierarchie tříd složitosti:
+
+$$
+\text{LS} \subseteq \text{NLS} \subseteq \text{PT} \subseteq \text{NPT} \subseteq \text{PS} = \text{NPS} \subseteq \text{EXPT} \subseteq \text{NEXPT} \subseteq \text{EXPS} = \text{NEXPS}
+$$
