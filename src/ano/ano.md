@@ -686,6 +686,10 @@ Používá vícekriteriální cenovou funkci - klasifikace a lokalizace.
 
 <img src="figures/fast-r-cnn.png" alt="fast-r-cnn" width="600px">
 
+- **RoI pooling** - z *feature mapy* adaptivně vybíráme oblasti.
+
+<img src="figures/roi-pooling.gif" alt="roi-pooling" width="400px">
+
 #### 3.7.4. Faster R-CNN
 
 Detektor Faster R-CNN přidává **Region Proposal Network (RPN)**, která generuje návrhy oblastí přímo v síti namísto použití externího algoritmu, jako jsou Edge Boxes nebo Selective Search. Síť RPN přijímá vstupní obrázek (libovolné velikosti) a vypisuje sadu návrhů ohraničujících obdélníků, z nichž každý má skóre objektovosti. Generování návrhů oblastí v síti je rychlejší než v případě selektivního vyhledávání nebo edge boxů.
@@ -694,7 +698,7 @@ Detektor Faster R-CNN přidává **Region Proposal Network (RPN)**, která gener
 
 #### 3.7.5. YOLO
 
-- You Only Look Once
+- [You Only Look Once](https://youtu.be/NM6lrxy0bxs?si=ev8P8-CTuAhVUVCI)
 - YOLO přistupuje k detekci objektů spíše jako k regresnímu problému (než ke klasifikaci).
 
 Naopak metody jako R-CNN přistupjí k problému detekce v několika krocích:
@@ -704,6 +708,18 @@ Naopak metody jako R-CNN přistupjí k problému detekce v několika krocích:
 3. Post-processing boxů (úprava bboxů, odstranění duplikátů)
 
 YOLO predikuje všechny bboxy najednou, globálně. Každý bbox má 5 hodnot: $x, y, w, h,$ a confidence.
+
+YOLOv1:
+
+<img src="figures/yolo-v1.png" alt="yolo-v1" width="600px">
+
+<img src="figures/yolo-loss.png" alt="yolo-loss" width="600px">
+
+- Celkový počet bboxů je $S\times B$:
+  - $S$...počet buněk (YOLOv1 $7\times7$)
+  - $B$...počet bboxů na buňku (YOLOv1 $B=2$)
+- $x,y$...souřadnice bboxů
+- $w,h$...šířka, výška bboxů
 
 ### 3.8. Sítě pro použití s časem
 
