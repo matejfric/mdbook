@@ -29,32 +29,37 @@ Motto: *"Safety, concurrency and speed."*
   - [7.1. Option](#71-option)
   - [7.2. Result](#72-result)
 - [8. Closures](#8-closures)
-- [9. Concurrency](#9-concurrency)
-- [10. Macros](#10-macros)
-- [11. Pattern Matching](#11-pattern-matching)
-  - [11.1. Irrefutable Patterns](#111-irrefutable-patterns)
-  - [11.2. Refutable Patterns](#112-refutable-patterns)
-- [12. Sound Code Principles](#12-sound-code-principles)
-  - [12.1. Newtype Design Pattern](#121-newtype-design-pattern)
-  - [12.2. Encapsulation](#122-encapsulation)
-  - [12.3. Product Types and Sum Types](#123-product-types-and-sum-types)
-  - [12.4. Typestate Design Pattern](#124-typestate-design-pattern)
-  - [12.5. Copy on write (COW)](#125-copy-on-write-cow)
-- [13. Memory Safety Principles](#13-memory-safety-principles)
-  - [13.1. Ownership](#131-ownership)
-  - [13.2. Borrowing](#132-borrowing)
-  - [13.3. Lifetimes](#133-lifetimes)
-- [14. Traits](#14-traits)
-  - [14.1. Binary Relations](#141-binary-relations)
-  - [14.2. Trade-offs of Traits and Enums](#142-trade-offs-of-traits-and-enums)
-- [15. Heap](#15-heap)
-- [16. Reference Counting](#16-reference-counting)
-- [17. Interior Mutability](#17-interior-mutability)
-- [18. Closure](#18-closure)
-- [19. Macros](#19-macros)
-  - [19.1. Declarative Macros](#191-declarative-macros)
-  - [19.2. Procedural Macros](#192-procedural-macros)
-- [20. Crates](#20-crates)
+- [9. Pattern Matching](#9-pattern-matching)
+  - [9.1. Irrefutable Patterns](#91-irrefutable-patterns)
+  - [9.2. Refutable Patterns](#92-refutable-patterns)
+- [10. Sound Code Principles](#10-sound-code-principles)
+  - [10.1. Newtype Design Pattern](#101-newtype-design-pattern)
+  - [10.2. Encapsulation](#102-encapsulation)
+  - [10.3. Product Types and Sum Types](#103-product-types-and-sum-types)
+  - [10.4. Typestate Design Pattern](#104-typestate-design-pattern)
+  - [10.5. Copy on write (COW)](#105-copy-on-write-cow)
+- [11. Memory Safety Principles](#11-memory-safety-principles)
+  - [11.1. Ownership](#111-ownership)
+  - [11.2. Borrowing](#112-borrowing)
+  - [11.3. Lifetimes](#113-lifetimes)
+- [12. Traits](#12-traits)
+  - [12.1. Binary Relations](#121-binary-relations)
+  - [12.2. Trade-offs of Traits and Enums](#122-trade-offs-of-traits-and-enums)
+- [13. Heap](#13-heap)
+- [14. Reference Counting](#14-reference-counting)
+- [15. Interior Mutability](#15-interior-mutability)
+- [16. Closure](#16-closure)
+- [17. Macros](#17-macros)
+  - [17.1. Declarative Macros](#171-declarative-macros)
+  - [17.2. Procedural Macros](#172-procedural-macros)
+- [18. Parallelism](#18-parallelism)
+  - [18.1. Communication by State Sharing (Mutexes)](#181-communication-by-state-sharing-mutexes)
+    - [18.1.1. Mutex Example](#1811-mutex-example)
+    - [18.1.2. Read Write Lock Example](#1812-read-write-lock-example)
+    - [18.1.3. Deadlock Example](#1813-deadlock-example)
+  - [18.2. Share State by Communicating (Channels)](#182-share-state-by-communicating-channels)
+    - [18.2.1. Multi-Producer, Single-Consumer (MPSC) Channel](#1821-multi-producer-single-consumer-mpsc-channel)
+- [19. Crates](#19-crates)
 
 ## 1. Cargo
 
@@ -464,30 +469,9 @@ v.iter()
  .filter(|x| (*x) > 10)
 ```
 
-## 9. Concurrency
+## 9. Pattern Matching
 
-```rust
-use std::thread;
-
-fn main() {
-    let handle = thread::spawn(|| {
-        // closure - "main function of the thread"
-    });
-
-    // do stuff simultaneously in the main thread
-
-    // barrier (wait for the thread)
-    handle.join().unwrap();
-}
-```
-
-## 10. Macros
-
-- Macros are inlined in compile time, i.e., a macro is replaced with the code defined in the macro.
-
-## 11. Pattern Matching
-
-### 11.1. Irrefutable Patterns
+### 9.1. Irrefutable Patterns
 
 - Must always match.
 
@@ -531,7 +515,7 @@ fn main() {
 }
 ```
 
-### 11.2. Refutable Patterns
+### 9.2. Refutable Patterns
 
 - May not match.
 - `if let <pattern> = <expression> { /* do stuff */ }`
@@ -595,9 +579,9 @@ match my_tuple {
 }
 ```
 
-## 12. Sound Code Principles
+## 10. Sound Code Principles
 
-### 12.1. Newtype Design Pattern
+### 10.1. Newtype Design Pattern
 
 What's wrong in this snippet?
 
@@ -667,7 +651,7 @@ impl Days {
 }
 ```
 
-### 12.2. Encapsulation
+### 10.2. Encapsulation
 
 - Implementation hiding.
 - Invariants that cannot be affected from outside of a module.
@@ -693,7 +677,7 @@ fn main() {
 }
 ```
 
-### 12.3. Product Types and Sum Types
+### 10.3. Product Types and Sum Types
 
 - Typically `struct` is a *product type* and `enum` is a *sum type*.
 
@@ -714,7 +698,7 @@ enum ComputerState {
 }
 ```
 
-### 12.4. Typestate Design Pattern
+### 10.4. Typestate Design Pattern
 
 ```rust
 struct RequestBuilder;
@@ -787,7 +771,7 @@ Key Points:
 3. Calling either `http_auth` or `token_auth` transitions the builder to the appropriate state.
 4. The `build` method is only available when the builder is in a valid state, such as `HttpAuth` or `TokenAuth`.
 
-### 12.5. Copy on write (COW)
+### 10.5. Copy on write (COW)
 
 ```rust
 use std::borrow::Cow;
@@ -828,7 +812,7 @@ fn main() {
 }
 ```
 
-## 13. Memory Safety Principles
+## 11. Memory Safety Principles
 
 Memory errors:
 
@@ -859,7 +843,7 @@ Rust solution:
 
 </div>
 
-### 13.1. Ownership
+### 11.1. Ownership
 
 <div class="warning">
 
@@ -868,16 +852,16 @@ Rust solution:
 
 </div>
 
-### 13.2. Borrowing
+### 11.2. Borrowing
 
 - **Immutable/shared** reference: `&T` (multiple at a time)
 - **Mutable/unique** reference: `&mut T` (only one at a time)
 
-### 13.3. Lifetimes
+### 11.3. Lifetimes
 
 <img src="figures/lifetimes.png" alt="lifetimes" width="350px">
 
-## 14. Traits
+## 12. Traits
 
 - Similar to interfaces in other languages.
 
@@ -954,7 +938,7 @@ fn main() {
 
 Dynamic dispatch is necessary, because the actual implementation is determined at runtime. Compiler doesn't know the *actual type and size* of the object at compile time; therefore, the code cannot be "statically generated" at compile time. Instead, **VTABLE** is used to look up the actual implementation at runtime.
 
-### 14.1. Binary Relations
+### 12.1. Binary Relations
 
 ```rust
 use std::cmp::{PartialEq, Eq, PartialOrd, Ord};
@@ -984,13 +968,13 @@ fn main() {
 - `PartialEq` is symmetric and transitive.
 - Similarly for `Ord` and `PartialOrd`.
 
-### 14.2. Trade-offs of Traits and Enums
+### 12.2. Trade-offs of Traits and Enums
 
 When we have a **fixed** set of types, we can use an `enum`. If we need to add a **new type**, we have to update all the places where the enum is used. Static dispatch.
 
 When we have a **variable** set of types, we can use a `trait`. If we need to add a new type, we only need to implement the trait for the new type. However, if we need to add a **new behavior** (method), we have to update all types that implement the trait. Dynamic dispatch.
 
-## 15. Heap
+## 13. Heap
 
 How to add something to heap?
 
@@ -1000,7 +984,7 @@ let x = Box::new(42);
 
 Either large objects or objects with unknown size (e.g., recursive data structures).
 
-## 16. Reference Counting
+## 14. Reference Counting
 
 One object can have multiple owners, when the object is dropped, the reference count is decremented. When the reference count reaches zero, the object is dropped. We cannot mutate the object, because it is shared (aliasing + mutability rule).
 
@@ -1045,7 +1029,7 @@ std::mem::drop(facility_two);
 println!("Facility one after drop {:?}", facility_one);
 ```
 
-## 17. Interior Mutability
+## 15. Interior Mutability
 
 ```rust
 use std::cell::Cell;
@@ -1072,7 +1056,7 @@ A `Cell` is a container that allows for modifying its value, even when accessed 
 
 In contrast, a `RefCell` doesn't require the type to implement `Copy`. Instead, it shifts the responsibility for enforcing aliasing and mutability rules to runtime. If these rules are violated, the program will panic.
 
-## 18. Closure
+## 16. Closure
 
 - `FnMut` - may mutably borrow a value.
 - `FnOnce` - may consumes a value; therefore cannot be called more than once.
@@ -1102,9 +1086,11 @@ fn main() {
 }
 ```
 
-## 19. Macros
+## 17. Macros
 
-### 19.1. Declarative Macros
+- Macros are inlined in compile time, i.e., a macro is replaced with the code defined in the macro.
+
+### 17.1. Declarative Macros
 
 ```rust
 macro_rules! my_macro {
@@ -1132,7 +1118,7 @@ foo();
 
 Macros can take variadic arguments.
 
-### 19.2. Procedural Macros
+### 17.2. Procedural Macros
 
 Must be defined in a separate crate.
 
@@ -1184,7 +1170,128 @@ pub fn derive_whats_my_name(stream: TokenStream) -> TokenStream {
 
 For example `#[derive(Debug)]` is a procedural macro.
 
-## 20. Crates
+## 18. Parallelism
+
+<div class="warning">
+
+What is a **data race**? Two or more threads access the same memory location at the same time, at least one of them is writing, and the threads are not using synchronization to control their access. But this is aliasing + mutability! Rust prevents this by design!
+
+</div>
+
+Unfortunatelly, Rust does not prevent **deadlocks** (one would need to solve the halting problem). Deadlocks occur when two or more threads are waiting for each other to release a resource. Additionally, **race conditions** can occur when the outcome of a program depends on the order of execution of threads.
+
+### 18.1. Communication by State Sharing (Mutexes)
+
+```rust
+use std::thread;
+
+fn main() {
+    let handle = thread::spawn(|| {
+        // closure - "main function of the thread"
+        42 // return value
+    });
+
+    // do stuff simultaneously in the main thread
+
+    // barrier (wait for the thread)
+    let value = handle.join().unwrap();
+}
+```
+
+- `Arc` - atomic reference counting (atomic `Rc`)
+- `Send`
+- `Sync` - iff `&T Send` (access `T` from a shared reference)
+
+For example `Arc<Cell::new(42)>` is `Send` but not `Sync`.
+
+- `Mutex` - mutual exclusion
+- `RwLock` - read-write lock (multiple readers, single writer), similar to `RefCell` (when one thread wants to write, it blocks all other threads from reading or writing)
+
+|        | Send              | !Send        |
+|--------|-------------------|--------------|
+| Sync   | Most types        | MutexGuard   |
+| !Sync  | `RefCell`, `Cell` | `Rc<T>`      |
+
+#### 18.1.1. Mutex Example
+
+```rust
+use std::sync::{Arc, Mutex};
+use std::thread;
+
+fn main() {
+    let value = Arc::new(Mutex::new(vec![1, 2, 3]));
+    let value2 = value.clone();
+
+    let handle = thread::spawn(move || {
+        // Unlocks when out of scope (mutex implements Drop and Deref)
+        value.lock().unwrap().push(42);
+        println!("Hello from thread: {:?}", value.lock().unwrap());
+    });
+
+    println!("Hello from main thread: {:?}", value2.lock().unwrap());
+    handle.join().unwrap();
+}
+```
+
+#### 18.1.2. Read Write Lock Example
+
+```rust
+use std::sync::{Arc, RwLock};
+use std::thread;
+
+fn main() {
+    let value = Arc::new(RwLock::new(vec![1, 2, 3]));
+    let value2 = value.clone();
+
+    let handle = thread::spawn(move || {
+        // Deadlock example - holding the write guard when trying to get the read guard
+        // let mut guard = value.write().unwrap();
+        // guard.push(42);
+        
+        // Solution - use scoped lock
+        {
+            let mut guard = value.write().unwrap();
+            guard.push(42);
+        } // Write lock is released here
+
+        println!("Hello from thread: {:?}", value.read().unwrap());
+    });
+
+    println!("Hello from main thread: {:?}", value2.read().unwrap());
+    handle.join().unwrap();
+}
+```
+
+#### 18.1.3. Deadlock Example
+
+```rust
+use std::sync::Mutex;
+
+fn drop_late(m: &Mutex<Option<u32>>) {
+    if let Some(v) = m.lock().unwrap().as_ref() {
+        println!("The Option contains a value {v}!");
+        // Deadlock (attempts to acquire a second lock on the same mutex)
+        m.lock().unwrap();
+    }
+}
+```
+
+### 18.2. Share State by Communicating (Channels)
+
+#### 18.2.1. Multi-Producer, Single-Consumer (MPSC) Channel
+
+```rust
+use std::sync::mpsc;
+
+let (tx, rx) = mpsc::channel(); // unbounded channel (infinite buffer, may crash on OOM)
+let (tx, rx) = mpsc::sync_channel(10); // bounded channel
+```
+
+Receiving end `rx` returns `Err` when all senders are dropped. Otherwise, it returns `Ok`.
+
+Crate `loom` for testing concurrent code. It runs the code multiple times with different thread interleavings.
+
+## 19. Crates
 
 - `serde` - serialization and deserialization
 - `rand` - random number generation
