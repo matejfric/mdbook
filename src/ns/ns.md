@@ -120,7 +120,10 @@
 - [12. Vizualizace](#12-vizualizace-1)
   - [12.1. Quasi-Clique](#121-quasi-clique)
   - [12.2. Kliky ve vícevrstvých sítích](#122-kliky-ve-vícevrstvých-sítích)
-- [13. Miscellaneous](#13-miscellaneous)
+- [13. Šíření informací v sítích (Information Spreading)](#13-šíření-informací-v-sítích-information-spreading)
+  - [13.1. Susceptible-Infected (SI) model](#131-susceptible-infected-si-model)
+  - [13.2. Nezávislý kaskádový model šíření (Independent Cascade Model)](#132-nezávislý-kaskádový-model-šíření-independent-cascade-model)
+- [14. Miscellaneous](#14-miscellaneous)
 
 ## 1. Základní pojmy
 
@@ -1044,6 +1047,28 @@ Buď $L$ množina vrstev. **Vícevrstvá klika** je množina aktérů propojený
 
 **Vícevrstvá kvaziklika** je množina aktérů, kde je každý aktér spojen s alespoň zlomkem $\gamma$ ostatních aktérů v kvazikliku na alespoň zlomku $\lambda$ vrstev tvořících vícevrstvou síť.
 
-## 13. Miscellaneous
+## 13. Šíření informací v sítích (Information Spreading)
+
+### 13.1. Susceptible-Infected (SI) model
+
+- Aktéři jsou ve dvou stavech: zdravý (susceptible) a nemocný/infekční (infected).
+- Míra infekce $\beta\in\langle0,1\rangle$ je pravděpodobnost nakažení v čase $t$.
+
+### 13.2. Nezávislý kaskádový model šíření (Independent Cascade Model)
+
+- Začneme s počáteční neprázdnou množinou aktivních vrcholů.
+- Buď $p$ pravděpodobnost.
+
+1. Když se uzel poprvé stane aktivním, tak má pravděpodobnost $p$ aktivovat každého ze svých neaktivních sousedů.
+2. Aktivovaní sousedé se stávají aktivními v čase $t+1$. Vrchol, který byl aktivní už nemůže být znova aktivován a nemůžu znova aktivovat svoje sousedy.
+3. Opakujeme, dokud není možná žádná další aktivace (neexistují žádné aktivní vrcholy).
+
+Nakonec spočítáme, kolik vrcholů bylo aktivováno. Opakujeme pro všechny vrcholy a statisticky vyhodnotíme ($\mu$, $\sigma$).
+
+Maximalizace vlivu - nalezení optimální skupiny je NP-úplný problém.
+
+Obvykle platí, že jen několik málo vybraných influencerů (2-4) pokryje svým vlivem potřebnou část zkoumané části sítě (ve smyslu optimálníhoho poměru cena-výkon)
+
+## 14. Miscellaneous
 
 **Asortativita** znamená, že vrcholy s podobnými vlastnostmi jsou spojeny častěji než vrcholy s různými vlastnostmi (např. bohatí s bohatými atd.).
