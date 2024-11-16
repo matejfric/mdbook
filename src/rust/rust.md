@@ -59,7 +59,10 @@ Motto: *"Safety, concurrency and speed."*
     - [18.1.3. Deadlock Example](#1813-deadlock-example)
   - [18.2. Share State by Communicating (Channels)](#182-share-state-by-communicating-channels)
     - [18.2.1. Multi-Producer, Single-Consumer (MPSC) Channel](#1821-multi-producer-single-consumer-mpsc-channel)
-- [19. Crates](#19-crates)
+- [19. Networking](#19-networking)
+- [20. Logging](#20-logging)
+- [21. Command Line Arguments](#21-command-line-arguments)
+- [22. Crates](#22-crates)
 
 ## 1. Cargo
 
@@ -1291,7 +1294,61 @@ Receiving end `rx` returns `Err` when all senders are dropped. Otherwise, it ret
 
 Crate `loom` for testing concurrent code. It runs the code multiple times with different thread interleavings.
 
-## 19. Crates
+## 19. Networking
+
+TCP/IP is a stream-oriented protocol, i.e., it does not preserve message boundaries. Therefore, we need to implement a protocol on top of TCP/IP to preserve message boundaries.
+
+```txt
+C: Hello\n -->
+S: Hel | lo\n (message may be split)
+```
+
+Server uses a buffer to store incoming data until a complete (delimited) message is received.
+
+## 20. Logging
+
+- `log` - logging facade
+- `env_logger` - logger implementation
+
+```rust
+use std::io::Write;
+
+fn main() {
+    env_logger::init();  // stderr by default
+    log::info!("Hello, world!");
+}
+```
+
+```bash
+# Set the log level
+RUST_LOG=info cargo run
+```
+
+## 21. Command Line Arguments
+
+- `clap` - command line argument parsing
+
+```rust
+use clap::Parser;
+
+#[derive(clap::Parser)]
+struct Args {
+    #[arg(long, default_value_t = 5555)]
+    port: u16,
+}
+
+fn main() {
+    let args = Args::parse();
+    println!("Port: {}", args.port);
+}
+```
+
+```bash
+cargo add clap --features derive
+cargo run -- --port 8080
+```
+
+## 22. Crates
 
 - `serde` - serialization and deserialization
 - `rand` - random number generation
