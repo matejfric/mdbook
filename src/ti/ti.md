@@ -13,6 +13,7 @@
     - [1.5.1. Church-Turingova teze](#151-church-turingova-teze)
     - [1.5.2. Binární Turingův stroj](#152-binární-turingův-stroj)
     - [1.5.3. Turingovsky úplné jazyky](#153-turingovsky-úplné-jazyky)
+    - [1.5.4. Simulace mezi variantami Turingových strojů](#154-simulace-mezi-variantami-turingových-strojů)
   - [1.6. Stroj RAM](#16-stroj-ram)
   - [1.7. Graf řídícího toku](#17-graf-řídícího-toku)
   - [1.8. Minského stroj](#18-minského-stroj)
@@ -41,6 +42,12 @@
 - [7. NP-úplnost](#7-np-úplnost)
   - [7.1. SAT problém](#71-sat-problém)
 
+**Teoretická informatika** je vědní obor na pomezí mezi matematikou a informatikou. Zkoumá
+
+- obecné otázky týkající se algoritmů,
+- formalismy pro popis algoritmů,
+- syntaxe a sémantika formálních jazyků a další.
+
 **Algoritmus** — mechanický postup, jak něco spočítat. Algoritmy slouží k řešení různých problémů. Konkrétní vstup nějakého problému se nazývá **instance** problému.
 
 V zadání problému musí být určeno:
@@ -51,7 +58,12 @@ V zadání problému musí být určeno:
 
 <div class="warning">
 
-Algoritmický problém je trojice (`IN`, `OUT` a `R`), kde `IN` je množina možných vstupů, `OUT` je množina možných výstupů a `R` je relace mezi vstupy a výstupy.
+Algoritmický problém je trojice $(\text{IN}$, $\text{OUT}$ a $R)$, kde
+
+- $\text{IN}$ je množina možných vstupů,
+- $\text{OUT}$ je množina možných výstupů
+- a $R$ $\subseteq$ $\text{IN}$ $\times$ $\text{OUT}$ je relace přiřazující každému vstupu možné odpovídající výstupy.
+    $$(\forall x \in \text{IN})(\exists y\in\text{OUT}):R(x,y)$$
 
 </div>
 
@@ -63,8 +75,8 @@ Problém je **řešitelný** právě tehdy, když existuje algoritmus, který pr
 
 Algoritmus **řeší** daný problém, pokud:
 
-1. Se pro každý vstup po konečném počtu kroků zastaví.
-2. Pro každý vstup vydá správný výstup.
+1. Se pro *každý vstup* po *konečném* počtu kroků *zastaví*.
+2. Pro *každý vstup* vydá *správný výstup*.
 
 **Korektnost algoritmu** — ověření toho, že daný algoritmus skutečně řeší daný problém.
 
@@ -82,7 +94,21 @@ Algoritmus **řeší** daný problém, pokud:
 >
 > $L^+=L\cdot L^* = \bigcup\limits_{k\geq1}L^k$
 
+U algoritmických problémů často předpokládáme, že vstupy i výstupy jsou kódovány slovy z nějaké abecedy.
+
+Např. pro popis grafu můžeme kódovat seznam vrcholů a hran.
+
+$$(1,2,3,4,5),((1,2),(2,4),(4,3),(3,1),(2,5),(4,5))$$
+
 ## 1. Výpočetní modely
+
+**Konfigurace** je popis stavu stroje v nějakém okamžiku výpočtu.
+
+Výpočet stroje $M$, provádějícího algoritmus `Alg`, kde zpracovává vstup $w$, je **posloupnost konfigurací**.
+
+- Začíná se v *počáteční konfiguraci*.
+- Každým krokem stroj přechází z jedné konfigurace do další.
+- Výpočet končí v *koncové konfiguraci*.
 
 ### 1.1. Automaty
 
@@ -218,6 +244,10 @@ Příklad *přechodové funkce*: $\boxed{\delta(q_1, b)=(q_2,x,+1)}$. Jsem ve st
 - $w$ je obsah pásky (resp. pásek) a
 - $i$ je pozice hlavy (resp. hlav) na pásce.
 
+Jazyk $L\subseteq\Sigma^*$ je TM **přijímán** $\iff$ $\forall w\in L$ existuje posloupnost konfigurací, která končí v koncovém stavu $q_{acc}$. (Výpočet nad slovy mimo $L$ může být nekonečný nebo může skončit ve stavu $q_{rej}$).
+
+Jazyk $L\subseteq\Sigma^*$ je TM **rozpoznán** $\iff$ $\forall w\in L \Rightarrow q_{acc} \,\,\wedge\,\, \forall w\in \{\Sigma^* \setminus L\} \Rightarrow q_{rej}$.
+
 #### 1.5.1. Church-Turingova teze
 
 > Každý algoritmus lze realizovat Turingovým strojem.
@@ -238,11 +268,21 @@ Převod problému:
 
 - Binární Turingův stroj pracuje s omezenou páskovou abecedou $\Gamma = \{0, 1, \square\}$.
 - Reprezentuje všechny Turingovy stroje, protože každý Turingův stroj s libovolnou abecedou lze lze simulovat binárním Turingůvým strojem.
-- Symboly libovolné abecedy můžeme zakódovat řetězci $0$ a $1$ s pevnou délkou.
+- Symboly libovolné abecedy můžeme zakódovat řetězci $0$ a $1$ s *pevnou* délkou.
 
 #### 1.5.3. Turingovsky úplné jazyky
 
 Jazykům (resp. strojům), které jsou dostatečně obecné na to, aby se do nich (resp. do jejich instrukcí) daly přeložit programy napsané v libovolném jiném programovacím jazyce, se říká **Turingovsky úplné**.
+
+#### 1.5.4. Simulace mezi variantami Turingových strojů
+
+<img src="figures/tm-one-sided-tape.gif" alt="tm-one-sided-tap" width="450px">
+
+<img src="figures/tm-binary.png" alt="tm-binary" width="450px">
+
+<img src="figures/tm-multiple-heads.png" alt="tm-multiple-heads" width="450px">
+
+<img src="figures/tm-multiple-tapes.png" alt="tm-multiple-tapes" width="450px">
 
 ### 1.6. Stroj RAM
 
@@ -256,7 +296,8 @@ Jazykům (resp. strojům), které jsou dostatečně obecné na to, aby se do nic
 - **Vstupní páska** – z ní je možné pouze číst.
 - **Výstupní páska** – na ni je možné pouze zapisovat.
 
-<img src="figures/ram.png" alt="ram" width="500px">
+<img src="figures/ram.png" alt="ram" width="450px">
+<img src="figures/ram-instructions.png" alt="ram-instructions" width="450px">
 
 **Konfigurace stroje RAM** je dána:
 
@@ -311,6 +352,8 @@ Minského stroj je stroj, který má **konečnou řídící jednotku** a **kone�
 - pokud je hodnota čítače větší než 0, snížit tuto hodnotu o 1, tj. `x -= 1`,
 - testovat, zda je hodnota čítače rovna 0, a na základě toho provést větvení programu, tj. `if x = 0 then goto L`
 
+Navíc má Minského stroj operaci nepodmíněného skoku `goto L` a operaci zastevení `halt`.
+
 **Konfigurace Minského stroje** je dána:
 
 - stavem řídící jednotky a
@@ -354,7 +397,11 @@ Minského stroj je stroj, který má **konečnou řídící jednotku** a **kone�
    - Postupně odečítáme $k$, dokud není $A < k$.
    - Pokud $A = 0$, číslo bylo dělitelné.
 
+Obdobně lze simulovat *libovolný konečný počet čítačů* pomocí dvou čítačů.
+
 </details>
+
+Platí, že činnost Turingova stroje lze simulovat Minským strojem se dvěma čítači.
 
 ## 2. Rozhodovací problémy
 
