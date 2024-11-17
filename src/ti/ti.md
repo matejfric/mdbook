@@ -11,7 +11,8 @@
   - [1.4. Chomského hierarchie](#14-chomského-hierarchie)
   - [1.5. Turingův stroj](#15-turingův-stroj)
     - [1.5.1. Church-Turingova teze](#151-church-turingova-teze)
-    - [1.5.2. Turingovsky úplné jazyky](#152-turingovsky-úplné-jazyky)
+    - [1.5.2. Binární Turingův stroj](#152-binární-turingův-stroj)
+    - [1.5.3. Turingovsky úplné jazyky](#153-turingovsky-úplné-jazyky)
   - [1.6. Stroj RAM](#16-stroj-ram)
   - [1.7. Graf řídícího toku](#17-graf-řídícího-toku)
   - [1.8. Minského stroj](#18-minského-stroj)
@@ -21,6 +22,8 @@
     - [2.1.2. Kachličkování roviny](#212-kachličkování-roviny)
   - [2.2. Částečně rozhodnutelné problémy](#22-částečně-rozhodnutelné-problémy)
   - [2.3. Doplňkové problémy](#23-doplňkové-problémy)
+  - [2.4. Postova věta](#24-postova-věta)
+  - [2.5. Riceova věta](#25-riceova-věta)
 - [3. Převody mezi problémy](#3-převody-mezi-problémy)
 - [4. Složitost algoritmů](#4-složitost-algoritmů)
   - [4.1. Turingův stroj](#41-turingův-stroj)
@@ -231,7 +234,13 @@ Převod problému:
 
 </div>
 
-#### 1.5.2. Turingovsky úplné jazyky
+#### 1.5.2. Binární Turingův stroj
+
+- Binární Turingův stroj pracuje s omezenou páskovou abecedou $\Gamma = \{0, 1, \square\}$.
+- Reprezentuje všechny Turingovy stroje, protože každý Turingův stroj s libovolnou abecedou lze lze simulovat binárním Turingůvým strojem.
+- Symboly libovolné abecedy můžeme zakódovat řetězci $0$ a $1$ s pevnou délkou.
+
+#### 1.5.3. Turingovsky úplné jazyky
 
 Jazykům (resp. strojům), které jsou dostatečně obecné na to, aby se do nich (resp. do jejich instrukcí) daly přeložit programy napsané v libovolném jiném programovacím jazyce, se říká **Turingovsky úplné**.
 
@@ -255,6 +264,38 @@ Jazykům (resp. strojům), které jsou dostatečně obecné na to, aby se do nic
 - obsahem vstupní a výstupní pásky a
 - pozicemi čtecí a zapisovací hlavy.
 
+<details><summary> Řešený příklad </summary>
+
+```ram
+    R3 := 4
+    R1 := READ()  // vstup 8
+    R2 := R3
+    R0 := 1
+L1: [R2] := R0
+    R2 := R2 + 1
+    if (R1 <= 0) goto L2
+    R1 := R1 - 1
+    R0 := R0 + R0
+    R0 := R0 + 1
+    goto L1
+L2: if (R2 = R3) goto L3
+    R2 := R2 - 1
+    R0 := [R2]
+    WRITE(R0)
+    goto L2
+L3: halt
+```
+
+<details><summary> Řešení </summary>
+
+<img src="figures/ram-solved-example.jpg" alt="ram-solved-example" width="500px">
+
+Tento RAM stroj vytvoří sekvenci $2^{n+1}-1, 2^{n}-1,\dots,2^{1}-1$.
+
+</details>
+
+</details>
+
 ### 1.7. Graf řídícího toku
 
 Konfigurace grafu řídícího toku je dána:
@@ -264,10 +305,56 @@ Konfigurace grafu řídícího toku je dána:
 
 ### 1.8. Minského stroj
 
-Konfigurace Minského stroje je dána:
+Minského stroj je stroj, který má **konečnou řídící jednotku** a **konečný počet čítačů**. Každý z čítačů může obsahovat jako svou hodnotu **libovolně velké přirozené číslo**. S těmito čítači může stroj provádět pouze následující operace:
+
+- zvýšit hodnotu čítače o 1, tj. `x += 1`,
+- pokud je hodnota čítače větší než 0, snížit tuto hodnotu o 1, tj. `x -= 1`,
+- testovat, zda je hodnota čítače rovna 0, a na základě toho provést větvení programu, tj. `if x = 0 then goto L`
+
+**Konfigurace Minského stroje** je dána:
 
 - stavem řídící jednotky a
 - hodnotami všech čítačů.
+
+<details><summary> Simulace Minského stroje s 5 čítači pomocí Minského stroje se 2 čítači </summary>
+
+1. **Prvočíselné kódování**, kde hodnoty 5 čítačů (označme je jako $x_1,x_2,\dots,x_5$) zakódujeme do jednoho čísla $N$ pomocí vzorce:
+   $$N = 2^{x_1} \cdot 3^{x_2} \cdot 5^{x_3} \cdot 7^{x_4} \cdot 11^{x_5}$$
+
+2. Pro zvýšení hodnoty $i$-tého čítače musíme vynásobit $N$ příslušným prvočíslem $p_i$:
+   - Pro čítač 1: $N := N \cdot 2$
+   - Pro čítač 2: $N := N \cdot 3$
+   - Pro čítač 3: $N := N \cdot 5$
+   - Pro čítač 4: $N := N \cdot 7$
+   - Pro čítač 5: $N := N \cdot 11$
+
+3. Pro snížení hodnoty $i$-tého čítače musíme vydělit $N$ příslušným prvočíslem $p_i$:
+   - Pro čítač 1: $N := N / 2$
+   - Pro čítač 2: $N := N / 3$
+   - Pro čítač 3: $N := N / 5$
+   - Pro čítač 4: $N := N / 7$
+   - Pro čítač 5: $N := N / 11$
+
+4. Pro test i-tého čítače na nulu musíme:
+   1. Opakovaně dělit $N$ příslušným prvočíslem.
+   2. Pokud již není dělitelné, zbytek po dělení nám řekne, zda je čítač nulový.
+
+5. Použití dvou čítačů:
+   - První čítač $A$ používáme pro uchování aktuální hodnoty $N$.
+   - Druhý čítač $B$ používáme jako pomocný pro realizaci násobení a dělení.
+
+6. Násobení číslem $k$:
+   - Opakuj k-krát: $A := A + B$
+
+7. Dělení číslem $k$:
+   - Pomocí $B$ počítáme, kolikrát se k vejde do $A$.
+   - Zbytek zůstane v $A$.
+
+8. Test dělitelnosti:
+   - Postupně odečítáme $k$, dokud není $A < k$.
+   - Pokud $A = 0$, číslo bylo dělitelné.
+
+</details>
 
 ## 2. Rozhodovací problémy
 
@@ -282,13 +369,16 @@ Lze dokázat, že halting problem je *nerozhodnutelný*, ale je *částečně ro
 
 <details><summary> Důkaz, že Halting problem je nerozhodnutelný </summary>
 
-Předpokládejme, že existuje Turingův stroj $A$, který řeší Halting problem. Dále definujme nový Turingův stroj $B$, který příjímá vstup $x$ a simuluje běh $A$ na vstupu $x$. Pokud se $A$ zastaví, tak $B$ se zastaví a naopak. Tedy $B$ řeší Halting problem, což je spor.
+Pozn. značením $\text{Kod}(M)$ rozumíme kód Turingova stroje $M$ v abecedě $\{0,1\}^*$. (Seznam instrukcí a stavy můžeme zakódovat do jednoho řetězce.)
 
-Co se stane, pokud $B$ dostane na vstup $\langle B \rangle$
+Předpokládejme, že existuje Turingův stroj $A$, který řeší Halting problem. Dále definujme nový Turingův stroj $\overline{A}$, který příjímá vstup $x=\{0,1\}^*$ a simuluje běh $A$ na vstupu $x$. Pokud se $A$ zastaví, tak $\overline{A}$ se zacyklí a naopak.
 
-Tzn. pro každý algoritmus $A$ a vstup $x$ vždy správně rozhodne, zda $A$ se zastaví pro vstup $x$.
+Co se stane, když na vstup $\overline{A}$ dáme $\text{Kod}(\overline{A})$?
 
-TODO
+1. $A$ skončí ve stavu **Ano** a $\overline{A}$ se zacyklí.
+2. $A$ skončí ve stavu **Ne** a $\overline{A}$ odpoví **Ano**.
+
+To je spor, že $A$ řeší HP (tzn. že by $A$ mělo vždy pravdu).
 
 </details>
 
@@ -311,6 +401,8 @@ Rozhodovací problém $P$ je částečně rozhodnutelný, jestliže existuje alg
 
 > Doplňkový problém k danému rozhodovacímu problému $P$ je problém, kde vstupy jsou stejné jako u problému $P$ a otázka je negací otázky z problému $P$.
 
+Pokud je problém $P$ nerozhodnutelný, tak je nerozhodnutelný i jeho doplňkový problém $\overline{P}$.
+
 <details><summary> Doplňkový problém k Halting problému: </summary>
 
 - **Vstup:** Zdrojový kód programu $P$ v jazyce $L$, vstupní data $x$.
@@ -325,9 +417,29 @@ Rozhodovací problém $P$ je částečně rozhodnutelný, jestliže existuje alg
 
 </details>
 
-> **Postova věta**
->
-> Pro každý *rozhodovací* problém $P$ platí, že jestliže problém $P$ i jeho doplňkový problém $\overline{P}$ jsou *částečně rozhodnutelné*, pak je problém $P$ *rozhodnutelný*.
+### 2.4. Postova věta
+
+> *Rozhodovací* problém $P$ je rozhodnutelný právě tehdy, když $P$ i $\overline{P}$ jsou *částečně rozhodnutelné*.
+
+### 2.5. Riceova věta
+
+> Každá netriviální I/O vlastnost rozhodovacího programu je nerozhodnutelná.
+
+Vlastnost je netriviální, pokud existuje alespoň jeden program, který ji má a alespoň jeden program, který ji nemá. Tzn. vlastnost je triviální, pokud ji mají všechny programy nebo ji nemá žádný program.
+
+Vlastnost $V$ je vstupně/výstupní (I/O), právě tehdy, když každé dva programy se stejnou I/O tabulkou buď mají oba vlastnost $V$, nebo ji oba nemají.
+
+Možnosti vyplnění "tabulky" pro vlastnost $V$:
+
+| Otázka                  |              |   |   |
+|-------------------------|--------------|---|---|
+| Je $V$ triviální?       | $\times$     | $\times$ | $\checkmark$ |
+| Je $V$ I/O?             | $\checkmark$ | $\times$ | $\checkmark$ |
+| Je $V$ nerozhodnutelná? | $\checkmark$ | $\times$ | $\times$ |
+
+(Třetí řádek plyne z Riceovy věty.)
+
+Dle Riceovy věty je prakticky jakákoliv netriviální otázka týkající se ověřování software (např. testování korektnosti) algoritmicky nerozhodnutelná.
 
 ## 3. Převody mezi problémy
 
