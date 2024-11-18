@@ -17,6 +17,7 @@
   - [1.6. Stroj RAM](#16-stroj-ram)
   - [1.7. Graf řídícího toku](#17-graf-řídícího-toku)
   - [1.8. Minského stroj](#18-minského-stroj)
+  - [1.9. Konfigurace jako data](#19-konfigurace-jako-data)
 - [2. Rozhodovací problémy](#2-rozhodovací-problémy)
   - [2.1. Nerozhodnutelné problémy](#21-nerozhodnutelné-problémy)
     - [2.1.1. Halting problem](#211-halting-problem)
@@ -403,6 +404,14 @@ Obdobně lze simulovat *libovolný konečný počet čítačů* pomocí dvou č�
 
 Platí, že činnost Turingova stroje lze simulovat Minským strojem se dvěma čítači.
 
+### 1.9. Konfigurace jako data
+
+Konfigurace stroje můžeme chápat jako data, a tedy jako slovo v nějaké abecedě.
+
+> **Univerzální Turingův stroj** $U$ je stroj, který pro vstup $\text{Kod}(M)$ a slovo $w\in\Sigma^*$ (kde $\Sigma^*$ je vstupní abeceda $M$) simuluje běh Turingova stroje $M$ na vstupu $w$.
+
+Analogicky funguje hardware počítače, je schopný vykonávat libovolný algoritmus.
+
 ## 2. Rozhodovací problémy
 
 ### 2.1. Nerozhodnutelné problémy
@@ -439,7 +448,7 @@ Otázka je, zda je možné použitím daných typů kachliček pokrýt celou nek
 
 ### 2.2. Částečně rozhodnutelné problémy
 
-Rozhodovací problém $P$ je částečně rozhodnutelný, jestliže existuje algoritmus $A$, který:
+Rozhodovací problém $P$ je **částečně rozhodnutelný**, jestliže existuje algoritmus $A$, který:
 
 - Pokud dostane jako vstup instanci problému $P$, pro kterou je správná odpověď **Ano**, tak se na tomto vstupu po konečném počtu kroků zastaví a dá odpověď **Ano**.
 - Pokud dostane jako vstup instanci problému $P$, pro kterou je správná odpověď **Ne**, tak se na tomto vstupu *buď zastaví* a dá odpověď **Ne** *nebo* se na tomto vstupu *nikdy nezastaví*.
@@ -466,7 +475,9 @@ Pokud je problém $P$ nerozhodnutelný, tak je nerozhodnutelný i jeho doplňkov
 
 ### 2.4. Postova věta
 
-> *Rozhodovací* problém $P$ je rozhodnutelný právě tehdy, když $P$ i $\overline{P}$ jsou *částečně rozhodnutelné*.
+> *Rozhodovací* problém $P$ je rozhodnutelný $\iff$ $P$ i $\overline{P}$ jsou *částečně rozhodnutelné*.
+
+Z Postovy věty plyne, že pokud je problém $P$ nerozhodnutelný, tak doplňkový problém $\overline{P}$ **není** částečně rozhodnutelný.
 
 ### 2.5. Riceova věta
 
