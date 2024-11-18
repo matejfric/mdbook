@@ -40,14 +40,16 @@
   - [5.2. Horní a dolní odhady složitosti problémů](#52-horní-a-dolní-odhady-složitosti-problémů)
 - [6. Nedeterminismus](#6-nedeterminismus)
   - [6.1. Nedeterministické třídy složitosti](#61-nedeterministické-třídy-složitosti)
-- [7. NP-úplnost](#7-np-úplnost)
+- [7. NP úplnost](#7-np-úplnost)
   - [7.1. SAT problém](#71-sat-problém)
+- [8. PS úplnost](#8-ps-úplnost)
+  - [8.1. Generalized Geography (GG)](#81-generalized-geography-gg)
 
 **Teoretická informatika** je vědní obor na pomezí mezi matematikou a informatikou. Zkoumá
 
 - obecné otázky týkající se algoritmů,
 - formalismy pro popis algoritmů,
-- syntaxe a sémantika formálních jazyků a další.
+- syntaxi a sémantiku formálních jazyků a další.
 
 **Algoritmus** — mechanický postup, jak něco spočítat. Algoritmy slouží k řešení různých problémů. Konkrétní vstup nějakého problému se nazývá **instance** problému.
 
@@ -95,9 +97,7 @@ Algoritmus **řeší** daný problém, pokud:
 >
 > $L^+=L\cdot L^* = \bigcup\limits_{k\geq1}L^k$
 
-U algoritmických problémů často předpokládáme, že vstupy i výstupy jsou kódovány slovy z nějaké abecedy.
-
-Např. pro popis grafu můžeme kódovat seznam vrcholů a hran.
+U algoritmických problémů často předpokládáme, že vstupy i výstupy jsou kódovány slovy z nějaké abecedy. Např. pro popis grafu můžeme kódovat seznam vrcholů a hran:
 
 $$(1,2,3,4,5),((1,2),(2,4),(4,3),(3,1),(2,5),(4,5))$$
 
@@ -353,7 +353,7 @@ Minského stroj je stroj, který má **konečnou řídící jednotku** a **kone�
 - pokud je hodnota čítače větší než 0, snížit tuto hodnotu o 1, tj. `x -= 1`,
 - testovat, zda je hodnota čítače rovna 0, a na základě toho provést větvení programu, tj. `if x = 0 then goto L`
 
-Navíc má Minského stroj operaci nepodmíněného skoku `goto L` a operaci zastevení `halt`.
+Navíc má Minského stroj operaci nepodmíněného skoku `goto L` a operaci zastavení `halt`.
 
 **Konfigurace Minského stroje** je dána:
 
@@ -592,31 +592,19 @@ Buď $g : \mathbb{N} \to \mathbb{N}$. Pak pro $f : \mathbb{N} \to \mathbb{N}$ pl
 3. $\boxed{f \in \Theta(g)}\iff$
 
     $$
-    \boxed{f \in \mathcal{O}(g) \wedge f \in \Omega(g)}
+    \boxed{f \in \mathcal{O}(g) \wedge f \in \Omega(g)}\iff \boxed{\lim_{n \to +\infty} \frac{g(n)}{f(n)} = c > 0}
     $$
 
 4. $\boxed{f \in \omicron(g)}\iff(\exists c > 0)(\exists n_0 \geq 0)(\forall n \geq n_0) :$
 
     $$
-    \boxed{f(n) < c \cdot g(n)}
-    $$
-    $$
-    \Updownarrow
-    $$
-    $$
-    \boxed{\lim_{n \to +\infty} \frac{f(n)}{g(n)} = 0}
+    \boxed{f(n) < c \cdot g(n)}\iff\boxed{\lim_{n \to +\infty} \frac{f(n)}{g(n)} = 0}
     $$
 
 5. $\boxed{f \in \omega(g)}\iff(\exists c > 0)(\exists n_0 \geq 0)(\forall n \geq n_0) :$
 
     $$
-    \boxed{f(n) > c \cdot g(n)}
-    $$
-    $$
-    \Updownarrow
-    $$
-    $$
-    \boxed{\lim_{n \to +\infty} \frac{f(n)}{g(n)} = +\infty}
+    \boxed{f(n) > c \cdot g(n)}\iff\boxed{\lim_{n \to +\infty} \frac{f(n)}{g(n)} = +\infty}
     $$
 
 > Poznámka: Existují dvojice funkcí $f,g\colon\mathbb{N}\rightarrow\mathbb{N}$, s.t.
@@ -663,18 +651,29 @@ Pokud je časová složistost v $\mathcal{O}(f(n))$, pak je i prostorová složi
 Logaritmus:
 
 $$
+\boxed{
 \log_a b = x \iff a^x = b
+}
+$$
+$$
+\boxed{
+a^{\log_b n} = n^{\log_b a}
+}
 $$
 
 Součet aritmetické posloupnosti:
 $$
+\boxed{
 \sum_{i=0}^{n-1} a_i = \frac{1}{2} n (a_0 + a_{n-1})
+}
 $$
 
 Součet geometrické posloupnosti (kde $q \neq 1$):
 
 $$
+\boxed{
 \sum_{i=0}^{n} a_i = a_0 \frac{q^{n+1} - 1}{q - 1}
+}
 $$
 
 ### 4.6. Analýza rekurzivních algoritmů
@@ -803,6 +802,12 @@ Pokud chceme zjistit nějaký horní odhad složitosti problému, stačí ukáza
 
 <img src="figures/non-determinism.png" alt="non-determinism" width="350px">
 
+<div class="warning">
+
+Složitost nedeterministického algoritmu v nejhorším případě odpovídá délce nejdelší větve výpočetního stromu.
+
+</div>
+
 Například u jednopáskového Turingova stroje se bude deterministická a nedeterministická varianta lišit pouze v definici přechodové funkce $\delta$:
 
 - **Deterministická:** $\delta: (Q - F) \times \Gamma \to Q \times \Gamma \times \{-1, 0, +1\}$,
@@ -888,7 +893,7 @@ $$
 \text{LS} \subseteq \text{NLS} \subseteq \text{PT} \subseteq \text{NPT} \subseteq \text{PS} = \text{NPS} \subseteq \text{EXPT} \subseteq \text{NEXPT} \subseteq \text{EXPS} = \text{NEXPS}
 $$
 
-## 7. NP-úplnost
+## 7. NP úplnost
 
 ### 7.1. SAT problém
 
@@ -897,3 +902,9 @@ Je booleovská formule splnitelná?
 $\varphi = x_1 \wedge (\neg x_2 \vee x_3)$
 
 Lze nastavit $x_1,x_2,x_3$ tak, aby $\varphi$ byla pravdivá?
+
+## 8. PS úplnost
+
+**Kvantifikované booleovské formule (QBF)** je příklad PSPACE úplného problému. Redukcí z QBF lze úkázat PSPACE úplnost mnoha dalších problémů, např. *oblázkové hry*.
+
+### 8.1. Generalized Geography (GG)
