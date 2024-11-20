@@ -117,6 +117,8 @@
   - [11.14. Nevážený flattening](#1114-nevážený-flattening)
   - [11.15. Vážený flattening](#1115-vážený-flattening)
   - [11.16. Projekce](#1116-projekce)
+  - [11.17. Predikce linků ve vícevrstvých sítích](#1117-predikce-linků-ve-vícevrstvých-sítích)
+    - [11.17.1. Asociační pravidla (Algoritmus Apriori)](#11171-asociační-pravidla-algoritmus-apriori)
 - [12. Vizualizace](#12-vizualizace-1)
   - [12.1. Quasi-Clique](#121-quasi-clique)
   - [12.2. Kliky ve vícevrstvých sítích](#122-kliky-ve-vícevrstvých-sítích)
@@ -850,7 +852,7 @@ typu (heterogenní síť).
 
 ## 10. Predikce linků
 
-- Predikce, že vznikne nová hrana nebo hrana zanikne.
+- Predikce, že **vznikne nová hrana nebo hrana zanikne**.
 
 <img src="figures/link-prediction.png" alt="link-prediction" width="350px">
 
@@ -1025,6 +1027,46 @@ $$w(a_i,a_j)=\sum\limits_{\{(a_i,L_k),(a_j,L_l)\}\in E}\Theta_{k,l},$$
 kde $\Theta\in\mathbb{R}^{|\mathcal{L}|\times |\mathcal{L}|}$ je matice vah přechodů mezi vrstvami, tzn. $\Theta_{k,l}$ representuje váhu přechodu z $k$-té vrstvy do $l$-té vrstvy.
 
 ### 11.16. Projekce
+
+TODO.
+
+### 11.17. Predikce linků ve vícevrstvých sítích
+
+Jednoduché řešení - analýza jednotlivých vrstev nebo flattening.
+
+#### 11.17.1. Asociační pravidla (Algoritmus Apriori)
+
+Pokud je vrchol v `leisure` i `coauthor`, tak je se *spolehlivostí* $0.9$ i ve `work` apod.
+
+<img src="figures/association-rules.png" alt="association-rules" width="400px">
+
+Matici transakcí $T \in \{0, 1\}^{N,M}$ vytvoříme z vícevrstvé sítě tak, že pro každou dvojici vrcholů (napříč vrstvami) zjistíme, zda existuje hrana v nějaké vrstvě, např.:
+
+|Hrana|Facebook | Lunch | Work|
+|---|---|---|---|
+|(0,1)|0|1|0|
+|(2,3)|1|0|1|
+|(21,7)|0|1|0|
+
+**Podpora** atributu $m$ v matici transakcí $T \in \{0, 1\}^{N,M}$ je jeho relativní četnost:
+
+$$
+\text{supp}(m) = \frac{\sum(T_{:,m})}{N}.
+$$
+
+Podobně je podpora více atributů definována jako:
+
+$$
+\text{supp}(m_1, m_2) = \frac{\sum(T_{:,m_1} \land T_{:,m_2})}{N}.
+$$
+
+**Spolehlivost asociačního pravidla** je dána vztahem:
+
+$$
+\text{conf}(A \Rightarrow B) = \frac{\text{supp}(A, B)}{\text{supp}(A)}.
+$$
+
+(To odpovídá podmíněné pravděpodobnosti.)
 
 ## 12. Vizualizace
 
