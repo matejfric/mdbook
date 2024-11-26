@@ -85,6 +85,7 @@
 - [19. Architektury CNN](#19-architektury-cnn)
   - [19.1. Jak v CNN redukovat počet kanálů?](#191-jak-v-cnn-redukovat-počet-kanálů)
   - [19.2. VGG](#192-vgg)
+- [20. Generative Adversarial Networks (GANs)](#20-generative-adversarial-networks-gans)
 
 ## 1. Segmentace obrazu
 
@@ -1313,3 +1314,9 @@ Suma přes obdélník, černou oblast odečítám, bílou přičítám.
 - Pouze kernely $3\times3$ a pooling $2\times2$.
 - Myšlenka, že dvě vrstvy $3\times3$ jsou ekvivalentní jedné vrstvě $5\times5$ a obdobně tři vrstvy $3\times3$ jsou ekvivalentní jedné vrstvě $7\times7$ (uvažujeme padding 1 a stride 1) $\rightarrow$ **reception net**.
 - 2 vrstvy $3\times3$ mají méně parametrů než 1 vrstva $5\times5$.
+
+## 20. Generative Adversarial Networks (GANs)
+
+- [https://developers.google.com/machine-learning/gan/gan_structure](https://developers.google.com/machine-learning/gan/gan_structure)
+
+<img src="figures/gan.png" alt="gan" width="600px">
