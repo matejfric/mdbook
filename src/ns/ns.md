@@ -125,7 +125,11 @@
 - [13. Šíření informací v sítích (Information Spreading)](#13-šíření-informací-v-sítích-information-spreading)
   - [13.1. Susceptible-Infected (SI) model](#131-susceptible-infected-si-model)
   - [13.2. Nezávislý kaskádový model šíření (Independent Cascade Model)](#132-nezávislý-kaskádový-model-šíření-independent-cascade-model)
-- [14. Miscellaneous](#14-miscellaneous)
+- [14. Modely pro simulaci vývoje sítě](#14-modely-pro-simulaci-vývoje-sítě)
+  - [14.1. Link Selection](#141-link-selection)
+  - [14.2. Two Step](#142-two-step)
+  - [14.3. Bianconi-Barabási](#143-bianconi-barabási)
+- [15. Miscellaneous](#15-miscellaneous)
 
 ## 1. Základní pojmy
 
@@ -666,6 +670,10 @@ Model náhodného grafu nevyhovuje reálným sítím zejména, protože reálné
 - buď $d=0,1,\ldots$ stupně a buď $p(d)$ pravděpodobnost, že uzel má stupeň $d$ $\Rightarrow$ $p(d)\approx Cd^{-\alpha}$, kde $C\sum\limits_{d=0}^{+\infty} d^{-\alpha}=1$
 - "heavy tail" - right skew ("zprava stlačená" distribuce, kladná šikmost)
 
+<img src="figures/power-law.png" alt="power-law" width="500px">
+
+(v log-log měřítku je to přímka)
+
 #### 5.4.2. Vlastnosti Scale-Free (SF) sítí
 
 - mocninné rozdělení distribuce vrcholů
@@ -1111,6 +1119,32 @@ Maximalizace vlivu - nalezení optimální skupiny je NP-úplný problém.
 
 Obvykle platí, že jen několik málo vybraných influencerů (2-4) pokryje svým vlivem potřebnou část zkoumané části sítě (ve smyslu optimálníhoho poměru cena-výkon)
 
-## 14. Miscellaneous
+## 14. Modely pro simulaci vývoje sítě
 
-**Asortativita** znamená, že vrcholy s podobnými vlastnostmi jsou spojeny častěji než vrcholy s různými vlastnostmi (např. bohatí s bohatými atd.).
+**Model** je zjednodušený popis reality pomocí nějaký pravidel. Model v NS umožňuje simulovat chování sítě.
+
+**Akcelerovaný růst** - síť roste rychleji než lineárně (např. při nějaké údalosti jako je válka nebo povodeň).
+
+**Stárnutí** (aging) - vrcholy zanikají s časem.
+
+### 14.1. Link Selection
+
+<img src="figures/link-selection.png" alt="link-selection" width="60px">
+
+**Náhodný výběr hrany** vede k **preferenčnímu připojení** (preferential attachment). Nový vrchol se připojí k jednomu z vrcholů hrany.
+
+### 14.2. Two Step
+
+Pro $p=1$ je to *Link Selection* model.
+
+<img src="figures/two-step.png" alt="two-step" width="350px">
+
+Vede k preferenčnímu připojení (preferential attachment).
+
+### 14.3. Bianconi-Barabási
+
+TODO.
+
+## 15. Miscellaneous
+
+**Asortativita** znamená, že vrcholy s podobnými vlastnostmi jsou spojeny častěji než vrcholy s různými vlastnostmi (např. bohatí s bohatými atd.)
