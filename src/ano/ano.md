@@ -85,7 +85,8 @@
 - [19. Architektury CNN](#19-architektury-cnn)
   - [19.1. Jak v CNN redukovat počet kanálů?](#191-jak-v-cnn-redukovat-počet-kanálů)
   - [19.2. VGG](#192-vgg)
-- [20. Generative Adversarial Networks (GANs)](#20-generative-adversarial-networks-gans)
+- [20. Generative Adversarial Network (GAN)](#20-generative-adversarial-network-gan)
+  - [20.1. Deep Convolutional Generative Adversarial Network (DCGAN)](#201-deep-convolutional-generative-adversarial-network-dcgan)
 
 ## 1. Segmentace obrazu
 
@@ -1315,8 +1316,18 @@ Suma přes obdélník, černou oblast odečítám, bílou přičítám.
 - Myšlenka, že dvě vrstvy $3\times3$ jsou ekvivalentní jedné vrstvě $5\times5$ a obdobně tři vrstvy $3\times3$ jsou ekvivalentní jedné vrstvě $7\times7$ (uvažujeme padding 1 a stride 1) $\rightarrow$ **reception net**.
 - 2 vrstvy $3\times3$ mají méně parametrů než 1 vrstva $5\times5$.
 
-## 20. Generative Adversarial Networks (GANs)
+## 20. Generative Adversarial Network (GAN)
 
 - [https://developers.google.com/machine-learning/gan/gan_structure](https://developers.google.com/machine-learning/gan/gan_structure)
 
 <img src="figures/gan.png" alt="gan" width="600px">
+
+Buď $x$ *vstupní obraz*. $D(x)$ je *diskriminátor*, jehož výstupem je pravděpodobnost, že vstupní obraz je z *trénovací množiny*. Buď $z$ *latentní vektor* vzorkovaný z normalizovaného normálního rozdělení. $G(z)$ je *generátor*, který transformuje latentní vektor do prostoru dat. $D(G(z))$ je pravděpodobnost, že vygenerovaný obraz je skutečný (z trénovací množiny).
+
+$D$ a $G$ hrají *minimax* hru, kde $D$ se snaží maximalizovat pravděpodobnost, že správně klasifikuje reálné a falešné data, zatímco $G$ se snaží minimalizovat pravděpodobnost, že $D$ správně klasifikuje falešné *(fake)* data.
+
+### 20.1. Deep Convolutional Generative Adversarial Network (DCGAN)
+
+- [https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial](https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html)
+
+DCGAN je rozšíření architektury GAN o konvoluční vrstvy.
