@@ -87,6 +87,7 @@
   - [19.2. VGG](#192-vgg)
 - [20. Generative Adversarial Network (GAN)](#20-generative-adversarial-network-gan)
   - [20.1. Deep Convolutional Generative Adversarial Network (DCGAN)](#201-deep-convolutional-generative-adversarial-network-dcgan)
+- [21. Style Transfer](#21-style-transfer)
 
 ## 1. Segmentace obrazu
 
@@ -1326,8 +1327,15 @@ Buď $x$ *vstupní obraz*. $D(x)$ je *diskriminátor*, jehož výstupem je pravd
 
 $D$ a $G$ hrají *minimax* hru, kde $D$ se snaží maximalizovat pravděpodobnost, že správně klasifikuje reálné a falešné data, zatímco $G$ se snaží minimalizovat pravděpodobnost, že $D$ správně klasifikuje falešné *(fake)* data.
 
+- **Mode collapse** - generátor produkuje pouze jeden druh obrázků.
+- Lze použít **Wasserstein loss**.
+
 ### 20.1. Deep Convolutional Generative Adversarial Network (DCGAN)
 
 - [https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial](https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html)
 
 DCGAN je rozšíření architektury GAN o konvoluční vrstvy.
+
+## 21. Style Transfer
+
+- [https://pytorch.org/tutorials/advanced/neural_style_tutorial.html](https://pytorch.org/tutorials/advanced/neural_style_tutorial.html)
