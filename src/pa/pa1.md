@@ -25,7 +25,6 @@
   - [7.2. Blelloch - vyvažovaný strom](#72-blelloch---vyvažovaný-strom)
   - [7.3. Up-sweep \& Down-sweep](#73-up-sweep--down-sweep)
 - [8. PageRank](#8-pagerank)
-  - [Příklad](#příklad)
 
 ## 1. Multiprocessing a multithreading
 
@@ -281,15 +280,15 @@ int main() {
 ## 8. PageRank
 
 - centralita grafu (např. jak rozbít zločinecký gang? hlavní gangster musí mít vysoký pagerank)
-- $PR(u)=\dfrac{1-d}{|V|}+d\sum\limits_{v\in N \rightarrow u}\dfrac{PR(v)}{|N\leftarrow v|}$
+- $\boxed{PR(u)=\dfrac{1-d}{|V|}+d\sum\limits_{v\in N \rightarrow u}\dfrac{PR(v)}{|N\leftarrow v|}}$
 - $V$ - množina vrcholů grafu $G$
-- $N\leftarrow v$ - množina vrcholů, do kterých vedou hrany z $v$ (odchozí hrany z $v$, výstupní stupeň $out(v)$)
+- $N\leftarrow v$ - množina vrcholů, do kterých vedou hrany z $v$ (odchozí hrany z $v$, výstupní stupeň $\boxed{out(v)}$)
 - $N\rightarrow v$ - množina vrcholů, ze kterých vede hrana do $v$ (příchozí hrany do $v$)
 - $d\in[0,1]$ je teleportační faktor (konstanta obvykle nastavená na 0.85)
 - na začátku se $PR$ inicializuje na $\dfrac{1}{|V|}$
 - výstupem je pravděpodobnostní rozdělení $\Rightarrow\sum\limits_{v\in V}PR(v)=1$
 
-### Příklad
+<details><summary> Příklad </summary>
 
 - [PageRank | Medium](https://medium.com/analytics-vidhya/parallel-pagerank-an-overview-of-algorithms-and-their-performance-ce3b2a2bfdb6)
 
@@ -297,6 +296,8 @@ int main() {
 
 - $d=0.85$
 - $PR(A)=\dfrac{1-0.85}{4}+0.85\cdot \dfrac{PR(C)}{|\set{A}|}$
-- $PR(B)=\dfrac{1-0.85}{4}+0.85\cdot \left(\dfrac{PR(A)}{|\set{B,C}|} + \dfrac{PR(D)}{|\set{B}|}\right)$
-- $PR(C)=\dfrac{1-0.85}{4}+0.85\cdot \left(\dfrac{PR(A)}{|\set{B,C}|} + \dfrac{PR(B)}{|\set{C}|}\right)$
-- $PR(D)=\dfrac{1-0.85}{4}+0.85\cdot \dfrac{PR(A)}{|\set{B,C}|}$
+- $PR(B)=\dfrac{1-0.85}{4}+0.85\cdot \left(\dfrac{PR(A)}{|\set{B,C,D}|} + \dfrac{PR(D)}{|\set{B}|}\right)$
+- $PR(C)=\dfrac{1-0.85}{4}+0.85\cdot \left(\dfrac{PR(A)}{|\set{B,C,D}|} + \dfrac{PR(B)}{|\set{C}|}\right)$
+- $PR(D)=\dfrac{1-0.85}{4}+0.85\cdot \dfrac{PR(A)}{|\set{B,C,D}|}$
+
+</details>
