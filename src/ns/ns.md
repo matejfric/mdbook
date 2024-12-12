@@ -101,24 +101,21 @@
     - [10.4.7. Sorensen Index](#1047-sorensen-index)
   - [10.5. Vyhodnocení predikce linků](#105-vyhodnocení-predikce-linků)
 - [11. Vícevrstvé sítě](#11-vícevrstvé-sítě)
-  - [11.1. Occupation centrality](#111-occupation-centrality)
-  - [11.2. Degree Centrality](#112-degree-centrality)
-  - [11.3. Degree deviation](#113-degree-deviation)
-  - [11.4. Neighborhood](#114-neighborhood)
-  - [11.5. Neighborhood Centrality](#115-neighborhood-centrality)
-  - [11.6. Connective Redundancy](#116-connective-redundancy)
-  - [11.7. Exclusive Neighborhood](#117-exclusive-neighborhood)
-  - [11.8. Random Walk](#118-random-walk)
-  - [11.9. Vzdálenosti ve vícevrstvých sítích](#119-vzdálenosti-ve-vícevrstvých-sítích)
-  - [11.10. Random walk closeness](#1110-random-walk-closeness)
-  - [11.11. Random walk betweenness](#1111-random-walk-betweenness)
-  - [11.12. Relevance aktéra ve vrstvě](#1112-relevance-aktéra-ve-vrstvě)
-  - [11.13. Flattening \& Projection](#1113-flattening--projection)
-  - [11.14. Nevážený flattening](#1114-nevážený-flattening)
-  - [11.15. Vážený flattening](#1115-vážený-flattening)
-  - [11.16. Projekce](#1116-projekce)
-  - [11.17. Predikce linků ve vícevrstvých sítích](#1117-predikce-linků-ve-vícevrstvých-sítích)
-    - [11.17.1. Asociační pravidla (Algoritmus Apriori)](#11171-asociační-pravidla-algoritmus-apriori)
+  - [11.1. Degree Centrality](#111-degree-centrality)
+  - [11.2. Degree deviation](#112-degree-deviation)
+  - [11.3. Neighborhood](#113-neighborhood)
+  - [11.4. Neighborhood Centrality](#114-neighborhood-centrality)
+  - [11.5. Connective Redundancy](#115-connective-redundancy)
+  - [11.6. Exclusive Neighborhood](#116-exclusive-neighborhood)
+  - [11.7. Random Walk](#117-random-walk)
+  - [11.8. Vzdálenosti ve vícevrstvých sítích](#118-vzdálenosti-ve-vícevrstvých-sítích)
+  - [11.9. Random walk closeness](#119-random-walk-closeness)
+  - [11.10. Random walk betweenness](#1110-random-walk-betweenness)
+  - [11.11. Relevance aktéra ve vrstvě](#1111-relevance-aktéra-ve-vrstvě)
+  - [11.12. Zploštění (Flattening)](#1112-zploštění-flattening)
+  - [11.13. Projekce](#1113-projekce)
+  - [11.14. Predikce linků ve vícevrstvých sítích](#1114-predikce-linků-ve-vícevrstvých-sítích)
+    - [11.14.1. Asociační pravidla (Algoritmus Apriori)](#11141-asociační-pravidla-algoritmus-apriori)
 - [12. Vizualizace](#12-vizualizace-1)
   - [12.1. Quasi-Clique](#121-quasi-clique)
   - [12.2. Kliky ve vícevrstvých sítích](#122-kliky-ve-vícevrstvých-sítích)
@@ -189,9 +186,23 @@ propojení (matematika)
 
 ### 1.7. Datové struktury
 
-- matice sousednosti $\mathbb{A}$
+Buď $\Delta$ největší stupeň $G=(V,E)$.
+
+| Operation   | Adj. Matrix           | Adj. List              | Adj. Tree        |
+|-------------|-----------------------|------------------------|-----------------------|
+| Insert node | $\mathcal{O}(n^2)$    | $\mathcal{O}(1)$       | $\mathcal{O}(1)$ |
+| Delete node | $\mathcal{O}(n^2)$    | $\mathcal{O}(1)$       | $\mathcal{O}(1)$ |
+| Find node   | $\mathcal{O}(1)$      | $\mathcal{O}(1)$       | $\mathcal{O}(1)$ |
+| Delete edge | $\mathcal{O}(1)$      | $\mathcal{O}(\Delta)$  | $\mathcal{O}(\log(\Delta))$ |
+| Insert edge | $\mathcal{O}(1)$      | $\mathcal{O}(1)$       | $\mathcal{O}(\log(\Delta))$ |
+| Find edge   | $\mathcal{O}(1)$      | $\mathcal{O}(\Delta)$  | $\mathcal{O}(\log(\Delta))$ |
+
+(we ignore reallocation of underlying hash table)
+
+- **matice sousednosti** $\mathbb{A}$
   - operace zjištění sousednosti $\mathcal{O}(1)$
-- matice incidence $n\times m$ (počet vrcholů krát počet hran)
+  - může být implementovaná jako řídká matice (např. CSR - Compressed Sparse Row, COO - Coordinate List)
+- **matice incidence** $n\times m$ (počet vrcholů krát počet hran)
   - nevhodné pro smyčky
   - řídká matice
   - pro neorientovaný graf hodnoty 0/1, pro orientovaný graf 1/-1/0 (nebo váhy ohodnocených hran):
@@ -200,10 +211,12 @@ propojení (matematika)
       1 & \text{$v_i$ inciduje s výstupní hranou $e_j$}\\
       -1 & \text{$v_i$ inciduje se vstupní hranou $e_j$}\\
       0 &\text{jinak}\end{cases}$$
-- seznam vrcholů a sousedů
+- **seznam vrcholů a sousedů** - **Dictionary of Keys (DoK)**
+  - `HashMap<node_id, neighbors>`, kde seznam sousedů může být např. slovník soused, váha hrany `neighbors = HashMap<node_id, weight>`.
   - pro setříděné sousedy: operace zjištění sousednosti $\mathcal{O}(\log_2\Delta)$, kde $\Delta$ je největší stupeň grafu
   - pro nesetříděné sousedy: operace zjištění sousednosti $\mathcal{O}(\Delta)$, kde $\Delta$ je největší stupeň grafu
-- seznam hran (relací) ve tvaru $[(1,2),(2,3),...]$
+- **seznam hran** (relací) ve tvaru $[(1,2),(2,3),...]$
+- **strom sousednosti** - `type AdjTree = HashMap<node_id, {BSTree|SortedMap|BTreeMap|BinaryHeap|etc.}<node_id, weight>>`
 
 Časovou a paměťovou složitost ovlivňuje především hustota grafu.
 
@@ -823,17 +836,28 @@ Cílený útok na centra - po odstranění několika málo center se síť rozpa
 - **link prediction** - např. doporučování kontaktů v sociálních sítích
 - **network embedding** - odstranění hran
 
-Pokud jsme schopni síť vizualizovat, můžeme ji označit jako malou, pokud ji nejsme schopni vizualizovat, můžeme ji označit jako velkou a musíme se spoléhat na analýzy a algoritmy.
+Pokud jsme schopni síť vizualizovat tak, aby šlo vidět strukturální detaily, můžeme ji označit jako *malou*, v ostatních případech ji jako *velkou* a musíme se spoléhat na analýzy a algoritmy.
 
 Typické charakteristiky sítí:
 
-- sociální - velké huby, šum
-- spolupráce - kliky
-- komunikační - kliky, hvězdy
-- biologické - nepřesné
+- **sociální** - velké huby, šum, rychlé šíření informace, vrcholy se propojují na základě podobných vlastností (např. zájmy), velké komunity, rychlý vývoj
+- **spolupráce** - časté kliky, spoluautorské sítě, menší komunity i centra
+- **komunikační** - časté kliky, hvězdy
+- **biologické** - bývají nepřesné
+
+Co lze hledat ve velkých sítích?
+
+- **souvislé komponenty**
+- **kliky** nebo *struktury podobné klikám*
+- velká **centra** (*huby*)
+- **komunity** (*lokálně hustý podgraf* - hustě propojené a od okolí oddělené struktury)
+
+Největší souvislá komponenta (LCC - Largest Connected Component) - největší souvislý podgraf (ve kterém existují cesty mezi všemi vrcholy). V reálných sítích často tvoří LCC většinu sítě a stačí analyzovat pouze LCC.
 
 ## 9. Dynamické sítě
 
+- *(Dynamic/evolving/temporal networks.)*
+- Mění se v čase.
 - Základní charakteristikou je *stochastický přístup k analýze*.
 - Pracuje se *pravděpodobností existence* (nebo mírou aktivity)
 vrcholu, resp. hrany, v daném časovém okamžiku.
@@ -843,14 +867,16 @@ typu (heterogenní síť).
 
 ### 9.1. Vyvíjející se sítě
 
-- V čase přibývají vrcholy a hrany.
+- *(Evolving networks.)*
+- V čase přibývají a nebo ubývají vrcholy a nebo hrany ("narození, úmrtí").
 - Lze jednoduše simulovat např. pomocí Barabasi-Albert modelu.
 
 ### 9.2. Temporální sítě
 
-- "time-varying networks"
+- *(Temporal/time-varying networks.)*
 - Hrany existují jen v jistém čase a mohou mít měnící se váhu.
 - Hrany mohou existovat "přerušovaně", tedy v určitých časových intervalech v síti jsou a v jiných ne.
+- Např. odesílání e-mailů.
 
 #### 9.2.1. Spoluautorská síť (informatika)
 
@@ -866,8 +892,8 @@ typu (heterogenní síť).
 
 Formálně, buď $G(t)$ graf v čase $t$ a $G(t+1)$ graf v čase $t+1$. Predikcí linků rozumíme dvě množiny dvojic vrcholů:
 
-1. $\mathcal{N}$ - dvojice, které v čase $t$ nebyly spojeny hranou, ale v čase $t+1$ ji získají,
-2. $\mathcal{R}$ - dvojice, které v čase $t$ byly spojeny hranou, ale v čase $t+1$ ji ztratí.
+1. $\mathcal{N}$ *(new)* - dvojice, které v čase $t$ nebyly spojeny hranou, ale v čase $t+1$ ji získají,
+2. $\mathcal{R}$ *(removed)* - dvojice, které v čase $t$ byly spojeny hranou, ale v čase $t+1$ ji ztratí.
 
 ### 10.1. Využití
 
@@ -884,7 +910,7 @@ Dimenze sítě/grafu je z pohledu ML velmi vysoká - matice sousednosti - dimenz
 
 ### 10.3. Metody predikce linků
 
-- Similarity-based - založené na podobnosti mezi dvojicemi vrcholů.
+- Similarity-based - založené na podobnosti mezi dvojicemi vrcholů (využívá strukturálních vlastností sítě).
 - Dimensionality-reduction-based - *Layoutovací* algoritmy dokáží sníži dimenzi až na 2D. Maticové rozklady (SVD).
 - Learning based - ML metody (např. grafové neuronové sítě).
 - Information-theory-based - měření náhodnosti pomocí *entropie*.
@@ -896,29 +922,35 @@ Dimenze sítě/grafu je z pohledu ML velmi vysoká - matice sousednosti - dimenz
 
 $S(x,y)=|\Gamma(x)\cap\Gamma(y)|$,
 
-kde $\Gamma(v)$ je množina sousedů vrcholu $v$ a $x,y,v\in G$, kde $G=(V,E)$ je graf.
+kde $\Gamma(v)$ je množina sousedů vrcholu $v$ a $x,y,v\in G$, kde $G=(V,E)$ je graf. Pravděpodonost, že vrchol $x$ a $y$ budou spojeny hranou je přímo úměrná počtu společných sousedů.
 
 #### 10.4.2. Jaccard Coefficient (JC)
 
 $S(x,y)=\dfrac{|\Gamma(x)\cap\Gamma(y)|}{|\Gamma(x)\cup\Gamma(y)|}$
 
 - i.e., normalizovaný počet společných sousedů (CN).
+- *(IoU - Intersection over Union.)*
 
 #### 10.4.3. Adamic-Adar Index (AA)
 
 $S(x,y)=\sum\limits_{z\in\Gamma(x)\cap\Gamma(y)}\dfrac{1}{\log|\Gamma(z)|}$
 
+- *(pro všechny společné sousedy spočteme sumu převrácených logaritmů stupňů.)*
 - méně obvyklý soused má větší váhu než častý soused, jinými slovy, větší váha je přiřazena společným sousedům, kteří mají nižší stupeň.
 
 #### 10.4.4. Preferential Attachment (PA)
 
 $S(x,y)=|\Gamma(x)| \cdot |\Gamma(y)|$
 
+- užíváno v Barabasi-Albert modelu
+- v reálných sítích obvykle dává horší výsledky, ale je triviální na implementaci a má malou výpočetní náročnost
+
 #### 10.4.5. Resource Allocation Index (RA)
 
 $S(x,y)=\sum\limits_{z\in\Gamma(x)\cap\Gamma(y)}\dfrac{1}{|\Gamma(z)|}$
 
 - AA bez logaritmu.
+- Silně penalizuje vrcholy s vysokým stupněm.
 
 #### 10.4.6. Cosine similarity or Salton Index
 
@@ -932,6 +964,19 @@ $S(x,y)=\dfrac{2|\Gamma(x)\cap\Gamma(y)|}{|\Gamma(x)|+|\Gamma(y)|}$
 
 - Matice záměn (confusion matrix) pro binární klasifikaci, jestli existuje hrana mezi vrcholy.
 
+<img src="figures/confmat.png" alt="confmat" width="600px">
+
+| Performance Metric | Formula                                                |
+|---------------------|--------------------------------------------------------|
+| Precision           | $\frac{\text{TP}}{\text{TP} + \text{FP}}$ |
+| Recall / Sensitivity / TPR        | $\frac{\text{TP}}{\text{TP} + \text{FN}} = \frac{\text{TP}}{\text{P}}$  |
+| Fallout / FPR | $\frac{\text{FP}}{\text{FP} + \text{TN}}=\frac{\text{FP}}{\text{N}}$ |
+| Specificity / TNR   | $\frac{\text{TN}}{\text{TN} + \text{FP}} = \frac{\text{TN}}{\text{N}}$ |
+| F1-Score            | $\frac{2}{\frac{1}{\text{Precision}} + \frac{1}{\text{Recall}}} = \frac{2\cdot \text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}} = \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}}$ |
+| Accuracy            | $\frac{\text{TP} + \text{TN}}{\text{TP} + \text{FP} + \text{FN} + \text{TN}}$ = $\frac{\text{TP} + \text{TN}}{\text{P} + \text{N}}$ |
+
+- ROC křivka je TPR na ose $y$ a FPR na ose $x$ (pro definovaný threshold).
+
 ## 11. Vícevrstvé sítě
 
 > Vícevrstá síť je čtveřice $M=(A,\mathcal{L},V,E)$, kde $A$ je množina aktérů, $\mathcal{L}$ je množina vrstev a $(V, E)$ je graf, přičemž $V\subseteq A\times \mathcal{L}$.
@@ -939,63 +984,76 @@ $S(x,y)=\dfrac{2|\Gamma(x)\cap\Gamma(y)|}{|\Gamma(x)|+|\Gamma(y)|}$
 > - Aktér je entita z reálného světa reprezentovaná vrcholem, která má vztahy s jinými aktéry.
 > - Vrchol je konkrétní aktér v dané vrstvě.
 
-<img src="figures/multi-layer-network.png" alt="multi-layer-network" width="250px">
+<img src="figures/multi-layer-network.png" alt="multi-layer-network" width="300px">
 
-- Nejjednodušší přístup je analyzovat každou vrstvu zvlášť.
+Typy analýz:
 
-### 11.1. Occupation centrality
+- každou vrstvu zvlášť (nejjednodušší)
+- zploštění *(flattening)* - projekce na jednu vrstvu
+- napříč vrstvami
 
-Centralita obsazenosti aktéra $a\in A$ vícevrstvé sítě $M=(A,\mathcal{L},V,E)$ je pravděpodobnost, že náhodný chodec na $M$ se nachází na jakémkoliv vrcholu odpovídajícímu aktérovi $a$.
+Typy vícevrstvých sítí:
 
-### 11.2. Degree Centrality
+- **homogenní** - stejné vrcholy ve všech vrstvách (např. uživatelé)
+- **heterogenní** - různé vrcholy ve vrstvách (např. uživatelé a produkty)
+
+### 11.1. Degree Centrality
 
 Buď $a$ aktér a buď $L\subseteq 2^{\mathcal{L}}$:
 
 $$
-  \mathrm{deg}(a, L) = \left\{ {(a,l),(a',l)}\in E \mid a, a'\in A \wedge l \in L \right\},
+  \mathrm{deg}(a, L) = \lvert\left\{ {(a,l),(a',l)}\in E \mid a, a'\in A \wedge l \in L \right\}\rvert,
 $$
 
-kde $A$ je množina aktérů a $E$ je množina hran. Tzn. suma stupňů aktéra $a$ všech vrstev $L$.
+kde $A$ je množina aktérů a $E$ je množina hran.
 
-### 11.3. Degree deviation
+<div class="warning">
+
+Tzn. suma stupňů aktéra $a$ ve vrstvách $L$.
+
+</div>
+
+### 11.2. Degree deviation
 
 $$
 \sqrt{\dfrac{\sum\limits_{l\in L}\left( \mathrm{deg}(a, l) - \dfrac{\mathrm{deg}(a, L)}{|L|}\right)^2}{|L|}}
 $$
 
-### 11.4. Neighborhood
+### 11.3. Neighborhood
 
 Buď $a$ aktér a $L\subseteq 2^{\mathcal{L}}$:
 
 $$
-\mathrm{neighbors}(a, L) = \left\{ a' \mid \exists l\in L: (a,l),(a',l)\in E \right\}
+\mathrm{neighbors}(a, L) = \left\{ a' \mid (\exists l\in L)(\exists a'\in A): \big((a,l),(a',l)\big)\in E \right\}
 $$
 
-Tzn. množina (unikátních) sousedů aktéra $a$ všech vrstev $L$.
+Tzn. množina *(unikátních)* sousedů aktéra $a$ všech vrstev $L$.
 
-### 11.5. Neighborhood Centrality
+### 11.4. Neighborhood Centrality
 
 $$\mathrm{neighborhood}(a, L) = |\mathrm{neighbors}(a, L)|$$
 
-### 11.6. Connective Redundancy
+### 11.5. Connective Redundancy
 
 $$\mathrm{connective\_redundancy}(a, L) = 1 - \dfrac{\mathrm{neighborhood}(a, L)}{\mathrm{deg}(a,L)}$$
 
-### 11.7. Exclusive Neighborhood
+### 11.6. Exclusive Neighborhood
 
 $$\mathrm{x\_neighborhood}(a, L) = |\mathrm{neighbors}(a, L)\,\setminus\,\mathrm{neighbors}(a, \mathcal{L}\setminus L)|$$
 
-### 11.8. Random Walk
+### 11.7. Random Walk
 
-Náhodný chodec v uzlu $(a, l)$, kde $a\in A$ a $l\in L$, může s uniformní pravděpodobností přejít do jednoho ze svých sousedů $(a', l)$ v rámci téže vrstvy $l$ nebo může přejít do svého protějšku $(a, l')$ v jiné vrstvě $l'$.
+- Náhodný chodec v uzlu $(a, l)$, kde $a\in A$ a $l\in L$, může s uniformní pravděpodobností přejít do jednoho ze svých sousedů $(a', l)$ v rámci téže vrstvy $l$ nebo může přejít do svého protějšku $(a, l')$ v jiné vrstvě $l'$.
+- Tzn. v každém kroku chodec s pravděpodobností $\frac{1}{\mathrm{deg}(a,l) + 1}$ přejde do jiné vrstvy.
+- (Formulaci lze rozšířit pro vážené sítě a uvažovat váhu spojení vrstev.)
+- Pro experiment definujeme *konstantní délku* procházky a *počet* procházek. Zvolíme *náhodný vrchol* a *náhodnou vrstvu*. Počítame, *kolikrát* byl který vrchol navštíven.
+- Vzdálenosti mezi vrcholy lze spočítat s časovou složitostí $\mathcal{O}(n^3)$. Random walk lze využít pro aproximaci vzdáleností.
 
-Pro experiment definujeme konstantní délku a počet procházek. Zvolíme náhodný vrchol a náhodnou vrstvu. Počítame, kolikrát byl který vrchol navštíven.
+> **Centralita obsazenosti** *(occupation centrality)* aktéra $a\in A$ vícevrstvé sítě $M=(A,\mathcal{L},V,E)$ je pravděpodobnost, že náhodný chodec na $M$ se nachází na jakémkoliv vrcholu odpovídajícímu aktérovi $a$.
 
-Vzdálenosti mezi vrcholy lze spočítat s časovou složitostí $\mathcal{O}(n^3)$. Random walk lze využít pro aproximaci vzdáleností.
+### 11.8. Vzdálenosti ve vícevrstvých sítích
 
-### 11.9. Vzdálenosti ve vícevrstvých sítích
-
-Vzdálenosti reprezentujeme pomocí matice. Na diagonále jsou počty přechodů v rámci $i$-té sítě. Mimo diagonálu jsou počty přechodů mezi vrstvami (prvek na indexu $(i,j)$ znamená přechod z $i$-té sítě do $j$-té sítě).
+Vzdálenosti reprezentujeme pomocí matice. Na diagonále jsou počty přechodů v rámci $i$-té vrstvy sítě. Mimo diagonálu jsou počty přechodů mezi vrstvami (prvek na indexu $(i,j)$ znamená přechod z $i$-té vrstvy do $j$-té vrstvy).
 
 $$
 \begin{pmatrix}
@@ -1004,13 +1062,27 @@ $$
 \end{pmatrix}
 $$
 
-### 11.10. Random walk closeness
+Můžeme získat různé množství informací:
 
-Buď $D$ počet kroků náhodného chodce.
+- $A$ ...všechny přechody,
+- $\mathrm{trace}(A)$ ...zanedbává přechody mezi vrstvami,
+- $\sum\limits_{i}\sum\limits_{j}A_{i,j}$ ...zanedbává vrstvy.
 
-### 11.11. Random walk betweenness
+Relace ostrého uspořádání ve vícevrstvých sítích. Buď $R, S$ dvě cesty ve vícevrstvé síti (zapsané pomocí matice). Potom
 
-### 11.12. Relevance aktéra ve vrstvě
+$$R < S \iff \big[\,(\forall i,j)\colon R_{i,j} \leq S_{i,j} \quad \wedge \quad(\exists i,j)\colon R_{i,j} < S_{i,j}\,\big]$$
+
+### 11.9. Random walk closeness
+
+Buď $D$ průměrný počet kroků náhodného chodce od náhodně zvoleného aktéra $a'\in A$ k aktérovi $a\in A$. Pak *closeness centrality* aktéra $a$ ve vrstvách $L\in\mathcal{L}$ definujeme jako $\dfrac{1}{D}$. (Tzn. na vrstvách $L$ spustíme $n$-krát náhodnou procházku a počítáme, za kolik kroků se chodec dostane do $a$.)
+
+### 11.10. Random walk betweenness
+
+Chodec se (náhodně) pohybuje mezi náhodně zvolenými dvojicemi vrcholů a počítáme, kolikrát projde přes jakýkoliv vrchol příslušný aktérovi $a\in A$, zprůměrováno přes všechny vrstvy.  
+
+### 11.11. Relevance aktéra ve vrstvě
+
+Podíl počtu sousedů aktéra $a$ ve vrstvách $L\in\mathcal{L}$ oproti počtu jeho sousedů ve všech vrstvách.
 
 $$\mathrm{relevance}(a,L) = \dfrac{\mathrm{neighborhood}(a, L)}{\mathrm{neighborhood}(a, \mathcal{L})}$$
 
@@ -1018,31 +1090,43 @@ Exkluzivní relevance (silnější tvrzení, bez redundance spojení v jiných v
 
 $$\mathrm{x\_relevance}(a,L) = \dfrac{\mathrm{x\_neighborhood}(a, L)}{\mathrm{neighborhood}(a, \mathcal{L})}$$
 
-### 11.13. Flattening & Projection
+### 11.12. Zploštění (Flattening)
 
-Díky tomu můžeme používat standardní metody analýzy sítí, jako např detekce komunit.
+Díky zploštění můžeme používat standardní metody analýzy sítí, jako např. detekci komunit. Sloučíme vrcholy z různých vrstev do jedné vrstvy.
 
-### 11.14. Nevážený flattening
+> **Nevážený flattening** vícevrstvé sítě $(A,\mathcal{L},V,E)$ je graf $(V_f,E_f)$, kde
+>
+> $$
+\begin{align*}
+  V_f&=\{a\mid(a,L)\in V\},\\
+  E_f&=\{(a,a')\mid\{(a,L),(a',L')\}\in E\}.
+\end{align*}
+$$
 
-**Nevážený flattening** vícevrstvé sítě $(A,\mathcal{L},V,E)$ je graf $(V_f,E_f)$, kde $V_f=\{a\mid(a,L)\in V\}$ a $E_f=\{(a,a')\mid\{(a,L),(a',L')\}\in E\}$.
+> **Vážený flattening** vícevrstvé sítě $(A,\mathcal{L},V,E)$, je vážený graf $(V_f,E_f,w)$, kde
+>
+> $$w(a_i,a_j)=\sum\limits_{\{(a_i,L_k),(a_j,L_l)\}\in E}\Theta_{k,l},$$
+>
+> kde $\Theta\in\mathbb{R}^{|\mathcal{L}|\times |\mathcal{L}|}$ je matice vah přechodů mezi vrstvami, tzn. $\Theta_{k,l}$ representuje váhu přechodu z $k$-té vrstvy do $l$-té vrstvy.
+>
+> <img src="figures/weighted_flattening.png" alt="weighted_flattening" width="400px">
+>
+> Jednodušší alternativa spočívá v tom, že váhu hrany mezi vrcholy $a_i$ a $a_j$ v grafu $G_f$ definujeme jako součet vah hran mezi vrcholy $a_i$ a $a_j$ ve všech vrstvách. Tzn. $\Theta=\mathbf{1}$
 
-### 11.15. Vážený flattening
+### 11.13. Projekce
 
-**Vážený flattening** vícevrstvé sítě $(A,\mathcal{L},V,E)$, je vážený graf $(V_f,E_f,w)$, kde
+Pokub máme *heterogenní* vícevrstvou síť, můžeme ji převést na homogenní síť.
 
-$$w(a_i,a_j)=\sum\limits_{\{(a_i,L_k),(a_j,L_l)\}\in E}\Theta_{k,l},$$
+<img src="figures/projection.png" alt="projection" width="400px">
 
-kde $\Theta\in\mathbb{R}^{|\mathcal{L}|\times |\mathcal{L}|}$ je matice vah přechodů mezi vrstvami, tzn. $\Theta_{k,l}$ representuje váhu přechodu z $k$-té vrstvy do $l$-té vrstvy.
+- $L_1$ ...$w_{i,j}=1$,
+- $L_2$ ...$w_{i,j}=\sum\limits_{b}\frac{1}{N_b-1}$, kde $N_b$ je počet vrcholů typu $A$, které mají hranu do $b$-tého vrcholu typu $B$. Tzn. hrany přes `ITU` mají váhu $\frac{1}{3-1}$ a hrany přes `UU` $\frac{1}{2-1}$.  
 
-### 11.16. Projekce
-
-TODO.
-
-### 11.17. Predikce linků ve vícevrstvých sítích
+### 11.14. Predikce linků ve vícevrstvých sítích
 
 Jednoduché řešení - analýza jednotlivých vrstev nebo flattening.
 
-#### 11.17.1. Asociační pravidla (Algoritmus Apriori)
+#### 11.14.1. Asociační pravidla (Algoritmus Apriori)
 
 Pokud je vrchol v `leisure` i `coauthor`, tak je se *spolehlivostí* $0.9$ i ve `work` apod.
 
@@ -1120,6 +1204,8 @@ Maximalizace vlivu - nalezení optimální skupiny je NP-úplný problém.
 Obvykle platí, že jen několik málo vybraných influencerů (2-4) pokryje svým vlivem potřebnou část zkoumané části sítě (ve smyslu optimálníhoho poměru cena-výkon)
 
 ## 14. Modely pro simulaci vývoje sítě
+
+K čemu to je dobré? Predikce vývoje sítě.
 
 **Model** je zjednodušený popis reality pomocí nějaký pravidel. Model v NS umožňuje simulovat chování sítě.
 
