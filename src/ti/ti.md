@@ -44,6 +44,8 @@
   - [7.1. SAT problém](#71-sat-problém)
 - [8. PS úplnost](#8-ps-úplnost)
   - [8.1. Generalized Geography (GG)](#81-generalized-geography-gg)
+- [9. Paralelní algoritmy](#9-paralelní-algoritmy)
+  - [9.1. Parallel Random Access Machine (PRAM)](#91-parallel-random-access-machine-pram)
 
 **Teoretická informatika** je vědní obor na pomezí mezi matematikou a informatikou. Zkoumá
 
@@ -908,3 +910,83 @@ Lze nastavit $x_1,x_2,x_3$ tak, aby $\varphi$ byla pravdivá?
 **Kvantifikované booleovské formule (QBF)** je příklad PSPACE úplného problému. Redukcí z QBF lze úkázat PSPACE úplnost mnoha dalších problémů, např. *oblázkové hry*.
 
 ### 8.1. Generalized Geography (GG)
+
+## 9. Paralelní algoritmy
+
+Způsob vzájemné komunikace:
+
+- sdílená paměť
+- posílání zpráv
+
+Vzájemná synchronizace:
+
+- synchronní - instrukce jsou vykonávány na všech procesorech najednou ve stejný okamžik (v synchronních krocích)
+- asynchronní - instrukce jsou vykonávány nezávisle na sobě, pořadí není předvidatelné
+
+### 9.1. Parallel Random Access Machine (PRAM)
+
+- **Synchronní** model.
+- Procesory sdílí společnou **globální paměť**.
+- K dispozici je neomezený (konečný) počet procesorů.
+- Slouží pro prvotní návrh paralelních algoritmů nezávisle na konkrétním hardware.
+
+<img src="figures/pram.png" alt="pram" width="350px">
+
+Oproti RAM stroji má PRAM navíc operace `load` a `store` pro globální paměť:
+
+$$ R_i:=[R_j]_{glob} \quad\,\text{a}\,\quad [R_i]_{glob}:=R_j $$
+
+Navíc PRAM nemá instrukce pro vstup a výstup:  
+
+- Předpokládá se, že vstupní data jsou na začátku uložena na nějakém stanoveném místě v globální paměti.  
+- Podobně se předpokládá, že výstup bude na konci výpočtu zapsán na nějakém stanoveném místě v globální paměti.  
+
+Procesory jsou indexovány — každý má přiděleno `ID` $(0, 1, 2, ...)$, pro jednoduchost můžeme uvažovat ID procesoru uložené v lokální paměti v registru $R_0$.
+
+Varianty PRAM:
+
+- **EREW** — Exclusive-Read Exclusive-Write
+- **CREW** — Concurrent-Read Exclusive-Write
+- **CRCW** — Concurrent-Read Concurrent-Write
+  - **Common** — pokud do jedné buňky zároveň zapisuje více procesorů, tak musí *všechny zapisovat stejnou hodnotu*
+  - **Arbitrary** — pokud do jedné buňky zároveň zapisuje více procesorů, tak je *nedeterministicky vybrána* a zapsána jedna hodnota (ostatní se zahodí)
+  - **Priority** — pokud do jedné buňky zároveň zapisuje více procesorů, tak je zapsána hodnota procesoru s *nejnižším ID*
+
+Za **efektivní paralelní algoritmy** jsou považovány ty, kde:  
+
+- **Časová složitost** $t(n)$ je **polylogaritmická**, tj. $O(\log^k n)$, kde $k\in\mathbb{N}$.
+- **Počet procesorů** $p(n)$ je **polynomiální**.  
+
+*Problémy*, pro které existuje takový efektivní paralelní algoritmus, jsou považovány za **dobře paralelizovatelné**.  
+
+> Třídu **NC** (*Nick’s class*) tvoří právě ty *rozhodovací* *problémy*, pro které existuje paralelní algoritmus s *polylogaritmickou časovou složitostí* při použití *polynomiálního počtu procesorů*.  
+
+<details><summary> Součet posloupnosti čísel </summary>
+
+<img src="figures/pram-sum.png" alt="pream-sum" width="400px">
+
+Časová složitost $\mathcal{O}(\log n)$ při použití $\mathcal{O}(n)$ procesorů.
+
+Pokud bychom měli $p \ll n$ procesorů, můžeme použít algoritmus, který pole $A$ rozdělí na $p$ částí, kdy každá má $n/p$ prvků. Časová složitost $\mathcal{O}(n/p + \log p)$ při použití $p$ procesorů.
+
+</details>
+
+> **Věta (Brent)**
+>
+> Řekněme, že máme paralelní algoritmus, který vykoná celkem $m$ operací, a kde doba jeho provádění při *neomezeném* počtu procesorů by byla $t$ kroků.  
+>
+> Pokud bude k dispozici pouze $p$ procesorů, je možné implementovat tento algoritmus tak, aby pro počet kroků $t'$ platilo:  
+> $$ t' \leq t + \frac{m - t}{p} $$
+
+> Paralelní algoritmus je považován za **optimální**, pokud *celkový* počet provedených operací je (asymptoticky) stejný jako časová složitost nejlepšího známého sekvenčního algoritmu, který řeší daný problém.  
+
+<details><summary> Součet posloupnosti čísel </summary>
+
+- Dříve popsaný algoritmus pro počítání součtu posloupnosti čísel provede celkem $\mathcal{O}(n)$ operací.  
+- Je zjevné, že jakýkoli sekvenční algoritmus musí provést $\Omega(n)$ operací.  
+- Tento paralelní algoritmus je tedy v tomto smyslu **optimální**.  
+
+</details>
+
+Na stroji PRAM typu `CRCW` `COMMON` je možné s $\mathcal{O}(n^2)$ procesory najít
+minimum v čase $\mathcal{O}(1)$. Tento algoritmus není optimální, protože sekvenční algoritmus pro hledání minima má složitost $\mathcal{O}(n)$.
