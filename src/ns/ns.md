@@ -119,6 +119,7 @@
 - [12. Vizualizace](#12-vizualizace-1)
   - [12.1. Quasi-Clique](#121-quasi-clique)
   - [12.2. Kliky ve vícevrstvých sítích](#122-kliky-ve-vícevrstvých-sítích)
+  - [12.3. Modularita ve vícevrstvých sítích](#123-modularita-ve-vícevrstvých-sítích)
 - [13. Šíření informací v sítích (Information Spreading)](#13-šíření-informací-v-sítích-information-spreading)
   - [13.1. Susceptible-Infected (SI) model](#131-susceptible-infected-si-model)
   - [13.2. Nezávislý kaskádový model šíření (Independent Cascade Model)](#132-nezávislý-kaskádový-model-šíření-independent-cascade-model)
@@ -668,7 +669,7 @@ Model náhodného grafu nevyhovuje reálným sítím zejména, protože reálné
 - inspirováno vývojem internetu/webu - uvažuje se neustálý růst sítě
 - mocninné rozdělení a parametrem $\alpha=3$, $f(x)=bx^3$
 - graf je souvislý
-- starší vrcholy jsou "bohatší" - mají vyšší stupeň
+- starší vrcholy jsou "bohatší" - mají vyšší stupeň *(first-mover advantage)*
 - struktura core-periphery (jádro-periferie)
 
 1. V prvním kroce vygeneruji nějaký počáteční graf, třeba cyklus o $n_0$ vrcholech.
@@ -1160,76 +1161,94 @@ $$
 
 (To odpovídá podmíněné pravděpodobnosti.)
 
+**Lift**:
+
+$$
+\text{conf}(A \Rightarrow B) = \frac{\text{supp}(A, B)}{\text{supp}(A)\cdot\text{supp}(B)}.
+$$
+
 ## 12. Vizualizace
 
 - Např. *layout* algoritmy založené na vyvažování sil (např. `Force Atlas`).
+- Strukturální vlastnosti.
 - Vizualizace metrik (např. centralita, vzdálenost, komunity).
 - Augmentace (např. popis vrcholů a hran).
-- Zjednodušená vizualizace (např. $k$-core, tzn. vrcholy se stupněm nižší než $k$ se odstraní).
+- **Zjednodušená vizualizace** (např. $k$-core, tzn. vrcholy se stupněm nižší než $k$ se odstraní).
 - Vlastnosti (např. histogram stupňů, distribuce vzdáleností, distribuce komunit).
-- U vícevrstvých sítí obvykle analyzujeme buď každou vrstvu zvlášť, nebo provedeme zploštění *(flattening)*. Zploštění může "zašumnět" data, což může znesnadnit detekci komunit (může tam být příliš mnoho hran). Exkluzivní hrany nás obvykle tolik nezajímají.
+- U vícevrstvých sítí obvykle analyzujeme buď každou vrstvu zvlášť, nebo provedeme zploštění *(flattening)*. Zploštění může "zašumnět" data, což může znesnadnit detekci komunit (může tam být příliš mnoho hran). Exkluzivní hrany nás obvykle tolik nezajímají (pouze v jedné vrstvě).
 
 ### 12.1. Quasi-Clique
 
-Stanovíme práh hustoty $\gamma$. Potom quasi-klika s prahem $\gamma$ je množina vrcholů, která má hustotu větší než $\gamma$. 
+Stanovíme práh hustoty $\gamma$. Potom $\gamma$-kvazi-klika s prahem $\gamma$ je množina vrcholů, která má hustotu větší než $\gamma$.
 
-Hustotu definujeme jako $\dfrac{2|E|}{|V|(|V|-1)}$.
+Hustotu definujeme jako $\dfrac{|E|}{\dfrac{|V|(|V|-1)}{2}} = \dfrac{2|E|}{|V|(|V|-1)}$.
 
 ### 12.2. Kliky ve vícevrstvých sítích
 
-Buď $L$ množina vrstev. **Vícevrstvá klika** je množina aktérů propojených se všemi ostatními aktéry v klice na každé z těchto vrstev.
+> Buď $L$ množina vrstev. **Vícevrstvá klika** je množina aktérů propojených se všemi ostatními aktéry v klice na každé z těchto vrstev.
 
-**Vícevrstvá kvaziklika** je množina aktérů, kde je každý aktér spojen s alespoň zlomkem $\gamma$ ostatních aktérů v kvazikliku na alespoň zlomku $\lambda$ vrstev tvořících vícevrstvou síť.
+> **Vícevrstvá $\gamma$-$\lambda$-kvaziklika** je množina aktérů, kde je každý aktér spojen s alespoň zlomkem $\gamma$ ostatních aktérů v kvazikliku na alespoň zlomku $\lambda$ vrstev tvořících vícevrstvou síť.
+
+### 12.3. Modularita ve vícevrstvých sítích
+
+Neformálně je modularita funkce určující, jak dobře jsou podgrafy (komunity) rozděleny v rámci sítě. Definici pro jednovrstvé sítě lze rozšířit na vícevrstvé sítě.
 
 ## 13. Šíření informací v sítích (Information Spreading)
 
+Využití například pro *epidemiologii* a *marketing*. Cílem je zjistit, jak se šíří informace v síti hledáním vrcholů s velkým vlivem.
+
+Předpokladem virálního marketingu je, že když se zpočátku zaměříme na několik málo *vlivných* členů sítě, tak můžeme spustit *kaskádu* šíření informací.
+
 ### 13.1. Susceptible-Infected (SI) model
 
-- Aktéři jsou ve dvou stavech: zdravý (susceptible) a nemocný/infekční (infected).
-- Míra infekce $\beta\in\langle0,1\rangle$ je pravděpodobnost nakažení v čase $t$.
+- Aktéři jsou ve dvou stavech: zdravý *(susceptible)* a nemocný/infekční *(infected)*.
+- *Míra infekce* $\beta\in\langle0,1\rangle$ je pravděpodobnost nakažení v čase $t$.
+
+<img src="figures/si.png" alt="si" width="200px">
 
 ### 13.2. Nezávislý kaskádový model šíření (Independent Cascade Model)
 
-- Začneme s počáteční neprázdnou množinou aktivních vrcholů.
-- Buď $p$ pravděpodobnost.
+1. Začneme s počáteční neprázdnou množinou aktivních vrcholů a pravděpodobností $p$.
+2. Když se uzel poprvé stane aktivním, tak má pravděpodobnost $p$ aktivovat každého ze svých neaktivních sousedů.
+3. Aktivovaní sousedé se stávají aktivními v čase $t+1$. Vrchol, který byl aktivní už nemůže být znova aktivován a nemůže znova aktivovat svoje sousedy.
+4. Opakujeme, dokud není možná žádná další aktivace (neexistují žádné aktivní vrcholy).
+5. Nakonec spočítáme, kolik vrcholů bylo aktivováno.
+6. Simulaci opakuje (třeba 100x) a statisticky vyhodnotíme ($\mu$, $\sigma$).
 
-1. Když se uzel poprvé stane aktivním, tak má pravděpodobnost $p$ aktivovat každého ze svých neaktivních sousedů.
-2. Aktivovaní sousedé se stávají aktivními v čase $t+1$. Vrchol, který byl aktivní už nemůže být znova aktivován a nemůžu znova aktivovat svoje sousedy.
-3. Opakujeme, dokud není možná žádná další aktivace (neexistují žádné aktivní vrcholy).
+Maximalizace vlivu (nalezení optimální skupiny) je NP-úplný problém.
 
-Nakonec spočítáme, kolik vrcholů bylo aktivováno. Opakujeme pro všechny vrcholy a statisticky vyhodnotíme ($\mu$, $\sigma$).
+Obvykle platí, že jen několik málo vybraných influencerů (2-4) pokryje svým vlivem potřebnou část zkoumané části sítě (ve smyslu optimálníhoho poměru cena-výkon).
 
-Maximalizace vlivu - nalezení optimální skupiny je NP-úplný problém.
-
-Obvykle platí, že jen několik málo vybraných influencerů (2-4) pokryje svým vlivem potřebnou část zkoumané části sítě (ve smyslu optimálníhoho poměru cena-výkon)
+Obvykle chceme, aby vybraná skupina vlivných vrcholů byla co nejmenší a měla minimální počet společných sousedů.
 
 ## 14. Modely pro simulaci vývoje sítě
 
-K čemu to je dobré? Predikce vývoje sítě.
-
-**Model** je zjednodušený popis reality pomocí nějaký pravidel. Model v NS umožňuje simulovat chování sítě.
-
-**Akcelerovaný růst** - síť roste rychleji než lineárně (např. při nějaké údalosti jako je válka nebo povodeň).
-
-**Stárnutí** (aging) - vrcholy zanikají s časem.
+- K čemu to je dobré? Predikce vývoje sítě.
+- **Model** je zjednodušený popis reality pomocí nějaký pravidel. Model v NS umožňuje simulovat chování sítě.
+- **Akcelerovaný růst** - síť roste rychleji než lineárně (např. při nějaké údalosti jako je válka nebo povodeň).
+- **Stárnutí** (aging) - vrcholy zanikají s časem.
 
 ### 14.1. Link Selection
 
 <img src="figures/link-selection.png" alt="link-selection" width="60px">
 
-**Náhodný výběr hrany** vede k **preferenčnímu připojení** (preferential attachment). Nový vrchol se připojí k jednomu z vrcholů hrany.
+**Náhodný výběr hrany** vede k **preferenčnímu připojení** *(preferential attachment)*. Nový vrchol se připojí k jednomu z vrcholů hrany.
 
 ### 14.2. Two Step
 
-Pro $p=1$ je to *Link Selection* model.
+S pravděpodobností $p$ se připojí k náhodnému vrcholu $u$, s pravděpodobností $1-p$ se připojí k vrcholu, do kterého z $u$ vede hrana.
 
 <img src="figures/two-step.png" alt="two-step" width="350px">
 
-Vede k preferenčnímu připojení (preferential attachment).
+Vede k preferenčnímu připojení *(preferential attachment)*.
 
 ### 14.3. Bianconi-Barabási
 
-TODO.
+V každém kroce je přidán nový vrchol $v$ s $m$ hranami a ohodnocením *(fitness)* $\eta_v$, kde $\eta_v$ je náhodné číslo ze zvoleného rozdělení pravděpodobnosti. Nové hrany jsou připojeny k existujícím vrcholům s pravděpodobností
+
+$$(\forall i=1,\dots,|V|)\colon p(i) = \dfrac{\eta_i \sigma_i}{\sum\limits_{j=1}^{|V|} \eta_j \sigma_j},$$
+
+kde $\sigma_i$ je stupeň vrcholu $i$. Vede k preferenčnímu připojení *(preferential attachment)*. (Pro $\eta_i=1$ dostaneme Barabási-Albert (BA) model.)
 
 ## 15. Miscellaneous
 
