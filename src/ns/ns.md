@@ -332,7 +332,7 @@ Centrality vyjadřují **míru důležitosti vrcholu** z hlediska struktury sít
 - **Degree Centrality** (DC) - z pohledu stupně vrcholu
   - lokální - stupeň vrcholu $\sigma_i=\sum\limits_{j}\mathbb{A}_{i,j}$ (popř. in/out stupeň pro orientovaný graf)
   - globální - průměrný stupeň $\sigma_{avg}=\frac{1}{n}\sum\limits_{i=1}^{N}\sigma_i$
-  - vizualizace - shlukovací efekt (stupeň vs. počet vrcholů)
+  - vizualizace - shlukovací efekt (stupeň vs. průměrný shlukovací koeficient)
   - sociální síť - čím větší stupeň, tím vlivnější člověk
   - citační síť - čím větší vstupní stupeň (kolikrát byla publikace citována), tím větší vliv
 
@@ -837,7 +837,7 @@ Cílený útok na centra - po odstranění několika málo center se síť rozpa
 - **link prediction** - např. doporučování kontaktů v sociálních sítích
 - **network embedding** - odstranění hran
 
-Pokud jsme schopni síť vizualizovat tak, aby šlo vidět strukturální detaily, můžeme ji označit jako *malou*, v ostatních případech ji jako *velkou* a musíme se spoléhat na analýzy a algoritmy.
+Pokud jsme schopni síť vizualizovat tak, aby šlo vidět strukturální detaily, můžeme ji označit jako *malou*, v ostatních případech jako *velkou* a musíme se spoléhat na analýzy a algoritmy.
 
 Typické charakteristiky sítí:
 
@@ -1045,7 +1045,7 @@ $$\mathrm{x\_neighborhood}(a, L) = |\mathrm{neighbors}(a, L)\,\setminus\,\mathrm
 ### 11.7. Random Walk
 
 - Náhodný chodec v uzlu $(a, l)$, kde $a\in A$ a $l\in L$, může s uniformní pravděpodobností přejít do jednoho ze svých sousedů $(a', l)$ v rámci téže vrstvy $l$ nebo může přejít do svého protějšku $(a, l')$ v jiné vrstvě $l'$.
-- Tzn. v každém kroku chodec s pravděpodobností $\frac{1}{\mathrm{deg}(a,l) + 1}$ přejde do jiné vrstvy.
+- Tzn. pokud existuje protějšek $a$ v jiné vrstvě, tak chodec s pravděpodobností $\frac{1}{\mathrm{deg}(a,l) + 1}$ přejde do jiné vrstvy (do jednoho ze svých protějšků).
 - (Formulaci lze rozšířit pro vážené sítě a uvažovat váhu spojení vrstev.)
 - Pro experiment definujeme *konstantní délku* procházky a *počet* procházek. Zvolíme *náhodný vrchol* a *náhodnou vrstvu*. Počítame, *kolikrát* byl který vrchol navštíven.
 - Vzdálenosti mezi vrcholy lze spočítat s časovou složitostí $\mathcal{O}(n^3)$. Random walk lze využít pro aproximaci vzdáleností.
@@ -1217,7 +1217,7 @@ Předpokladem virálního marketingu je, že když se zpočátku zaměříme na 
 
 Maximalizace vlivu (nalezení optimální skupiny) je NP-úplný problém.
 
-Obvykle platí, že jen několik málo vybraných influencerů (2-4) pokryje svým vlivem potřebnou část zkoumané části sítě (ve smyslu optimálníhoho poměru cena-výkon).
+Obvykle platí, že jen několik málo vybraných influencerů (2-4) pokryje svým vlivem potřebnou část zkoumané části sítě (ve smyslu optimálního poměru cena-výkon).
 
 Obvykle chceme, aby vybraná skupina vlivných vrcholů byla co nejmenší a měla minimální počet společných sousedů.
 
