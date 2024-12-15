@@ -1537,3 +1537,15 @@ DCGAN je rozšíření architektury GAN o konvoluční vrstvy.
 ## 18. Style Transfer
 
 - [https://pytorch.org/tutorials/advanced/neural_style_tutorial.html](https://pytorch.org/tutorials/advanced/neural_style_tutorial.html)
+
+<img src="figures/style-transfer.png" alt="style-transfer" width="400px">
+
+Hlavní myšlenka algoritmu *[Neural-Style](https://arxiv.org/abs/1508.06576)* (*Neural-Transfer*, *Style-Transfer*) spočívá v definici dvou vzdáleností $D_C$ *(content distance)*, tj. vzdálenost od obsahu obrázku, a $D_S$ *(style distance)*, tj. vzdálenost od stylu obrázku.
+
+Algoritmus pracuje se třemi obrazy:
+
+- $X$ *(input image)*,
+- $C$ *(content image)*,
+- $S$ *(style image)*.
+
+Obraz $X$ může být buď bílý šum, nebo kopie $C$. Algoritmus optimalizuje $X$ tak, aby minimalizoval $D_C$ a $D_S$.
