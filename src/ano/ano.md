@@ -35,7 +35,7 @@
   - [3.1. Aktivační funkce](#31-aktivační-funkce)
   - [3.2. Dopředný průchod](#32-dopředný-průchod)
   - [3.3. Back propagation](#33-back-propagation)
-  - [3.4. Předchůdci hlubokých neuronových sítí](#34-předchůdci-hlubokých-neuronových-sítí)
+  - [3.4. Konvoluční neuronové sítě (CNN)](#34-konvoluční-neuronové-sítě-cnn)
   - [3.5. Detekce objektů pomocí sliding window](#35-detekce-objektů-pomocí-sliding-window)
   - [3.6. Komponenty hlubokých CNN](#36-komponenty-hlubokých-cnn)
   - [3.7. Detekce objektů](#37-detekce-objektů)
@@ -45,11 +45,24 @@
     - [3.7.4. Fast R-CNN](#374-fast-r-cnn)
     - [3.7.5. Faster R-CNN](#375-faster-r-cnn)
     - [3.7.6. YOLO](#376-yolo)
+    - [3.7.7. SSD (Single Shot MultiBox Detector)](#377-ssd-single-shot-multibox-detector)
+    - [3.7.8. RetinaNet](#378-retinanet)
   - [3.8. Sítě pro použití s časem](#38-sítě-pro-použití-s-časem)
     - [3.8.1. Rekurentní sítě (RNN)](#381-rekurentní-sítě-rnn)
     - [3.8.2. LSTM](#382-lstm)
     - [3.8.3. Attention](#383-attention)
-- [4. Vision Transformer (ViT)](#4-vision-transformer-vit)
+- [4. Architektury CNN](#4-architektury-cnn)
+  - [4.1. LeNet 1995](#41-lenet-1995)
+  - [4.2. AlexNet 2012](#42-alexnet-2012)
+  - [4.3. ZFNet (2013)](#43-zfnet-2013)
+  - [4.4. VGG (2014)](#44-vgg-2014)
+  - [4.5. GoogLeNet (2014)](#45-googlenet-2014)
+  - [4.6. ResNet (2015)](#46-resnet-2015)
+  - [4.7. DenseNet (2017)](#47-densenet-2017)
+  - [4.8. MobileNet](#48-mobilenet)
+  - [4.9. SqueezeNet](#49-squeezenet)
+  - [4.10. EfficientNet](#410-efficientnet)
+  - [4.11. Vision Transformer (ViT) (2020)](#411-vision-transformer-vit-2020)
 - [5. Zpětná stereoprojekce](#5-zpětná-stereoprojekce)
   - [5.1. Lineární model kamery](#51-lineární-model-kamery)
     - [5.1.1. Perspektivní transformace](#511-perspektivní-transformace)
@@ -67,27 +80,22 @@
 - [9. Úlohy při zpracování obrazu](#9-úlohy-při-zpracování-obrazu)
 - [10. Template matching](#10-template-matching)
 - [11. Typy kernelů](#11-typy-kernelů)
-- [12. Detekce objektů a rozpoznávání obličejů](#12-detekce-objektů-a-rozpoznávání-obličejů)
+- [12. Rozpoznávání obličejů](#12-rozpoznávání-obličejů)
   - [12.1. Sliding window](#121-sliding-window)
   - [12.2. Proces rozpoznávání](#122-proces-rozpoznávání)
-  - [12.3. Detekce obrazový zájmový bodů](#123-detekce-obrazový-zájmový-bodů)
-  - [12.4. Haar features (příznaky)](#124-haar-features-příznaky)
-    - [12.4.1. Kaskádová regrese (Cascaded Regression)](#1241-kaskádová-regrese-cascaded-regression)
+  - [12.3. Detekce obličejů](#123-detekce-obličejů)
+  - [12.4. Haarovy příznaky](#124-haarovy-příznaky)
+    - [12.4.1. Kaskádový klasifikátor](#1241-kaskádový-klasifikátor)
     - [12.4.2. Knihovny pro detekci zájmový bodů obličeje](#1242-knihovny-pro-detekci-zájmový-bodů-obličeje)
 - [13. Autonomí vozidla](#13-autonomí-vozidla)
   - [13.1. Senzory](#131-senzory)
   - [13.2. Úrovně autonomních vozidel](#132-úrovně-autonomních-vozidel)
 - [14. OpenCV](#14-opencv)
-- [15. Integrální obraz](#15-integrální-obraz)
-- [16. Haar Features](#16-haar-features)
-- [17. Random Forest](#17-random-forest)
-- [18. AdaBoost](#18-adaboost)
-- [19. Architektury CNN](#19-architektury-cnn)
-  - [19.1. Jak v CNN redukovat počet kanálů?](#191-jak-v-cnn-redukovat-počet-kanálů)
-  - [19.2. VGG](#192-vgg)
-- [20. Generative Adversarial Network (GAN)](#20-generative-adversarial-network-gan)
-  - [20.1. Deep Convolutional Generative Adversarial Network (DCGAN)](#201-deep-convolutional-generative-adversarial-network-dcgan)
-- [21. Style Transfer](#21-style-transfer)
+- [15. Random Forest](#15-random-forest)
+- [16. AdaBoost](#16-adaboost)
+- [17. Generative Adversarial Network (GAN)](#17-generative-adversarial-network-gan)
+  - [17.1. Deep Convolutional Generative Adversarial Network (DCGAN)](#171-deep-convolutional-generative-adversarial-network-dcgan)
+- [18. Style Transfer](#18-style-transfer)
 
 ## 1. Segmentace obrazu
 
@@ -190,6 +198,8 @@ $$
     0 & 1 & 0\\
 \end{bmatrix}
 $$
+
+<img src="figures/edge-detection-sudoku.png" alt="edge-detection-sudoku" width="400px">
 
 ### 1.3. Základní myšlenky Cannyho detekce hran
 
@@ -625,7 +635,7 @@ $$\theta^{(t)}=\theta^{(t-1)}-\eta\dfrac{\partial C(X,\theta^{(t)})}{\partial\th
 
 kde $\eta\in\R^+$ je míra učení a $C$ je ztrátová funkce, která závisí na parametrech sítě $\theta^{(t)}$ a souboru dat $X$, tzn. dvojic vstup-výstup $(\mathbf{x}_i,\mathbf{y}_i)$.
 
-### 3.4. Předchůdci hlubokých neuronových sítí
+### 3.4. Konvoluční neuronové sítě (CNN)
 
 - 1998 LeNet
 - 2005 Sliding window + HoG + SVM pro detekci lidí
@@ -634,6 +644,8 @@ kde $\eta\in\R^+$ je míra učení a $C$ je ztrátová funkce, která závisí n
 - 2015 VGG
 - 2015 GoogleNet - **inception module**
 - 2015 ResNet
+
+Podrobněji v kapitole 4.
 
 ### 3.5. Detekce objektů pomocí sliding window
 
@@ -688,8 +700,8 @@ Možné přístupy:
 
 #### 3.7.3. R-CNN
 
-1. Selective search region proposal
-2. Resize selected regions to $227\times227$
+1. **Selective search** region proposal
+2. Resize selected regions to $227\times227$ (obdélníky na čtverec)
 3. CNN extrakce příznaků
 4. SVM pro klasifikaci
 
@@ -728,11 +740,23 @@ YOLOv1:
 
 <img src="figures/yolo-loss.png" alt="yolo-loss" width="600px">
 
+<img src="figures/yolov1-tensor.png" alt="yolov1-tensor" width="600px">
+
 - Celkový počet bboxů je $S\times B$:
   - $S$...počet buněk (YOLOv1 $7\times7$)
   - $B$...počet bboxů na buňku (YOLOv1 $B=2$)
 - $x,y$...souřadnice bboxů
 - $w,h$...šířka, výška bboxů
+
+YOLOv2 a výše používá anchor boxes (viz SSD).
+
+#### 3.7.7. SSD (Single Shot MultiBox Detector)
+
+- **Anchor boxes** - předdefinované velikosti a poměry stran bboxů, síť se učí, jak upravit tyto anchor boxy (jak nastavit offset).
+
+#### 3.7.8. RetinaNet
+
+- Feature pyramid network (FPN) + Focal loss
 
 ### 3.8. Sítě pro použití s časem
 
@@ -762,7 +786,79 @@ YOLOv1:
 - *Self-attention* - v rámci řetězce se vypočte *attention* vůči všem tokenům - nad maticemi $Q, K, V$ (query, key, value).
 - Vision Transformer (ViT).
 
-## 4. Vision Transformer (ViT)
+## 4. Architektury CNN
+
+### 4.1. LeNet 1995
+
+### 4.2. AlexNet 2012
+
+- Různě velké konvoluční vrstvy `(11x11, stride=4)`, `(5x5, stride=2)`, `(3x3, stride=1)`.
+- Max pooling `(3x3, stride=2)`.
+- Na konci 3 plně propojené vrstvy.
+- ReLU.
+- *Horizonal flip* & *random crop*.
+
+### 4.3. ZFNet (2013)
+
+- Více kanálů.
+- Vizualizace příznakových map.
+
+### 4.4. VGG (2014)
+
+- Pouze kernely $3\times3$ a pooling $2\times2$.
+- Myšlenka, že dvě vrstvy $3\times3$ jsou ekvivalentní jedné vrstvě $5\times5$ a obdobně tři vrstvy $3\times3$ jsou ekvivalentní jedné vrstvě $7\times7$ (uvažujeme padding 1 a stride 1) $\rightarrow$ **reception net**.
+- 2 vrstvy $3\times3$ mají méně parametrů než 1 vrstva $5\times5$.
+
+### 4.5. GoogLeNet (2014)
+
+- "wider rather than deeper"
+
+<img src="figures/inception-module.png" alt="inception-module" width="700px">
+
+> Jak v CNN redukovat počet kanálů? **1x1 konvoluce** nebo 3D konvoluce.
+>
+> 1D konvoluce:
+>
+> <img src="figures/1d-conv.png" alt="1d-conv" width="350px">
+>
+> 1D konvoluce byla milník pro vytváření hlubokých CNN.
+>
+> 3D konvoluce s kernel $3\times3\times3$:
+>
+> <img src="figures/3d-conv.png" alt="3d-conv" width="350px">
+
+### 4.6. ResNet (2015)
+
+- Hluboké sítě mají problém s učením, kvůli *vanishing gradient problem*.
+- Řešení: **residual blocks** *(skip connections)*.
+
+"shortcut:"
+
+<img src="figures/residual-block.png" alt="residual-block" width="200px">
+
+"bottleneck:"
+
+<img src="figures/residual-bottleneck.png" alt="residual-bottleneck" width="400p">
+
+Pokud se zvyšuje počet kanálů, tak se použije 1x1 konvoluce.
+
+<img src="figures/resnet-bottleneck-2.png" alt="resnet-bottleneck-2" width="200px">
+
+### 4.7. DenseNet (2017)
+
+Dense block:
+
+<img src="figures/dense-block.png" alt="dense-block" width="400px">
+
+### 4.8. MobileNet
+
+### 4.9. SqueezeNet
+
+### 4.10. EfficientNet
+
+- compound scaling (depth, width, resolution)
+
+### 4.11. Vision Transformer (ViT) (2020)
 
 - [An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale](https://research.google/blog/transformers-for-image-recognition-at-scale/)
 
@@ -770,15 +866,83 @@ YOLOv1:
 
 <img src="figures/vit-transformer-encoder.png" alt="vit-transformer-encoder" width="125px">
 
-1. Rozdělení obrazu na patche (např. $16\times16$, tzn. $P=16$).
-2. Lineární projekce na vektory (flatten), výsledný vektor má dimenzi $P^2\cdot C$, kde $C$ je počet kanálů.
-3. Přidání *class token* na začátek vektoru.
-4. *Layer normalization*
+1. Rozdělení obrazu na bloky *(patches)* (např. $16\times16$, tzn. $P=16$).
+2. Lineární projekce na vektory *(flatten)*, výsledné vektory mají dimenzi $P^2\cdot C$, kde $C$ je počet kanálů. Každý *patch* odpovídá jednomu *tokenu*.
+3. Poziční embedding.
+4. Přidání *class token*.
+5. **Transformer encoder** $(L\times)$.
+   1. *Layer normalization*
 
-    <img src="figures/layer_normalization.webp" alt="layer_normalization" width="400px">
+      <img src="figures/layer_normalization.webp" alt="layer_normalization" width="400px">
 
-5. *Multi-head attention*, násobení matic $Q, K, V$.
-    $$\text{Attention}(Q,K,V)=\text{Softmax}\left(\dfrac{QK^T}{\sqrt{d_k}}\right)V$$
+   2. *Multi-head self attention*, násobení matic $Q, K, V$.
+      $$\text{SelfAttention}(Q,K,V)=\text{Softmax}\left(\dfrac{QK^T}{\sqrt{d_k}}\right)V$$
+   3. *Layer normalization*
+   4. MLP *(classification head)*
+
+<img src="figures/vit.png" alt="vit" width="700px">
+
+Jak vytvořit *patches*? Stačí použít konvoluci s velikostí jádra $P\times P$ a stride $P$.
+
+<img src="figures/vit-patches.png" alt="vit-patches" width="400px">
+
+<details><summary> Náznak implementace ViT </summary>
+
+```py
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+# Custom Permute Layer
+class MyPermute(nn.Module):
+    def __init__(self, dims):
+        super(MyPermute, self).__init__()
+        self.dims = dims
+
+    def forward(self, x):
+        return x.permute(*self.dims)
+
+# Block Permute Implementation
+block_permute = nn.Sequential(
+    nn.Conv2d(
+        in_channels=3,
+        out_channels=768,
+        kernel_size=(ps, ps),  # `ps` needs to be defined
+        stride=ps,
+        padding=0,
+        bias=False,
+    ),
+    nn.Flatten(start_dim=2, end_dim=-1),
+    MyPermute((0, 2, 1))
+)
+
+# Class Token
+batch_size = 32  # Define batch size
+class_token = nn.Parameter(torch.ones(batch_size, 1, 768))
+
+# Concatenation of class token and block output
+block_out_permute = torch.randn(batch_size, 196, 768)  # Placeholder for block_permute output
+z_0_with_class = torch.cat((class_token, block_out_permute), dim=1)
+
+# Positional Embeddings
+position_embeddings = nn.Parameter(torch.ones(1, 197, 768))  # 197 = 1 (class token) + 196 (patches)
+z_0_with_class_with_poss = z_0_with_class + position_embeddings
+
+# LayerNorm and Multi-Head Attention
+layer_norm = nn.LayerNorm(768)
+layer_norm_out = layer_norm(z_0_with_class_with_poss)
+
+multihead_attn = nn.MultiheadAttention(embed_dim=768, num_heads=12, batch_first=True)
+attn_output, attn_output_weights = multihead_attn(
+    query=layer_norm_out, key=layer_norm_out, value=layer_norm_out
+)
+
+# Placeholder for testing output
+print("Attention Output Shape:", attn_output.shape)
+print("Attention Weights Shape:", attn_output_weights.shape)
+```
+
+</details>
 
 ## 5. Zpětná stereoprojekce
 
@@ -1045,12 +1209,12 @@ Jak porovnat *template* a *source*?
     -1 & 5 & -1\\
     0 & -1 & 0\\\end{bmatrix}$
 
-## 12. Detekce objektů a rozpoznávání obličejů
+## 12. Rozpoznávání obličejů
 
 - **Haar** (sliding window)
 - **HOG** (sliding window)
 - **LBP** (sliding window)
-- **SIFT, SURF** (zájmové body)
+- **SIFT, SURF, BRIEF, ORB, BRISK, FREAK** (zájmové body)
 - **CNNs** (hluboké učení)
 
 ### 12.1. Sliding window
@@ -1068,14 +1232,15 @@ Jak porovnat *template* a *source*?
 3. Extrakce příznaků
 4. Fáze rozpoznávání (klasifikace)
 
-### 12.3. Detekce obrazový zájmový bodů
+### 12.3. Detekce obličejů
 
 - *facial landmark detection, keypoint detection*
 - obrazové zájmové body mohou být použity k lepšímu výřezu obličeje a zlepšit tak rozpoznávání
-- Facial landmarks can be used to align facial imagesto improve face recognition.
+- Facial landmarks can be used to align facial images to improve face recognition.
 - můžeme odhadovat pózu hlavy - kam se člověk dívá
 - nahrazení obličeje
 - detekce zavřených očí
+- pro segmentaci očí lze použít thresholding na bílou barvu
 
 S jakými problémy musíme počítat?
 
@@ -1084,27 +1249,75 @@ S jakými problémy musíme počítat?
 - výrazy obličeje, mimika
 - osvětlení, stíny, jas
 
-### 12.4. Haar features (příznaky)
+### 12.4. Haarovy příznaky
 
 - Viola & Jones 2001
 - hlavní myšlenka - obličeje mají podobné vlastnosti
   - oblast očí je tmavší něž líce, podobně čelo je obvykle světlejší než oči
   - ústa mají taky jiný jas
   - "nosní most" je světlejší než oči
-- vezme se suma jasů v jednotlivých obdélnících a udělá se jejich rozdíl
 - je nutná trénovací množina
-- pro oči lze použít thresholding na bílou barvu
 
-Jak funguje a co to je kaskádový klasifikátor?
+<img src="figures/haar-features.png" alt="haar-features" width="400px">
 
-- většina obrazu obvykle hledaný objekt neobsahuje, proto chceme tyto oblast co nejdříve zahodit
-- kaskádový klasifikátor má několik fází, pokud je pravděpodobnost hledaného objektu v okně velká, tak se pokračuje do další fáze, jinak se okno zahodí (nebo něco takového)
+Suma přes obdélník, černou oblast odečítám, bílou přičítám. Existují různé typy:
 
-#### 12.4.1. Kaskádová regrese (Cascaded Regression)
+<img src="figures/haar-feats.png" alt="haar-feats" width="400px">
 
-- tato metoda začíná z průměrného tvaru obličeje a iterativně posouvá zájmové body podle obrazových příznaků
+> **Integrální obraz** obsahuje součet všech prvků nad ním a vlevo od něj, tj.:
+>
+> $$I[m, n] = \sum_{i \leq m} \sum_{j \leq n} X[i, j],$$
+>
+> kde $X$ je původní obraz a $I$ je integrální obraz.
 
-![Cascaded Regression](figures/cascaded_regrassion.png)
+Integrální obraz lze využít k výpočtu Haarových příznaků v **konstantním čase** (obecně k sumě prvků submatice).
+
+<img src="figures/integral_image.png" alt="integral_image" width="400px">
+
+Proč přičítáme $ii_1$? Protože jsme ho v rámci $ii_2$ a $ii_3$ odečetli.
+
+<img src="figures/integral_image_2.png" alt="integral_image_2" width="400px">
+
+<details><summary> Příklad </summary>
+
+```py
+import numpy as np
+from skimage.transform import integral_image
+
+X = np.array(
+    [
+        [ 1, 2, 1, 2],
+        [ 1, 0, 1, 1],
+        [ 1, 3, 1, 0],
+        [ 0, 3, 2, 0]
+     ]
+  )
+
+I = integral_image(X)
+>>> array([[ 1,  3,  4,  6],
+           [ 2,  4,  6,  9],
+           [ 3,  8, 11, 14],
+           [ 3, 11, 16, 19]])
+
+# Construction:
+assert I[3,3] == I[3,2] + I[2,3] - I[2,2] + X[3,3]
+
+# Usage:
+assert X[2:4, 2:4].sum() == I[3,3] + I[1,1] - I[1,3] - I[3,1]
+```
+
+</details>
+
+#### 12.4.1. Kaskádový klasifikátor
+
+- většina obrazu obvykle hledaný objekt (obličej) neobsahuje, proto chceme tyto oblast co nejdříve zahodit
+- kaskádový klasifikátor má několik fází, pokud je pravděpodobnost hledaného objektu v okně velká, tak se pokračuje do další fáze, jinak se okno zamítne
+
+<img src="figures/cascade-clf.png" alt="cascade-clf" width="400px">
+
+Existují i pokročilejší metody, např. **Cascaded Regression**. Tato metoda začíná z průměrného tvaru obličeje a iterativně posouvá zájmové body podle obrazových příznaků:
+
+<img src="figures/cascaded_regrassion.png" alt="cascaded_regrassion" width="550px">
 
 #### 12.4.2. Knihovny pro detekci zájmový bodů obličeje
 
@@ -1132,6 +1345,8 @@ Jak funguje LIDAR?
 - Lidar používá laserové paprsky bezpečné pro oči, které "vidí" svět ve 3D (vytvářejí mračna 3D bodů) a poskytují počítačům prostorový obraz.
 - Typický lidar emituje pulzy světla (vlnění) do svého okolí a toto vlnění se odráží od okolních objektů. Lidar tyto odražené vlny zaznamenává a počítá rozdíl v čase od vypuštění do zachycení.
 - Tento proces se opakuje třeba milionkrát za sekundu.
+
+<img src="figures/lidar.png" alt="lidar" width="500px">
 
 Jaké má LIDAR výhody a nevýhody oproti kamerám?
 
@@ -1263,31 +1478,19 @@ cv::imshow("Gradient", gradient_8uc1_img);
 
 </details>
 
-# ANO II
-
-## 15. Integrální obraz
-
-<img src="figures/integral_image.png" alt="integral_image" width="400px">
-
-Proč přičítáme $ii_1$? Protože jsme ho v rámci $ii_2$ a $ii_3$ odečetli.
-
-Integrální obraz lze využít k výpočtu Haarových příznaků v konstantním čase.
-
-## 16. Haar Features
-
-<img src="figures/haar-features.png" alt="haar-features" width="400px">
-
-Suma přes obdélník, černou oblast odečítám, bílou přičítám.
-
-## 17. Random Forest
+## 15. Random Forest
 
 <img src="figures/random-forest.png" alt="random-forest" width="400px">
 
-## 18. AdaBoost
+1. Náhodně rozdělíme trénovací množinu.
+2. Natrénujeme rozhodovací strom na každé podmnožině.
+3. Majoritní hlasování pro klasifikaci nebo průměr pro regresi.
+
+## 16. AdaBoost
 
 <img src="figures/adaboost.png" alt="adaboost" width="400px">
 
-1. Dataset se dvěmi třídami.
+1. Dataset se dvěmi třídami (pro jednoduchost).
 2. Inicializace vah, každému pozorování přiřadíme váhu $\dfrac{1}{\#\text{pozorování}}$
 3. For #iterations:
    1. Train a weak classifier.
@@ -1295,29 +1498,7 @@ Suma přes obdélník, černou oblast odečítám, bílou přičítám.
    3. Update weights: lower the weight for correct prediction, increase for incorrect, then normalize the weights.
 4. Produce strong classifier as a linear combinations of the weak classifiers.
 
-## 19. Architektury CNN
-
-### 19.1. Jak v CNN redukovat počet kanálů?
-
-- **1x1 konvoluce** - redukce počtu kanálů
-
-3D konvoluce s kernel $3\times3\times3$:
-
-<img src="figures/3d-conv.png" alt="3d-conv" width="350px">
-
-1D konvoluce:
-
-<img src="figures/1d-conv.png" alt="1d-conv" width="350px">
-
-1D konvoluce byla milník pro vytváření hlubokých CNN.
-
-### 19.2. VGG
-
-- Pouze kernely $3\times3$ a pooling $2\times2$.
-- Myšlenka, že dvě vrstvy $3\times3$ jsou ekvivalentní jedné vrstvě $5\times5$ a obdobně tři vrstvy $3\times3$ jsou ekvivalentní jedné vrstvě $7\times7$ (uvažujeme padding 1 a stride 1) $\rightarrow$ **reception net**.
-- 2 vrstvy $3\times3$ mají méně parametrů než 1 vrstva $5\times5$.
-
-## 20. Generative Adversarial Network (GAN)
+## 17. Generative Adversarial Network (GAN)
 
 - [https://developers.google.com/machine-learning/gan/gan_structure](https://developers.google.com/machine-learning/gan/gan_structure)
 
@@ -1330,12 +1511,29 @@ $D$ a $G$ hrají *minimax* hru, kde $D$ se snaží maximalizovat pravděpodobnos
 - **Mode collapse** - generátor produkuje pouze jeden druh obrázků.
 - Lze použít **Wasserstein loss**.
 
-### 20.1. Deep Convolutional Generative Adversarial Network (DCGAN)
+<img src="figures/gan-schema.png" alt="gan-schema" width="600px">
+
+Trénování diskriminátoru:
+
+1. Reálná data s `label=1`.
+2. `error_real.backward()`
+3. Falešná data s `label=0`.
+4. `error_fake.backward()`
+5. `optimizer_D.step()`
+
+Trénování generátoru:
+
+1. Generování falešných dat.
+2. Falešná data dáme na vstup diskriminátoru s `label=1` (přestože jsou to falešná data).
+3. `error.backward()`
+4. `optimizer_G.step()`
+
+### 17.1. Deep Convolutional Generative Adversarial Network (DCGAN)
 
 - [https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial](https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html)
 
 DCGAN je rozšíření architektury GAN o konvoluční vrstvy.
 
-## 21. Style Transfer
+## 18. Style Transfer
 
 - [https://pytorch.org/tutorials/advanced/neural_style_tutorial.html](https://pytorch.org/tutorials/advanced/neural_style_tutorial.html)
