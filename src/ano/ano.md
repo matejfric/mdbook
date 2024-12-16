@@ -726,7 +726,7 @@ Detektor Faster R-CNN přidává **Region Proposal Network (RPN)**, která gener
 - [You Only Look Once](https://youtu.be/NM6lrxy0bxs?si=ev8P8-CTuAhVUVCI)
 - YOLO přistupuje k detekci objektů spíše jako k regresnímu problému (než ke klasifikaci).
 
-Naopak metody jako R-CNN přistupjí k problému detekce v několika krocích:
+Naopak metody jako R-CNN přistupují k problému detekce v několika krocích:
 
 1. Region proposal
 2. Klasifikace boxů

@@ -3,6 +3,7 @@
 [Home](./home.md)
 
 - [Analýza obrazu (ANO)](./ano/ano.md)
+- [Analýza a zpracování dat (AZD)](./azd/azd.md)
 - [Biologicky inspirované algoritmy (BIA)](./bia/bia.md)
 - [CUDA](./cuda/cuda.md)
   - [N-Body Problem](./cuda/nbody.md)
