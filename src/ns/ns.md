@@ -103,7 +103,7 @@
 - [11. Vícevrstvé sítě](#11-vícevrstvé-sítě)
   - [11.1. Degree Centrality](#111-degree-centrality)
   - [11.2. Degree deviation](#112-degree-deviation)
-  - [11.3. Neighborhood](#113-neighborhood)
+  - [11.3. Neighbors](#113-neighbors)
   - [11.4. Neighborhood Centrality](#114-neighborhood-centrality)
   - [11.5. Connective Redundancy](#115-connective-redundancy)
   - [11.6. Exclusive Neighborhood](#116-exclusive-neighborhood)
@@ -789,10 +789,10 @@ Model náhodného grafu nevyhovuje reálným sítím zejména, protože reálné
 
 ## 7. Význam stupně vrcholu
 
-- Assotrative mixing (homofilní vazby) - kladná korelace vzhledem ke stupni (propojení vrcholů s nízkým stupněm a vysokým stupněm)
-  - síť je assotrative (výběrový, nenáhodná), pokud významná část hran spojuje vrcholy stejného typu (např. se stejnou hodnotou atributu, s podobným stupněm atd.)
+- Assortative mixing (homofilní vazby) - kladná korelace vzhledem ke stupni (propojení vrcholů s nízkým stupněm a vysokým stupněm)
+  - síť je asortativní (výběrový, nenáhodná), pokud významná část hran spojuje vrcholy stejného typu (např. se stejnou hodnotou atributu, s podobným stupněm atd.)
   - počet hran mezi atributy stejného typu je dán $\boxed{\dfrac{1}{2}\sum\limits_{i,j}A_{i,j}\delta(c_i,c_j),}$ stejně jako u modularity můžeme navíc určit *očekávaný počet hran*; normalizovanou verzi modularity pro kategoriální atributy nazýváme **asortativní koeficient**, který má tu vlastnost, že pro síť s vrcholy stejného typu má hodnotu 1 (modularity by v tomto případě 1 nikdy nebyla)
-- Disassotrative mixing (heterofilní vazby) - negativní korelace
+- Disassortative mixing (heterofilní vazby) - negativní korelace
 - Náhodná síť - žádná korelace
 
 <img src="figures/correlation.png" alt="" style="width: 400px;">
@@ -860,7 +860,7 @@ Největší souvislá komponenta (LCC - Largest Connected Component) - největš
 - *(Dynamic/evolving/temporal networks.)*
 - Mění se v čase.
 - Základní charakteristikou je *stochastický přístup k analýze*.
-- Pracuje se *pravděpodobností existence* (nebo mírou aktivity)
+- Pracuje se s *pravděpodobností existence* (nebo mírou aktivity)
 vrcholu, resp. hrany, v daném časovém okamžiku.
 - Jevy se často v dynamických sítích modelují pomocí *simulace*.
 - Často se také předpokládá, že vrcholy sítě mohou být různého
@@ -918,6 +918,16 @@ Dimenze sítě/grafu je z pohledu ML velmi vysoká - matice sousednosti - dimenz
 - Clustering-based - komunity.
 
 ### 10.4. Similarity-based
+
+| Metoda | Náznak výpočtu |
+|--------|----------------|
+| PA | $\cdot$ |
+| CN | $\cap$ |
+| JC | $\frac{\cap}{\cup}$ |
+| SI | $\frac{2\cap}{+}$ |
+| CS | $\frac{\cap}{\sqrt{\cdot}}$ |
+| AA | $\sum\limits_{v\in\cap} \frac{1}{\log(\Gamma(v))}$ |
+| RA | AA bez $\log$ |
 
 #### 10.4.1. Common Neighbors (CN)
 
@@ -1020,7 +1030,7 @@ $$
 \sqrt{\dfrac{\sum\limits_{l\in L}\left( \mathrm{deg}(a, l) - \dfrac{\mathrm{deg}(a, L)}{|L|}\right)^2}{|L|}}
 $$
 
-### 11.3. Neighborhood
+### 11.3. Neighbors
 
 Buď $a$ aktér a $L\subseteq 2^{\mathcal{L}}$:
 
@@ -1095,12 +1105,12 @@ $$\mathrm{x\_relevance}(a,L) = \dfrac{\mathrm{x\_neighborhood}(a, L)}{\mathrm{ne
 
 Díky zploštění můžeme používat standardní metody analýzy sítí, jako např. detekci komunit. Sloučíme vrcholy z různých vrstev do jedné vrstvy.
 
-> **Nevážený flattening** vícevrstvé sítě $(A,\mathcal{L},V,E)$ je graf $(V_f,E_f)$, kde
+> **Nevážený flattening** vrstev $L\subseteq \mathcal{L}$ vícevrstvé sítě $(A,\mathcal{L},V,E)$ je graf $(V_f,E_f)$, kde $(\forall l\in L)\colon$
 >
 > $$
 \begin{align*}
-  V_f&=\{a\mid(a,L)\in V\},\\
-  E_f&=\{(a,a')\mid\{(a,L),(a',L')\}\in E\}.
+  V_f&=\{a\mid(a,l)\in V\},\\
+  E_f&=\{(a,a')\mid\{(a,l),(a',l)\}\in E\},
 \end{align*}
 $$
 
@@ -1116,7 +1126,7 @@ $$
 
 ### 11.13. Projekce
 
-Pokub máme *heterogenní* vícevrstvou síť, můžeme ji převést na homogenní síť.
+Pokud máme *heterogenní* vícevrstvou síť, můžeme ji převést na homogenní síť.
 
 <img src="figures/projection.png" alt="projection" width="400px">
 
@@ -1219,7 +1229,7 @@ Maximalizace vlivu (nalezení optimální skupiny) je NP-úplný problém.
 
 Obvykle platí, že jen několik málo vybraných influencerů (2-4) pokryje svým vlivem potřebnou část zkoumané části sítě (ve smyslu optimálního poměru cena-výkon).
 
-Obvykle chceme, aby vybraná skupina vlivných vrcholů byla co nejmenší a měla minimální počet společných sousedů.
+Obvykle chceme, aby vybraná skupina vlivných vrcholů byla co nejmenší, měla minimální počet společných sousedů a pokryla co největší část sítě.
 
 ## 14. Modely pro simulaci vývoje sítě
 
