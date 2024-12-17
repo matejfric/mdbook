@@ -1501,6 +1501,7 @@ cv::imshow("Gradient", gradient_8uc1_img);
 ## 17. Generative Adversarial Network (GAN)
 
 - [https://developers.google.com/machine-learning/gan/gan_structure](https://developers.google.com/machine-learning/gan/gan_structure)
+- [How to train a GAN?](https://github.com/soumith/ganhacks)
 
 <img src="figures/gan.png" alt="gan" width="600px">
 
@@ -1512,6 +1513,9 @@ $D$ a $G$ hrají *minimax* hru, kde $D$ se snaží maximalizovat pravděpodobnos
 - Lze použít **Wasserstein loss**.
 
 <img src="figures/gan-schema.png" alt="gan-schema" width="600px">
+
+- `real_label = 1`
+- `fake_label = 0`
 
 Trénování diskriminátoru:
 
