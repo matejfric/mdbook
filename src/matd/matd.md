@@ -66,7 +66,7 @@ Příklad `P="abab"`:
 - Předzpracování vzorku - vytvoření tabulky pro posuny v textu. Využívá znaky, které nejsou ve vzorku pro delší skoky. Shoda se kontroluje od konce.
 - Např. $T=ab\underline{c}def$, $P=aa\underline{b}$
 - Definuju si tabulku pro ASCII znaky, jejich pozici ve vzorku a odpovídající posuny.
-- [Handbook of Exact String Matching](.lectures/Handbook_of_Exact_String_Matching_Algorithms.pdf) (str. 119)
+- [Handbook of Exact String Matching](https://dl.acm.org/doi/book/10.5555/994738) (str. 119)
 
 1. Předzpracování bez posledního znaku $P$
    - `shift = |p| - i - 1`

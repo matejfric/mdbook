@@ -18,3 +18,7 @@ additional-css = ["src/custom.css"]
 additional-js = ["src/custom.js"]
 default-theme = "coal"
 preferred-dark-theme = "coal"
+
+[output.linkcheck]
+follow-web-links = true
+warning-policy = "ignore"

@@ -156,7 +156,6 @@ Poznámka k výrazu $r < e^{\frac{\Delta_f}{T}}$. Pokud je teplota $T$ vysoká, 
 
 ## 7. Genetické algoritmy
 
-- tutoriál od [The Hebrew University of Jerusalem](https://www.cs.huji.ac.il/~ai/projects/old/tsp2.pdf)
 - založeny na principech evoluce v přírodě - C. R. Darwin a G. J. Mendel
 - mutují se bity binárního zápisu decimálního čísla
 - používá se *fitness* funkce $F$ normalizovaná do intervalu $[0,1]$
