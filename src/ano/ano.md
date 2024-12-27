@@ -1488,6 +1488,8 @@ cv::imshow("Gradient", gradient_8uc1_img);
 
 ## 16. AdaBoost
 
+- [YT tutoriál](https://youtu.be/LsK-xG1cLYA?si=ZBk3V7eB3h1eo_UX)
+
 <img src="figures/adaboost.png" alt="adaboost" width="400px">
 
 1. Dataset se dvěmi třídami (pro jednoduchost).
@@ -1497,6 +1499,91 @@ cv::imshow("Gradient", gradient_8uc1_img);
    2. Assign a weight to the classifier.
    3. Update weights: lower the weight for correct prediction, increase for incorrect, then normalize the weights.
 4. Produce strong classifier as a linear combinations of the weak classifiers.
+
+AdaBoost je model, který natrénuje klasifikátor na původním datasetu, přiřadí mu váhu *(amount of say)* a následně trénuje další klaisfikátory (`n_estimators`) na upraveném datasetu, kde záznamy jsou vzorkované z původního datasetu podle výsledných vah.
+
+Pro jednoduchost uvažujme dataset se dvěmi třídami (existuje [zobecnění](https://doi.org/10.4310/SII.2009.v2.n3.a8)). Jako *weak learner* zvolíme rozhodovací strom s maximální hloubkou 1 (tj. *stump* - "pařez").
+
+1. Inicializace vah $w$, každému pozorování přiřadíme váhu $\dfrac{1}{\#\text{pozorování}}$
+2. Vytvoření pařezů a vybrání nejlepšího (např. Gini index).
+3. Chyba $\xi$ $(\text{total error})$ je suma vah asociovaných s chybnými predikcemi.
+4. $\text{amount of say} = \dfrac{1}{2}\ln\left(\dfrac{1 - \xi + \varepsilon}{\xi + \varepsilon}\right)$, kde $\varepsilon$ je malá konstanta.
+   <img src="figures/adaboost-amount-of-say.png" alt="adaboost-amount-of-say" width="400px">
+5. Nová váha pro **chybné** predikce se spočte jako $\boxed{w_{new}=w\cdot e^{\text{amount of say}}}$.
+    <img src="figures/adaboost-error.png" alt="adaboost-error" width="400px">
+6. Nová váha pro **správné** predikce se spočte jako $\boxed{w_{new}=w\cdot e^{-\text{amount of say}}}$.
+    <img src="figures/adaboost-correct.png" alt="adaboost-correct" width="400p">
+7. Nové váhy normalizujeme, aby měly součet 1.
+8. Buď použijeme *vážený Gini index* nebo přistoupíme k novým váhám jako k rozdělení pravděpodobnosti a vzorkováním vytvoříme nový dataset (např. `cumsum` a výběr náhodného čísla z $\mathcal{U}(0,1)$). S novým datasetem opakujeme od kroku **1**, dokud nebylo natrénováno `n_estimators`.
+
+Hlasování probíhá tak, že sečteme `amount_of_say` pařezů s pozitivní predikcí a pařezů s negativní predikcí.
+
+<img src="figures/adaboost-predict.png" alt="adaboost-predict" width="400px">
+
+<details><summary> Code for plots </summary>
+
+```py
+import matplotlib.pyplot as plt
+import numpy as np
+from numpy.typing import ArrayLike
+
+plt.style.use('seaborn-v0_8-whitegrid')
+plt.rcParams['font.size'] = 14
+
+def func(x: ArrayLike) -> ArrayLike:
+    # Add a small value to avoid division by zero and undefined log
+    return 0.5 * np.log((1 - x + 1e-6) / (x + 1e-6))
+
+x = np.linspace(0.00, 1.00, 1000)
+y = func(x)
+
+plt.figure(figsize=(8, 6))
+plt.plot(
+    x, y, label=r'$f(x) = \dfrac{1}{2} \ln\left(\dfrac{1-x}{x}\right)$', color='blue'
+)
+plt.axhline(0, color='black', linestyle='--', linewidth=0.8)
+plt.axvline(0.5, color='black', linestyle='--', linewidth=0.8)
+plt.xlabel('Total error (x)')
+plt.ylabel('Amount of say f(x)')
+plt.legend()
+plt.grid(True)
+
+plt.show()
+
+def func(x: ArrayLike) -> ArrayLike:
+    return np.exp(-x)
+
+x = np.linspace(0.00, 5.00, 1000)
+y = func(x)
+
+plt.figure(figsize=(8, 6))
+plt.plot(x, y, label=r'$f(x) = e^{-x}$', color='blue')
+plt.axhline(0, color='black', linestyle='--', linewidth=0.8)
+plt.axvline(0.5, color='black', linestyle='--', linewidth=0.8)
+plt.xlabel('Amount of say (x)')
+plt.ylabel(r'$f(x)$')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+def func(x: ArrayLike) -> ArrayLike:
+    return np.exp(x)
+
+x = np.linspace(0.00, 3.00, 1000)
+y = func(x)
+
+plt.figure(figsize=(8, 6))
+plt.plot(x, y, label=r'$f(x) = e^{x}$', color='red')
+plt.axhline(0, color='black', linestyle='--', linewidth=0.8)
+plt.axvline(0.5, color='black', linestyle='--', linewidth=0.8)
+plt.xlabel('Amount of say (x)')
+plt.ylabel(r'$f(x)$')
+plt.legend()
+plt.grid(True)
+plt.show()
+```
+
+</details>
 
 ## 17. Generative Adversarial Network (GAN)
 
