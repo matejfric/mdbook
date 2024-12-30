@@ -57,6 +57,9 @@
   - [11.1. Problém batohu](#111-problém-batohu)
   - [11.2. Problém HORN-SAT](#112-problém-horn-sat)
   - [11.3. Problém 2-SAT](#113-problém-2-sat)
+  - [11.4. Prvočíselnost](#114-prvočíselnost)
+  - [11.5. Faktorizace](#115-faktorizace)
+  - [11.6. Třídy randomizovaných algoritmů](#116-třídy-randomizovaných-algoritmů)
 
 **Teoretická informatika** je vědní obor na pomezí mezi matematikou a informatikou. Zkoumá
 
@@ -444,8 +447,8 @@ Předpokládejme, že existuje Turingův stroj $A$, který řeší Halting probl
 
 Co se stane, když na vstup $\overline{A}$ dáme $\text{Kod}(\overline{A})$?
 
-1. $A$ skončí ve stavu **Ano** a $\overline{A}$ se zacyklí.
-2. $A$ skončí ve stavu **Ne** a $\overline{A}$ odpoví **Ano**.
+1. $A$ skončí ve stavu `Ano` a $\overline{A}$ se zacyklí.
+2. $A$ skončí ve stavu `Ne` a $\overline{A}$ odpoví `Ano`.
 
 To je spor, že $A$ řeší HP (tzn. že by $A$ mělo vždy pravdu).
 
@@ -463,8 +466,8 @@ Otázka je, zda je možné použitím daných typů kachliček pokrýt celou nek
 
 Rozhodovací problém $P$ je **částečně rozhodnutelný**, jestliže existuje algoritmus $A$, který:
 
-- Pokud dostane jako vstup instanci problému $P$, pro kterou je správná odpověď **Ano**, tak se na tomto vstupu po konečném počtu kroků zastaví a dá odpověď **Ano**.
-- Pokud dostane jako vstup instanci problému $P$, pro kterou je správná odpověď **Ne**, tak se na tomto vstupu *buď zastaví* a dá odpověď **Ne** *nebo* se na tomto vstupu *nikdy nezastaví*.
+- Pokud dostane jako vstup instanci problému $P$, pro kterou je správná odpověď `Ano`, tak se na tomto vstupu po konečném počtu kroků zastaví a dá odpověď `Ano`.
+- Pokud dostane jako vstup instanci problému $P$, pro kterou je správná odpověď `Ne`, tak se na tomto vstupu *buď zastaví* a dá odpověď `Ne` *nebo* se na tomto vstupu *nikdy nezastaví*.
 
 ### 2.3. Doplňkové problémy
 
@@ -520,7 +523,7 @@ Problém $P_1$ je převeditelný na problém $P_2$, jestliže existuje algoritmu
 
 - Jako vstup může dostat libovolnou instanci problému $P_1$.
 - K instanci problému $P_1$, kterou dostane jako vstup (označme ji $w$), vyprodukuje jako svůj výstup instanci problému $P_2$ (označme ji $\text{Alg}(w)$).
-- Platí, že pro vstup $w$ je v problému $P_1$ odpověď **Ano** právě tehdy, když pro vstup $\text{Alg}(w)$ je v problému $P_2$ odpověď **Ano**.
+- Platí, že pro vstup $w$ je v problému $P_1$ odpověď `Ano` právě tehdy, když pro vstup $\text{Alg}(w)$ je v problému $P_2$ odpověď `Ano`.
 
 <img src="figures/reduction.png" alt="reduction" width="400px">
 
@@ -1104,7 +1107,7 @@ Všechny procesy pracují v jednotlivých fázích $\ell = 0, 1, 2, 3, \dots$ V 
 
 Můžeme slevit z požadavku na korektnost:
 
-- **Randomizované algoritmy** - používají generátor náhodných čísel (s nenulovou pravděpodobností vrátí chybný výsledek).
+- **Randomizované algoritmy** - používají generátor náhodných čísel (s nenulovou pravděpodobností vrátí chybný výsledek). Pro libolně malé $\varepsilon>0$ musíme zaručit, že algoritmus vrátí správný výsledek s pravděpodobností $1-\varepsilon$ nebo vyšší.
 - **Aproximační algoritmy** - pro řešení optimalizačních problémů (často nastavujeme nějakou toleranci chyby $\varepsilon$).
 
 ### 11.1. Problém batohu
@@ -1176,10 +1179,50 @@ graph LR
   %% (x₂ ∨ ¬x₄)
   nx2 --> nx4
   x4 --> x2
-
-  %% Styling
-  classDef invisible fill:none,stroke:none
-  class V invisible
 ```
 
 </details>
+
+### 11.4. Prvočíselnost
+
+- **Vstup:** Přirozené číslo $p$.
+- **Otázka:** Je $p$ prvočíslo?
+
+Pro "malá" $p$ stačí zkoušet čísla od 2 do $\sqrt{p}$ (nebo Eratosthenovo síto; asi do $10^{12} \approx 2^{40}$).
+
+Existuje **deterministický polynomiální algoritmus** se složitostí $\mathcal{O}(n^6)$ a **randomizované algoritmy** s $\mathcal{O}(n^3)$ *(Miller-Rabin a Solovay-Strassen)*, kde $n$ je počet bitů $p$.
+
+> **Malá Fermatova věta.** Pokud $n$ je prvočíslo, pak pro každé $a$ z množiny $\{1, 2, \dots, n - 1\}$ platí:
+> $$ a^{n-1} \equiv 1 \pmod{n} $$
+
+Malou Fermatovu větu lze použít k testování prvočíselnosti (tzv. Fermatův test):  
+
+- Pro dané $n$ zvolíme nějaké $a \in \{2, 3, \dots, n - 1\}$.  
+- Pokud $a^{n-1} \not\equiv 1 \pmod{n}$, pak $n$ **určitě není** prvočíslo.  
+- Pokud $a^{n-1} \equiv 1 \pmod{n}$, pak $n$ je **možná!!!** prvočíslo.  
+
+### 11.5. Faktorizace
+
+- **Vstup:** Přirozené číslo $p$.
+- **Otázka:** Rozklad čísla $p$ na prvočísla.
+
+**RSA šifrování** - umíme rychle najít a vynásobit dvě velká prvočísla, ale není znám rychlý algoritmus na faktorizaci.
+
+### 11.6. Třídy randomizovaných algoritmů
+
+> Třída **RP** *(randomized polynomial time)* je tvořena právě těmi *rozhodovacími* problémy, pro které existuje randomizovaný algoritmus s polynomiální časovou složitost typu:
+> - Pro vstupy, kde je správná odpověď `Ano`, musí stroj $M$ dávat odpověď `Ano` s pravděpodobností alespoň $\frac{1}{2}$.  
+> - Pro vstupy, kde je správná odpověď `Ne`, musí stroj $M$ *vždy* dávat odpověď `Ne`.  
+>
+> Třída **co-RP** obsahuje doplňkové problémy k RP.
+
+> Třída **BPP** *(bounded-error probabilistic polynomial time)* je tvořena právě těmi rozhodovacími problémy, pro které existuje randomizovaný algoritmus s polynomiální časovou složitost typu:
+> - Pro vstupy, kde je správná odpověď `Ano`, musí stroj $M$ dávat odpověď `Ano` s pravděpodobností alespoň $\frac{2}{3}$.  
+> - Pro vstupy, kde je správná odpověď `Ne`, musí stroj $M$ dávat odpověď `Ne` s pravděpodobností alespoň $\frac{2}{3}$.  
+
+> Třída **ZPP** (zero-error probabilistic polynomial time) je tvořena právě těmi rozhodovacími problémy, pro které existuje randomizovaný algoritmus s polynomiální časovou složitost typu:
+> - Stroj vrací `Ano`, `Ne` nebo `Nevím`.
+> - Pokud stroj $M$ vrátí odpovědí `Ano` nebo `Ne`, je tato odpověď *vždy správně*.  
+> - Pravděpodobnost toho, že vrátí odpověď `Nevím`, může být nejvýše $\frac{1}{2}$.  
+>
+> Pokud dostaneme odpověď `Nevím`, můžeme algoritmus spustit znovu a znovu, dokud nedostaneme odpověď `Ano` nebo `Ne`. Doba výpočtu pak bude nedeterministická.
