@@ -298,9 +298,15 @@ Jazykům (resp. strojům), které jsou dostatečně obecné na to, aby se do nic
 
 <img src="figures/tm-one-sided-tape.gif" alt="tm-one-sided-tap" width="450px">
 
+(zdvojnásobíme počet stavů - označené $\uparrow$ nebo $\downarrow$)
+
 <img src="figures/tm-binary.png" alt="tm-binary" width="450px">
 
+(kódování s pevnou délkou)
+
 <img src="figures/tm-multiple-heads.png" alt="tm-multiple-heads" width="450px">
+
+(rozšíření páskové abecedy $\Gamma$ o speciální symboly označující pozice hlav, v koncovém stavu speciální symboly nahradíme původními)
 
 <img src="figures/tm-multiple-tapes.png" alt="tm-multiple-tapes" width="450px">
 
@@ -465,30 +471,32 @@ Vstupem je množina typů kachliček, jako třeba:
 
 Otázka je, zda je možné použitím daných typů kachliček pokrýt celou nekonečnou rovinu tak, aby všechny kachličky spolu sousedily stejnými barvami.
 
+[Implementace pomocí backtrackingu](https://github.com/matejfric/plane-tiling).
+
 ### 2.2. Částečně rozhodnutelné problémy
 
-Rozhodovací problém $P$ je **částečně rozhodnutelný**, jestliže existuje algoritmus $A$, který:
+*Rozhodovací* problém $P$ je **částečně rozhodnutelný**, jestliže existuje algoritmus $A$, který:
 
 - Pokud dostane jako vstup instanci problému $P$, pro kterou je správná odpověď `Ano`, tak se na tomto vstupu po konečném počtu kroků zastaví a dá odpověď `Ano`.
 - Pokud dostane jako vstup instanci problému $P$, pro kterou je správná odpověď `Ne`, tak se na tomto vstupu *buď zastaví* a dá odpověď `Ne` *nebo* se na tomto vstupu *nikdy nezastaví*.
 
 ### 2.3. Doplňkové problémy
 
-> Doplňkový problém k danému rozhodovacímu problému $P$ je problém, kde vstupy jsou stejné jako u problému $P$ a otázka je negací otázky z problému $P$.
+> Doplňkový problém k danému *rozhodovacímu* problému $P$ je problém, kde vstupy jsou stejné jako u problému $P$ a otázka je negací otázky z problému $P$.
 
 Pokud je problém $P$ nerozhodnutelný, tak je nerozhodnutelný i jeho doplňkový problém $\overline{P}$.
 
 <details><summary> Doplňkový problém k Halting problému: </summary>
 
 - **Vstup:** Zdrojový kód programu $P$ v jazyce $L$, vstupní data $x$.
-- **Otázka:** Poběží program $P$ do nekonečna, pokud dostane jako vstup data $x$? (Tj. nezastaví se na nich)?
+- **Otázka:** Poběží program $P$ do nekonečna, pokud dostane jako vstup data $x$? (Tj. nezastaví se na nich?)
 
 </details>
 
 <details><summary> Doplňkový problém k problému SAT: </summary>
 
 - **Vstup:** Booleovská formule $\varphi$.
-- **Otázka:** Je formule $\varphi$ nesplnitelná (tj. je kontradikcí)?
+- **Otázka:** Je formule $\varphi$ nesplnitelná? (Tj. je kontradikcí?)
 
 </details>
 
@@ -537,7 +545,7 @@ Různé algoritmické problémy jsou různě těžké. Obtížnější problémy
 - **Složitost algoritmu** je funkce, která popisuje, jak se časová (resp. prostorová) složitost mění s velikostí vstupu.
 - **Složitost problému** je složitost "nejefektivnějšího" algoritmu, který problém řeší.
 
-Uvažujme stroj $\mathcal{M}$. Můžeme definivat funkce **doba výpočtu** na daným vstupem a **množství paměti** použité při výpočtu nad daným vstupem:
+Uvažujme stroj $\mathcal{M}$. Můžeme definivat funkce **doba výpočtu** nad daným vstupem a **množství paměti** použité při výpočtu nad daným vstupem:
 
 $$
 \begin{align*}
@@ -795,7 +803,7 @@ Konfigurace libovolného stroje můžeme reprezentovat pomocí slova $w$ v něja
 
 > Pro libovolnou funkci $f: \mathbb{N} \to \mathbb{N}$ platí, že pokud je nějaký problém $P$ řešený algoritmem s prostorovou složitostí $O(f(n))$, pak časová složitost tohoto algoritmu je $2^{\mathcal{O}(f(n))}$.
 >
-> Pokud je tedy problém $P$ ve třídě $\text{D}_{space}(f(n))$, pak je i ve třídě $\text{D}_{time}(2^{c \cdot f(n)})$ pro nějaké $c > 0$
+> Pokud je tedy problém $P$ ve třídě $\text{D}_{space}(f(n))$, pak je i ve třídě $\text{D}_{time}(2^{c \cdot f(n)})$ pro nějaké $c > 0$.
 
 $$
 \text{LOGSPACE} \subseteq \text{PTIME} \subseteq \text{PSPACE} \subseteq \text{EXPTIME} \subseteq \text{EXPSPACE} \subseteq \\
@@ -804,7 +812,7 @@ $$
 
 ### 5.2. Horní a dolní odhady složitosti problémů
 
-**Horním odhadem složitosti** problému rozumíme to, že složitost problému není vyšší než nějaká uvedená. Např
+**Horním odhadem složitosti** problému rozumíme to, že složitost problému není vyšší než nějaká uvedená. Např.:
 
 - Problém *dosažitelnosti v grafu* je v $\text{PTIME}$.
 - Problém *ekvivalence dvou regulárních výrazů* je v $\text{EXPSPACE}$.

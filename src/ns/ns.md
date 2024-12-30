@@ -125,7 +125,7 @@
   - [13.2. Nezávislý kaskádový model šíření (Independent Cascade Model)](#132-nezávislý-kaskádový-model-šíření-independent-cascade-model)
 - [14. Modely pro simulaci vývoje sítě](#14-modely-pro-simulaci-vývoje-sítě)
   - [14.1. Link Selection](#141-link-selection)
-  - [14.2. Two Step](#142-two-step)
+  - [14.2. Copying Model](#142-copying-model)
   - [14.3. Bianconi-Barabási](#143-bianconi-barabási)
 - [15. Miscellaneous](#15-miscellaneous)
 
@@ -1244,7 +1244,7 @@ Obvykle chceme, aby vybraná skupina vlivných vrcholů byla co nejmenší, měl
 
 **Náhodný výběr hrany** vede k **preferenčnímu připojení** *(preferential attachment)*. Nový vrchol se připojí k jednomu z vrcholů hrany.
 
-### 14.2. Two Step
+### 14.2. Copying Model
 
 S pravděpodobností $p$ se připojí k náhodnému vrcholu $u$, s pravděpodobností $1-p$ se připojí k vrcholu, do kterého z $u$ vede hrana.
 
