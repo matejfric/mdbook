@@ -60,6 +60,9 @@
   - [11.4. Prvočíselnost](#114-prvočíselnost)
   - [11.5. Faktorizace](#115-faktorizace)
   - [11.6. Třídy randomizovaných algoritmů](#116-třídy-randomizovaných-algoritmů)
+- [12. Aproximační algoritmy](#12-aproximační-algoritmy)
+  - [12.1. Minimální vrcholové pokrytí grafu (vertex cover)](#121-minimální-vrcholové-pokrytí-grafu-vertex-cover)
+  - [12.2. Problém obchodního cestujícího (TSP)](#122-problém-obchodního-cestujícího-tsp)
 
 **Teoretická informatika** je vědní obor na pomezí mezi matematikou a informatikou. Zkoumá
 
@@ -1226,3 +1229,43 @@ Malou Fermatovu větu lze použít k testování prvočíselnosti (tzv. Fermatů
 > - Pravděpodobnost toho, že vrátí odpověď `Nevím`, může být nejvýše $\frac{1}{2}$.  
 >
 > Pokud dostaneme odpověď `Nevím`, můžeme algoritmus spustit znovu a znovu, dokud nedostaneme odpověď `Ano` nebo `Ne`. Doba výpočtu pak bude nedeterministická.
+
+## 12. Aproximační algoritmy
+
+Buď $c(x)$ cenová funkce. Buď $x^*$ optimální řešení (minimum) a buď $x$ řešení, které vrátí aproximační algoritmus. Definujeme **aproximační poměr** jako funkci $\rho(n)$, kde $n$ je velikost instance problému jako: $\rho(n) = \frac{c(x)}{c(x^*)}$ (pro maximalizaci $\frac{c(x^*)}{c(x)}$).
+
+Řekneme, že aproximační algoritmus je **$\rho(n)$-aproximační**, pokud dosahuje aproximačního poměru $\rho(n)$.
+
+### 12.1. Minimální vrcholové pokrytí grafu (vertex cover)
+
+(optimalizační problém; policajti ve vrcholech musí vidět na všechny hrany)
+
+- **Vstup:** Neorientovaný graf $G = (V, E)$.  
+- **Výstup:** Minimální množina $C \subseteq V$ tvořící vrcholové pokrytí grafu $G$.
+
+<img src="figures/vertex-cover.png" alt="vertex-cover" width="250px">
+
+Existuje polynomiální $2$-aproximační algoritmus pro tento problém (tzn. najde množinu vrcholů, která je nejvýše dvakrát větší než optimální řešení).
+
+```
+C = {}
+while E ≠ ∅ do
+    vyber hranu {u, v} ∈ E
+    C = C ∪ {u, v}
+    odstraň všechny hrany incidentní s u nebo v
+return C
+```
+
+### 12.2. Problém obchodního cestujícího (TSP)
+
+- **Vstup:** Množina $n$ měst a vzdálenosti mezi nimi.  
+- **Výstup:** Nejkratší okružní cesta procházející všemi městy (začíná a končí ve stejném městě).
+
+Pro variantu problému s kladným ohodnocením hran (tj. vzdálenostmi) a navštívením každého vrcholu právě jednou existuje $1.5$-aproximační algoritmus.
+
+Jednodušší $2$-aproximační algoritmus:
+
+1. Najde minimální kostru grafu (polynomiální Kruskalův nebo Primův algoritmus).
+2. Vytvoří uzavřený tah podél této kostry.
+3. Z vytvořeného tahu odstraní opakující se vrcholy.
+4. Výsledný cyklus vrátí jako výsledek.
