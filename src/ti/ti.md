@@ -46,6 +46,17 @@
   - [8.1. Generalized Geography (GG)](#81-generalized-geography-gg)
 - [9. Paralelní algoritmy](#9-paralelní-algoritmy)
   - [9.1. Parallel Random Access Machine (PRAM)](#91-parallel-random-access-machine-pram)
+- [10. Distribuované algoritmy](#10-distribuované-algoritmy)
+  - [10.1. Leader Election](#101-leader-election)
+    - [10.1.1. Algoritmus LCR (Le Lann, Chang, Roberts)](#1011-algoritmus-lcr-le-lann-chang-roberts)
+    - [10.1.2. Algoritmus HS (Hirschberg, Sinclair)](#1012-algoritmus-hs-hirschberg-sinclair)
+    - [10.1.3. Algoritmus TimeSlice](#1013-algoritmus-timeslice)
+    - [10.1.4. Algoritmus VariableSpeeds](#1014-algoritmus-variablespeeds)
+    - [10.1.5. Algoritmus FloodMax](#1015-algoritmus-floodmax)
+- [11. Výpočetně náročné problémy](#11-výpočetně-náročné-problémy)
+  - [11.1. Problém batohu](#111-problém-batohu)
+  - [11.2. Problém HORN-SAT](#112-problém-horn-sat)
+  - [11.3. Problém 2-SAT](#113-problém-2-sat)
 
 **Teoretická informatika** je vědní obor na pomezí mezi matematikou a informatikou. Zkoumá
 
@@ -990,3 +1001,185 @@ Pokud bychom měli $p \ll n$ procesorů, můžeme použít algoritmus, který po
 
 Na stroji PRAM typu `CRCW` `COMMON` je možné s $\mathcal{O}(n^2)$ procesory najít
 minimum v čase $\mathcal{O}(1)$. Tento algoritmus není optimální, protože sekvenční algoritmus pro hledání minima má složitost $\mathcal{O}(n)$.
+
+## 10. Distribuované algoritmy
+
+- Distribuované systémy - stroje nemají přístup ke *sdílené globální paměti*.
+- Distribuované systémy se skládají z mnoha paralelně běžících procesů, které jsou vzájemně propojeny pomocí **sítě** a komunikují **posíláním zpráv** přes síťová spojení.
+- Předpokládáme, že graf **komunikační sítě** je silně souvislý ($\exists$ cesta z každého do každého).
+- Vrcholy jsou identifikované ID (v realitě spíše MAC adresou)
+
+Přes hrany komunikační sítě lze posílat prvky z množiny zpráv $\mathcal{M}$ a speciální hodnotu `null` (`null` $\notin\mathcal{M}$). V jednu chvíli jedna hrana přenáší právě jednu hodnotu z $\mathcal{M}$ nebo `null`. Hodnota `null` znamená, že přes hranu není posílána žádná zpráva.
+
+**Časová složitost** – doba výpočtu se většinou počítá jako *počet provedených kol posílání zpráv*.
+
+**Komunikační složitost** – většinou se počítá jako *celkový počet zpráv* poslaných během výpočtu.
+
+### 10.1. Leader Election
+
+Volba koordinátora v síti na základě nejvyššího unikátního ID, tj. **UID**. Uvažujme nejjednodušší variantu jednosměrného kruhu:
+
+<img src="figures/leader-election-ring.png" alt="leader-election-ring" width="250px">
+
+Každý proces má lokálně pojmenované hrany, které do něj a z něj vedou. Nezná však čísla vrcholů, ze kterých tyto hrany přicházejí, ani kam vedou.
+
+#### 10.1.1. Algoritmus LCR (Le Lann, Chang, Roberts)
+
+Každý proces pošle své UID podél kruhu. Když proces přijme zprávu s nějakým UID, porovná toto UID se svým vlastním UID:
+
+- Pokud je toto UID *větší* než jeho vlastní, *přepošle* ho dál.
+- Pokud je toto UID *menší* než jeho vlastní, *nepřepošle* ho dál.
+- Pokud je toto UID *stejné* jako jeho vlastní, *prohlásí se daný proces za zvoleného leadera*.
+
+Pseudokód:
+
+```
+send := null
+if přišla zpráva obsahující UID v then
+    case
+        v > u: send := v
+        v = u: status := leader
+        v < u: nedělej nic
+```
+
+- Po $n$ kolech nastaví proces $i_{\text{max}}$ hodnotu své proměnné `status` na `leader`. Jedině zprávám s UID procesu $i_{\text{max}}$, tedy procesu s největším UID, se podaří „obkroužit“ celý kruh.  
+- Žádný jiný proces nebude mít nastavenu hodnotu proměnné `status` na `leader`, protože jejich UID byly během procesu porovnávání nižší a jejich zprávy se nedokázaly šířit dále.
+- Časová složistost $\Theta(n)$
+- Komunikační složistost $\Theta(n^2)$
+
+#### 10.1.2. Algoritmus HS (Hirschberg, Sinclair)
+
+- **Obousměrný** kruh.
+
+<img src="figures/leader-election-hs.png" alt="leader-election-hs" width="400px">
+
+Všechny procesy pracují v jednotlivých fázích $\ell = 0, 1, 2, 3, \dots$ V každé fázi probíhá následující:  
+
+1. **Odeslání tokenů:**  
+   Proces $i$ vyšle do obou směrů kruhu dva „tokeny“ obsahující jeho UID $u_i$.  
+   Tyto tokeny mají cestovat do vzdálenosti $2^\ell$ a poté se vrátit zpět k procesu $i$.  
+
+2. **Chování při návratu:**  
+   - Pokud se **oba tokeny úspěšně vrátí**, proces $i$ pokračuje další fází $\ell + 1$.  
+   - Pokud se některý token **nevrátí**, proces $i$ vypadává.  
+
+3. **Porovnání UID při průchodu:**  
+   - Každý proces $j$, který leží na cestě tokenu, porovná své UID $u_j$ s UID $u_i$ v tokenu:  
+     - $u_i < u_j$: Proces $j$ „zahodí“ token a dále ho nepropaguje.  
+     - $u_i > u_j$: Proces $j$ token přepošle dál.  
+     - $u_i = u_j$: Token stihl „obkroužit“ celý kruh ještě před návratem.  
+       V tomto případě se proces $j$ prohlásí za leadera.  
+
+4. **Výsledek:**  
+   Jediný proces, jehož UID se podaří „obkroužit“ celý kruh (tj. vrátí se k původnímu procesu), je vybrán jako leader.
+
+- Časová složistost $\Theta(n)$
+- Komunikační složistost $\mathcal{O}(n\log n)$
+
+#### 10.1.3. Algoritmus TimeSlice
+
+- **Obousměrný** kruh a je **znám počet vrcholů**.
+- Časová složistost $\mathcal{O}(n\cdot \mathrm{UID}_{min})$
+- Komunikační složistost $\mathcal{O}(n)$
+
+#### 10.1.4. Algoritmus VariableSpeeds
+
+- **Obousměrný** kruh a je **ne**ní znám počet vrcholů.
+- Časová složistost $\mathcal{O}(n\cdot 2^{\mathrm{UID}_{min}})$
+- Komunikační složistost $\mathcal{O}(n)$
+
+#### 10.1.5. Algoritmus FloodMax
+
+- **Obecný graf** $G=(V,E)$.
+- Předkládámě, že $G$ je **silně souvislý**, a že každý proces zná **průměr** grafu $diam$ (tj., hodnota, s.t., nejkratší cesta mezi dvěma vrcholy je nejvýše $diam$).
+
+1. Každý proces udržuje informaci o největším UID, které zatím viděl.  
+2. V každém kole toto největší UID posílá všem svým sousedům.
+3. Po **diam** kolech se proces, jehož UID je stejné jako maximální UID, které zatím viděl, prohlásí za leadera.
+
+- Časová složistost $\mathcal{O}(diam)$
+- Komunikační složistost $\mathcal{O}(diam\cdot|E|)$
+
+## 11. Výpočetně náročné problémy
+
+Můžeme slevit z požadavku na korektnost:
+
+- **Randomizované algoritmy** - používají generátor náhodných čísel (s nenulovou pravděpodobností vrátí chybný výsledek).
+- **Aproximační algoritmy** - pro řešení optimalizačních problémů (často nastavujeme nějakou toleranci chyby $\varepsilon$).
+
+### 11.1. Problém batohu
+
+- **Vstup:** Čísla $a_1, a_2, \dots, a_m$ a číslo $s$.  
+- **Otázka:** Existuje podmnožina množiny čísel $a_1, a_2, \dots, a_m$ taková, že součet čísel v této podmnožině je $s$?
+- NP-úplný problém.
+
+### 11.2. Problém HORN-SAT  
+
+- **Vstup:** Booleovská formule $\phi$ v KNF obsahující pouze Hornovy klauzule.  
+- **Otázka:** Je $\phi$ splnitelná?  
+- Problém HORN-SAT lze (na rozdíl od obecného problému SAT) řešit v polynomiálním čase.  
+- Hornova klauzule je klauzule, ve které se nachází nejvýše jeden pozitivní literál.  
+  - Klauzule $(\neg x_1 \lor \neg x_2 \lor \neg x_3 \lor \neg x_4 \lor x_5)$ je Hornova klauzule.  
+  - Tato klauzule je ekvivalentní formuli $(x_1 \land x_2 \land x_3 \land x_4) \implies x_5$.
+
+### 11.3. Problém 2-SAT
+
+- **Vstup:** Booleovská formule $\phi$ v KNF, kde každá klauzule obsahuje nejvýše 2 literály.  
+- **Otázka:** Je $\phi$ splnitelná?
+- Příklad: $(x_1 \lor \neg x_2) \land (\neg x_1 \lor x_2) \land (\neg x_2 \lor x_3) \land (x_3 \lor x_4) \land (x_2 \lor \neg x_4)$
+
+Problém 2-SAT lze řešit v polynomiálním čase, například pomocí konstrukce **implikačního grafu** a hledání **silně souvislých komponent**. Pokud v rámci *jedné* silně souvislé komponenty existuje literál $x$ a jeho negace $\neg x$, pak formule není splnitelná.
+
+Jak sestrojit implikační graf?
+
+Aby klauzule $(A \lor B)$ byla pravdivá, musí *zároveň* platit:
+
+1. Pokud $A = 0$, pak $B = 1$. Tj. $\neg A \implies B$.
+2. Pokud $B = 0$, pak $A = 1$. Tj. $\neg B \implies A$.
+
+Z toho plyne *(negací a dvojí negací)*:
+
+$$\begin{align*}
+  (A \lor B) &\iff (\neg A \implies B) \land (\neg B \implies A)\\
+  (\neg A \lor B) &\iff (A \implies B) \land (\neg B \implies \neg A)\\
+  (A \lor \neg B) &\iff (\neg A \implies \neg B) \land (B \implies A)\\
+  (\neg A \lor \neg B) &\iff (A \implies \neg B) \land (B \implies \neg A)
+\end{align*}$$
+
+<details><summary> Řešený příklad </summary>
+
+$$(x_1 \lor \neg x_2)\land(x_1 \lor x_3)\land(x_2 \lor \neg x_4)$$
+
+```mermaid
+graph LR
+  subgraph "X"
+    x1((x₁))
+    x2((x₂))
+    x3((x₃))
+    x4((x₄))
+  end
+  subgraph "¬X"
+    nx1((¬x₁))
+    nx2((¬x₂))
+    nx3((¬x₃))
+    nx4((¬x₄))
+  end
+
+  %% (x₁ ∨ ¬x₂)
+  nx1 --> nx2
+  x2 --> x1
+
+  %% (x₁ ∨ x₃)
+  nx1 --> x3
+  nx3 --> x1
+
+  %% (x₂ ∨ ¬x₄)
+  nx2 --> nx4
+  x4 --> x2
+
+  %% Styling
+  classDef invisible fill:none,stroke:none
+  class V invisible
+```
+
+</details>
