@@ -44,27 +44,31 @@
   - [7.1. Příklady NP-úplných problémů](#71-příklady-np-úplných-problémů)
   - [7.2. Převod 3-SAT na IS](#72-převod-3-sat-na-is)
   - [7.3. SAT problém](#73-sat-problém)
-- [8. PS úplnost](#8-ps-úplnost)
-  - [8.1. Generalized Geography (GG)](#81-generalized-geography-gg)
-- [9. Paralelní algoritmy](#9-paralelní-algoritmy)
-  - [9.1. Parallel Random Access Machine (PRAM)](#91-parallel-random-access-machine-pram)
-- [10. Distribuované algoritmy](#10-distribuované-algoritmy)
-  - [10.1. Leader Election](#101-leader-election)
-    - [10.1.1. Algoritmus LCR (Le Lann, Chang, Roberts)](#1011-algoritmus-lcr-le-lann-chang-roberts)
-    - [10.1.2. Algoritmus HS (Hirschberg, Sinclair)](#1012-algoritmus-hs-hirschberg-sinclair)
-    - [10.1.3. Algoritmus TimeSlice](#1013-algoritmus-timeslice)
-    - [10.1.4. Algoritmus VariableSpeeds](#1014-algoritmus-variablespeeds)
-    - [10.1.5. Algoritmus FloodMax](#1015-algoritmus-floodmax)
-- [11. Výpočetně náročné problémy](#11-výpočetně-náročné-problémy)
-  - [11.1. Problém batohu](#111-problém-batohu)
-  - [11.2. Problém HORN-SAT](#112-problém-horn-sat)
-  - [11.3. Problém 2-SAT](#113-problém-2-sat)
-  - [11.4. Prvočíselnost](#114-prvočíselnost)
-  - [11.5. Faktorizace](#115-faktorizace)
-  - [11.6. Třídy randomizovaných algoritmů](#116-třídy-randomizovaných-algoritmů)
-- [12. Aproximační algoritmy](#12-aproximační-algoritmy)
-  - [12.1. Minimální vrcholové pokrytí grafu (vertex cover)](#121-minimální-vrcholové-pokrytí-grafu-vertex-cover)
-  - [12.2. Problém obchodního cestujícího (TSP)](#122-problém-obchodního-cestujícího-tsp)
+  - [7.4. Převod HC na HK](#74-převod-hc-na-hk)
+  - [7.5. Převod 3-SAT na ILP](#75-převod-3-sat-na-ilp)
+- [8. Úplné problémy](#8-úplné-problémy)
+  - [8.1. Třídy doplňkových problémů](#81-třídy-doplňkových-problémů)
+- [9. Hry dvou hráčů](#9-hry-dvou-hráčů)
+  - [9.1. Zobecněná varianta hry Hex](#91-zobecněná-varianta-hry-hex)
+- [10. Paralelní algoritmy](#10-paralelní-algoritmy)
+  - [10.1. Parallel Random Access Machine (PRAM)](#101-parallel-random-access-machine-pram)
+- [11. Distribuované algoritmy](#11-distribuované-algoritmy)
+  - [11.1. Leader Election](#111-leader-election)
+    - [11.1.1. Algoritmus LCR (Le Lann, Chang, Roberts)](#1111-algoritmus-lcr-le-lann-chang-roberts)
+    - [11.1.2. Algoritmus HS (Hirschberg, Sinclair)](#1112-algoritmus-hs-hirschberg-sinclair)
+    - [11.1.3. Algoritmus TimeSlice](#1113-algoritmus-timeslice)
+    - [11.1.4. Algoritmus VariableSpeeds](#1114-algoritmus-variablespeeds)
+    - [11.1.5. Algoritmus FloodMax](#1115-algoritmus-floodmax)
+- [12. Výpočetně náročné problémy](#12-výpočetně-náročné-problémy)
+  - [12.1. Problém batohu](#121-problém-batohu)
+  - [12.2. Problém HORN-SAT](#122-problém-horn-sat)
+  - [12.3. Problém 2-SAT](#123-problém-2-sat)
+  - [12.4. Prvočíselnost](#124-prvočíselnost)
+  - [12.5. Faktorizace](#125-faktorizace)
+  - [12.6. Třídy randomizovaných algoritmů](#126-třídy-randomizovaných-algoritmů)
+- [13. Aproximační algoritmy](#13-aproximační-algoritmy)
+  - [13.1. Minimální vrcholové pokrytí grafu (vertex cover)](#131-minimální-vrcholové-pokrytí-grafu-vertex-cover)
+  - [13.2. Problém obchodního cestujícího (TSP)](#132-problém-obchodního-cestujícího-tsp)
 
 **Teoretická informatika** je vědní obor na pomezí mezi matematikou a informatikou. Zkoumá
 
@@ -1017,6 +1021,10 @@ Nezávislá množina v grafu je podmnožina vrcholů grafu taková, že žádné
 > - **Vstup:** Sekvence dvojic přirozených čísel $(a_1, b_1), (a_2, b_2), \dots, (a_n, b_n)$ a dvě přirozená čísla $s$ a $t$.  
 > - **Otázka:** Existuje množina $I \subseteq \{1, 2, \dots, n\}$ taková, že $\sum_{i \in I} a_i \leq s$ a $\sum_{i \in I} b_i \geq t$?
 
+Řekneme, že $a_1, a_2, \dots, a_n, s_1$ je instance problému SUBSET-SUM. Je zřejmé, že pro instanci problému batohu, kde máme sekvenci $(a_1, a_1), (a_2, a_2), \dots, (a_n, a_n), s = s_1$ a $t = s_1$, je odpověď stejná jako pro původní instanci SUBSET-SUM.
+
+SUBSET-SUM je v `NPTIME`: nedeterministický algoritmus zvolí podmnožinu prvků a následně deterministicky spočítá součet prvků této podmnožiny a ověří podmínku.
+
 > **ILP - Integer Linear Programming** (celočíslené lineární programování)  
 > - **Vstup:** Celočíselná matice $A$ a celočíselný vektor $b$.  
 > - **Otázka:** Existuje celočíselný vektor $x$, takový že $Ax \leq b$?
@@ -1039,19 +1047,155 @@ Popsaný algoritmus má polynomiální časovou složitost, tzn. problém **3-SA
 
 ### 7.3. SAT problém
 
-Je booleovská formule splnitelná?
+> **SAT** (Boolean SATisfiability problem, problém splnitelnosti booleovské formule)
+> - **Vstup:** Booleovská formule $\varphi$. (Např. $\varphi = x_1 \wedge (\neg x_2 \vee x_3)$)
+> - **Otázka:** Je booleovská formule splnitelná? (Lze nastavit $x_1,x_2,x_3$ tak, aby $\varphi$ byla pravdivá?)
 
-$\varphi = x_1 \wedge (\neg x_2 \vee x_3)$
+Je SAT v `NPTIME`? Nedeterministický algoritmus řešící SAT v polynomiálním čase:
 
-Lze nastavit $x_1,x_2,x_3$ tak, aby $\varphi$ byla pravdivá?
+1. Nedeterministicky zvolí ohodnocení $\nu$, které přiřazuje booleovskou hodnotu každé proměnné vyskytující se ve formuli $\varphi$.
+2. Vyhodnotí $\varphi$ při ohodnocení $\nu$, tj. spočítá hodnotu $[\varphi]_{\nu}$.
+3. Pokud $[\varphi]_{\nu} = 1$, vrátí algoritmus odpověď `Ano`, jinak vrátí odpověď `Ne`.
 
-## 8. PS úplnost
+Důkaz, že SAT je NP-těžký je mnohem složitější.
 
-**Kvantifikované booleovské formule (QBF)** je příklad PSPACE úplného problému. Redukcí z QBF lze úkázat PSPACE úplnost mnoha dalších problémů, např. *oblázkové hry*.
+Lze dokázat, že SAT je NP-úplný, dále lze SAT převést na 3-SAT (netriviální). 3-SAT lze převést na 3-CG (netriviální).
 
-### 8.1. Generalized Geography (GG)
+### 7.4. Převod HC na HK
 
-## 9. Paralelní algoritmy
+1. Každému vrcholu $x$ orientovaného grafu přiřadíme tři vrcholy $x_1, x_2, x_3$.
+2. Spojíme je hranami $(x_1, x_2)$ a $(x_2, x_3)$.
+3. Každá orientovaná hrana $(x, y)$ bude reprezentována hranou $(x_3, y_1)$.
+
+<img src="figures/hc-to-hk.png" alt="hc-to-hk" width="400px">
+
+### 7.5. Převod 3-SAT na ILP
+
+- **Vstup:** Libovolná instance problému **3-SAT**, tj. formule $\varphi$ v KNF, kde každá klauzule obsahuje právě 3 literály.
+    $$(x_1 \vee \neg x_2 \vee x_3) \wedge (x_2 \vee \neg x_3 \vee x_4) \wedge (x_1 \vee \neg x_3 \vee \neg x_4) \wedge (\neg x_1 \vee \neg x_2 \vee x_4)$$
+- **Výstup:** Instance problému **ILP**.
+    $$ (\forall i \in \{1,2,3,4\})\colon\,\, x_i' \geq 0 \quad\wedge\quad x_i' \leq 1 $$
+    $$
+    \begin{align*}
+      x_1' + (1 - x_2') + x_3' &\geq 1\\
+      x_2' + (1 - x_3') + x_4' &\geq 1\\
+      x_1' + (1 - x_3') + (1 - x_4') &\geq 1\\
+      (1 - x_1') + (1 - x_2') + x_4' &\geq 1\\
+    \end{align*}
+    $$
+  - Pomocí aritmetických úprav lze převést na tvar $\mathsf{A}\mathbf{x}'\leq \mathbf{b}$.
+
+## 8. Úplné problémy
+
+> Řekneme, že problém $A$ je $\mathcal{C}$**-těžký** právě tehdy, když každý problém $A'$ ze třídy $\mathcal{C}$ je polynomiálně převeditelný na $A$.  
+>
+> Řekneme, že problém $A$ je $\mathcal{C}$**-úplný** právě tehdy, když je $\mathcal{C}$-těžký a zároveň patří do třídy $\mathcal{C}$.
+
+> Oblázková hra (Pebble game)
+>
+> - **Vstup:** Acyklický orientovaný graf $G$, cílový vrchol $t$ a $k$ kamenů.
+> - **Otázka:** Existuje posloupnost tahů taková, že na konci bude položen kámen na vrcholu $t$?
+
+Pravidla pro umístění kamenů:
+
+1. Kameny lze umisťovat na vrcholy grafu. Na začátku je graf prázdný.
+2. Pokud je vrchol $v$ prázdný a na všechny jeho předchůdce byl umístěn kámen, můžeme udělat jednu ze dvou akcí:
+   1. Umístit kámen na vrchol $v$.
+   2. Přesunout kámen z předchůdce vrcholu $v$ na vrchol $v$.
+3. Libovolný kámen můžeme odstranit z vrcholu.
+
+Na oblázkovou hru se můžeme dívat jako na přechodový systém, kde:
+
+- **Stavy** odpovídají všem možnostem, jak může být rozmístěno 0 až $k$ kamenů na $n$ vrcholech grafu $G$ (např. binární sekvence).  
+- **Přechody** jsou dány pravidly určujícími, jak je možné pokládat, posouvat nebo odebírat kameny.  
+- **Počáteční stav** odpovídá situaci, kdy na grafu $G$ nejsou položeny žádné kameny.  
+- **Koncové stavy** jsou ta rozmístění kamenů, kdy leží kámen na vrcholu $t$.
+
+> Oblázková hra je v PSPACE.
+
+> **Ekvivalence NKA**  
+> - **Vstup:** Nedeterministické konečné automaty $A_1$ a $A_2$.  
+> - **Otázka:** Je $\mathcal{L}(A_1) = \mathcal{L}(A_2)$?  
+
+Postup s exponenciální prostorovou složitostí:
+
+1. K daným NKA $A_1$ a $A_2$ sestrojíme ekvivalentní DKA $A'_1$ a $A'_2$.  
+2. Pro tyto DKA budeme hledat rozlišující slovo, které jeden z nich přijme a druhý ne.
+
+Nicméně lze si pamatovat pouze aktuální stavy DKA a nedeterministicky hádat jednotlivé symboly. Ze Savitchovy věty plyne, že problém je v `PSPACE`.
+
+> **Univerzalita NKA**  
+> - **Vstup:** Nedeterministický konečný automat $A$
+> - **Otázka:** Je $\mathcal{L}(A) = \Sigma^*$?  
+
+Problém univerzality NKA je speciální případ ekvivalence NKA, kde jeden z automatů je deterministický automat, který přijímá všechny řetězce.
+
+> Problémy *univerzality* a *ekvivalence* NKA jsou **PSPACE-úplné**. Stejně tak ekvivalence a univerzalita regulárních výrazů.
+
+(K regulárnímu výrazu lze v polynomiálním čase (a prostoru) sestrojit ekvivalentní NKA.)
+
+> **Problém kvantifikovaných booleovských formulí (QBF / QSAT - Quantified Satisfiability)**  
+>
+> - **Vstup:** Kvantifikovaná booleovská formule $\varphi$.  
+> - **Otázka:** Je formule $\varphi$ pravdivá?  
+
+**QBF** je příklad PSPACE úplného problému. Redukcí z QBF lze úkázat PSPACE úplnost mnoha dalších problémů, např. *oblázkové hry*.
+
+### 8.1. Třídy doplňkových problémů
+
+**co-NP** je třída tvořená právě těmi problémy, které jsou doplňkovými problémy problémů ze třídy **NP**. Podobně lze definovat další třídy.
+
+Příklad: **UNSAT** - problém nesplnitelnosti booleovské formule (Je daná formule tautologií?).
+
+## 9. Hry dvou hráčů
+
+> **Strategie** hráče je předpis, který určuje, jaký konkrétní tah má hráč v každé pozici zvolit.
+>
+> **Vyhrávající strategie** je taková strategie, která hráči zaručí, že vždy vyhraje.  
+>
+> **Kombinatorická hra** je čtveřice $G = ( \text{Pos}, \text{Moves}, \text{Label}, \alpha_0 )$, kde:
+> - $\text{Pos}$ je množina pozic,  
+> - $\text{Moves}\subseteq\text{Pos}\times\text{Pos}$ je množina tahů,  
+> - $\text{Label}\colon \text{Pos} \rightarrow \{I, II\}$ (zobrazení, které přiřazuje pozice hráčům - hráč $I$ nebo hráč $II$),  
+> - $\alpha_0 \in \text{Pos}$ je počáteční pozice.
+>
+> **Partie** je konečná nebo nekonečná posloupnost pozic:
+> $$\alpha_0, \alpha_1, \alpha_2, \dots$$  
+>
+> **Vítěz** *konečné* partie s koncovou pozicí $\alpha_n$ je hráč $\text{Label}(\alpha_n)$.
+
+> **Generalized Geography (GG)**
+> - **Vstup:** Orientovaný graf $G$ a počáteční vrchol $v_0$.
+> - **Pravidla:** Hráči střídavě přesunují po vrcholech $G$ jeden hrací kámen. Označují se vrcholy, na které byl kámen položen. Začíná se ve vrcholu $v_0$. Hráč na tahu přemístí kámen z vrcholu $v$ do vrcholu $v'$ takového, že na něm doposud nebyl položen kámen a existuje hrana $(v,v')$. Hráč, který nemůže táhnout, prohrává.
+> - **Otázka:** Má hráč, který táhne jako první, vyhrávající strategii ve hře hrané na grafu $G$, kde se začíná ve vrcholu $v_0$?
+
+- Na uložení jedné pozice stačí $\mathcal{O}(n)$ bitů, kde $n$ je počet vrcholů grafu.
+- Každá partie končí po nejvýše $n$ tazích.
+- Problém GG je `PSPACE`-úplný.
+
+### 9.1. Zobecněná varianta hry Hex  
+
+Hrají dva hráči ($I$ a $II$) na *neorientovaném* grafu, ve kterém jsou dva speciální vrcholy $s$ a $t$.
+
+Pravidla hry:
+
+- Hráči střídavě pokládají své kameny na vrcholy grafu:
+  - Hráč $I$ má kameny jedné barvy — například zelené.
+  - Hráč $II$ má kameny druhé barvy — například červené.
+- Oba hráči mají neomezenou zásobu kamenů své barvy.
+- Na začátku hry je graf prázdný — neleží na něm žádné kameny.
+- Jako první táhne Hráč $I$.
+- Tah hráče spočívá v tom, že vybere libovolný vrchol, na kterém dosud neleží žádný kámen, a položí kámen své barvy na tento vrchol.
+- Na speciální vrcholy $s$ a $t$ se kameny nesmí pokládat.
+
+Cíle hráčů:
+
+1. Hráč $I$: Vytvořit ze svých kamenů cestu z vrcholu $s$ do vrcholu $t$.
+2. Hráč $II$: Zabránit Hráči $I$ ve vytvoření této cesty.
+
+Má hráč výherní strategii ve hře Hex? Problém je `PSPACE`-úplný (systematický průchod stromem všech různých partií $\mathcal{O}(n^2)$).
+
+## 10. Paralelní algoritmy
 
 Způsob vzájemné komunikace:
 
@@ -1063,7 +1207,7 @@ Vzájemná synchronizace:
 - synchronní - instrukce jsou vykonávány na všech procesorech najednou ve stejný okamžik (v synchronních krocích)
 - asynchronní - instrukce jsou vykonávány nezávisle na sobě, pořadí není předvidatelné
 
-### 9.1. Parallel Random Access Machine (PRAM)
+### 10.1. Parallel Random Access Machine (PRAM)
 
 - **Synchronní** model.
 - Procesory sdílí společnou **globální paměť**.
@@ -1131,7 +1275,7 @@ Pokud bychom měli $p \ll n$ procesorů, můžeme použít algoritmus, který po
 Na stroji PRAM typu `CRCW` `COMMON` je možné s $\mathcal{O}(n^2)$ procesory najít
 minimum v čase $\mathcal{O}(1)$. Tento algoritmus není optimální, protože sekvenční algoritmus pro hledání minima má složitost $\mathcal{O}(n)$.
 
-## 10. Distribuované algoritmy
+## 11. Distribuované algoritmy
 
 - Distribuované systémy - stroje nemají přístup ke *sdílené globální paměti*.
 - Distribuované systémy se skládají z mnoha paralelně běžících procesů, které jsou vzájemně propojeny pomocí **sítě** a komunikují **posíláním zpráv** přes síťová spojení.
@@ -1144,7 +1288,7 @@ Přes hrany komunikační sítě lze posílat prvky z množiny zpráv $\mathcal{
 
 **Komunikační složitost** – většinou se počítá jako *celkový počet zpráv* poslaných během výpočtu.
 
-### 10.1. Leader Election
+### 11.1. Leader Election
 
 Volba koordinátora v síti na základě nejvyššího unikátního ID, tj. **UID**. Uvažujme nejjednodušší variantu jednosměrného kruhu:
 
@@ -1152,7 +1296,7 @@ Volba koordinátora v síti na základě nejvyššího unikátního ID, tj. **UI
 
 Každý proces má lokálně pojmenované hrany, které do něj a z něj vedou. Nezná však čísla vrcholů, ze kterých tyto hrany přicházejí, ani kam vedou.
 
-#### 10.1.1. Algoritmus LCR (Le Lann, Chang, Roberts)
+#### 11.1.1. Algoritmus LCR (Le Lann, Chang, Roberts)
 
 Každý proces pošle své UID podél kruhu. Když proces přijme zprávu s nějakým UID, porovná toto UID se svým vlastním UID:
 
@@ -1176,7 +1320,7 @@ if přišla zpráva obsahující UID v then
 - Časová složistost $\Theta(n)$
 - Komunikační složistost $\Theta(n^2)$
 
-#### 10.1.2. Algoritmus HS (Hirschberg, Sinclair)
+#### 11.1.2. Algoritmus HS (Hirschberg, Sinclair)
 
 - **Obousměrný** kruh.
 
@@ -1205,19 +1349,19 @@ Všechny procesy pracují v jednotlivých fázích $\ell = 0, 1, 2, 3, \dots$ V 
 - Časová složistost $\Theta(n)$
 - Komunikační složistost $\mathcal{O}(n\log n)$
 
-#### 10.1.3. Algoritmus TimeSlice
+#### 11.1.3. Algoritmus TimeSlice
 
 - **Obousměrný** kruh a je **znám počet vrcholů**.
 - Časová složistost $\mathcal{O}(n\cdot \mathrm{UID}_{min})$
 - Komunikační složistost $\mathcal{O}(n)$
 
-#### 10.1.4. Algoritmus VariableSpeeds
+#### 11.1.4. Algoritmus VariableSpeeds
 
 - **Obousměrný** kruh a **ne**ní znám počet vrcholů.
 - Časová složistost $\mathcal{O}(n\cdot 2^{\mathrm{UID}_{min}})$
 - Komunikační složistost $\mathcal{O}(n)$
 
-#### 10.1.5. Algoritmus FloodMax
+#### 11.1.5. Algoritmus FloodMax
 
 - **Obecný graf** $G=(V,E)$.
 - Předkládáme, že $G$ je **silně souvislý**, a že každý proces zná **průměr** grafu $diam$ (tj., hodnota, s.t., nejkratší cesta mezi dvěma vrcholy je nejvýše $diam$).
@@ -1229,20 +1373,20 @@ Všechny procesy pracují v jednotlivých fázích $\ell = 0, 1, 2, 3, \dots$ V 
 - Časová složistost $\mathcal{O}(diam)$
 - Komunikační složistost $\mathcal{O}(diam\cdot|E|)$
 
-## 11. Výpočetně náročné problémy
+## 12. Výpočetně náročné problémy
 
 Můžeme slevit z požadavku na korektnost:
 
 - **Randomizované algoritmy** - používají generátor náhodných čísel (s nenulovou pravděpodobností vrátí chybný výsledek). Pro libolně malé $\varepsilon>0$ musíme zaručit, že algoritmus vrátí správný výsledek s pravděpodobností $1-\varepsilon$ nebo vyšší.
 - **Aproximační algoritmy** - pro řešení optimalizačních problémů (často nastavujeme nějakou toleranci chyby $\varepsilon$).
 
-### 11.1. Problém batohu
+### 12.1. Problém batohu
 
 - **Vstup:** Čísla $a_1, a_2, \dots, a_m$ a číslo $s$.  
 - **Otázka:** Existuje podmnožina množiny čísel $a_1, a_2, \dots, a_m$ taková, že součet čísel v této podmnožině je $s$?
 - NP-úplný problém.
 
-### 11.2. Problém HORN-SAT  
+### 12.2. Problém HORN-SAT  
 
 - **Vstup:** Booleovská formule $\phi$ v KNF obsahující pouze Hornovy klauzule.  
 - **Otázka:** Je $\phi$ splnitelná?  
@@ -1251,7 +1395,7 @@ Můžeme slevit z požadavku na korektnost:
   - Klauzule $(\neg x_1 \lor \neg x_2 \lor \neg x_3 \lor \neg x_4 \lor x_5)$ je Hornova klauzule.  
   - Tato klauzule je ekvivalentní formuli $(x_1 \land x_2 \land x_3 \land x_4) \implies x_5$.
 
-### 11.3. Problém 2-SAT
+### 12.3. Problém 2-SAT
 
 - **Vstup:** Booleovská formule $\phi$ v KNF, kde každá klauzule obsahuje nejvýše 2 literály.  
 - **Otázka:** Je $\phi$ splnitelná?
@@ -1309,7 +1453,7 @@ graph LR
 
 </details>
 
-### 11.4. Prvočíselnost
+### 12.4. Prvočíselnost
 
 - **Vstup:** Přirozené číslo $p$.
 - **Otázka:** Je $p$ prvočíslo?
@@ -1327,14 +1471,14 @@ Malou Fermatovu větu lze použít k testování prvočíselnosti (tzv. Fermatů
 - Pokud $a^{n-1} \not\equiv 1 \pmod{n}$, pak $n$ **určitě není** prvočíslo.  
 - Pokud $a^{n-1} \equiv 1 \pmod{n}$, pak $n$ je **možná!!!** prvočíslo.  
 
-### 11.5. Faktorizace
+### 12.5. Faktorizace
 
 - **Vstup:** Přirozené číslo $p$.
 - **Otázka:** Rozklad čísla $p$ na prvočísla.
 
 **RSA šifrování** - umíme rychle najít a vynásobit dvě velká prvočísla, ale není znám rychlý algoritmus na faktorizaci.
 
-### 11.6. Třídy randomizovaných algoritmů
+### 12.6. Třídy randomizovaných algoritmů
 
 > Třída **RP** *(randomized polynomial time)* je tvořena právě těmi *rozhodovacími* problémy, pro které existuje randomizovaný algoritmus s polynomiální časovou složitostí typu:
 > - Pro vstupy, kde je správná odpověď `Ano`, musí stroj $M$ dávat odpověď `Ano` s pravděpodobností alespoň $\frac{1}{2}$.  
@@ -1353,13 +1497,13 @@ Malou Fermatovu větu lze použít k testování prvočíselnosti (tzv. Fermatů
 >
 > Pokud dostaneme odpověď `Nevím`, můžeme algoritmus spustit znovu a znovu, dokud nedostaneme odpověď `Ano` nebo `Ne`. Doba výpočtu pak bude nedeterministická.
 
-## 12. Aproximační algoritmy
+## 13. Aproximační algoritmy
 
 Buď $c(x)$ cenová funkce. Buď $x^*$ optimální řešení (minimum) a buď $x$ řešení, které vrátí aproximační algoritmus. Definujeme **aproximační poměr** jako funkci $\rho(n)$, kde $n$ je velikost instance problému jako: $\rho(n) = \frac{c(x)}{c(x^*)}$ (pro maximalizaci $\frac{c(x^*)}{c(x)}$).
 
 Řekneme, že aproximační algoritmus je **$\rho(n)$-aproximační**, pokud dosahuje aproximačního poměru $\rho(n)$.
 
-### 12.1. Minimální vrcholové pokrytí grafu (vertex cover)
+### 13.1. Minimální vrcholové pokrytí grafu (vertex cover)
 
 (optimalizační problém; policajti ve vrcholech musí vidět na všechny hrany)
 
@@ -1379,7 +1523,7 @@ while E ≠ ∅ do
 return C
 ```
 
-### 12.2. Problém obchodního cestujícího (TSP)
+### 13.2. Problém obchodního cestujícího (TSP)
 
 - **Vstup:** Množina $n$ měst a vzdálenosti mezi nimi.  
 - **Výstup:** Nejkratší okružní cesta procházející všemi městy (začíná a končí ve stejném městě).
