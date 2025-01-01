@@ -41,7 +41,9 @@
 - [6. Nedeterminismus](#6-nedeterminismus)
   - [6.1. Nedeterministické třídy složitosti](#61-nedeterministické-třídy-složitosti)
 - [7. NP úplnost](#7-np-úplnost)
-  - [7.1. SAT problém](#71-sat-problém)
+  - [7.1. Příklady NP-úplných problémů](#71-příklady-np-úplných-problémů)
+  - [7.2. Převod 3-SAT na IS](#72-převod-3-sat-na-is)
+  - [7.3. SAT problém](#73-sat-problém)
 - [8. PS úplnost](#8-ps-úplnost)
   - [8.1. Generalized Geography (GG)](#81-generalized-geography-gg)
 - [9. Paralelní algoritmy](#9-paralelní-algoritmy)
@@ -922,7 +924,120 @@ $$
 
 ## 7. NP úplnost
 
-### 7.1. SAT problém
+> Problém $P$ je **NP-těžký**, jestliže každý problém z $\text{NPTIME}$ je polynomiálně převeditelný na $P$.  
+>
+> <img src="figures/np-hard.png" alt="np-hard" width="150px">
+>
+> Problém $P$ je **NP-úplný**, jestliže je NP-těžký a navíc sám patří do třídy $\text{NPTIME}$.
+>
+> <img src="figures/np-complete.png" alt="np-complete" width="150px">
+
+**NP-úplné problémy**:
+
+- Patří do třídy **NPTIME**, tj. jsou řešitelné v polynomiálním čase nedeterministickým algoritmem.  
+- Jsou tedy řešitelné v **exponenciálním čase** (viz vztahy mezi třídami složitosti).  
+- Není pro ně znám žádný algoritmus s polynomiální časovou složitostí (ale není dokázáno, že pro daný problém neexistuje polynomiální algoritmus).
+- Všechny tyto problémy jsou **navzájem polynomiálně převeditelné**.  
+- Pokud bychom pro nějaký NP-těžký problém $P$ nalezli polynomiální algoritmus, platilo by $\text{PTIME} = \text{NPTIME}$.
+
+> Problém $P_1$ je *polynomiálně převeditelný* na problém $P_2$ právě tehdy, když existuje algoritmus $\text{Alg}$ s *polynomiální časovou složitostí*, který převádí problém $P_1$ na problém $P_2$.
+>
+> Pokud pro problém $P_2$ existuje polynomiální algoritmus (označme $\text{Alg}_{P_2}$), tak i pro problém $P_1$ existuje polynomiální algoritmus, konkrétně $\text{Alg}_{P_2}\big(\text{Alg}(x)\big)$ (kde $\text{Alg}$ je polynomiální převod $P_1$ na $P_2$).
+>
+> Důsledek. Pokud neexistuje polynomiální algoritmus pro problém $P_1$, tak neexistuje ani polynomiální algoritmus pro problém $P_2$.
+
+Pro polynomiální převody platí **tranzitivita**, tj. pokud je problém $P_1$ polynomiálně převeditelný na problém $P_2$ a problém $P_2$ na problém $P_3$, pak je problém $P_1$ polynomiálně převeditelný na problém $P_3$.
+
+> **Cookova věta.** Problém **SAT** je NP-úplný.
+
+### 7.1. Příklady NP-úplných problémů
+
+```mermaid
+graph LR
+    SAT --> A[3-SAT]
+    A --> IS
+    A --> B[3-CG]
+    A --> C[SUBSET-SUM]
+    A --> ILP
+    IS --> VC
+    IS --> CLIQUE
+    IS --> HC
+    HC --> HK
+    HK --> TSP
+```
+
+> **3-SAT**  
+> - **Vstup:** Formule $\varphi$ v konjunktivní normální formě, kde každá klauzule obsahuje právě 3 literály.  
+> - **Otázka:** Je $\varphi$ splnitelná?
+
+- **Literál** je *formule* tvaru $x$ nebo $\neg x$, kde $x$ je *atomický výrok*.  
+- **Klauzule** je *disjunkce literálů*. Např.:  
+    $$\neg x_5 \lor x_8 \lor \neg x_{15} \lor \neg x_{23}$$  
+  
+- Formule je v **konjunktivní normální formě (KNF)**, jestliže je *konjunkcí klauzulí*. Např.:  
+    $$(x_1 \lor \neg x_2) \land (\neg x_5 \lor x_8 \lor \neg x_{15} \lor \neg x_{23}) \land x_6$$
+
+> **Problém nezávislé množiny (IS)**  
+> - **Vstup**: Neorientovaný graf $G$, číslo $k$.  
+> - **Otázka**: Existuje v grafu $G$ nezávislá množina velikosti $k$?  
+
+<img src="figures/is.png" alt="is" width="300px">
+
+Nezávislá množina v grafu je podmnožina vrcholů grafu taková, že žádné dva vrcholy z této podmnožiny nejsou spojeny hranou.
+
+> **GC - Graph Coloring**  
+> - **Vstup:** Neorientovaný graf $G$, přirozené číslo $k$.  
+> - **Otázka:** Lze vrcholy grafu $G$ obarvit $k$ barvami tak, aby žádné dva vrcholy spojené hranou neměly stejnou barvu?
+
+> **VC – Vertex Cover** (Vrcholové pokrytí)
+> - **Vstup:** Neorientovaný graf $G$ a přirozené číslo $k$.  
+> - **Otázka:** Existuje v grafu $G$ množina vrcholů velikosti $k$ taková, že každá hrana má alespoň jeden svůj vrchol v této množině?
+
+> **CLIQUE** (Problém kliky)
+> - **Vstup:** Neorientovaný graf $G$ a přirozené číslo $k$.  
+> - **Otázka:** Existuje v grafu $G$ množina vrcholů velikosti $k$ taková, že každé dva vrcholy této množiny jsou spojeny hranou?
+
+> **HC – Hamiltonovský cyklus**  
+> - **Vstup:** Orientovaný graf $G$.  
+> - **Otázka:** Existuje v grafu $G$ Hamiltonovský cyklus (orientovaný cyklus procházející každým vrcholem právě jednou)?
+
+> **HK – Hamiltonovská kružnice**  
+> - **Vstup:** Neorientovaný graf $G$.  
+> - **Otázka:** Existuje v grafu $G$ Hamiltonovská kružnice (neorientovaný cyklus procházející každým vrcholem právě jednou)?
+
+> **TSP – Problém obchodního cestujícího**  
+> - **Vstup:** Neorientovaný graf $G$ s hranami ohodnocenými přirozenými čísly a číslo $k$.  
+> - **Otázka:** Existuje v grafu $G$ uzavřená cesta procházející všemi vrcholy taková, že součet délek hran na této cestě (včetně opakovaných) je maximálně $k$?
+
+> **SUBSET-SUM**  
+> - **Vstup:** Sekvence přirozených čísel $a_1, a_2, \dots, a_n$ a přirozené číslo $s$.  
+> - **Otázka:** Existuje množina $I \subseteq \{1, 2, \dots, n\}$ taková, že $\sum_{i \in I} a_i = s$?
+
+> **Knapsack problem** (Problém batohu, speciální případ SUBSET-SUM)  
+> - **Vstup:** Sekvence dvojic přirozených čísel $(a_1, b_1), (a_2, b_2), \dots, (a_n, b_n)$ a dvě přirozená čísla $s$ a $t$.  
+> - **Otázka:** Existuje množina $I \subseteq \{1, 2, \dots, n\}$ taková, že $\sum_{i \in I} a_i \leq s$ a $\sum_{i \in I} b_i \geq t$?
+
+> **ILP - Integer Linear Programming** (celočíslené lineární programování)  
+> - **Vstup:** Celočíselná matice $A$ a celočíselný vektor $b$.  
+> - **Otázka:** Existuje celočíselný vektor $x$, takový že $Ax \leq b$?
+
+### 7.2. Převod 3-SAT na IS
+
+- **Vstup:** Libovolná instance problému **3-SAT**, tj. formule $\varphi$ v KNF, kde každá klauzule obsahuje právě 3 literály.  
+- **Výstup:** Instance problému **IS**, tj. neorientovaný graf $G$ a číslo $k$.  
+- Pro libovolný vstup $\varphi$ musí platit, že v $G$ bude existovat nezávislá množina velikosti $k$ právě tehdy, když formule $\varphi$ bude splnitelná.  
+
+1. Pro každý literál přidáme do grafu $G$ vrchol.
+2. Literály ze stejné klauzule spojíme hranou.
+3. Dvojice $(x_i, \neg x_i)$ spojíme hranou.
+4. Číslo $k$ je rovno počtu klauzulí.
+5. Pokud je $\varphi$ splnitelná, pak v každé klauzuli existuje alespoň jeden pravdivý literál. Z každé klauzule vybereme jeden pravdivý literál a tím vytvoříme nezávislou množinu velikosti $k$.
+
+<img src="figures/3-sat-to-is.png" alt="3-sat-to-is" width="450px">
+
+Popsaný algoritmus má polynomiální časovou složitost, tzn. problém **3-SAT** je polynomiálně převoditelný na problém **IS**.
+
+### 7.3. SAT problém
 
 Je booleovská formule splnitelná?
 
@@ -1098,14 +1213,14 @@ Všechny procesy pracují v jednotlivých fázích $\ell = 0, 1, 2, 3, \dots$ V 
 
 #### 10.1.4. Algoritmus VariableSpeeds
 
-- **Obousměrný** kruh a je **ne**ní znám počet vrcholů.
+- **Obousměrný** kruh a **ne**ní znám počet vrcholů.
 - Časová složistost $\mathcal{O}(n\cdot 2^{\mathrm{UID}_{min}})$
 - Komunikační složistost $\mathcal{O}(n)$
 
 #### 10.1.5. Algoritmus FloodMax
 
 - **Obecný graf** $G=(V,E)$.
-- Předkládámě, že $G$ je **silně souvislý**, a že každý proces zná **průměr** grafu $diam$ (tj., hodnota, s.t., nejkratší cesta mezi dvěma vrcholy je nejvýše $diam$).
+- Předkládáme, že $G$ je **silně souvislý**, a že každý proces zná **průměr** grafu $diam$ (tj., hodnota, s.t., nejkratší cesta mezi dvěma vrcholy je nejvýše $diam$).
 
 1. Každý proces udržuje informaci o největším UID, které zatím viděl.  
 2. V každém kole toto největší UID posílá všem svým sousedům.
@@ -1221,17 +1336,17 @@ Malou Fermatovu větu lze použít k testování prvočíselnosti (tzv. Fermatů
 
 ### 11.6. Třídy randomizovaných algoritmů
 
-> Třída **RP** *(randomized polynomial time)* je tvořena právě těmi *rozhodovacími* problémy, pro které existuje randomizovaný algoritmus s polynomiální časovou složitost typu:
+> Třída **RP** *(randomized polynomial time)* je tvořena právě těmi *rozhodovacími* problémy, pro které existuje randomizovaný algoritmus s polynomiální časovou složitostí typu:
 > - Pro vstupy, kde je správná odpověď `Ano`, musí stroj $M$ dávat odpověď `Ano` s pravděpodobností alespoň $\frac{1}{2}$.  
 > - Pro vstupy, kde je správná odpověď `Ne`, musí stroj $M$ *vždy* dávat odpověď `Ne`.  
 >
 > Třída **co-RP** obsahuje doplňkové problémy k RP.
 
-> Třída **BPP** *(bounded-error probabilistic polynomial time)* je tvořena právě těmi rozhodovacími problémy, pro které existuje randomizovaný algoritmus s polynomiální časovou složitost typu:
+> Třída **BPP** *(bounded-error probabilistic polynomial time)* je tvořena právě těmi rozhodovacími problémy, pro které existuje randomizovaný algoritmus s polynomiální časovou složitostí typu:
 > - Pro vstupy, kde je správná odpověď `Ano`, musí stroj $M$ dávat odpověď `Ano` s pravděpodobností alespoň $\frac{2}{3}$.  
 > - Pro vstupy, kde je správná odpověď `Ne`, musí stroj $M$ dávat odpověď `Ne` s pravděpodobností alespoň $\frac{2}{3}$.  
 
-> Třída **ZPP** (zero-error probabilistic polynomial time) je tvořena právě těmi rozhodovacími problémy, pro které existuje randomizovaný algoritmus s polynomiální časovou složitost typu:
+> Třída **ZPP** (zero-error probabilistic polynomial time) je tvořena právě těmi rozhodovacími problémy, pro které existuje randomizovaný algoritmus s polynomiální časovou složitostí typu:
 > - Stroj vrací `Ano`, `Ne` nebo `Nevím`.
 > - Pokud stroj $M$ vrátí odpovědí `Ano` nebo `Ne`, je tato odpověď *vždy správně*.  
 > - Pravděpodobnost toho, že vrátí odpověď `Nevím`, může být nejvýše $\frac{1}{2}$.  
