@@ -48,28 +48,30 @@
   - [7.5. Převod 3-SAT na ILP](#75-převod-3-sat-na-ilp)
 - [8. Úplné problémy](#8-úplné-problémy)
   - [8.1. Třídy doplňkových problémů](#81-třídy-doplňkových-problémů)
+  - [8.2. P-úplné problémy](#82-p-úplné-problémy)
+  - [8.3. Třídy L a NL](#83-třídy-l-a-nl)
+  - [8.4. NL-úplné problémy](#84-nl-úplné-problémy)
 - [9. Hry dvou hráčů](#9-hry-dvou-hráčů)
   - [9.1. Zobecněná varianta hry Hex](#91-zobecněná-varianta-hry-hex)
-- [10. Třídy L a NL](#10-třídy-l-a-nl)
-- [11. Paralelní algoritmy](#11-paralelní-algoritmy)
-  - [11.1. Parallel Random Access Machine (PRAM)](#111-parallel-random-access-machine-pram)
-- [12. Distribuované algoritmy](#12-distribuované-algoritmy)
-  - [12.1. Leader Election](#121-leader-election)
-    - [12.1.1. Algoritmus LCR (Le Lann, Chang, Roberts)](#1211-algoritmus-lcr-le-lann-chang-roberts)
-    - [12.1.2. Algoritmus HS (Hirschberg, Sinclair)](#1212-algoritmus-hs-hirschberg-sinclair)
-    - [12.1.3. Algoritmus TimeSlice](#1213-algoritmus-timeslice)
-    - [12.1.4. Algoritmus VariableSpeeds](#1214-algoritmus-variablespeeds)
-    - [12.1.5. Algoritmus FloodMax](#1215-algoritmus-floodmax)
-- [13. Výpočetně náročné problémy](#13-výpočetně-náročné-problémy)
-  - [13.1. Problém batohu](#131-problém-batohu)
-  - [13.2. Problém HORN-SAT](#132-problém-horn-sat)
-  - [13.3. Problém 2-SAT](#133-problém-2-sat)
-  - [13.4. Prvočíselnost](#134-prvočíselnost)
-  - [13.5. Faktorizace](#135-faktorizace)
-  - [13.6. Třídy randomizovaných algoritmů](#136-třídy-randomizovaných-algoritmů)
-- [14. Aproximační algoritmy](#14-aproximační-algoritmy)
-  - [14.1. Minimální vrcholové pokrytí grafu (vertex cover)](#141-minimální-vrcholové-pokrytí-grafu-vertex-cover)
-  - [14.2. Problém obchodního cestujícího (TSP)](#142-problém-obchodního-cestujícího-tsp)
+- [10. Paralelní algoritmy](#10-paralelní-algoritmy)
+  - [10.1. Parallel Random Access Machine (PRAM)](#101-parallel-random-access-machine-pram)
+- [11. Distribuované algoritmy](#11-distribuované-algoritmy)
+  - [11.1. Leader Election](#111-leader-election)
+    - [11.1.1. Algoritmus LCR (Le Lann, Chang, Roberts)](#1111-algoritmus-lcr-le-lann-chang-roberts)
+    - [11.1.2. Algoritmus HS (Hirschberg, Sinclair)](#1112-algoritmus-hs-hirschberg-sinclair)
+    - [11.1.3. Algoritmus TimeSlice](#1113-algoritmus-timeslice)
+    - [11.1.4. Algoritmus VariableSpeeds](#1114-algoritmus-variablespeeds)
+    - [11.1.5. Algoritmus FloodMax](#1115-algoritmus-floodmax)
+- [12. Výpočetně náročné problémy](#12-výpočetně-náročné-problémy)
+  - [12.1. Problém batohu](#121-problém-batohu)
+  - [12.2. Problém HORN-SAT](#122-problém-horn-sat)
+  - [12.3. Problém 2-SAT](#123-problém-2-sat)
+  - [12.4. Prvočíselnost](#124-prvočíselnost)
+  - [12.5. Faktorizace](#125-faktorizace)
+  - [12.6. Třídy randomizovaných algoritmů](#126-třídy-randomizovaných-algoritmů)
+- [13. Aproximační algoritmy](#13-aproximační-algoritmy)
+  - [13.1. Minimální vrcholové pokrytí grafu (vertex cover)](#131-minimální-vrcholové-pokrytí-grafu-vertex-cover)
+  - [13.2. Problém obchodního cestujícího (TSP)](#132-problém-obchodního-cestujícího-tsp)
 
 **Teoretická informatika** je vědní obor na pomezí mezi matematikou a informatikou. Zkoumá
 
@@ -1148,6 +1150,106 @@ Problém univerzality NKA je speciální případ ekvivalence NKA, kde jeden z a
 
 Příklad: **UNSAT** - problém nesplnitelnosti booleovské formule (Je daná formule tautologií?).
 
+### 8.2. P-úplné problémy
+
+> **Circuit Value Problem (CVP)**  
+> - **Vstup:** Popis booleovského obvodu $G$ a pravdivostní ohodnocení $\nu$, reprezentující hodnoty přiřazené jeho vstupům.  
+> - **Otázka:** Je při daném přiřazení hodnot vstupům $\nu$ na výstupu obvodu $G$ hodnota $1$?  
+>
+> <img src="figures/cvp.png" alt="cvp" width="300px">
+
+> **Monotone Circuit Value Problem (MCVP)**  
+> - **Vstup:** Popis monotónního booleovského obvodu $G$ (tj. obvodu, který neobsahuje hradla typu `Not`) a kde do každého hradla typu `And` a `Or` vstupují právě dva vodiče, a pravdivostní ohodnocení $\nu$.  
+> - **Otázka:** Je při pravdivostním ohodnocení $\nu$ na výstupu obvodu $G$ hodnota $1$?  
+
+> **Kombinatorická hra**  
+> - **Vstup:** Kombinatorická hra dvou hráčů, jejíž graf je explicitně dán, tj. jsou explicitně vyjmenovány jednotlivé pozice a možné tahy.  
+> - **Otázka:** Má Hráč $I$ v dané hře vyhrávající strategii?  
+
+> **Generování slova bezkontextovou gramatikou**  
+> - **Vstup:** Bezkontextová gramatika $G$ a slovo $w \in \Sigma^*$.  
+> - **Otázka:** Patří slovo $w$ do jazyka generovaného gramatikou $G$ (tj. platí $w \in L(G)$)?  
+
+> **Prázdnost jazyka generovaného bezkontextovou gramatikou**  
+> - **Vstup:** Bezkontextová gramatika $G$.  
+> - **Otázka:** Platí $L(G) = \emptyset$?  
+
+> **Nekonečnost jazyka generovaného bezkontextovou gramatikou**  
+> - **Vstup:** Bezkontextová gramatika $G$.  
+> - **Otázka:** Je $L(G)$ nekonečný?  
+
+> **Generování prvku binární operací**  
+> - **Vstup:** Konečná množina $X$, binární operace $\circ$ na množině $X$ (zadaná tabulkou specifikující hodnotu $x \circ y$ pro každou dvojici $x, y \in X$), podmnožina $S \subseteq X$ a prvek $t \in X$.  
+> - **Otázka:** Je možné prvek $t$ vygenerovat z prvků množiny $S$?  
+
+> **Maximální tok v síti**  
+> - **Vstup:** Síť $G$ se stanovenými kapacitami hran, se zdrojem $s$ a stokem $t$, a číslo $k$.  
+> - **Otázka:** Má $k$-tý bit čísla reprezentujícího maximální tok v síti $G$ ze zdroje $s$ do stoku $t$ hodnotu $1$?  
+
+> **Prohledávání do hloubky (depth-first search)**  
+> - **Vstup:** Orientovaný graf $G = (V, E)$, kde je u každého vrcholu stanoveno explicitní pořadí hran, které z něj vedou, počáteční vrchol $s \in V$ a dvojice vrcholů $u, v \in V$.  
+> - **Otázka:** Bude při procházení grafu $G$ do hloubky, které začne ve vrcholu $s$, a které bude procházet hrany vedoucí z každého vrcholu v uvedeném pořadí, vrchol $u$ navštíven dříve než vrchol $v$?  
+
+### 8.3. Třídy L a NL
+
+- `L` - rozhodovací problémy, pro které existuje deterministickými algoritmy s logaritmickou prostorovou složitostí.
+- `NL` - rozhodovací problémy, pro které existuje **ne**deterministickými algoritmy s logaritmickou prostorovou složitostí.
+- `L` $\subseteq$ `NL`.
+
+Omezení pro `L` a `NL`:
+
+- Velikost vstupu a výstupu se nezapočítává do prostorové složitosti.
+- Vstupní páska je `read-only`.
+- Výstupní páska je `write-only`.
+- Např. není možné pamatovat si pro každý vrchol grafu, zda byl navštíven - $\mathcal{O}(n)$.
+
+### 8.4. NL-úplné problémy
+
+> **Dosažitelnost v grafu (Graph Reachability)**
+> - **Vstup:** Orientovaný graf $G = (V, E)$ se dvěma vyznačenými vrcholy $s$ a $t$.
+> - **Otázka:** Existuje v grafu $G$ cesta z vrcholu $s$ do vrcholu $t$?
+
+Pro problém dosažitelnosti v grafu není znám (`?`) deterministický algoritmus s logaritmickou prostorovou složitostí, ale existuje *nedeterministický* algoritmus s prostorovou složitostí $\mathcal{O}(\log n)$ řešící tento problém:
+
+1. Pamatuje si vždy jen aktuální vrchol v a hodnotu čítače `c`.
+2. Inicializuje `v := s` a `c := m - 1`, kde `m` je počet vrcholů grafu `G`.
+3. Nedeterministicky hádá cestu a s každým krokem snižuje čítač o `1`.
+
+> **2-UNSAT**  
+> - **Vstup:** Booleovská formule $\varphi$ v konjunktivní normální formě, kde každá klauzule obsahuje právě 2 literály.  
+> - **Otázka:** Je formule $\varphi$ nesplnitelná (tj. je to kontradikce)?  
+
+> **Přijímání slova NKA**  
+> - **Vstup:** Nedeterministický konečný automat $A$ a slovo $w$.  
+> - **Otázka:** Přijímá automat $A$ slovo $w$ (tj. platí $w \in L(A)$)?  
+
+> **Dosažitelné neterminály v bezkontextové gramatice**  
+> - **Vstup:** Bezkontextová gramatika $G = (\Pi, \Sigma, S, P)$ a neterminál $B \in \Pi$.  
+> - **Otázka:** Existují nějaká $\alpha, \beta \in (\Pi \cup \Sigma)^*$ taková, že $S \Rightarrow^* \alpha B \beta$?  
+
+> **Prázdnost jazyka přijímaného DKA**  
+> - **Vstup:** Deterministický konečný automat $A$.  
+> - **Otázka:** Je $L(A) = \emptyset$?  
+
+> **Univerzalita DKA**  
+> - **Vstup:** Deterministický konečný automat $A$.  
+> - **Otázka:** Je $L(A) = \Sigma^*$?  
+
+> **Ekvivalence DKA**  
+> - **Vstup:** Deterministické konečné automaty $A_1$ a $A_2$.  
+> - **Otázka:** Je $L(A_1) = L(A_2)$?  
+
+> **Generování prvku asociativní operací**  
+> - **Vstup:** Konečná množina $X$, asociativní binární operace $\circ$ na množině $X$ (zadaná tabulkou specifikující hodnotu $x \circ y$ pro každou dvojici $x, y \in X$), podmnožina $S \subseteq X$ a prvek $t \in X$.  
+> - **Otázka:** Je možné prvek $t$ vygenerovat z prvků množiny $S$?  
+
+<div class="warning">
+
+- Platí `NL = co-NL`.
+- *Není známo*, jestli `NP = co-NP`!
+
+</div>
+
 ## 9. Hry dvou hráčů
 
 > **Strategie** hráče je předpis, který určuje, jaký konkrétní tah má hráč v každé pozici zvolit.
@@ -1196,30 +1298,7 @@ Cíle hráčů:
 
 Má hráč výherní strategii ve hře Hex? Problém je `PSPACE`-úplný (systematický průchod stromem všech různých partií $\mathcal{O}(n^2)$).
 
-## 10. Třídy L a NL
-
-- `L` - rozhodovací problémy, pro které existuje deterministickými algoritmy s logaritmickou prostorovou složitostí.
-- `NL` - rozhodovací problémy, pro které existuje **ne**deterministickými algoritmy s logaritmickou prostorovou složitostí.
-- `L` $\subseteq$ `NL`.
-
-Omezení pro `L` a `NL`:
-
-- Velikost vstupu a výstupu se nezapočítává do prostorové složitosti.
-- Vstupní páska je `read-only`.
-- Výstupní páska je `write-only`.
-- Např. není možné pamatovat si pro každý vrchol grafu, zda byl navštíven - $\mathcal{O}(n)$.
-
-> **Dosažitelnost v grafu (Graph Reachability)**
-> - **Vstup:** Orientovaný graf $G = (V, E)$ se dvěma vyznačenými vrcholy $s$ a $t$.
-> - **Otázka:** Existuje v grafu $G$ cesta z vrcholu $s$ do vrcholu $t$?
-
-Pro problém dosažitelnosti v grafu není znám (`?`) deterministický algoritmus s logaritmickou prostorovou složitostí, ale existuje *nedeterministický* algoritmus s prostorovou složitostí $\mathcal{O}(\log n)$ řešící tento problém:
-
-1. Pamatuje si vždy jen aktuální vrchol v a hodnotu čítače `c`.
-2. Inicializuje `v := s` a `c := m - 1`, kde `m` je počet vrcholů grafu `G`.
-3. Nedeterministicky hádá cestu a s každým krokem snižuje čítač o `1`.
-
-## 11. Paralelní algoritmy
+## 10. Paralelní algoritmy
 
 Způsob vzájemné komunikace:
 
@@ -1231,7 +1310,7 @@ Vzájemná synchronizace:
 - synchronní - instrukce jsou vykonávány na všech procesorech najednou ve stejný okamžik (v synchronních krocích)
 - asynchronní - instrukce jsou vykonávány nezávisle na sobě, pořadí není předvidatelné
 
-### 11.1. Parallel Random Access Machine (PRAM)
+### 10.1. Parallel Random Access Machine (PRAM)
 
 - **Synchronní** model.
 - Procesory sdílí společnou **globální paměť**.
@@ -1299,7 +1378,7 @@ Pokud bychom měli $p \ll n$ procesorů, můžeme použít algoritmus, který po
 Na stroji PRAM typu `CRCW` `COMMON` je možné s $\mathcal{O}(n^2)$ procesory najít
 minimum v čase $\mathcal{O}(1)$. Tento algoritmus není optimální, protože sekvenční algoritmus pro hledání minima má složitost $\mathcal{O}(n)$.
 
-## 12. Distribuované algoritmy
+## 11. Distribuované algoritmy
 
 - Distribuované systémy - stroje nemají přístup ke *sdílené globální paměti*.
 - Distribuované systémy se skládají z mnoha paralelně běžících procesů, které jsou vzájemně propojeny pomocí **sítě** a komunikují **posíláním zpráv** přes síťová spojení.
@@ -1312,7 +1391,7 @@ Přes hrany komunikační sítě lze posílat prvky z množiny zpráv $\mathcal{
 
 **Komunikační složitost** – většinou se počítá jako *celkový počet zpráv* poslaných během výpočtu.
 
-### 12.1. Leader Election
+### 11.1. Leader Election
 
 Volba koordinátora v síti na základě nejvyššího unikátního ID, tj. **UID**. Uvažujme nejjednodušší variantu jednosměrného kruhu:
 
@@ -1320,7 +1399,7 @@ Volba koordinátora v síti na základě nejvyššího unikátního ID, tj. **UI
 
 Každý proces má lokálně pojmenované hrany, které do něj a z něj vedou. Nezná však čísla vrcholů, ze kterých tyto hrany přicházejí, ani kam vedou.
 
-#### 12.1.1. Algoritmus LCR (Le Lann, Chang, Roberts)
+#### 11.1.1. Algoritmus LCR (Le Lann, Chang, Roberts)
 
 Každý proces pošle své UID podél kruhu. Když proces přijme zprávu s nějakým UID, porovná toto UID se svým vlastním UID:
 
@@ -1344,7 +1423,7 @@ if přišla zpráva obsahující UID v then
 - Časová složistost $\Theta(n)$
 - Komunikační složistost $\Theta(n^2)$
 
-#### 12.1.2. Algoritmus HS (Hirschberg, Sinclair)
+#### 11.1.2. Algoritmus HS (Hirschberg, Sinclair)
 
 - **Obousměrný** kruh.
 
@@ -1373,19 +1452,19 @@ Všechny procesy pracují v jednotlivých fázích $\ell = 0, 1, 2, 3, \dots$ V 
 - Časová složistost $\Theta(n)$
 - Komunikační složistost $\mathcal{O}(n\log n)$
 
-#### 12.1.3. Algoritmus TimeSlice
+#### 11.1.3. Algoritmus TimeSlice
 
 - **Obousměrný** kruh a je **znám počet vrcholů**.
 - Časová složistost $\mathcal{O}(n\cdot \mathrm{UID}_{min})$
 - Komunikační složistost $\mathcal{O}(n)$
 
-#### 12.1.4. Algoritmus VariableSpeeds
+#### 11.1.4. Algoritmus VariableSpeeds
 
 - **Obousměrný** kruh a **ne**ní znám počet vrcholů.
 - Časová složistost $\mathcal{O}(n\cdot 2^{\mathrm{UID}_{min}})$
 - Komunikační složistost $\mathcal{O}(n)$
 
-#### 12.1.5. Algoritmus FloodMax
+#### 11.1.5. Algoritmus FloodMax
 
 - **Obecný graf** $G=(V,E)$.
 - Předkládáme, že $G$ je **silně souvislý**, a že každý proces zná **průměr** grafu $diam$ (tj., hodnota, s.t., nejkratší cesta mezi dvěma vrcholy je nejvýše $diam$).
@@ -1397,20 +1476,20 @@ Všechny procesy pracují v jednotlivých fázích $\ell = 0, 1, 2, 3, \dots$ V 
 - Časová složistost $\mathcal{O}(diam)$
 - Komunikační složistost $\mathcal{O}(diam\cdot|E|)$
 
-## 13. Výpočetně náročné problémy
+## 12. Výpočetně náročné problémy
 
 Můžeme slevit z požadavku na korektnost:
 
 - **Randomizované algoritmy** - používají generátor náhodných čísel (s nenulovou pravděpodobností vrátí chybný výsledek). Pro libolně malé $\varepsilon>0$ musíme zaručit, že algoritmus vrátí správný výsledek s pravděpodobností $1-\varepsilon$ nebo vyšší.
 - **Aproximační algoritmy** - pro řešení optimalizačních problémů (často nastavujeme nějakou toleranci chyby $\varepsilon$).
 
-### 13.1. Problém batohu
+### 12.1. Problém batohu
 
 - **Vstup:** Čísla $a_1, a_2, \dots, a_m$ a číslo $s$.  
 - **Otázka:** Existuje podmnožina množiny čísel $a_1, a_2, \dots, a_m$ taková, že součet čísel v této podmnožině je $s$?
 - NP-úplný problém.
 
-### 13.2. Problém HORN-SAT  
+### 12.2. Problém HORN-SAT  
 
 - **Vstup:** Booleovská formule $\phi$ v KNF obsahující pouze Hornovy klauzule.  
 - **Otázka:** Je $\phi$ splnitelná?  
@@ -1419,7 +1498,7 @@ Můžeme slevit z požadavku na korektnost:
   - Klauzule $(\neg x_1 \lor \neg x_2 \lor \neg x_3 \lor \neg x_4 \lor x_5)$ je Hornova klauzule.  
   - Tato klauzule je ekvivalentní formuli $(x_1 \land x_2 \land x_3 \land x_4) \implies x_5$.
 
-### 13.3. Problém 2-SAT
+### 12.3. Problém 2-SAT
 
 - **Vstup:** Booleovská formule $\phi$ v KNF, kde každá klauzule obsahuje nejvýše 2 literály.  
 - **Otázka:** Je $\phi$ splnitelná?
@@ -1477,7 +1556,7 @@ graph LR
 
 </details>
 
-### 13.4. Prvočíselnost
+### 12.4. Prvočíselnost
 
 - **Vstup:** Přirozené číslo $p$.
 - **Otázka:** Je $p$ prvočíslo?
@@ -1495,14 +1574,14 @@ Malou Fermatovu větu lze použít k testování prvočíselnosti (tzv. Fermatů
 - Pokud $a^{n-1} \not\equiv 1 \pmod{n}$, pak $n$ **určitě není** prvočíslo.  
 - Pokud $a^{n-1} \equiv 1 \pmod{n}$, pak $n$ je **možná!!!** prvočíslo.  
 
-### 13.5. Faktorizace
+### 12.5. Faktorizace
 
 - **Vstup:** Přirozené číslo $p$.
 - **Otázka:** Rozklad čísla $p$ na prvočísla.
 
 **RSA šifrování** - umíme rychle najít a vynásobit dvě velká prvočísla, ale není znám rychlý algoritmus na faktorizaci.
 
-### 13.6. Třídy randomizovaných algoritmů
+### 12.6. Třídy randomizovaných algoritmů
 
 > Třída **RP** *(randomized polynomial time)* je tvořena právě těmi *rozhodovacími* problémy, pro které existuje randomizovaný algoritmus s polynomiální časovou složitostí typu:
 > - Pro vstupy, kde je správná odpověď `Ano`, musí stroj $M$ dávat odpověď `Ano` s pravděpodobností alespoň $\frac{1}{2}$.  
@@ -1521,13 +1600,13 @@ Malou Fermatovu větu lze použít k testování prvočíselnosti (tzv. Fermatů
 >
 > Pokud dostaneme odpověď `Nevím`, můžeme algoritmus spustit znovu a znovu, dokud nedostaneme odpověď `Ano` nebo `Ne`. Doba výpočtu pak bude nedeterministická.
 
-## 14. Aproximační algoritmy
+## 13. Aproximační algoritmy
 
 Buď $c(x)$ cenová funkce. Buď $x^*$ optimální řešení (minimum) a buď $x$ řešení, které vrátí aproximační algoritmus. Definujeme **aproximační poměr** jako funkci $\rho(n)$, kde $n$ je velikost instance problému jako: $\rho(n) = \frac{c(x)}{c(x^*)}$ (pro maximalizaci $\frac{c(x^*)}{c(x)}$).
 
 Řekneme, že aproximační algoritmus je **$\rho(n)$-aproximační**, pokud dosahuje aproximačního poměru $\rho(n)$.
 
-### 14.1. Minimální vrcholové pokrytí grafu (vertex cover)
+### 13.1. Minimální vrcholové pokrytí grafu (vertex cover)
 
 (optimalizační problém; policajti ve vrcholech musí vidět na všechny hrany)
 
@@ -1547,7 +1626,7 @@ while E ≠ ∅ do
 return C
 ```
 
-### 14.2. Problém obchodního cestujícího (TSP)
+### 13.2. Problém obchodního cestujícího (TSP)
 
 - **Vstup:** Množina $n$ měst a vzdálenosti mezi nimi.  
 - **Výstup:** Nejkratší okružní cesta procházející všemi městy (začíná a končí ve stejném městě).
