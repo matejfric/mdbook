@@ -22,10 +22,12 @@
   - [2.1. Nerozhodnutelné problémy](#21-nerozhodnutelné-problémy)
     - [2.1.1. Halting problem](#211-halting-problem)
     - [2.1.2. Kachličkování roviny](#212-kachličkování-roviny)
-  - [2.2. Částečně rozhodnutelné problémy](#22-částečně-rozhodnutelné-problémy)
-  - [2.3. Doplňkové problémy](#23-doplňkové-problémy)
-  - [2.4. Postova věta](#24-postova-věta)
-  - [2.5. Riceova věta](#25-riceova-věta)
+  - [2.2. Postův korespondenční problém (PKP)](#22-postův-korespondenční-problém-pkp)
+  - [2.3. Nerozhodnutelné problémy pro bezkontextové gramatiky (CFG)](#23-nerozhodnutelné-problémy-pro-bezkontextové-gramatiky-cfg)
+  - [2.4. Částečně rozhodnutelné problémy](#24-částečně-rozhodnutelné-problémy)
+  - [2.5. Doplňkové problémy](#25-doplňkové-problémy)
+  - [2.6. Postova věta](#26-postova-věta)
+  - [2.7. Riceova věta](#27-riceova-věta)
 - [3. Převody mezi problémy](#3-převody-mezi-problémy)
 - [4. Složitost algoritmů](#4-složitost-algoritmů)
   - [4.1. Turingův stroj](#41-turingův-stroj)
@@ -55,6 +57,7 @@
   - [9.1. Zobecněná varianta hry Hex](#91-zobecněná-varianta-hry-hex)
 - [10. Paralelní algoritmy](#10-paralelní-algoritmy)
   - [10.1. Parallel Random Access Machine (PRAM)](#101-parallel-random-access-machine-pram)
+  - [10.2. Násobení matic](#102-násobení-matic)
 - [11. Distribuované algoritmy](#11-distribuované-algoritmy)
   - [11.1. Leader Election](#111-leader-election)
     - [11.1.1. Algoritmus LCR (Le Lann, Chang, Roberts)](#1111-algoritmus-lcr-le-lann-chang-roberts)
@@ -482,14 +485,57 @@ Otázka je, zda je možné použitím daných typů kachliček pokrýt celou nek
 
 [Implementace pomocí backtrackingu](https://github.com/matejfric/plane-tiling).
 
-### 2.2. Částečně rozhodnutelné problémy
+### 2.2. Postův korespondenční problém (PKP)
+
+- **Vstup:** Posloupnosti slov $u_1, u_2, \ldots, u_n$ a $v_1, v_2, \ldots, v_n$ nad nějakou abecedou $\Sigma$.  
+- **Otázka:** Existuje nějaká posloupnost $i_1, i_2, \ldots, i_m$, kde $m \geq 1$, kde $(\forall j=1,\dots,m: 1 \leq i_j \leq n)$, a kde  
+$$ u_{i_1} u_{i_2} \cdots u_{i_m} = v_{i_1} v_{i_2} \cdots v_{i_m} $$
+
+<img src="figures/pkp.png" alt="pkp" width="300px">
+
+Kartičky se mohou opakovat a nezáleží na pořadí. Existuje posloupnost kdy zřetězením slov nahoře a dole dostaneme stejné slovo?
+
+PKP je nerozhodnutelný (redukcí z HP).
+
+### 2.3. Nerozhodnutelné problémy pro bezkontextové gramatiky (CFG)
+
+> **Jednoznačnost CFG**
+>
+> - **Vstup:** Bezkontextová gramatika $G$.
+> - **Otázka:** Je $G$ **jednoznačná**?
+>
+> Bezkontextová gramatika je **jednoznačná** právě tehdy, když pro *každé slovo* $w$ existuje *právě jeden derivační strom*.
+
+Nerozhodnutelnost lze ukázat redukcí z PKP pro doplňkový problém, kde se ptáme, jestli existuje slovo, která ma dva nebo více derivačních stromů.
+
+> **Rovnost jazyků CFG**
+>
+> - **Vstup:** Bezkontextové gramatiky $G_1$ a $G_2$.  
+> - **Otázka:** Platí $L(G_1) = L(G_2)$?  
+
+> **Univerzálnost CFG**
+>
+> - **Vstup:** Bezkontextová gramatika $G$ generující jazyk nad abecedou $\Sigma$.  
+> - **Otázka:** Platí $L(G) = \Sigma^*$?  
+
+> **Průnik jazyků CFG**
+>
+> - **Vstup:** Bezkontextové gramatiky $G_1$ a $G_2$.  
+> - **Otázka:** Platí $L(G_1) \cap L(G_2) = \emptyset$?  
+
+> **Nejednoznačnost CFG**
+>
+> - **Vstup:** Bezkontextová gramatika $G$.  
+> - **Otázka:** Je $G$ nejednoznačná?  
+
+### 2.4. Částečně rozhodnutelné problémy
 
 *Rozhodovací* problém $P$ je **částečně rozhodnutelný**, jestliže existuje algoritmus $A$, který:
 
 - Pokud dostane jako vstup instanci problému $P$, pro kterou je správná odpověď `Ano`, tak se na tomto vstupu po konečném počtu kroků zastaví a dá odpověď `Ano`.
 - Pokud dostane jako vstup instanci problému $P$, pro kterou je správná odpověď `Ne`, tak se na tomto vstupu *buď zastaví* a dá odpověď `Ne` *nebo* se na tomto vstupu *nikdy nezastaví*.
 
-### 2.3. Doplňkové problémy
+### 2.5. Doplňkové problémy
 
 > Doplňkový problém k danému *rozhodovacímu* problému $P$ je problém, kde vstupy jsou stejné jako u problému $P$ a otázka je negací otázky z problému $P$.
 
@@ -509,13 +555,13 @@ Pokud je problém $P$ nerozhodnutelný, tak je nerozhodnutelný i jeho doplňkov
 
 </details>
 
-### 2.4. Postova věta
+### 2.6. Postova věta
 
 > *Rozhodovací* problém $P$ je rozhodnutelný $\iff$ $P$ i $\overline{P}$ jsou *částečně rozhodnutelné*.
 
 Z Postovy věty plyne, že pokud je problém $P$ nerozhodnutelný, tak doplňkový problém $\overline{P}$ **není** částečně rozhodnutelný.
 
-### 2.5. Riceova věta
+### 2.7. Riceova věta
 
 > Každá netriviální I/O vlastnost rozhodovacího programu je nerozhodnutelná.
 
@@ -929,6 +975,8 @@ $$
 \text{LS} \subseteq \text{NLS} \subseteq \text{PT} \subseteq \text{NPT} \subseteq \text{PS} = \text{NPS} \subseteq \text{EXPT} \subseteq \text{NEXPT} \subseteq \text{EXPS} = \text{NEXPS}
 $$
 
+<img src="figures/hierarchy.png" alt="hierarchy" width="400px">
+
 ## 7. NP úplnost
 
 > Problém $P$ je **NP-těžký**, jestliže každý problém z $\text{NPTIME}$ je polynomiálně převeditelný na $P$.  
@@ -1211,9 +1259,26 @@ Omezení pro `L` a `NL`:
 
 Pro problém dosažitelnosti v grafu není znám (`?`) deterministický algoritmus s logaritmickou prostorovou složitostí, ale existuje *nedeterministický* algoritmus s prostorovou složitostí $\mathcal{O}(\log n)$ řešící tento problém:
 
-1. Pamatuje si vždy jen aktuální vrchol v a hodnotu čítače `c`.
+<div class="warning">
+
+1. Pamatuje si vždy jen aktuální vrchol `v`, cílový vrchol `t` a hodnotu čítače `c`.
 2. Inicializuje `v := s` a `c := m - 1`, kde `m` je počet vrcholů grafu `G`.
-3. Nedeterministicky hádá cestu a s každým krokem snižuje čítač o `1`.
+3. Nedeterministické hádání cesty:
+   1. Zvolíme hranu `(v, v')`. Pokud neexistuje, vrátíme `Ne`.
+   2. `v := v'`.
+   3. Pokud `v = t`, vrátíme `Ano`.
+   4. Snižíme čítač o `1`.
+   5. Pokud je `c = 0` (proti zacyklení):
+      1. Pokud `v = t`, vrátíme `Ano`.
+      2. Jinak `Ne`.
+   6. Pokračujeme na krok 3.
+4. Pokud alespoň jedna z výpočetních větví vede k `Ano`, výsledek je `Ano`, jinak `Ne`.
+
+Nedeterministický algoritmus pro problém dosažitelnosti v grafu má prostorovou složitost $\mathcal{O}(\log n)$, a tedy patří do třídy **NL**.
+
+**Dosažitelnost v grafu** je **NL-úplný problém**. Plyne z toho, že můžeme sestrojit Turingův stroj, kde *stavy* odpovídají vrcholům grafu a *přechody* hranám grafu. Používá se k redukcím NL-úplnosti.
+
+</div>
 
 > **2-UNSAT**  
 > - **Vstup:** Booleovská formule $\varphi$ v konjunktivní normální formě, kde každá klauzule obsahuje právě 2 literály.  
@@ -1377,6 +1442,19 @@ Pokud bychom měli $p \ll n$ procesorů, můžeme použít algoritmus, který po
 
 Na stroji PRAM typu `CRCW` `COMMON` je možné s $\mathcal{O}(n^2)$ procesory najít
 minimum v čase $\mathcal{O}(1)$. Tento algoritmus není optimální, protože sekvenční algoritmus pro hledání minima má složitost $\mathcal{O}(n)$.
+
+### 10.2. Násobení matic
+
+$$A^{m\times n}\cdot B^{n\times p} = \sum\limits_{i=1}^m\sum\limits_{j=1}^p\sum\limits_{k=1}^n A_{i,k}B_{k,j}$$
+
+Floyd-Warshallův algoritmus pro dosažitelnost v grafu:
+
+```py
+for k in range(n):
+    for i in range(n):
+        for j in range(n):
+            A[i][j] = A[i][j] or (A[i][k] and A[k][j])
+```
 
 ## 11. Distribuované algoritmy
 
@@ -1565,14 +1643,18 @@ Pro "malá" $p$ stačí zkoušet čísla od 2 do $\sqrt{p}$ (nebo Eratosthenovo 
 
 Existuje **deterministický polynomiální algoritmus** se složitostí $\mathcal{O}(n^6)$ a **randomizované algoritmy** s $\mathcal{O}(n^3)$ *(Miller-Rabin a Solovay-Strassen)*, kde $n$ je počet bitů $p$.
 
-> **Malá Fermatova věta.** Pokud $n$ je prvočíslo, pak pro každé $a$ z množiny $\{1, 2, \dots, n - 1\}$ platí:
-> $$ a^{n-1} \equiv 1 \pmod{n} $$
+> **Malá Fermatova věta.** Pokud $p$ je prvočíslo, pak pro každé $a$ z množiny $\{1, 2, \dots, p - 1\}$ platí:
+> $$ a^{p-1} \equiv 1 \pmod{p} $$
 
-Malou Fermatovu větu lze použít k testování prvočíselnosti (tzv. Fermatův test):  
+<div class="warning">
 
-- Pro dané $n$ zvolíme nějaké $a \in \{2, 3, \dots, n - 1\}$.  
-- Pokud $a^{n-1} \not\equiv 1 \pmod{n}$, pak $n$ **určitě není** prvočíslo.  
-- Pokud $a^{n-1} \equiv 1 \pmod{n}$, pak $n$ je **možná!!!** prvočíslo.  
+Malou Fermatovu větu lze použít k testování prvočíselnosti (tzv. **Fermatův test**):  
+
+- Pro dané $p$ zvolíme nějaké $a \in \{2, 3, \dots, p - 1\}$.  
+- Pokud $a^{p-1} \not\equiv 1 \pmod{p}$, pak $p$ **určitě není** prvočíslo.  
+- Pokud $a^{p-1} \equiv 1 \pmod{p}$, pak $p$ je **možná!!!** prvočíslo.  
+
+</div>
 
 ### 12.5. Faktorizace
 
