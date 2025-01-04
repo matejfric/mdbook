@@ -34,9 +34,10 @@
   - [4.2. RAM stroj](#42-ram-stroj)
   - [4.3. Časová a prostorová složitost](#43-časová-a-prostorová-složitost)
   - [4.4. Asymptotická notace](#44-asymptotická-notace)
-  - [4.5. Vzorce](#45-vzorce)
-  - [4.6. Analýza rekurzivních algoritmů](#46-analýza-rekurzivních-algoritmů)
-  - [4.7. Práce s velkými čísly](#47-práce-s-velkými-čísly)
+  - [4.5. Třídění](#45-třídění)
+  - [4.6. Vzorce](#46-vzorce)
+  - [4.7. Analýza rekurzivních algoritmů](#47-analýza-rekurzivních-algoritmů)
+  - [4.8. Práce s velkými čísly](#48-práce-s-velkými-čísly)
 - [5. Třídy složitosti](#5-třídy-složitosti)
   - [5.1. Vztahy mezi třídami složitosti](#51-vztahy-mezi-třídami-složitosti)
   - [5.2. Horní a dolní odhady složitosti problémů](#52-horní-a-dolní-odhady-složitosti-problémů)
@@ -75,6 +76,7 @@
 - [13. Aproximační algoritmy](#13-aproximační-algoritmy)
   - [13.1. Minimální vrcholové pokrytí grafu (vertex cover)](#131-minimální-vrcholové-pokrytí-grafu-vertex-cover)
   - [13.2. Problém obchodního cestujícího (TSP)](#132-problém-obchodního-cestujícího-tsp)
+- [14. Myšlenková mapa problémů](#14-myšlenková-mapa-problémů)
 
 **Teoretická informatika** je vědní obor na pomezí mezi matematikou a informatikou. Zkoumá
 
@@ -728,7 +730,16 @@ Pokud je časová složistost v $\mathcal{O}(f(n))$, pak je i prostorová složi
 >
 >**Polynomiální algoritmus** je algoritmus, jehož časová složitost je polynomiální — tj. shora omezená nějakým polynomem (tedy v $\mathcal{O}(n^k)$, kde $k$ je nějaká konstanta).
 
-### 4.5. Vzorce
+### 4.5. Třídění
+
+| Algoritmus   | Nejhorší případ    | Průměrný případ  |
+|-------------|---------------|---------------|
+| Bubblesort  | $\Theta(n^2)$         | $\Theta(n^2)$         |
+| Insertionsort | $\Theta(n^2)$       | $\Theta(n^2)$         |
+| Heapsort    | $\Theta(n \log n)$    | $\Theta(n \log n)$    |
+| Quicksort   | $\Theta(n^2)$         | $\Theta(n \log n)$    |
+
+### 4.6. Vzorce
 
 Logaritmus:
 
@@ -758,7 +769,7 @@ $$
 }
 $$
 
-### 4.6. Analýza rekurzivních algoritmů
+### 4.7. Analýza rekurzivních algoritmů
 
 **Rekurzivní algoritmus** je algoritmus, který převede řešení původního problému na řešení několika podobných problémů pro menší instance.
 
@@ -802,7 +813,7 @@ $$
 
 </details>
 
-### 4.7. Práce s velkými čísly
+### 4.8. Práce s velkými čísly
 
 $$
 u = \sum_{i=0}^{n-1} U[i] \cdot q^i
@@ -938,7 +949,7 @@ $$
 \end{align*}
 $$
 
-> Nedeterministický algoritmus s časovou složitostí $\mathcal{O}\big(f(n)\big)$ je možné simulovat deterministickým algoritmem s prostorovou složitostí $\mathcal{O}\big(f(n)\big)$.
+> *Nedeterministický* algoritmus s *časovou* složitostí $\mathcal{O}\big(f(n)\big)$ je možné simulovat *deterministickým* algoritmem s *prostorovou* složitostí $\mathcal{O}\big(f(n)\big)$.
 
 Myšlenka důkazu: Deterministický algoritmus bude procházet *strom výpočtů nedeterministického algoritmu do hloubky pomocí zásobníku*.
 
@@ -969,6 +980,21 @@ $$
 
 > Věta (Savitch). Činnost **ne**deterministického algoritmu s *prostorovou* složitostí $\mathcal{O}\big(f(n)\big)$ je možné simulovat deterministickým algoritmem s *prostorovou* složitostí $\mathcal{O}\big(f(n)^2\big)$.
 
+<details><summary> Náznak důkazu </summary>
+
+Uvažujeme graf konfigurací s $2^{\mathcal{O}(f(n))}$ vrcholy a orientovanými hranami, které reprezentují přechody mezi konfiguracemi.
+
+Myšlenka je taková, že budeme hledat cestu mezi počáteční $(c_0)$ a přijímající $(c_{acc})$ konfigurací. Budeme postupovat rekurzivně a hledat cestu mezi konfiguracemi $c_{0}$ a $c_{acc}$ tak, že:
+
+- *(Base case)* Pokud $c_{a}$ a $c_{b}$ jsou stejné nebo ve vzdálenosti 1, tak cesta existuje.
+- *(Rekurze)* Hledáme jestli existuje cesta mezi $c_a$ a $c_b$ přes nějakou konfiguraci $c_c$, která je má délku $2^i / 2$ apod. pro další kroky (zanořování pro podsekce $2^i / 4$ atd.).
+
+<img src="figures/savitch.png" alt="savitch" width="400px">
+
+</details>
+
+<div class="warning">
+
 Hierarchie tříd složitosti:
 
 $$
@@ -976,6 +1002,8 @@ $$
 $$
 
 <img src="figures/hierarchy.png" alt="hierarchy" width="400px">
+
+</div>
 
 ## 7. NP úplnost
 
@@ -1031,6 +1059,16 @@ graph LR
   
 - Formule je v **konjunktivní normální formě (KNF)**, jestliže je *konjunkcí klauzulí*. Např.:  
     $$(x_1 \lor \neg x_2) \land (\neg x_5 \lor x_8 \lor \neg x_{15} \lor \neg x_{23}) \land x_6$$
+
+<details><summary> Příklady instancí 3-SAT </summary>
+
+- Instance 3-SAT, která *není splnitelná* (pro libovolné ohodnocení):
+    $$(x_1 \lor x_1 \lor x_1) \land (\neg x_1 \lor \neg x_1 \lor \neg x_1)$$
+
+- Instance 3-SAT, která je splnitelná (např. pro $\nu=(1,0,0)$):
+    $$(x_1 \lor x_2 \lor x_3) \land (\neg x_1 \lor \neg x_2 \lor \neg x_3)$$
+
+</details>
 
 > **Problém nezávislé množiny (IS)**  
 > - **Vstup**: Neorientovaný graf $G$, číslo $k$.  
@@ -1721,3 +1759,77 @@ Jednodušší $2$-aproximační algoritmus:
 2. Vytvoří uzavřený tah podél této kostry.
 3. Z vytvořeného tahu odstraní opakující se vrcholy.
 4. Výsledný cyklus vrátí jako výsledek.
+
+## 14. Myšlenková mapa problémů
+
+```mermaid
+    mindmap
+      root(("`Rozhodovací
+      Problémy`"))
+        (Nerozhodnutelné)
+          (Částečně)
+            HP
+            PCP
+          Eq-CFG
+          Eq-LBA
+          Kachličkování
+          Univerzálnost CFG
+          Průnik L CFG
+          Jednoznačnost CFG
+          Predikátová logika 1. řádu
+          Aritmetika na N
+        (NP-úplné)
+          SAT
+            3-SAT
+              ILP
+              3-GC
+                GC
+              SUBSET-SUM
+              IS
+                HC
+                  HK
+                    TSP
+                VC
+                CLIQUE
+        (Co-NP-úplné)
+          SAT-Tautologie
+          UN-SAT
+          UN-IS
+        (P-úplné)
+          CVP
+          MCVP
+          HORN-SAT
+          Kombinatorická hra
+          Slovo v L CFG
+          Prázdný L CFG
+          Nekonečnost L CFG
+          Gen. prvku z mžy bin. op.
+          Max. tok v síti
+          DFS
+        (PS-úplné)
+          QBF
+          Oblázková hra
+          GG
+          Hex
+          Eq-NFA
+          Eq-RegEx
+          Univerzalita NFA
+          Univerzalita RegEx
+        %% NL=co-NL
+        (NL-úplné)
+          2-SAT
+          2-UNSAT
+          Dosažitelnost v G
+            Silná souvislost G
+          Nedosažitelnost v G
+          Slovo v L NFA
+          Empty-FA
+          Eq-FA
+          Konečný L FA
+        (NP)
+          Izomorfismus G
+        (NP, co-NP, P)
+          Prvočíslo
+          Faktorizace
+          Kostra G
+```
