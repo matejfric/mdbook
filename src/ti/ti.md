@@ -67,12 +67,9 @@
     - [11.1.4. Algoritmus VariableSpeeds](#1114-algoritmus-variablespeeds)
     - [11.1.5. Algoritmus FloodMax](#1115-algoritmus-floodmax)
 - [12. Výpočetně náročné problémy](#12-výpočetně-náročné-problémy)
-  - [12.1. Problém batohu](#121-problém-batohu)
-  - [12.2. Problém HORN-SAT](#122-problém-horn-sat)
-  - [12.3. Problém 2-SAT](#123-problém-2-sat)
-  - [12.4. Prvočíselnost](#124-prvočíselnost)
-  - [12.5. Faktorizace](#125-faktorizace)
-  - [12.6. Třídy randomizovaných algoritmů](#126-třídy-randomizovaných-algoritmů)
+  - [12.1. Prvočíselnost](#121-prvočíselnost)
+  - [12.2. Faktorizace](#122-faktorizace)
+  - [12.3. Třídy randomizovaných algoritmů](#123-třídy-randomizovaných-algoritmů)
 - [13. Aproximační algoritmy](#13-aproximační-algoritmy)
   - [13.1. Minimální vrcholové pokrytí grafu (vertex cover)](#131-minimální-vrcholové-pokrytí-grafu-vertex-cover)
   - [13.2. Problém obchodního cestujícího (TSP)](#132-problém-obchodního-cestujícího-tsp)
@@ -1318,9 +1315,75 @@ Nedeterministický algoritmus pro problém dosažitelnosti v grafu má prostorov
 
 </div>
 
+> **2-SAT**
+> - **Vstup:** Booleovská formule $\phi$ v konjunktivní normální formě (KNF), kde každá klauzule obsahuje právě 2 literály.  
+> - **Otázka:** Je $\phi$ splnitelná?
+- Příklad: $(x_1 \lor \neg x_2) \land (\neg x_1 \lor x_2) \land (\neg x_2 \lor x_3) \land (x_3 \lor x_4) \land (x_2 \lor \neg x_4)$
+
+Problém 2-SAT lze řešit v polynomiálním čase (`PTIME`), například pomocí konstrukce **implikačního grafu** a hledání **silně souvislých komponent**. Pokud v rámci *jedné* silně souvislé komponenty existuje literál $x$ a jeho negace $\neg x$, pak formule není splnitelná. Navíc patří do třídy `NL`.
+
+Jak sestrojit implikační graf?
+
+Aby klauzule $(A \lor B)$ byla pravdivá, musí *zároveň* platit:
+
+1. Pokud $A = 0$, pak $B = 1$. Tj. $\neg A \implies B$.
+2. Pokud $B = 0$, pak $A = 1$. Tj. $\neg B \implies A$.
+
+Z toho plyne *(negací a dvojí negací)*:
+
+$$\begin{align*}
+  (A \lor B) &\iff (\neg A \implies B) \land (\neg B \implies A)\\
+  (\neg A \lor B) &\iff (A \implies B) \land (\neg B \implies \neg A)\\
+  (A \lor \neg B) &\iff (\neg A \implies \neg B) \land (B \implies A)\\
+  (\neg A \lor \neg B) &\iff (A \implies \neg B) \land (B \implies \neg A)
+\end{align*}$$
+
+<details><summary> Řešený příklad </summary>
+
+$$(x_1 \lor \neg x_2)\land(x_1 \lor x_3)\land(x_2 \lor \neg x_4)$$
+
+```mermaid
+graph LR
+  subgraph "X"
+    x1((x₁))
+    x2((x₂))
+    x3((x₃))
+    x4((x₄))
+  end
+  subgraph "¬X"
+    nx1((¬x₁))
+    nx2((¬x₂))
+    nx3((¬x₃))
+    nx4((¬x₄))
+  end
+
+  %% (x₁ ∨ ¬x₂)
+  nx1 --> nx2
+  x2 --> x1
+
+  %% (x₁ ∨ x₃)
+  nx1 --> x3
+  nx3 --> x1
+
+  %% (x₂ ∨ ¬x₄)
+  nx2 --> nx4
+  x4 --> x2
+```
+
+</details>
+
 > **2-UNSAT**  
-> - **Vstup:** Booleovská formule $\varphi$ v konjunktivní normální formě, kde každá klauzule obsahuje právě 2 literály.  
+> - **Vstup:** Booleovská formule $\varphi$ v konjunktivní normální formě (KNF), kde každá klauzule obsahuje právě 2 literály.  
 > - **Otázka:** Je formule $\varphi$ nesplnitelná (tj. je to kontradikce)?  
+
+> **HORN-SAT**
+> - **Vstup:** Booleovská formule $\phi$ v KNF obsahující pouze Hornovy klauzule.  
+> - **Otázka:** Je $\phi$ splnitelná?  
+
+- Problém HORN-SAT lze (na rozdíl od obecného problému SAT) řešit v polynomiálním čase.  
+- Hornova klauzule je klauzule, ve které se nachází nejvýše jeden pozitivní literál.  
+  - Klauzule $(\neg x_1 \lor \neg x_2 \lor \neg x_3 \lor \neg x_4 \lor x_5)$ je Hornova klauzule.  
+  - Tato klauzule je ekvivalentní formuli $(x_1 \land x_2 \land x_3 \land x_4) \implies x_5$.
 
 > **Přijímání slova NKA**  
 > - **Vstup:** Nedeterministický konečný automat $A$ a slovo $w$.  
@@ -1348,8 +1411,8 @@ Nedeterministický algoritmus pro problém dosažitelnosti v grafu má prostorov
 
 <div class="warning">
 
-- Platí `NL = co-NL`.
-- *Není známo*, jestli `NP = co-NP`!
+- Platí `NL = co-NL` !!!
+- *Není známo*, jestli `NP ?= co-NP`!
 
 </div>
 
@@ -1599,80 +1662,7 @@ Můžeme slevit z požadavku na korektnost:
 - **Randomizované algoritmy** - používají generátor náhodných čísel (s nenulovou pravděpodobností vrátí chybný výsledek). Pro libolně malé $\varepsilon>0$ musíme zaručit, že algoritmus vrátí správný výsledek s pravděpodobností $1-\varepsilon$ nebo vyšší.
 - **Aproximační algoritmy** - pro řešení optimalizačních problémů (často nastavujeme nějakou toleranci chyby $\varepsilon$).
 
-### 12.1. Problém batohu
-
-- **Vstup:** Čísla $a_1, a_2, \dots, a_m$ a číslo $s$.  
-- **Otázka:** Existuje podmnožina množiny čísel $a_1, a_2, \dots, a_m$ taková, že součet čísel v této podmnožině je $s$?
-- NP-úplný problém.
-
-### 12.2. Problém HORN-SAT  
-
-- **Vstup:** Booleovská formule $\phi$ v KNF obsahující pouze Hornovy klauzule.  
-- **Otázka:** Je $\phi$ splnitelná?  
-- Problém HORN-SAT lze (na rozdíl od obecného problému SAT) řešit v polynomiálním čase.  
-- Hornova klauzule je klauzule, ve které se nachází nejvýše jeden pozitivní literál.  
-  - Klauzule $(\neg x_1 \lor \neg x_2 \lor \neg x_3 \lor \neg x_4 \lor x_5)$ je Hornova klauzule.  
-  - Tato klauzule je ekvivalentní formuli $(x_1 \land x_2 \land x_3 \land x_4) \implies x_5$.
-
-### 12.3. Problém 2-SAT
-
-- **Vstup:** Booleovská formule $\phi$ v KNF, kde každá klauzule obsahuje nejvýše 2 literály.  
-- **Otázka:** Je $\phi$ splnitelná?
-- Příklad: $(x_1 \lor \neg x_2) \land (\neg x_1 \lor x_2) \land (\neg x_2 \lor x_3) \land (x_3 \lor x_4) \land (x_2 \lor \neg x_4)$
-
-Problém 2-SAT lze řešit v polynomiálním čase, například pomocí konstrukce **implikačního grafu** a hledání **silně souvislých komponent**. Pokud v rámci *jedné* silně souvislé komponenty existuje literál $x$ a jeho negace $\neg x$, pak formule není splnitelná.
-
-Jak sestrojit implikační graf?
-
-Aby klauzule $(A \lor B)$ byla pravdivá, musí *zároveň* platit:
-
-1. Pokud $A = 0$, pak $B = 1$. Tj. $\neg A \implies B$.
-2. Pokud $B = 0$, pak $A = 1$. Tj. $\neg B \implies A$.
-
-Z toho plyne *(negací a dvojí negací)*:
-
-$$\begin{align*}
-  (A \lor B) &\iff (\neg A \implies B) \land (\neg B \implies A)\\
-  (\neg A \lor B) &\iff (A \implies B) \land (\neg B \implies \neg A)\\
-  (A \lor \neg B) &\iff (\neg A \implies \neg B) \land (B \implies A)\\
-  (\neg A \lor \neg B) &\iff (A \implies \neg B) \land (B \implies \neg A)
-\end{align*}$$
-
-<details><summary> Řešený příklad </summary>
-
-$$(x_1 \lor \neg x_2)\land(x_1 \lor x_3)\land(x_2 \lor \neg x_4)$$
-
-```mermaid
-graph LR
-  subgraph "X"
-    x1((x₁))
-    x2((x₂))
-    x3((x₃))
-    x4((x₄))
-  end
-  subgraph "¬X"
-    nx1((¬x₁))
-    nx2((¬x₂))
-    nx3((¬x₃))
-    nx4((¬x₄))
-  end
-
-  %% (x₁ ∨ ¬x₂)
-  nx1 --> nx2
-  x2 --> x1
-
-  %% (x₁ ∨ x₃)
-  nx1 --> x3
-  nx3 --> x1
-
-  %% (x₂ ∨ ¬x₄)
-  nx2 --> nx4
-  x4 --> x2
-```
-
-</details>
-
-### 12.4. Prvočíselnost
+### 12.1. Prvočíselnost
 
 - **Vstup:** Přirozené číslo $p$.
 - **Otázka:** Je $p$ prvočíslo?
@@ -1694,14 +1684,14 @@ Malou Fermatovu větu lze použít k testování prvočíselnosti (tzv. **Fermat
 
 </div>
 
-### 12.5. Faktorizace
+### 12.2. Faktorizace
 
 - **Vstup:** Přirozené číslo $p$.
 - **Otázka:** Rozklad čísla $p$ na prvočísla.
 
 **RSA šifrování** - umíme rychle najít a vynásobit dvě velká prvočísla, ale není znám rychlý algoritmus na faktorizaci.
 
-### 12.6. Třídy randomizovaných algoritmů
+### 12.3. Třídy randomizovaných algoritmů
 
 > Třída **RP** *(randomized polynomial time)* je tvořena právě těmi *rozhodovacími* problémy, pro které existuje randomizovaný algoritmus s polynomiální časovou složitostí typu:
 > - Pro vstupy, kde je správná odpověď `Ano`, musí stroj $M$ dávat odpověď `Ano` s pravděpodobností alespoň $\frac{1}{2}$.  
@@ -1764,6 +1754,7 @@ Jednodušší $2$-aproximační algoritmus:
 
 - `P = co-P` (v TM nahradíme příjmací stavy zamítacími a naopak)
 - `NL = co-NL`
+- `PS = NPS` (Savitch)
 
 ```mermaid
     mindmap
@@ -1818,7 +1809,6 @@ Jednodušší $2$-aproximační algoritmus:
           Eq-RegEx
           Univerzalita NFA
           Univerzalita RegEx
-        %% NL=co-NL
         (NL-úplné)
           2-SAT
           2-UNSAT
@@ -1826,9 +1816,9 @@ Jednodušší $2$-aproximační algoritmus:
             Silná souvislost G
           Nedosažitelnost v G
           Slovo v L NFA
-          Empty-FA
-          Eq-FA
-          Konečný L FA
+          Empty-DFA
+          Eq-DFA
+          Konečný L DFA
         (NP)
           Izomorfismus G
         (NP, co-NP, P)
@@ -1837,12 +1827,31 @@ Jednodušší $2$-aproximační algoritmus:
           Kostra G
 ```
 
-- [Odkaz na PDF](./pdf/complexity.pdf)
+Legenda:
+
+- G...graf
+- L...jazyk
+- CFG...bezkontextová gramatika
+- NFA...nedeterministický konečný automat
+- DFA...deterministický konečný automat
+- LBA...zásobníkový automat
+- GG...Generalized Geography
+- HK...Hamiltonovská kružnice (neorientovaný G)
+- HC...Hamiltonovský cyklus (orientovaný G)
+- TSP...Travelling Salesman Problem
+- VC...Vertex Cover
+- IS...Independent Set
+- UN-IS...Un-independent Set (doplněk IS)
+- QBF...(plně) kvantifikovaná booleovská formule
+- ILP...Integer Linear Programming
+- 3-GC...3-Graph Coloring
 
 <iframe
     src="./pdf/complexity.pdf"
     width="100%"
     height="700px"
     loading="lazy"
-    title="Třídy složitosti"
+    title="complexity-classes"
 ></iframe>
+
+- [Odkaz na PDF](./pdf/complexity.pdf)
