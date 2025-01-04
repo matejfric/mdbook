@@ -1762,6 +1762,9 @@ Jednodušší $2$-aproximační algoritmus:
 
 ## 14. Myšlenková mapa problémů
 
+- `P = co-P` (v TM nahradíme příjmací stavy zamítacími a naopak)
+- `NL = co-NL`
+
 ```mermaid
     mindmap
       root(("`Rozhodovací
@@ -1833,3 +1836,13 @@ Jednodušší $2$-aproximační algoritmus:
           Faktorizace
           Kostra G
 ```
+
+- [Odkaz na PDF](./pdf/complexity.pdf)
+
+<iframe
+    src="./pdf/complexity.pdf"
+    width="100%"
+    height="700px"
+    loading="lazy"
+    title="Třídy složitosti"
+></iframe>
