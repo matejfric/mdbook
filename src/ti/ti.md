@@ -1546,7 +1546,39 @@ minimum v čase $\mathcal{O}(1)$. Tento algoritmus není optimální, protože s
 
 ### 10.2. Násobení matic
 
+Obecně:
+
 $$A^{m\times n}\cdot B^{n\times p} = \sum\limits_{i=1}^m\sum\limits_{j=1}^p\sum\limits_{k=1}^n A_{i,k}B_{k,j}$$
+
+PRAM CREW:
+
+- Vstup: $n\times n$ matice $A$ a $B$, kde $n=2^m, m\in\mathbb{N}$.
+- $n^3$ procesorů indexovaných trojicemi $(i, j, k)$, kde $i,j,k=1,\dots,n$.
+
+```py
+# MatrixMultiply(n³ processors PRAM CREW)
+# Input: n×n matrices A and B, where n = 2^m
+# Output: Matrix C such that C = A × B
+
+# Global memory helper array:
+X := zeros(n,n,n)
+
+# For each processor (i, j, k):
+X[i, j, k] := A[i, k] * B[k, j]
+
+# barrier()
+
+# Parallel reduction in the 3rd dimension
+for h = 1 to log(n) do:
+  if i < n / 2^h then:
+      X[i, j, k] := X[i, j, 2k - 1] + X[i, j, 2k]
+
+# barrier()
+
+# The first 3rd dimension element contains the result
+if k = 1 then:
+  C[i, j] := X[i, j, 1]
+```
 
 Floyd-Warshallův algoritmus pro dosažitelnost v grafu:
 
@@ -1842,6 +1874,7 @@ Legenda:
 - VC...Vertex Cover
 - IS...Independent Set
 - UN-IS...Un-independent Set (doplněk IS)
+- UN-SAT...Unsatisfiability (kontradikce, doplněk SAT)
 - QBF...(plně) kvantifikovaná booleovská formule
 - ILP...Integer Linear Programming
 - 3-GC...3-Graph Coloring
