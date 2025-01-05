@@ -58,7 +58,8 @@
   - [9.1. Zobecněná varianta hry Hex](#91-zobecněná-varianta-hry-hex)
 - [10. Paralelní algoritmy](#10-paralelní-algoritmy)
   - [10.1. Parallel Random Access Machine (PRAM)](#101-parallel-random-access-machine-pram)
-  - [10.2. Násobení matic](#102-násobení-matic)
+  - [10.2. Prefix sum](#102-prefix-sum)
+  - [10.3. Násobení matic](#103-násobení-matic)
 - [11. Distribuované algoritmy](#11-distribuované-algoritmy)
   - [11.1. Leader Election](#111-leader-election)
     - [11.1.1. Algoritmus LCR (Le Lann, Chang, Roberts)](#1111-algoritmus-lcr-le-lann-chang-roberts)
@@ -1544,7 +1545,23 @@ Pokud bychom měli $p \ll n$ procesorů, můžeme použít algoritmus, který po
 Na stroji PRAM typu `CRCW` `COMMON` je možné s $\mathcal{O}(n^2)$ procesory najít
 minimum v čase $\mathcal{O}(1)$. Tento algoritmus není optimální, protože sekvenční algoritmus pro hledání minima má složitost $\mathcal{O}(n)$.
 
-### 10.2. Násobení matic
+### 10.2. Prefix sum
+
+> **Hillis-Steele** (Stride to $n$):
+>
+> <img src="figures/prefix-sum-hillis-steele.png" alt="prefix-sum-hillis-steele" width="400px">
+>
+> Zápisem $\oplus_{1:4}$ rozumíme $a_1\oplus a_2\oplus a_3\oplus a_4$, kde $\oplus$ je libovolná **asociativní binární operace** (např. `+`, `*`, `XOR`).
+
+> **Up Sweep & Down Sweep**
+>
+> - [Guy E. Blelloch - Prefix Sums and Their Applications](https://www.cs.cmu.edu/~guyb/papers/Ble93.pdf)
+> - Modré šipky značí sčítání, šedé přesun, červená reset na nulu.
+> - (Algoritmus pracuje in-place s jedním polem stejně jako Hillis-Steele)
+>
+> <img src="figures/prefix-sum-up-down-sweep.png" alt="prefix-sum-up-down-sweep" width="400px">
+
+### 10.3. Násobení matic
 
 Obecně:
 
