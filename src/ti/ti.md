@@ -1830,7 +1830,7 @@ Jednodušší $2$-aproximační algoritmus:
             HP
             PCP
           Eq-CFG
-          Eq-LBA
+          Eq-NPDA
           Kachličkování
           Univerzálnost CFG
           Průnik L CFG
@@ -1899,7 +1899,7 @@ Legenda:
 - CFG...bezkontextová gramatika
 - NFA...nedeterministický konečný automat
 - DFA...deterministický konečný automat
-- LBA...zásobníkový automat
+- NPDA...nedeterministický zásobníkový automat (push-down automaton)
 - GG...Generalized Geography
 - HK...Hamiltonovská kružnice (neorientovaný G)
 - HC...Hamiltonovský cyklus (orientovaný G)
