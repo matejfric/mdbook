@@ -571,11 +571,11 @@ Vlastnost $V$ je vstupně/výstupní (I/O), právě tehdy, když každé dva pro
 
 Možnosti vyplnění "tabulky" pro vlastnost $V$:
 
-| Otázka                  |              |   |   |
-|-------------------------|--------------|---|---|
+| Otázka                  |              |          |              |
+| ----------------------- | ------------ | -------- | ------------ |
 | Je $V$ triviální?       | $\times$     | $\times$ | $\checkmark$ |
 | Je $V$ I/O?             | $\checkmark$ | $\times$ | $\checkmark$ |
-| Je $V$ nerozhodnutelná? | $\checkmark$ | $\times$ | $\times$ |
+| Je $V$ nerozhodnutelná? | $\checkmark$ | $\times$ | $\times$     |
 
 (Třetí řádek plyne z Riceovy věty.)
 
@@ -730,12 +730,12 @@ Pokud je časová složistost v $\mathcal{O}(f(n))$, pak je i prostorová složi
 
 ### 4.5. Třídění
 
-| Algoritmus   | Nejhorší případ    | Průměrný případ  |
-|-------------|---------------|---------------|
-| Bubblesort  | $\Theta(n^2)$         | $\Theta(n^2)$         |
-| Insertionsort | $\Theta(n^2)$       | $\Theta(n^2)$         |
-| Heapsort    | $\Theta(n \log n)$    | $\Theta(n \log n)$    |
-| Quicksort   | $\Theta(n^2)$         | $\Theta(n \log n)$    |
+| Algoritmus    | Nejhorší případ    | Průměrný případ    |
+| ------------- | ------------------ | ------------------ |
+| Bubblesort    | $\Theta(n^2)$      | $\Theta(n^2)$      |
+| Insertionsort | $\Theta(n^2)$      | $\Theta(n^2)$      |
+| Heapsort      | $\Theta(n \log n)$ | $\Theta(n \log n)$ |
+| Quicksort     | $\Theta(n^2)$      | $\Theta(n \log n)$ |
 
 ### 4.6. Vzorce
 
@@ -915,14 +915,14 @@ $\boxed{\texttt{nd\_goto } s_1, s_2}$, která umožňuje RAM stroji vybrat si je
 >
 > $$\text{NP}_{time} = \bigcup\limits_{k\geq0}\text{N}_{time}(n^k)$$
 
-| Symbol       | Třída složitosti     |
-|--------------|----------------------|
-| $\text{LS}$      | $\text{LOG}_{\text{space}}$   |
-| $\text{NLS}$     | $\text{NLOG}_{space}$            |
-| $\text{PT}$      | $\text{P}_{time}$               |
-| $\text{NPT}$     | $\text{NP}_{time}$              |
-| $\text{EXPT}$    | $\text{EXP}_{time}$             |
-| $\text{NEXPT}$   | $\text{NEXP}_{time}$            |
+| Symbol         | Třída složitosti            |
+| -------------- | --------------------------- |
+| $\text{LS}$    | $\text{LOG}_{\text{space}}$ |
+| $\text{NLS}$   | $\text{NLOG}_{space}$       |
+| $\text{PT}$    | $\text{P}_{time}$           |
+| $\text{NPT}$   | $\text{NP}_{time}$          |
+| $\text{EXPT}$  | $\text{EXP}_{time}$         |
+| $\text{NEXPT}$ | $\text{NEXP}_{time}$        |
 
 Zřejmě platí, že na deterministické algoritmy se můžeme dívat jako na speciální případ nedeterministických.
 
@@ -1895,6 +1895,21 @@ Legenda:
 - QBF...(plně) kvantifikovaná booleovská formule
 - ILP...Integer Linear Programming
 - 3-GC...3-Graph Coloring
+
+| Je v:   |                      NP-ú                       |                     co-NP-ú                     |                       P-ú                       |                      PS-ú                       |                      NL-ú                       |                  Isomorfismus                   |
+| :------ | :---------------------------------------------: | :---------------------------------------------: | :---------------------------------------------: | :---------------------------------------------: | :---------------------------------------------: | :---------------------------------------------: |
+| EXP     | <span style="color: green;">$\checkmark$</span> | <span style="color: green;">$\checkmark$</span> | <span style="color: green;">$\checkmark$</span> | <span style="color: green;">$\checkmark$</span> | <span style="color: green;">$\checkmark$</span> | <span style="color: green;">$\checkmark$</span> |
+| PS      | <span style="color: green;">$\checkmark$</span> | <span style="color: green;">$\checkmark$</span> | <span style="color: green;">$\checkmark$</span> | <span style="color: green;">$\checkmark$</span> | <span style="color: green;">$\checkmark$</span> | <span style="color: green;">$\checkmark$</span> |
+| PS-ú    |                        ?                        |                        ?                        |                        ?                        | <span style="color: green;">$\checkmark$</span> |    <span style="color: red;">$\times$</span>    |                        ?                        |
+| NP      | <span style="color: green;">$\checkmark$</span> |                        ?                        | <span style="color: green;">$\checkmark$</span> |                        ?                        | <span style="color: green;">$\checkmark$</span> | <span style="color: green;">$\checkmark$</span> |
+| NP-ú    | <span style="color: green;">$\checkmark$</span> |                        ?                        |                        ?                        |                        ?                        |                        ?                        |                        ?                        |
+| co-NP   |                        ?                        | <span style="color: green;">$\checkmark$</span> | <span style="color: green;">$\checkmark$</span> |                        ?                        | <span style="color: green;">$\checkmark$</span> |                        ?                        |
+| co-NP-ú |                        ?                        | <span style="color: green;">$\checkmark$</span> |                        ?                        |                        ?                        |                        ?                        |                        ?                        |
+| P       |                        ?                        |                        ?                        | <span style="color: green;">$\checkmark$</span> |                        ?                        | <span style="color: green;">$\checkmark$</span> |                        ?                        |
+| P-ú     |                        ?                        |                        ?                        | <span style="color: green;">$\checkmark$</span> |                        ?                        |                        ?                        |                        ?                        |
+| NL      |                        ?                        |                        ?                        |                        ?                        |    <span style="color: red;">$\times$</span>    | <span style="color: green;">$\checkmark$</span> |                        ?                        |
+| NL-ú    |                        ?                        |                        ?                        |                        ?                        |    <span style="color: red;">$\times$</span>    | <span style="color: green;">$\checkmark$</span> |                        ?                        |
+| L       |                        ?                        |                        ?                        |                        ?                        |    <span style="color: red;">$\times$</span>    |                        ?                        |                        ?                        |
 
 <iframe
     src="./pdf/complexity.pdf"
