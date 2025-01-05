@@ -299,7 +299,7 @@ Převod problému:
 #### 1.5.2. Binární Turingův stroj
 
 - Binární Turingův stroj pracuje s omezenou páskovou abecedou $\Gamma = \{0, 1, \square\}$.
-- Reprezentuje všechny Turingovy stroje, protože každý Turingův stroj s libovolnou abecedou lze lze simulovat binárním Turingůvým strojem.
+- Reprezentuje všechny Turingovy stroje, protože každý Turingův stroj s libovolnou abecedou lze simulovat binárním Turingovým strojem.
 - Symboly libovolné abecedy můžeme zakódovat řetězci $0$ a $1$ s *pevnou* délkou.
 
 #### 1.5.3. Turingovsky úplné jazyky
@@ -863,9 +863,9 @@ Pokud Turingův stroj provede $m$ kroků, tak použije maximálně $m$ políček
 
 Z toho plyne, že $\text{P}_{time} \subseteq \text{P}_{space}$ atd.
 
-Konfigurace libovolného stroje můžeme reprezentovat pomocí slova $w$ v nějaké abecedě $\Sigma$. Pro abecedu s počtem slov odpovídajícím počtu konfigurací stroje $|\Sigma|=c$ platí, že počet slov délky $n$ je $c^n$, tj. $2^{\Theta(n)}$. Během výpočtu korektního algoritmu se žádná konfigurace neopakuje, jinak by algoritmus běžel donekonečna. Tzn. pro algoritmus s prostorovou složitostí $\mathcal{O}(f(n))$ existuje $2^{\mathcal{O}(f(n))}$ konfigurací.
+Konfigurace libovolného stroje můžeme reprezentovat pomocí slova $w$ v nějaké abecedě $\Sigma$. Pro abecedu s počtem slov odpovídajícím počtu konfigurací stroje $|\Sigma|=c$ platí, že počet slov délky $n$ je $c^n$, tj. $2^{\Theta(n)}$. Během výpočtu korektního algoritmu se žádná konfigurace neopakuje, jinak by algoritmus běžel donekonečna. Tzn. pro algoritmus s *prostorovou* složitostí $\mathcal{O}(f(n))$ existuje $2^{\mathcal{O}(f(n))}$ konfigurací.
 
-> Pro libovolnou funkci $f: \mathbb{N} \to \mathbb{N}$ platí, že pokud je nějaký problém $P$ řešený algoritmem s prostorovou složitostí $O(f(n))$, pak časová složitost tohoto algoritmu je $2^{\mathcal{O}(f(n))}$.
+> Pro libovolnou funkci $f: \mathbb{N} \to \mathbb{N}$ platí, že pokud je nějaký problém $P$ řešený algoritmem s *prostorovou* složitostí $O(f(n))$, pak *časová* složitost tohoto algoritmu je $2^{\mathcal{O}(f(n))}$.
 >
 > Pokud je tedy problém $P$ ve třídě $\text{D}_{space}(f(n))$, pak je i ve třídě $\text{D}_{time}(2^{c \cdot f(n)})$ pro nějaké $c > 0$.
 
@@ -889,7 +889,7 @@ Pokud chceme zjistit nějaký horní odhad složitosti problému, stačí ukáza
 
 Řekneme, že algoritmus je **nedeterministický**, pokud v každém kroku může vybrat z několika možností, kterou instrukcí pokračovat.
 
-> Nedeterministický algoritmus dává pro daný vstup $x$ odpověď "Ano", právě tehdy, když existuje alespoň jeden jeho výpočet, který vede k odpovědi "Ano".
+> Nedeterministický algoritmus dává pro daný vstup $x$ odpověď `Ano`, právě tehdy, když existuje alespoň jeden jeho výpočet, který vede k odpovědi `Ano`.
 
 <img src="figures/non-determinism.png" alt="non-determinism" width="350px">
 
@@ -961,7 +961,7 @@ $$
 \end{align*}
 $$
 
-Počet kroků nedeterministického algoritmu v rámci jedné větve výpočtu může být až $2^{\mathcal{O}(f(n))}$. Simulace všech větví deterministickým algoritmem by měla složitost $2^{2^{\mathcal{O}(f(n))}}$. Nicméně lze postupovat chytřeji, konkrétně vytvořit graf o $2^{\mathcal{O}(f(n))}$ vrcholech (pro všechny konfigurace) a orientovaných hranách (přechody mezi konfiguracemi). Poté lze vytvořit deterministický algoritmus, který bude procházet tento graf a hledat cestu z počáteční do koncové konfigurace, kdy výsledek je "Ano". Tento algoritmus bude mít složitost $2^{\mathcal{O}(f(n))}$. Tzn.:
+Počet kroků nedeterministického algoritmu v rámci jedné větve výpočtu může být až $2^{\mathcal{O}(f(n))}$. Simulace všech větví deterministickým algoritmem by měla složitost $2^{2^{\mathcal{O}(f(n))}}$. Nicméně lze postupovat chytřeji, konkrétně vytvořit graf o $2^{\mathcal{O}(f(n))}$ vrcholech (pro všechny konfigurace) a orientovaných hranách (přechody mezi konfiguracemi). Poté lze vytvořit deterministický algoritmus, který bude procházet tento graf a hledat cestu z počáteční do koncové konfigurace, kdy výsledek je `Ano`. Tento algoritmus bude mít složitost $2^{\mathcal{O}(f(n))}$. Tzn.:
 
 > Činnost **ne**deterministického algoritmu, jehož *prostorová* složitost je $\mathcal{O}(f(n))$, je možné simulovat deterministickým algoritmem, jehož *časová* složitost je $2^{\mathcal{O}(f(n))}$.
 
@@ -1048,7 +1048,7 @@ graph LR
 ```
 
 > **3-SAT**  
-> - **Vstup:** Formule $\varphi$ v konjunktivní normální formě, kde každá klauzule obsahuje právě 3 literály.  
+> - **Vstup:** Formule $\varphi$ v *konjunktivní normální formě*, kde každá *klauzule* obsahuje právě 3 *literály*.  
 > - **Otázka:** Je $\varphi$ splnitelná?
 
 - **Literál** je *formule* tvaru $x$ nebo $\neg x$, kde $x$ je *atomický výrok*.  
@@ -1071,10 +1071,10 @@ graph LR
 > **Problém nezávislé množiny (IS)**  
 > - **Vstup**: Neorientovaný graf $G$, číslo $k$.  
 > - **Otázka**: Existuje v grafu $G$ nezávislá množina velikosti $k$?  
-
-<img src="figures/is.png" alt="is" width="300px">
-
-Nezávislá množina v grafu je podmnožina vrcholů grafu taková, že žádné dva vrcholy z této podmnožiny nejsou spojeny hranou.
+>
+> <img src="figures/is.png" alt="is" width="300px">
+>
+> Nezávislá množina v grafu je podmnožina vrcholů grafu taková, že žádné dva vrcholy z této podmnožiny nejsou spojeny hranou.
 
 > **GC - Graph Coloring**  
 > - **Vstup:** Neorientovaný graf $G$, přirozené číslo $k$.  
@@ -1102,11 +1102,11 @@ Nezávislá množina v grafu je podmnožina vrcholů grafu taková, že žádné
 
 > **SUBSET-SUM**  
 > - **Vstup:** Sekvence přirozených čísel $a_1, a_2, \dots, a_n$ a přirozené číslo $s$.  
-> - **Otázka:** Existuje množina $I \subseteq \{1, 2, \dots, n\}$ taková, že $\sum_{i \in I} a_i = s$?
+> - **Otázka:** Existuje množina $I \subseteq \{1, 2, \dots, n\}$ taková, že $\sum\limits_{i \in I} a_i = s$?
 
 > **Knapsack problem** (Problém batohu, speciální případ SUBSET-SUM)  
 > - **Vstup:** Sekvence dvojic přirozených čísel $(a_1, b_1), (a_2, b_2), \dots, (a_n, b_n)$ a dvě přirozená čísla $s$ a $t$.  
-> - **Otázka:** Existuje množina $I \subseteq \{1, 2, \dots, n\}$ taková, že $\sum_{i \in I} a_i \leq s$ a $\sum_{i \in I} b_i \geq t$?
+> - **Otázka:** Existuje množina $I \subseteq \{1, 2, \dots, n\}$ taková, že $\sum\limits_{i \in I} a_i \leq s$ a $\sum\limits_{i \in I} b_i \geq t$?
 
 Řekneme, že $a_1, a_2, \dots, a_n, s_1$ je instance problému SUBSET-SUM. Je zřejmé, že pro instanci problému batohu, kde máme sekvenci $(a_1, a_1), (a_2, a_2), \dots, (a_n, a_n), s = s_1$ a $t = s_1$, je odpověď stejná jako pro původní instanci SUBSET-SUM.
 
@@ -1150,9 +1150,9 @@ Lze dokázat, že SAT je NP-úplný, dále lze SAT převést na 3-SAT (netriviá
 
 ### 7.4. Převod HC na HK
 
-1. Každému vrcholu $x$ orientovaného grafu přiřadíme tři vrcholy $x_1, x_2, x_3$.
+1. Každému vrcholu $x$ orientovaného grafu přiřadíme *tři vrcholy* $x_1, x_2, x_3$.
 2. Spojíme je hranami $(x_1, x_2)$ a $(x_2, x_3)$.
-3. Každá orientovaná hrana $(x, y)$ bude reprezentována hranou $(x_3, y_1)$.
+3. Původní *vstupní* hrany povedou do $x_1$, *výstupní* hrany povedou z $x_3$.
 
 <img src="figures/hc-to-hk.png" alt="hc-to-hk" width="400px">
 
@@ -1160,7 +1160,7 @@ Lze dokázat, že SAT je NP-úplný, dále lze SAT převést na 3-SAT (netriviá
 
 - **Vstup:** Libovolná instance problému **3-SAT**, tj. formule $\varphi$ v KNF, kde každá klauzule obsahuje právě 3 literály.
     $$(x_1 \vee \neg x_2 \vee x_3) \wedge (x_2 \vee \neg x_3 \vee x_4) \wedge (x_1 \vee \neg x_3 \vee \neg x_4) \wedge (\neg x_1 \vee \neg x_2 \vee x_4)$$
-- **Výstup:** Instance problému **ILP**.
+- **Výstup:** Instance problému **ILP**, tj. $\mathsf{A}\mathbf{x}\leq \mathbf{b}$.
     $$ (\forall i \in \{1,2,3,4\})\colon\,\, x_i' \geq 0 \quad\wedge\quad x_i' \leq 1 $$
     $$
     \begin{align*}
@@ -1170,7 +1170,8 @@ Lze dokázat, že SAT je NP-úplný, dále lze SAT převést na 3-SAT (netriviá
       (1 - x_1') + (1 - x_2') + x_4' &\geq 1\\
     \end{align*}
     $$
-  - Pomocí aritmetických úprav lze převést na tvar $\mathsf{A}\mathbf{x}'\leq \mathbf{b}$.
+
+Pomocí aritmetických úprav lze převést tuto soustavu nerovnic do tvaru $\mathsf{A}\mathbf{x}'\leq \mathbf{b}$.
 
 ## 8. Úplné problémy
 
@@ -1178,7 +1179,7 @@ Lze dokázat, že SAT je NP-úplný, dále lze SAT převést na 3-SAT (netriviá
 >
 > Řekneme, že problém $A$ je $\mathcal{C}$**-úplný** právě tehdy, když je $\mathcal{C}$-těžký a zároveň patří do třídy $\mathcal{C}$.
 
-> Oblázková hra (Pebble game)
+> **Oblázková hra (Pebble game)**
 >
 > - **Vstup:** Acyklický orientovaný graf $G$, cílový vrchol $t$ a $k$ kamenů.
 > - **Otázka:** Existuje posloupnost tahů taková, že na konci bude položen kámen na vrcholu $t$?
@@ -1198,7 +1199,7 @@ Na oblázkovou hru se můžeme dívat jako na přechodový systém, kde:
 - **Počáteční stav** odpovídá situaci, kdy na grafu $G$ nejsou položeny žádné kameny.  
 - **Koncové stavy** jsou ta rozmístění kamenů, kdy leží kámen na vrcholu $t$.
 
-> Oblázková hra je v PSPACE.
+> Oblázková hra je v `PSPACE`.
 
 > **Ekvivalence NKA**  
 > - **Vstup:** Nedeterministické konečné automaty $A_1$ a $A_2$.  
@@ -1230,9 +1231,11 @@ Problém univerzality NKA je speciální případ ekvivalence NKA, kde jeden z a
 
 ### 8.1. Třídy doplňkových problémů
 
-**co-NP** je třída tvořená právě těmi problémy, které jsou doplňkovými problémy problémů ze třídy **NP**. Podobně lze definovat další třídy.
+**co-NP** je třída tvořená právě těmi problémy, které jsou *doplňkovými problémy* problémů ze třídy **NP**. Podobně lze definovat další třídy.
 
-Příklad: **UNSAT** - problém nesplnitelnosti booleovské formule (Je daná formule tautologií?).
+- **UN-SAT** - Problém **ne**splnitelnosti booleovské formule (kontradikce).
+- **SAT-TAUTOLOGY** - Je daná booleovská formule *tautologií*? (Tzn. je pravdivá pro všechna ohodnocení proměnných.)
+- **UN-IS** - Platí, že v grafu **ne**existuje nezávislá množina velikosti $k$?
 
 ### 8.2. P-úplné problémy
 
@@ -1243,12 +1246,12 @@ Příklad: **UNSAT** - problém nesplnitelnosti booleovské formule (Je daná fo
 > <img src="figures/cvp.png" alt="cvp" width="300px">
 
 > **Monotone Circuit Value Problem (MCVP)**  
-> - **Vstup:** Popis monotónního booleovského obvodu $G$ (tj. obvodu, který neobsahuje hradla typu `Not`) a kde do každého hradla typu `And` a `Or` vstupují právě dva vodiče, a pravdivostní ohodnocení $\nu$.  
+> - **Vstup:** Popis *monotónního booleovského obvodu* $G$ (tj. obvodu, který neobsahuje hradla typu `Not`, a kde do každého hradla typu `And` a `Or` vstupují právě dva vodiče) a *pravdivostní ohodnocení* $\nu$.  
 > - **Otázka:** Je při pravdivostním ohodnocení $\nu$ na výstupu obvodu $G$ hodnota $1$?  
 
 > **Kombinatorická hra**  
 > - **Vstup:** Kombinatorická hra dvou hráčů, jejíž graf je explicitně dán, tj. jsou explicitně vyjmenovány jednotlivé pozice a možné tahy.  
-> - **Otázka:** Má Hráč $I$ v dané hře vyhrávající strategii?  
+> - **Otázka:** Má Hráč $I$ v dané hře *vyhrávající strategii*?  
 
 > **Generování slova bezkontextovou gramatikou**  
 > - **Vstup:** Bezkontextová gramatika $G$ a slovo $w \in \Sigma^*$.  
@@ -1276,20 +1279,20 @@ Příklad: **UNSAT** - problém nesplnitelnosti booleovské formule (Je daná fo
 
 ### 8.3. Třídy L a NL
 
-- `L` - rozhodovací problémy, pro které existuje deterministickými algoritmy s logaritmickou prostorovou složitostí.
-- `NL` - rozhodovací problémy, pro které existuje **ne**deterministickými algoritmy s logaritmickou prostorovou složitostí.
+- `L` - rozhodovací problémy, pro které existuje deterministický algoritmus s logaritmickou *prostorovou* složitostí.
+- `NL` - rozhodovací problémy, pro které existuje **ne**deterministický algoritmus s logaritmickou *prostorovou* složitostí.
 - `L` $\subseteq$ `NL`.
 
 Omezení pro `L` a `NL`:
 
-- Velikost vstupu a výstupu se nezapočítává do prostorové složitosti.
+- Velikost vstupu a výstupu se **ne**započítává do prostorové složitosti.
 - Vstupní páska je `read-only`.
 - Výstupní páska je `write-only`.
 - Např. není možné pamatovat si pro každý vrchol grafu, zda byl navštíven - $\mathcal{O}(n)$.
 
 ### 8.4. NL-úplné problémy
 
-> **Dosažitelnost v grafu (Graph Reachability)**
+> **Dosažitelnost v grafu (PATH - Graph Reachability)**
 > - **Vstup:** Orientovaný graf $G = (V, E)$ se dvěma vyznačenými vrcholy $s$ a $t$.
 > - **Otázka:** Existuje v grafu $G$ cesta z vrcholu $s$ do vrcholu $t$?
 
@@ -1300,15 +1303,15 @@ Pro problém dosažitelnosti v grafu není znám (`?`) deterministický algoritm
 1. Pamatuje si vždy jen aktuální vrchol `v`, cílový vrchol `t` a hodnotu čítače `c`.
 2. Inicializuje `v := s` a `c := m - 1`, kde `m` je počet vrcholů grafu `G`.
 3. Nedeterministické hádání cesty:
-   1. Zvolíme hranu `(v, v')`. Pokud neexistuje, vrátíme `Ne`.
-   2. `v := v'`.
-   3. Pokud `v = t`, vrátíme `Ano`.
+   1. Pokud `v = t`, vrátíme `Ano`.
+   2. Zvolíme hranu `(v, v')`. Pokud neexistuje, vrátíme `Ne`.
+   3. `v := v'`.
    4. Snižíme čítač o `1`.
    5. Pokud je `c = 0` (proti zacyklení):
       1. Pokud `v = t`, vrátíme `Ano`.
       2. Jinak `Ne`.
    6. Pokračujeme na krok 3.
-4. Pokud alespoň jedna z výpočetních větví vede k `Ano`, výsledek je `Ano`, jinak `Ne`.
+5. Pokud alespoň jedna z výpočetních větví vede k `Ano`, výsledek je `Ano`, jinak `Ne`.
 
 Nedeterministický algoritmus pro problém dosažitelnosti v grafu má prostorovou složitost $\mathcal{O}(\log n)$, a tedy patří do třídy **NL**.
 
@@ -1410,18 +1413,31 @@ graph LR
 > - **Vstup:** Konečná množina $X$, asociativní binární operace $\circ$ na množině $X$ (zadaná tabulkou specifikující hodnotu $x \circ y$ pro každou dvojici $x, y \in X$), podmnožina $S \subseteq X$ a prvek $t \in X$.  
 > - **Otázka:** Je možné prvek $t$ vygenerovat z prvků množiny $S$?  
 
-<div class="warning">
+> **Strong Connectivity** (Silná souvislost)
+> - **Vstup:** Orientovaný graf $G = (V, E)$.
+> - **Otázka:** Je graf $G$ *silně souvislý*?
 
-- Platí `NL = co-NL` !!!
-- *Není známo*, jestli `NP ?= co-NP`!
+Existuje převod **PATH** na **Strong Connectivity**.
 
-</div>
+1. Pro každý vrchol $v \in V$ přidáme do grafu $G$:
+   1. Hranu $(v, s)$ (tzn. z *každého* vrcholu do *počátečního*).
+   2. Hranu $(t, v)$ (tzn. z *cílového* vrcholu do *každého*).
+
+Pokud existuje cesta z $s$ do $t$ v původním grafu $G$, tak zkonstruovaný graf $G'$ je silně souvislý, protože z každého vrcholu se můžeme dostat do každého jiného pomocí cesty z $s$ do $t$.
+
+Pokud **ne**existuje cesta z $s$ do $t$ v původním grafu $G$, tak zkonstruovaný graf $G'$ není silně souvislý, protože neexistuje cesta z $s$ do $t$.
+
+> **Věta Immerman–Szelepcsényi**
+>
+> Platí `NL = co-NL`.
+
+*Není známo*, jestli `NP ?= co-NP`!
 
 ## 9. Hry dvou hráčů
 
 > **Strategie** hráče je předpis, který určuje, jaký konkrétní tah má hráč v každé pozici zvolit.
 >
-> **Vyhrávající strategie** je taková strategie, která hráči zaručí, že vždy vyhraje.  
+> **Výherní strategie** je taková strategie, která hráči zaručí, že vždy vyhraje.  
 >
 > **Kombinatorická hra** je čtveřice $G = ( \text{Pos}, \text{Moves}, \text{Label}, \alpha_0 )$, kde:
 > - $\text{Pos}$ je množina pozic,  
@@ -1437,7 +1453,7 @@ graph LR
 > **Generalized Geography (GG)**
 > - **Vstup:** Orientovaný graf $G$ a počáteční vrchol $v_0$.
 > - **Pravidla:** Hráči střídavě přesunují po vrcholech $G$ jeden hrací kámen. Označují se vrcholy, na které byl kámen položen. Začíná se ve vrcholu $v_0$. Hráč na tahu přemístí kámen z vrcholu $v$ do vrcholu $v'$ takového, že na něm doposud nebyl položen kámen a existuje hrana $(v,v')$. Hráč, který nemůže táhnout, prohrává.
-> - **Otázka:** Má hráč, který táhne jako první, vyhrávající strategii ve hře hrané na grafu $G$, kde se začíná ve vrcholu $v_0$?
+> - **Otázka:** Má hráč, který táhne jako první, výherní strategii ve hře hrané na grafu $G$, kde se začíná ve vrcholu $v_0$?
 
 - Na uložení jedné pozice stačí $\mathcal{O}(n)$ bitů, kde $n$ je počet vrcholů grafu.
 - Každá partie končí po nejvýše $n$ tazích.
