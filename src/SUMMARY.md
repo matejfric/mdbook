@@ -37,6 +37,7 @@
 - [Paralelní algoritmy (PA)](./pa/pa1.md)
 - [Pravděpodobnost a statistika (PaS)](./pas/pas.md)
 - [Python Poetry](./python-poetry/python-poetry.md)
+- [Quantum Computing (QC)](./qc/qc.md)
 - [Rust](./rust/rust.md)
 - [Strojové učení (SU)](./su/su.md)
 - [Teoretická informatika (TI)](./ti/ti.md)
