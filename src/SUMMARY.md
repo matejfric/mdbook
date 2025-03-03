@@ -2,8 +2,10 @@
 
 [Home](./home.md)
 
-- [Analýza obrazu (ANO)](./ano/ano.md)
+- [Informační technologie (IT)](./it/it.md)
+  - [Počítačové systémy a sítě](./it/systems_and_networking.md)
 - [Analýza a zpracování dat (AZD)](./azd/azd.md)
+- [Analýza obrazu (ANO)](./ano/ano.md)
 - [Biologicky inspirované algoritmy (BIA)](./bia/bia.md)
 - [CUDA](./cuda/cuda.md)
   - [N-Body Problem](./cuda/nbody.md)
