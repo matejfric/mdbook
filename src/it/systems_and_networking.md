@@ -155,9 +155,101 @@ Podle typu procesoru rozlišujeme **CISC** (Complex Instruction Set Computer) a 
 
 ## 3. Protokolová rodina TCP/IP
 
+<img src="figures/tcp-ip.png" alt="tcp-ip" width="800px">
+
+Vrstvy OSI RM:
+
+1. Fyzická vrstva
+    - fyzický přenos bitů
+    - hub (rozbočovač), repeater (opakovač), modemy
+2. Spojová vrstva
+    - přenos rámců s **MAC** adresami,
+    - **switche** (přepínače)
+    - detekce a korekce chyb
+3. Síťová vrstva
+    - směrování paketů **routery** (směrovače)
+    - **IP** adresy
+4. Transportní vrstva
+    - protokol **TCP** - spolehlivý, velký soubor
+    - protokol **UDP** - nespolehlivý, rychlost, stream
+    - **port**y (trans**port**ní vrstva) `0-65535` $\langle0, 2^{16} - 1\rangle$
+5. Relační (session) vrstva
+    - dialog mezi účastníky
+6. Prezentační vrstva
+    - sjednocení formátů dat
+7. Aplikační vrstva
+
+**ARP** *(Address Resolution Protocol)* - mapování IP adresy na MAC adresu
+
+**ICMP** *(Internet Control Message Protocol)* - `ping`, `traceroute`
+
+**NAT** *(Network Address Translation)* - překlad libovolné IP adresy an jinou IP adresu (nejčastěji privátní na veřejné)
+
+**DNS** *(Domain Name System)* - překlad doménového jména na IP adresu (a naopak)
+
+**DHCP** *(Dynamic Host Configuration Protocol)* - automatické přidělování IP adresy a dalších síťových parametrů (např. DNS serveru) klientům v síti
+
+**TELNET** - nešifrovaný protokol pro vzdálený přístup k počítači (terminálový emulátor)
+
+**SSH** *(Secure Shell)* - šifrovaný protokol pro vzdálený přístup k počítači (terminálový emulátor), šifrování pomocí *asymetrické kryptografie* (veřejný a privátní klíč)
+
+**SMTP** *(Simple Mail Transfer Protocol)* - protokol pro odesílání e-mailů
+
+**POP3** *(Post Office Protocol 3)* - protokol pro stahování a odstraňování e-mailů z poštovního serveru (stáhne na klienta a odstraní ze serveru)
+
+**IMAP** *(Internet Message Access Protocol)* - protokol pro přístup k e-mailům na poštovním serveru (na serveru), stahování kopie
+
+**FTP** *(File Transfer Protocol)* - protokol pro přenos souborů mezi počítači (klient-server/server-klient)
+
+HTTP *(Hypertext Transfer Protocol)* - `GET`, `POST`, `PUT`, `DELETE`, ...
+
+Kdysi byla fyzická topologie sítě totožná s logickou, ale dnes se použivají VLAN (virtuální LAN) na spojové vrstvě (L2). Jeden fyzický switch se může chovat jako více logických switchů.
+
+<img src="figures/three-way-handshake.png" alt="three-way-handshake" width="500px">
+
 ## 4. Problémy směrování v počítačových sítích. Adresování v IP sítích
 
+```mermaid
+mindmap
+  root)Směrování(
+      (Statické)
+        [Manuální konfigurace IP adres]
+        [Malé sítě]
+      ("Dynamické (protokoly)")
+        ["Routing Information Protocol (RIP)"]
+          ("Distance Vector Algorithm (DVA)")
+          (Nezná rychlost)
+          (Hop-count)
+        ["Open Shortest Path First (OSPF)"]
+          ("Link State Algorithm (LSA)")
+          (Ceny linek podle rychlosti)
+          (Znalost topologie sítě)
+          (Dikstrův algoritmus)
+
+```
+
+*Dynamické směrovací protokoly* *(RIP, OSPF)* hledají nejkratší cesty v síti. Samotné směrování provádí *směrovače (routery)* podle *směrovací tabulky*.
+
+|Typ| Cíl/maska | Next hop | Metrika (nižší je lepší) |
+|:--:|:---------:|:--------:|:-----------------------:|
+|R|10.0.0.0/16 | 172.16.10.1 | 2 |
+
+Typ znamená *typ směrování*:
+
+- C - connected (přímo připojené)
+- S - static (staticky konfigurované)
+- R - RIP
+- O - OSPF
+
 ## 5. Bezpečnost počítačových sítí s TCP/IP: útoky, paketové filtry, stavový firewall. Šifrování a autentizace, virtuální privátní sítě
+
+Asymetrická kryptografie - šifrování pomocí veřejného a privátního klíče. Veřejný klíč je známý všem, privátní klíč je tajný.
+
+<img src="figures/asymmetric-cryptography.svg" alt="asymmetric-cryptography" width="800px">
+
+- **C**onfidentiality (důvěrnost) - šifrování zprávy
+- **I**ntegrity (of data; integrita) - zpráva nebyla změněna během přenosu
+- **A**uthentication (autenticita) - ověření identity odesílatele
 
 ## 6. Paralelní výpočty a platformy: Flynnova taxonomie, SIMD, MIMD, SPMD. Paralelismus na úrovni instrukcí, datový a funkční paralelismus. Procesy a vlákna
 

@@ -1,0 +1,152 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36" version="26.2.4">
+  <diagram name="Page-1" id="wmFpuob_WeVOfsqFLDbN">
+    <mxGraphModel dx="827" dy="444" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-54" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="450" y="100" width="90" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-52" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="30" y="100" width="90" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-1" value="Alice" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#f8cecc;strokeColor=#b85450;fontFamily=Computer Modern;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="60" y="110" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-2" value="Bob" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontFamily=Computer Modern;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="480" y="110" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-7" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.security.key_permissions;fillColor=#DA4026;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="10" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-8" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.security.key_permissions;fillColor=#2072B8;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="460" y="200" width="10" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-9" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.security.key_permissions;fillColor=#7FBA42;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="460" y="230" width="10" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-10" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.security.key_permissions;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="40" y="230" width="10" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-12" value="&amp;nbsp;Private key" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Computer Modern;fontColor=#990000;" vertex="1" parent="1">
+          <mxGeometry x="50" y="200" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-13" value="&amp;nbsp;Private key" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="470" y="200" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-14" value="&amp;nbsp;Public key" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="50" y="230" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-15" value="&amp;nbsp;Public key" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="470" y="230" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;fillColor=#f8cecc;strokeColor=#b85450;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontFamily=Computer Modern;" edge="1" parent="1" source="MEXiN5_dS-qI4KsckQxN-16" target="MEXiN5_dS-qI4KsckQxN-22">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="175" y="140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-44" value="SHA-256" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Computer Modern;" vertex="1" connectable="0" parent="MEXiN5_dS-qI4KsckQxN-20">
+          <mxGeometry x="0.0444" y="-2" relative="1" as="geometry">
+            <mxPoint x="-2" y="3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fillColor=#d5e8d4;strokeColor=#82b366;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Computer Modern;" edge="1" parent="1" source="MEXiN5_dS-qI4KsckQxN-16" target="MEXiN5_dS-qI4KsckQxN-25">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="260" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-16" value="Data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="150" y="165" width="50" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-17" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.security.key_permissions;fillColor=#7FBA42;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="160" y="200" width="10" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-18" value="" style="endArrow=classic;html=1;rounded=0;fillColor=#d5e8d4;strokeColor=#82b366;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fontFamily=Computer Modern;curved=1;" edge="1" parent="1" target="MEXiN5_dS-qI4KsckQxN-16">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="440" y="240" as="sourcePoint" />
+            <mxPoint x="174.8" y="200" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="190" y="240" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-58" value="&lt;font&gt;Only Bob can decrypt&amp;nbsp;(confidentiality)&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontColor=light-dark(#7fba42, #ededed);fontFamily=Computer Modern;" vertex="1" connectable="0" parent="MEXiN5_dS-qI4KsckQxN-18">
+          <mxGeometry x="0.1539" y="-9" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-21" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.security.key_permissions;fillColor=#DA4026;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="210" y="90" width="10" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-22" value="Hash" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="150" y="100" width="50" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fillColor=#f8cecc;strokeColor=#b85450;fontFamily=Computer Modern;" edge="1" parent="1" target="MEXiN5_dS-qI4KsckQxN-16">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="120" y="180" as="sourcePoint" />
+            <mxPoint x="140" y="179.91" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontFamily=Computer Modern;" edge="1" parent="1" source="MEXiN5_dS-qI4KsckQxN-25">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-25" value="Ciphertext" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="230" y="165" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-59" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;fillColor=#f5f5f5;strokeColor=#666666;fontFamily=Computer Modern;" edge="1" parent="1" source="MEXiN5_dS-qI4KsckQxN-29">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="395" y="80" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-29" value="Compare&lt;div&gt;Hash&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontFamily=Computer Modern;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="370" y="100" width="50" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-32" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.security.key_permissions;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="350" y="90" width="10" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-48" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontFamily=Computer Modern;" edge="1" parent="1" source="MEXiN5_dS-qI4KsckQxN-40">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="395" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-49" value="SHA-256" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Computer Modern;" vertex="1" connectable="0" parent="MEXiN5_dS-qI4KsckQxN-48">
+          <mxGeometry x="-0.4095" y="1" relative="1" as="geometry">
+            <mxPoint x="1" y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-55" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontFamily=Computer Modern;" edge="1" parent="1" source="MEXiN5_dS-qI4KsckQxN-40" target="MEXiN5_dS-qI4KsckQxN-54">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-40" value="Data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="370" y="165" width="50" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-42" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.security.key_permissions;fillColor=#2072B8;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="350" y="150" width="10" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-56" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;curved=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Computer Modern;" edge="1" parent="1" source="MEXiN5_dS-qI4KsckQxN-43" target="MEXiN5_dS-qI4KsckQxN-54">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;curved=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontFamily=Computer Modern;" edge="1" parent="1" source="MEXiN5_dS-qI4KsckQxN-43" target="MEXiN5_dS-qI4KsckQxN-52">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-43" value="Certification&lt;div&gt;Authority (CA)&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;fontFamily=Computer Modern;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="225" y="260" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-50" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;fontFamily=Computer Modern;" edge="1" parent="1" source="MEXiN5_dS-qI4KsckQxN-46" target="MEXiN5_dS-qI4KsckQxN-29">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-46" value="Digital signature" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontFamily=Computer Modern;" vertex="1" parent="1">
+          <mxGeometry x="230" y="100" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fillColor=#f8cecc;strokeColor=#b85450;fontFamily=Computer Modern;" edge="1" parent="1" source="MEXiN5_dS-qI4KsckQxN-22" target="MEXiN5_dS-qI4KsckQxN-46">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MEXiN5_dS-qI4KsckQxN-60" value="Message is authentic (Alice signed) and has not been tampered with (integrity)." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Computer Modern;fontColor=light-dark(#666666, #ededed);" vertex="1" parent="1">
+          <mxGeometry x="290" y="50" width="210" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
