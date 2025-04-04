@@ -11,7 +11,12 @@
 - [5. Bezpečnost počítačových sítí s TCP/IP: útoky, paketové filtry, stavový firewall. Šifrování a autentizace, virtuální privátní sítě](#5-bezpečnost-počítačových-sítí-s-tcpip-útoky-paketové-filtry-stavový-firewall-šifrování-a-autentizace-virtuální-privátní-sítě)
 - [6. Paralelní výpočty a platformy: Flynnova taxonomie, SIMD, MIMD, SPMD. Paralelismus na úrovni instrukcí, datový a funkční paralelismus. Procesy a vlákna](#6-paralelní-výpočty-a-platformy-flynnova-taxonomie-simd-mimd-spmd-paralelismus-na-úrovni-instrukcí-datový-a-funkční-paralelismus-procesy-a-vlákna)
 - [7. Systémy se sdílenou a distribuovanou pamětí: komunikace mezi procesy (souběh, uváznutí, vzájemné vyloučení). Komunikace pomocí zasílání zpráv. OpenMP, MPI](#7-systémy-se-sdílenou-a-distribuovanou-pamětí-komunikace-mezi-procesy-souběh-uváznutí-vzájemné-vyloučení-komunikace-pomocí-zasílání-zpráv-openmp-mpi)
+  - [7.1. Model sdílené paměti](#71-model-sdílené-paměti)
+    - [7.1.1. OpenMP](#711-openmp)
+  - [7.2. Model distribuované paměti](#72-model-distribuované-paměti)
 - [8. Paralelní redukce a paralelní scan: principy fungování ve vybrané technologii a příklady užití](#8-paralelní-redukce-a-paralelní-scan-principy-fungování-ve-vybrané-technologii-a-příklady-užití)
+  - [8.1. Paralelní redukce](#81-paralelní-redukce)
+  - [8.2. Prefix sum (paralelní scan)](#82-prefix-sum-paralelní-scan)
 - [9. Konkurentní datové struktury: přehled, blokující a neblokující implementace](#9-konkurentní-datové-struktury-přehled-blokující-a-neblokující-implementace)
 
 ## 1. Architektura univerzálních procesorů. Principy urychlování činnosti procesorů
@@ -253,8 +258,212 @@ Asymetrická kryptografie - šifrování pomocí veřejného a privátního klí
 
 ## 6. Paralelní výpočty a platformy: Flynnova taxonomie, SIMD, MIMD, SPMD. Paralelismus na úrovni instrukcí, datový a funkční paralelismus. Procesy a vlákna
 
+*Task-switching - pseudo-paralelismus.*
+
+**Datový paralelismus** - data jsou rozdělena do *bloků* a každý blok je zpracován *procesem/vláknem*.
+
+**Instrukční paralelismus** - využití nezávislých instrukcí - např. jedny vlákna chystají data, další je zpracovávají nebo třeba ukládají.
+
+**Hyper-threading** - každé vlákno se navenek rozdělí. 16jádro má 16 instrukčních sad.
+
+Co rozumíme pojmem **proces**? OS alokuje a spravuje *paměť*, přidělí *zásobník* a alespoň jedno *hlavní jádro (main thread)*.
+
+**Logické vlákno** je *sled instrukcí*. Potřebuju *registry* a nějakou *výpočetní jednotku*. Běží dokud má instrukce. Přerušení výpočtu vláken určuje programátor.
+
+Proč potřebujeme více jader procesoru? **Skrývání latence** - každá instrukce má nějaký čas vykonávání a my chceme skrývat latenci mezi instrukcemi (tzn. zkrátit čas nečinnosti procesoru). Např. odmocnina nebo modulo jsou drahé operace, nejdražší je čtení z disku (nebo dokonce ze vzdáleného disku neno data lake).
+
+**SPMD** (Single Program Multiple Data) - každý proces spouští stejný program, ale na jiných datech. Neexistuje žádný *"hlavní proces"*. Využívá se v **MPI** (Message Passing Interface) - compiler `mpicc` (C), `mpicxx` (C++). Typicky se používá v HPC (High Performance Computing) - na superpočítačích.
+
+```mermaid
+mindmap
+  root)Flynnova taxonomie(
+      (SISD)
+        [Skalární instrukce]
+      (SIMD)
+        ["Vektorové instrucke (AVX)"]
+        ["SIMT (GPU)"]
+      (MIMD)
+        [Multi-core CPU]
+        ["MIMD (jádra) + SIMD (AVX)"]
+      (MISD)
+        %% https://doi.org/10.1145/358234.358246
+        [Palubní počítač raketoplánu Discovery]
+      (SPMD)
+        [HPC]
+        [MPI]
+```
+
+|| Single Data | Multiple Data |
+|:--:|:--:|:--:|
+|Single<br>Instruction|<img src="figures/SISD.svg" alt="SISD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> |<img src="figures/SIMD.svg" alt="SIMD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> |
+|Multiple<br>Instruction|<img src="figures/MISD.svg" alt="MISD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> | <img src="figures/MIMD.svg" alt="MIMD https://en.wikipedia.org/wiki/User:Cburnett" width="250px">|
+
+<img src="figures/flynn-tax.png" alt="flynn-tax" width="400px">
+
+Skalární přístup (SISD)
+
+```c
+float a[8], b[8], c[8];
+for (int i = 0; i < 8; i++)
+    c[i] = a[i] + b[i];
+```
+
+**Vektorové instrukce** (SIMD) - instrukce, které provádějí stejnou operaci na více datech najednou (např. AVX)
+
+```c
+// x86-64 AVX2
+#include <immintrin.h>
+
+// SIMD (Single Instruction, Multiple Data) 
+// AVX (Advanced Vector Extensions)
+__m256 vec_a = _mm256_loadu_ps(a);
+__m256 vec_b = _mm256_loadu_ps(b);
+__m256 vec_c = _mm256_add_ps(vec_a, vec_b);
+_mm256_storeu_ps(c, vec_c);
+```
+
 ## 7. Systémy se sdílenou a distribuovanou pamětí: komunikace mezi procesy (souběh, uváznutí, vzájemné vyloučení). Komunikace pomocí zasílání zpráv. OpenMP, MPI
 
+### 7.1. Model sdílené paměti
+
+<img src="figures/shared-memory.png" alt="shared-memory" width="250px">
+
+Procesy *sdílejí adresní prostor*, kde můžou *asynchronně* číst a zapisovat.
+
+**Souběh** *(race condition)* nastane např. když dvě vlákna zapisují v jednu chvíli do stejné proměnné.
+
+Přístup do sdílené paměti je synchronizován pomocí **vzájemného vyloučení** *(**mut**ual **ex**clusion - mutex)*, což lze řešit například pomocí *binárního semaforu* neboli zámku (hodnota `0/1` - `locked/unlocked`).
+
+**Uváznutí** *(deadlock)* nastane, když se dva procesy čekají navzájem na uvolnění zámku.
+
+#### 7.1.1. OpenMP
+
+<details><summary> Nastavení ve Visual Studio </summary>
+
+1. Right-click your project > `Properties`.
+2. `Configuration Properties > C/C++ > Language`
+3. Set OpenMP Support to `Yes (/openmp)`.
+4. `Configuration Properties > C/C++ > Command Line`
+5. In the `Additional Options` box at the bottom, add: `-openmp:experimental` (OpenMP 5.0+).
+
+</details>
+
+```cpp
+#include <iostream>
+#include <omp.h>
+
+int main() {
+    int num_threads = omp_get_max_threads();
+    std::cout << "Max available threads: " << num_threads << std::endl;
+
+    // Paralelní blok
+    #pragma omp parallel
+    {
+        // Každé vlákno provede tento blok
+        std::cout << "Thread " << omp_get_thread_num() << " of " << omp_get_num_threads() << std::endl;
+    }
+    
+    #pragma omp parallel
+    {
+        #pragma omp critical
+        // Tento blok je chráněn vzájemným vyloučením.
+        // Pouze jedno vlákno může provést tento blok najednou.
+        std::cout << "Thread " << omp_get_thread_num() << " of " << omp_get_num_threads() << std::endl;
+    }
+
+    // #pragma omp barrier 
+    // Čekání na všechny vlákna, před pokračováním dál (fork-join).
+    // (Implicitně na konci každého paralelního bloku.)
+
+    return 0;
+}
+```
+
+### 7.2. Model distribuované paměti
+
+<img src="figures/distributed-memory.png" alt="distributed-memory" width="300px">
+
 ## 8. Paralelní redukce a paralelní scan: principy fungování ve vybrané technologii a příklady užití
+
+### 8.1. Paralelní redukce
+
+Průchod dat - **agregace** do jedné hodnoty (`min`, `max`, `sum` atd.)
+
+<img src="figures/parallel-reduction.png" alt="parallel-reduction" width="600px">
+
+```cpp
+#include <iostream>
+#include <omp.h>  // OpenMP
+
+int main() {
+    const int N = 10;
+    int sum = 0;
+
+    // Paralelní redukce
+    #pragma omp parallel for reduction(+:sum)
+    for (int i = 0; i < N; ++i) {
+        sum += i;
+        std::cout << "Thread " << omp_get_thread_num() << " added " << i << std::endl;
+    }
+    std::cout << "Sum MIMD = " << sum << std::endl;
+
+    sum = 0;
+    // Redukce pomocí vektorových instrukcí (AVX2)
+    #pragma omp simd reduction(+:sum)
+    for (int i = 0; i < N; ++i) {
+        sum += i;
+    }
+    std::cout << "Sum SIMD = " << sum << std::endl;
+
+    // a kombinace... MIMD + SIMD
+    // #pragma omp parallel for simd reduction(+:sum)
+    
+    return 0;
+}
+```
+
+### 8.2. Prefix sum (paralelní scan)
+
+> **Hillis-Steele** (Stride to $n$):
+>
+> <img src="figures/prefix-sum-hillis-steele.png" alt="prefix-sum-hillis-steele" width="400px">
+>
+> Zápisem $\oplus_{1:4}$ rozumíme $a_1\oplus a_2\oplus a_3\oplus a_4$, kde $\oplus$ je libovolná **asociativní binární operace** (např. `+`, `*`, `XOR`).
+
+> **Up Sweep & Down Sweep**
+>
+> - [Guy E. Blelloch - Prefix Sums and Their Applications](https://www.cs.cmu.edu/~guyb/papers/Ble93.pdf)
+> - Modré šipky značí sčítání, šedé přesun, červená reset na nulu.
+> - (Algoritmus pracuje in-place s jedním polem stejně jako Hillis-Steele)
+>
+> <img src="figures/prefix-sum-up-down-sweep.png" alt="prefix-sum-up-down-sweep" width="400px">
+
+```cpp
+#include<iostream>
+#include<chrono>
+
+#define N 10
+
+using namespace std;
+
+int main() {
+    int a[N], simd_scan[N], scan_a;
+    for (int i = 0; i < N; i++) {
+        a[i] = i;
+        simd_scan[i] = 0;
+    }
+    scan_a = 0;
+    #pragma omp simd reduction(inscan, +:scan_a)
+    for (int i = 0; i < N; i++) {
+        scan_a += a[i];
+        #pragma omp scan inclusive(scan_a)
+        simd_scan[i] = scan_a;
+    }
+    std::cout << "SIMD Scan Output:\n";
+    for (int i = 0; i < N; i++)
+        std::cout << simd_scan[i] << "\t";
+    return 0;
+}
+```
 
 ## 9. Konkurentní datové struktury: přehled, blokující a neblokující implementace
