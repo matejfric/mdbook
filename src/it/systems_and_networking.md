@@ -324,17 +324,32 @@ _mm256_storeu_ps(c, vec_c);
 
 ## 7. Systémy se sdílenou a distribuovanou pamětí: komunikace mezi procesy (souběh, uváznutí, vzájemné vyloučení). Komunikace pomocí zasílání zpráv. OpenMP, MPI
 
+- komunikace sdílením stavu (mutexy)
+- komunikace zasíláním zpráv (kanály, MPI)
+
 ### 7.1. Model sdílené paměti
 
 <img src="figures/shared-memory.png" alt="shared-memory" width="250px">
 
 Procesy *sdílejí adresní prostor*, kde můžou *asynchronně* číst a zapisovat.
 
-**Souběh** *(race condition)* nastane např. když dvě vlákna zapisují v jednu chvíli do stejné proměnné.
+**Souběh** *(race condition)* nastane např. když dvě nebo více vláken přistupuje současně ke stejnému místu v paměti, alespoň jedno z nich zapisuje a vlákna nepoužívají synchronizaci k řízení svého přístupu (toto je porušení základního pravidla Rustu - *aliasing + mutabilita*). K souběhu může dojít také pokud výsledek programu závisí na pořadí vykonávání vláken.
 
 Přístup do sdílené paměti je synchronizován pomocí **vzájemného vyloučení** *(**mut**ual **ex**clusion - mutex)*, což lze řešit například pomocí *binárního semaforu* neboli zámku (hodnota `0/1` - `locked/unlocked`).
 
-**Uváznutí** *(deadlock)* nastane, když se dva procesy čekají navzájem na uvolnění zámku.
+**Uváznutí** *(deadlock)* nastane, např. když dva procesy čekají navzájem na uvolnění zámku nebo když jeden proces se pokusí získat dvakrát stejný zámek.
+
+```rust
+use std::sync::Mutex;
+
+fn drop_late(m: &Mutex<Option<u32>>) {
+    if let Some(v) = m.lock().unwrap().as_ref() {
+        println!("The Option contains a value {v}!");
+        // Deadlock (attempts to acquire a second lock on the same mutex)
+        m.lock().unwrap();
+    }
+}
+```
 
 #### 7.1.1. OpenMP
 
@@ -382,6 +397,23 @@ int main() {
 ### 7.2. Model distribuované paměti
 
 <img src="figures/distributed-memory.png" alt="distributed-memory" width="300px">
+
+Každý proces má vlastní data a adresní prostor. Procesy komunikují pomocí **zasílání zpráv** (např. pomocí MPI). MPI je standard pro komunikaci mezi procesy v distribuovaném systému. Usnadňuje implementaci, protože řeší detaily komunikace mezi procesy - výběr nejrychlejší cesty (shared memory, síť, ...), pořadí zásílaných zpráv, jistota, že zpráva dorazila, atd. Implementace standardu MPI je např. OpenMPI. Existují bindingy pro různé jazyky (C, C++, Fortran, Python, ...).
+
+MPI navíc implementuje standardní komunikační rutiny jako:
+
+- **point-to-point**
+- **broadcast** (*one-to-many*, stejná zpráva pro všechny)
+- **scatter** (*one-to-many*, různé zprávy pro různé procesy)
+- **gather** (*many-to-one*, různé zprávy pro jeden proces, opak scatter)
+- **reduce** (*many-to-one*, agregace dat z více procesů do jednoho procesu, např. `sum`, `max`, `min`)
+
+<img src="figures/mpi-communication-routines.png" alt="mpi-communication-routines" width="400px">
+
+```bash
+# Start MPI program with 4 processes on a single computer
+mpiexec -n 4 ./my_program
+```
 
 ## 8. Paralelní redukce a paralelní scan: principy fungování ve vybrané technologii a příklady užití
 
@@ -467,3 +499,47 @@ int main() {
 ```
 
 ## 9. Konkurentní datové struktury: přehled, blokující a neblokující implementace
+
+Naivní použití standardních datových struktur může vést k souběhu (race condition). Konkurentní datové struktury obvykle používají nějaké prostředky pro synchronizaci - vzájemné vyloučení, atomické operace. Např. `queue.Queue` (MPMC kanál) v Pythonu je konkurentní datová struktura, která používá zámky pro synchronizaci přístupu k frontě.
+
+Problém blokující implementace je, že vlákno čeká na zámek - *spin / busy wait* - se 100% vytížením jádra. Pro neblokující implementaci I/O operací můžeme použít např. `epoll` (Linux) pro monitorování více file descriptorů najednou (stačí jednoho vlákno). Alternativou je asynchronní programování - vlákna se neblokují, ale čekají na události, např. `async/await` v Rustu.
+
+```rust
+use tokio::net::TcpListener;
+
+#[tokio::main]
+async fn main() {
+    let listener = TcpListener::bind("127.0.0.1:6379").await.unwrap();
+
+    loop {
+        let (socket, _) = listener.accept().await.unwrap();
+        // A new task is spawned for each inbound socket. The socket is
+        // moved to the new task and processed there.
+        tokio::spawn(async move {
+            process(socket).await;
+        });
+    }
+}
+```
+
+**MPSC** channel:
+
+```rust
+use std::sync::mpsc::channel;
+use std::thread;
+
+let (sender, receiver) = channel();
+
+// Spawn off an expensive computation
+thread::spawn(move || {
+    sender.send(expensive_computation()).unwrap();
+});
+
+// Do some useful work for awhile
+
+// Let's see what that answer was
+// (blocking)
+println!("{:?}", receiver.recv().unwrap());
+```
+
+**SPSC** channel `tokio::sync::oneshot:channel()` - např. pro signál k vypnutí serveru.
