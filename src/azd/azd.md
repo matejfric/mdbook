@@ -47,6 +47,127 @@
 
 ## 6. Support Vector Machines (princip, algoritmus, kernel trick)
 
+Buď $\mathcal{X}=(\mathbf{x}_1,y_1),\ldots,(\mathbf{x}_n,y_n)$ trénovací dataset, kde $\mathbf{x}_i\in\mathbb{R}^d$ a $y_i\in\{-1,1\}$.
+
+Lineární SVM je klasifikační algoritmus, který se snaží najít hyperrovinu, která odděluje jednotlivé třídy ve smyslu maximální mezery *(maximum-margin hyperplane / widest-street principle)*.
+
+<img src="figures/svm-1.svg" alt="svm" width="350px">
+
+>Rozhodovací pravidlo:
+>
+>$$
+\begin{equation}
+  \mathrm{sgn}\left(\left\langle\mathbf{w},\mathbf{u} \right\rangle + b\right)=\begin{cases}
+    +1 & \text{ (positive class)}\\
+    -1 & \text{ (negative class)}
+  \end{cases}
+\end{equation}
+>$$
+
+Z (1) vyplývá (hodnoty 1 a -1 jsou libovolné, ale pevné):
+
+$$
+\begin{align}
+  \left\langle\mathbf{w},\mathbf{x}^+ \right\rangle + b &\geq 1,\\
+  \left\langle\mathbf{w},\mathbf{x}^- \right\rangle + b &\leq -1,
+\end{align}
+$$
+
+$$
+y_i = \begin{cases}
+  +1 & \text{positive}\\
+  -1 & \text{negative}
+\end{cases}
+$$
+
+Levé strany rovnic (2,3) přenásobím $y_i$, čímž dostanu:
+
+$$
+\begin{align*}
+  y_i(\left\langle\mathbf{w},\mathbf{x}_i \right\rangle + b) &\geq 1\\
+  y_i(\left\langle\mathbf{w},\mathbf{x}_i \right\rangle + b) - 1&\geq 0
+\end{align*}
+$$
+
+>Navíc pro $\mathbf{x}_i$ ležící "na krajnici (hranice mezery)":
+>
+>$$
+\begin{equation}
+   y_i(\left\langle\mathbf{w},\mathbf{x}_i \right\rangle + b) - 1= 0
+\end{equation}
+>$$
+
+<img src="figures/svm-2.svg" alt="svm" width="350px">
+
+$$
+\begin{align*}
+  \text{width} &= (\mathbf{x}^+-\mathbf{x}^-)\dfrac{\mathbf{w}}{||\mathbf{w}||}\\
+  &= \dfrac{\left\langle\mathbf{w},\mathbf{x}^+ \right\rangle - \left\langle\mathbf{w},\mathbf{x}^- \right\rangle}{||\mathbf{w}||}\\
+  &= \dfrac{1-b - (-1-b)}{||\mathbf{w}||}\quad\text{(from (4))}\\
+  &= \dfrac{2}{||\mathbf{w}||}\\
+\end{align*}
+$$
+
+Vynucením podmínky (4) jsme dostali vzorec pro šířku silnice, kterou chceme maximalizovat:
+
+$$
+\begin{align*}
+  &\max \dfrac{2}{||\mathbf{w}||} \iff \min||\mathbf{w}|| \iff \boxed{\min\frac{1}{2}||\mathbf{w}||^2}\\
+  &\text{s.t.} \quad y_i(\left\langle\mathbf{w},\mathbf{x}_i \right\rangle + b) - 1 = 0\\
+\end{align*}
+$$
+
+Lagrangeova funkce:
+
+$$
+\begin{align}
+  L&=\frac{1}{2}||\mathbf{w}||^2-\sum_{i=1}^n \alpha_i\left[y_i(\left\langle\mathbf{w},\mathbf{x}_i \right\rangle + b) - 1\right]\notag\\
+  \dfrac{\partial L}{\partial \mathbf{w}} &= \mathbf{w} - \sum_{i=1}^n \alpha_i y_i \mathbf{x}_i \Rightarrow \mathbf{w} =\boxed{\sum_{i=1}^n \alpha_i y_i \mathbf{x}_i} \\
+  \dfrac{\partial L}{\partial b} &= -\sum_{i=1}^n \alpha_i y_i \Rightarrow \boxed{\sum_{i=1}^n \alpha_i y_i = 0}\notag\\
+\end{align}
+$$
+
+Dosazením do $L$ získáme duální problém:
+
+$$
+\begin{align}
+  \max L&=\max\frac{1}{2}\sum_{i=1}^n \alpha_i y_i \sum_{j=1}^n \alpha_j y_j \left\langle\mathbf{x}_j,\mathbf{x}_i\right\rangle-\notag\\
+  &-\sum_{i=1}^n \alpha_i\left[y_i\left(\sum_{j=1}^n \alpha_j y_j \left\langle\mathbf{x}_j,\mathbf{x}_i\right\rangle + b\right) - 1\right]=\notag\\
+  &=\max\frac{1}{2}\sum_{i=1}^n\sum_{j=1}^n \alpha_i\alpha_j y_i y_j \left\langle\mathbf{x}_i,\mathbf{x}_j\right\rangle-\notag\\
+  &-\sum_{i=1}^n\sum_{j=1}^n \alpha_i\alpha_j y_i y_j \left\langle\mathbf{x}_i,\mathbf{x}_j\right\rangle -\notag\\
+  &-\sum_{i=1}^n \underbrace{\alpha_i y_i}_{=0} b + \sum_{i=1}^n \alpha_i=\notag\\
+  &=\boxed{\max\sum_{i=1}^n \alpha_i -  \sum_{i=1}^n \sum_{j=1}^n \alpha_i\alpha_j y_iy_j\left\langle\mathbf{x}_i,\mathbf{x}_j\right\rangle}\\
+\end{align}
+$$
+
+Z (1) a (5) dostáváme upravené rozhodovací pravidlo pro nové vektory (data) $\mathbf{u}$:
+
+$$
+\begin{align}
+  \mathrm{sgn}\left( \sum_{i=1}^n \alpha_i y_i\left\langle \mathbf{x}_i, \mathbf{u}\right\rangle+b\right)
+\end{align}
+$$
+
+Lze si všimnout, že (6) a (7) záleží pouze na skalárním součinu vektorů $\mathbf{x}_i$ a $\mathbf{x}_j$.
+
+Tento algoritmus není schopný vyřešit lineárně **ne**separabilní problém (XOR):
+
+<img src="figures/linearly-inseparable.svg" alt="linearly-inseparable" width="200px">
+
+V jiném prostoru (např. ve 3D) tento problém je separabilní. Použijeme *kernel trick*, t.j., transformaci dat do jiného prostoru:
+
+$$
+\begin{align}
+  \varphi(\mathbf{x}) &\Rightarrow \max\left\langle \varphi(\mathbf{x})_i,\varphi(\mathbf{x})_j\right\rangle\notag\\
+  &\Rightarrow K(\mathbf{x}_i,\mathbf{x}_j) = \left\langle \varphi(\mathbf{x})_i,\varphi(\mathbf{x})_j\right\rangle\notag\\
+\end{align}
+$$
+
+Polynomiální kernel $\boxed{(\left\langle\mathbf{x}_i,\mathbf{x}_j\right\rangle + 1)^D,}$ kde $D$ je dimenze prostoru (pro $D=2$ je to kvadratický kernel).
+
+Gaussian kernel (RBF kernel):
+$$\boxed{e^{-\dfrac{||\mathbf{x}_i-\mathbf{x}_j||}{\sigma}}}$$
+
 ## 7. Neuronové sítě (základní princip, metody učení, aktivační funkce)
 
 ## 8. Vyhodnocení klasifikačních algoritmů (chybovost, přesnost, pokrytí, f-metrika)
