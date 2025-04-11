@@ -10,6 +10,7 @@
 - [7. Neuronové sítě (základní princip, metody učení, aktivační funkce)](#7-neuronové-sítě-základní-princip-metody-učení-aktivační-funkce)
 - [8. Vyhodnocení klasifikačních algoritmů (chybovost, přesnost, pokrytí, f-metrika)](#8-vyhodnocení-klasifikačních-algoritmů-chybovost-přesnost-pokrytí-f-metrika)
 - [9. Regrese (lineární a nelineární regrese, regresní stromy, metody vyhodnocení kvality modelu)](#9-regrese-lineární-a-nelineární-regrese-regresní-stromy-metody-vyhodnocení-kvality-modelu)
+  - [9.1. Vyhodnocení](#91-vyhodnocení)
 - [10. Typy sítí. Graf a matice sousednosti jako reprezentace sítě. Datové struktury pro reprezentaci různých typů sítí, výhody a nevýhody (matice sousednosti, seznamy sousedů, stromy sousedů), složitost operací, hybridní reprezentace](#10-typy-sítí-graf-a-matice-sousednosti-jako-reprezentace-sítě-datové-struktury-pro-reprezentaci-různých-typů-sítí-výhody-a-nevýhody-matice-sousednosti-seznamy-sousedů-stromy-sousedů-složitost-operací-hybridní-reprezentace)
 - [11. Topologické vlastnosti sítí, charakteristické hodnoty a jejich distribuce (stupeň, délka cesty, průměr, shlukovací koeficient), typy centralit](#11-topologické-vlastnosti-sítí-charakteristické-hodnoty-a-jejich-distribuce-stupeň-délka-cesty-průměr-shlukovací-koeficient-typy-centralit)
 - [12. Globální vlastnosti sítí (malý svět, bezškálovost, růst a preferenční připojování). Mocninný zákon a jeho interpretace v prostředí reálných sítí. Assortarivita](#12-globální-vlastnosti-sítí-malý-svět-bezškálovost-růst-a-preferenční-připojování-mocninný-zákon-a-jeho-interpretace-v-prostředí-reálných-sítí-assortarivita)
@@ -154,7 +155,7 @@ Tento algoritmus není schopný vyřešit lineárně **ne**separabilní problém
 
 <img src="figures/linearly-inseparable.svg" alt="linearly-inseparable" width="200px">
 
-V jiném prostoru (např. ve 3D) tento problém je separabilní. Použijeme *kernel trick*, t.j., transformaci dat do jiného prostoru:
+V jiném prostoru (např. ve 3D) tento problém je separabilní. Použijeme *kernel trick*, t.j., transformaci dat do jiného prostoru (to lze, protože SVM závisí pouze na skalárním součinu vektorů).:
 
 $$
 \begin{align}
@@ -173,6 +174,94 @@ $$\boxed{e^{-\dfrac{||\mathbf{x}_i-\mathbf{x}_j||}{\sigma}}}$$
 ## 8. Vyhodnocení klasifikačních algoritmů (chybovost, přesnost, pokrytí, f-metrika)
 
 ## 9. Regrese (lineární a nelineární regrese, regresní stromy, metody vyhodnocení kvality modelu)
+
+Úloha aproximace ve 2D je dána jako: $(x_0, y_0), \ldots, (x_n, y_n) \in \mathbb{R}^2$
+
+Hledám: $f(x) = \alpha_0 + \alpha_1 x$, s.t.  
+$$
+\sum_{i=0}^n (f(x_i) - y_i)^2 \leq \sum_{i=0}^n (p(x_i) - y_i)^2
+$$
+
+Lineární regrese (aproximace přímkou) je optimalizační úloha:
+$$
+(\alpha_0, \alpha_1) = \arg\min_{\alpha_0, \alpha_1 \in \mathbb{R}} \sum_{i=0}^n (\alpha_0 + \alpha_1 x_i - y_i)^2
+$$
+
+---
+
+**Metoda nejmenších čtverců** – aproximace funkce polynomem:
+$$
+f_n(x) = \arg\min_{p_n \in \mathcal{P}_n} \|f(x) - p_n(x)\|
+$$  
+kde $\|g(x)\| = \sqrt{\langle g(x), g(x) \rangle}$ je norma indukovaná skalárním součinem.
+
+---
+
+$$
+A \vec{\alpha} = \vec{b}
+$$
+
+$$
+\begin{bmatrix}
+(\varphi_0, \varphi_0) & \cdots & (\varphi_0, \varphi_n) \\
+\vdots & \ddots & \vdots \\
+(\varphi_n, \varphi_0) & \cdots & (\varphi_n, \varphi_n)
+\end{bmatrix}
+\begin{bmatrix}
+\alpha_0 \\
+\alpha_1 \\
+\vdots \\
+\alpha_n
+\end{bmatrix}
+=
+\begin{bmatrix}
+(f, \varphi_0) \\
+(f, \varphi_1) \\
+\vdots \\
+(f, \varphi_n)
+\end{bmatrix}
+$$
+
+$$
+\begin{bmatrix}
+\sum 1 & \sum x_i & \sum x_i^2 \\
+\sum x_i & \sum x_i^2 & \sum x_i^3 \\
+\sum x_i^2 & \sum x_i^3 & \sum x_i^4
+\end{bmatrix}
+\begin{bmatrix}
+\alpha_0 \\
+\alpha_1 \\
+\alpha_2
+\end{bmatrix}
+=
+\begin{bmatrix}
+\sum y_i \\
+\sum y_i x_i \\
+\sum y_i x_i^2
+\end{bmatrix}
+$$
+
+### 9.1. Vyhodnocení
+
+- $\mathrm{MAE}=\frac{1}{n}\sum\limits_{i=1}^n |y_i - \hat{y}_i|$ (střední absolutní chyba)
+- $\mathrm{MSE}=\frac{1}{n}\sum\limits_{i=1}^n (y_i - \hat{y}_i)^2$ (střední kvadratická chyba)
+- $\mathrm{RMSE}=\sqrt{\mathrm{MSE}}$
+- $R^2 = "\dfrac{\mathrm{var}(y)-\mathrm{var}(\hat{y})}{\mathrm{var}(y)}"=\dfrac{\frac{1}{n}\mathrm{SS_{target}} - \frac{1}{n}\mathrm{SS_{residuals}}}{\frac{1}{n}\mathrm{SS_{target}}}=1-\dfrac{\sum\limits_{i=1}^n (y_i-\hat{y}_i)^2}{\sum\limits_{i=1}^n (y_i-\overline{y})^2}$
+  
+  <img src="figures/r2.png" alt="https://en.wikipedia.org/wiki/Coefficient_of_determination" width="225px">
+
+  <img src="figures/r2.svg" alt="https://en.wikipedia.org/wiki/Coefficient_of_determination" width="400px">
+
+  - Coefficient of determination
+  - $(-\infty,1]$ (vyšší, lepší; model predikující průměr $\overline{y}$ má $R^2=0$)
+  - Poměr mezi rozptylem reziduí a rozptylem cílové proměnné, tzn. kolik rozptylu cílové proměnné je vysvětleno modelem.
+  - Ve více dimenzích se ukazuje, že i šum uměle navyšuje $R^2$. Proto se používá upravené $R^2_{adj}$ = $1-\dfrac{\frac{\mathrm{SS_{residuals}}}{\mathrm{df_{residuals}}}}{\frac{\mathrm{SS_{target}}}{\mathrm{df_{target}}}}$, kde:
+    - $\mathrm{df_{residuals}}=n-d-1$ (počet stupňů volnosti reziduí, kde $d$ je počet parametrů modelu)
+    - $\mathrm{df_{target}}=n-1$
+- $\mathrm{MAPE} = \dfrac{1}{n}\sum\limits_{i=1}^n \dfrac{|y_i - \hat{y}_i|}{|y_i|}$ (střední absolutní procentuální chyba)
+  - není definováno, pokud $\exists i:y_i=0$
+- $\mathrm{SMAPE}=\dfrac{100}{n}\sum\limits_{i=1}^{n}\dfrac{2\cdot\lvert y_i-\hat{y}_i \rvert}{\lvert y_i \rvert + \lvert \hat{y}_i \rvert}$ (symetrická střední absolutní procentuální chyba)
+  - $[0,2]$ (nižší, lepší)
 
 ## 10. Typy sítí. Graf a matice sousednosti jako reprezentace sítě. Datové struktury pro reprezentaci různých typů sítí, výhody a nevýhody (matice sousednosti, seznamy sousedů, stromy sousedů), složitost operací, hybridní reprezentace
 
