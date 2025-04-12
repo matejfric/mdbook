@@ -8,9 +8,13 @@
 - [5. Pravděpodobnostní klasifikace (Bayesovský teorém, naivní Bayesovský teorém)](#5-pravděpodobnostní-klasifikace-bayesovský-teorém-naivní-bayesovský-teorém)
 - [6. Support Vector Machines (princip, algoritmus, kernel trick)](#6-support-vector-machines-princip-algoritmus-kernel-trick)
 - [7. Neuronové sítě (základní princip, metody učení, aktivační funkce)](#7-neuronové-sítě-základní-princip-metody-učení-aktivační-funkce)
+  - [7.1. Aktivační funkce](#71-aktivační-funkce)
+  - [7.2. MLP](#72-mlp)
 - [8. Vyhodnocení klasifikačních algoritmů (chybovost, přesnost, pokrytí, f-metrika)](#8-vyhodnocení-klasifikačních-algoritmů-chybovost-přesnost-pokrytí-f-metrika)
 - [9. Regrese (lineární a nelineární regrese, regresní stromy, metody vyhodnocení kvality modelu)](#9-regrese-lineární-a-nelineární-regrese-regresní-stromy-metody-vyhodnocení-kvality-modelu)
-  - [9.1. Vyhodnocení](#91-vyhodnocení)
+  - [9.1. Simple linear regression](#91-simple-linear-regression)
+  - [9.2. Regresní stromy](#92-regresní-stromy)
+  - [9.3. Vyhodnocení](#93-vyhodnocení)
 - [10. Typy sítí. Graf a matice sousednosti jako reprezentace sítě. Datové struktury pro reprezentaci různých typů sítí, výhody a nevýhody (matice sousednosti, seznamy sousedů, stromy sousedů), složitost operací, hybridní reprezentace](#10-typy-sítí-graf-a-matice-sousednosti-jako-reprezentace-sítě-datové-struktury-pro-reprezentaci-různých-typů-sítí-výhody-a-nevýhody-matice-sousednosti-seznamy-sousedů-stromy-sousedů-složitost-operací-hybridní-reprezentace)
 - [11. Topologické vlastnosti sítí, charakteristické hodnoty a jejich distribuce (stupeň, délka cesty, průměr, shlukovací koeficient), typy centralit](#11-topologické-vlastnosti-sítí-charakteristické-hodnoty-a-jejich-distribuce-stupeň-délka-cesty-průměr-shlukovací-koeficient-typy-centralit)
 - [12. Globální vlastnosti sítí (malý svět, bezškálovost, růst a preferenční připojování). Mocninný zákon a jeho interpretace v prostředí reálných sítí. Assortarivita](#12-globální-vlastnosti-sítí-malý-svět-bezškálovost-růst-a-preferenční-připojování-mocninný-zákon-a-jeho-interpretace-v-prostředí-reálných-sítí-assortarivita)
@@ -45,6 +49,46 @@
 - [Adaptive Boosting (AdaBoost)](https://matejfric.github.io/mdbook/ano/ano.html#16-adaboost)
 
 ## 5. Pravděpodobnostní klasifikace (Bayesovský teorém, naivní Bayesovský teorém)
+
+Buď $(\Omega,\mathcal{A},P)$ P.P. a buď $A,B\in\mathcal{A}$, $P(B)>0$. Podmíněnou pravděpodobnost náhodného jevu $A$ za podmínky, že nastal jev $B$ definujeme:
+$$\boxed{\,\,P(A \mid B)=\dfrac{P(A \cap B)}{P(B)}\,\,}$$
+
+**Věta o úplné pravděpodobnosti:**
+
+- $\bigcup\limits_{i=1}^n B_i=\Omega$
+- $\forall i,j \in\set{1,...,n},i\neq j: \,B_i \cap B_j = \emptyset$
+- $\forall i \in\set{1,...,n}: \,B_i > 0$
+$$\boxed{\,\,P(A)=\sum_{i=1}^{n} P(A \mid B_i)\cdot P(B_i)\,\,}$$
+
+**Bayesova věta:**
+
+$$
+\boxed{
+\begin{align*}
+    P(B_i | A)&=\dfrac{P(A \cap B_i)}{P(A)}\\&=\dfrac{P(A \mid B_i)\cdot P(B_i)}{\sum\limits_{j=1}^n P(A \mid B_j)\cdot P(B_j)}
+\end{align*}
+}
+$$
+
+V případě Naive Bayes klasifikátoru je jmenovatel $P(A)$ konstantní, takže se dá vynechat:
+
+$$
+\boxed{
+P(B_i | A)\propto P(A | B_i) \cdot P(B_i)
+}
+$$
+
+Pro náš příklad s e-maily:
+
+$$
+P(S | zpráva)\propto P(zpráva | S) \cdot P(S)
+$$
+
+- [StatQuest Naive Bayes](https://youtu.be/O2L2Uv9pdDA?si=4IGcmsMOA5Jjyfvi)
+- Předpokládáme, že **atributy jsou nezávislé** (což nemusí být pravda). V našem příkladu uvažujeme, že slova zpráv jsou nezávislé, což určitě není pravda. Např. slova peníze teď se můžou častěji vyskytovat společně.
+- Před "AI" byl NB hlavní nástroj pro detekci spamu.
+
+<img src="figures/naive-bayes.svg" alt="naive-bayes" width="700px">
 
 ## 6. Support Vector Machines (princip, algoritmus, kernel trick)
 
@@ -171,31 +215,120 @@ $$\boxed{e^{-\dfrac{||\mathbf{x}_i-\mathbf{x}_j||}{\sigma}}}$$
 
 ## 7. Neuronové sítě (základní princip, metody učení, aktivační funkce)
 
+### 7.1. Aktivační funkce
+
+<img src="../ano/figures/activations.png" alt="nn-activations" width="400px">
+
+| Activation | Formula |
+|------------|---------|
+| **Sigmoid** | $\sigma(x) = \dfrac{1}{1 + e^{-x}},\quad\quad\dfrac{d}{dx}\sigma(x) = \sigma(x)(1 - \sigma(x))$ |
+| **ReLU (Rectified Linear Unit)** | $\text{ReLU}(x) = \max(0, x)$ |
+| **Tanh (Hyperbolic Tangent)** | $\tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}$ |
+| **Softmax** | $\text{softmax}(x_i) = \frac{e^{x_i}}{\sum_{j=1}^K e^{x_j}}$, where $K$ is the number of classes |
+| **Leaky ReLU** | $\text{Leaky ReLU}(x) = \begin{cases} x & \text{if } x \geq 0 \\ \alpha x & \text{if } x < 0 \end{cases}$, where $\alpha$ is a small constant (e.g., $0.01$) |
+
+### 7.2. MLP
+
+Vícevrstvý perceptron.
+
+<img src="figures/ann-2-3-2.png" alt="ann-2-3-2" width="400px">
+
+Random initialization:
+$$
+\begin{align*}
+    \mathsf{W}^{(1)} &= \begin{bmatrix} 0.2 & 0.4 \\ 0.5 & 0.9 \\ 0.8 & 0.1 \end{bmatrix} & \mathbf{b}^{(1)} &= \begin{bmatrix} 0.1 \\ 0.2 \\ 0.3 \end{bmatrix}\\
+    \mathsf{W}^{(2)} &= \begin{bmatrix} 0.3 & 0.7 & 0.2 \\ 0.6 & 0.5 & 0.8 \end{bmatrix} & \mathbf{b}^{(2)} &= \begin{bmatrix} 0.1 \\ 0.4 \end{bmatrix}
+\end{align*}
+$$
+
+Assume input $\mathbf{x} = \begin{bmatrix} 0.5 \\ 0.6 \end{bmatrix}$ and expected output $\mathbf{y} = \begin{bmatrix} 1 \\ 0 \end{bmatrix}$ (i.e., one data point - for simplicity).
+
+$$
+\begin{align*}
+    \mathbf{z}^{(1)}&=\mathsf{W}^{(1)}\mathbf{x}+\mathbf{b}^{(1)}\\
+    \mathbf{a}^{(1)}&=\sigma\left(\mathbf{z}^{(1)}\right)\\
+    \mathbf{z}^{(2)}&=\mathsf{W}^{(2)}\mathbf{a}^{(1)}+\mathbf{b}^{(2)}\\
+    \mathbf{a}^{(2)}&=\sigma\left(\mathbf{z}^{(2)}\right)
+\end{align*}
+$$
+
+Compute loss function (MSE):
+$$
+c(\mathbf{y},\mathbf{a}) = \dfrac{1}{2} \sum\limits_{i=1}^{2} \left(\mathsf{y}_i - a^{(2)}_{i}\right)^2.
+$$
+Gradient w.r.t. the output layer:
+$$\frac{\partial c}{\partial \mathbf{a}^{(2)}}=-\mathbf{y}+\mathbf{a}^{(2)},$$
+$$\frac{\partial c}{\partial \mathbf{z}^{(2)}} = \frac{\partial c}{\partial \mathbf{a}^{(2)}} \odot \sigma'(\mathbf{z}^{(2)}).$$
+Gradient w.r.t. $\mathsf{W}^{(2)}$ and $\mathbf{b}^{(2)}$:
+$$
+\boxed{\frac{\partial c}{\partial \mathsf{W}^{(2)}}} = \underbrace{\frac{\partial c}{\partial \mathbf{z}^{(2)}}}_{2\times1} \cdot \underbrace{\left(\mathbf{a}^{(1)}\right)^\top}_{1\times3},
+$$
+$$
+\boxed{\frac{\partial c}{\partial \mathbf{b}^{(2)}}} = \frac{\partial c}{\partial \mathbf{z}^{(2)}}.
+$$
+Gradient w.r.t. the first layer ($\mathbf{z}^{(1)}$):
+$$
+\frac{\partial c}{\partial \mathbf{a}^{(1)}} = \underbrace{(\mathsf{W}^{(2)})^\top}_{3\times2} \cdot \underbrace{\frac{\partial c}{\partial \mathbf{z}^{(2)}}}_{2\times1},
+$$
+$$
+\frac{\partial c}{\partial \mathbf{z}^{(1)}} = \frac{\partial c}{\partial \mathbf{a}^{(1)}} \odot \sigma'(\mathbf{z}^{(1)}).
+$$
+Gradient w.r.t. $\mathsf{W}^{(1)}$ and $\mathbf{b}^{(1)}$:
+$$
+\boxed{\frac{\partial c}{\partial \mathsf{W}^{(1)}}} = \underbrace{\frac{\partial c}{\partial \mathbf{z}^{(1)}}}_{3\times1} \cdot \underbrace{\mathbf{x}^\top}_{1\times2},
+$$
+$$
+\boxed{\frac{\partial c}{\partial \mathbf{b}^{(1)}}} = \frac{\partial c}{\partial \mathbf{z}^{(1)}}.
+$$
+
 ## 8. Vyhodnocení klasifikačních algoritmů (chybovost, přesnost, pokrytí, f-metrika)
+
+Matice záměn (confusion matrix) pro binární klasifikaci:
+
+<img src="../ns/figures/confmat.png" alt="confmat" width="600px">
+
+| Performance Metric | Formula                                                |
+|---------------------|--------------------------------------------------------|
+| Precision           | $\frac{\text{TP}}{\text{TP} + \text{FP}}$ |
+| Recall / Sensitivity / TPR        | $\frac{\text{TP}}{\text{TP} + \text{FN}} = \frac{\text{TP}}{\text{P}}$  |
+| Fallout / FPR | $\frac{\text{FP}}{\text{FP} + \text{TN}}=\frac{\text{FP}}{\text{N}}$ |
+| Specificity / TNR   | $\frac{\text{TN}}{\text{TN} + \text{FP}} = \frac{\text{TN}}{\text{N}}$ |
+| $F_1$-Score            | $\frac{2}{\frac{1}{\text{Precision}} + \frac{1}{\text{Recall}}} = \frac{2\cdot \text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}} = \frac{2 \text{TP}}{2 \text{TP} + \text{FP} + \text{FN}}$ |
+|$F_{\beta }$-Score|$\frac{\beta ^{2}+1}{\frac{1}{\text{Precision}} + \frac{\beta ^{2}}{\text{Recall}}} = \frac{(\beta ^{2}+1)\cdot \text{Precision} \cdot \text{Recall}}{(\beta ^{2}\cdot\text{Precision}) + \text{Recall}}$ |
+| Accuracy            | $\frac{\text{TP} + \text{TN}}{\text{TP} + \text{FP} + \text{FN} + \text{TN}}$ = $\frac{\text{TP} + \text{TN}}{\text{P} + \text{N}}$ |
+
+Vyhodnocení pravděpodobnostních klasifikátorů:
+
+- *ROC křivka* je TPR na ose $y$ a FPR na ose $x$ (pro definovaný threshold).
+- *Precision-Recall křivka* je $\text{Precision}$ na ose $y$ a $\text{Recall}$ na ose $x$ (pro definovaný threshold).
 
 ## 9. Regrese (lineární a nelineární regrese, regresní stromy, metody vyhodnocení kvality modelu)
 
-Úloha aproximace ve 2D je dána jako: $(x_0, y_0), \ldots, (x_n, y_n) \in \mathbb{R}^2$
+### 9.1. Simple linear regression
 
-Hledám: $f(x) = \alpha_0 + \alpha_1 x$, s.t.  
+- Linerání regrese ve 2D je dána jako: $(x_0, y_0), \ldots, (x_n, y_n) \in \mathbb{R}^2$
+- Hledám: $f(x) = \alpha_0 + \alpha_1 x$, s.t.  
+    $$
+    \sum_{i=0}^n (f(x_i) - y_i)^2 \leq \sum_{i=0}^n (p_1(x_i) - y_i)^2
+    $$
+  - kde $p_1(x) = \alpha_0 + \alpha_1 x$ je libovolný polynom 1. stupně.
+- Optimalizační úloha (metoda nejmenších čtverců):
+    $$
+    \boxed{
+    (\alpha_0, \alpha_1) = \arg\min_{\alpha_0, \alpha_1 \in \mathbb{R}} \underbrace{\sum_{i=0}^n (\alpha_0 + \alpha_1 x_i - y_i)^2}_{Q(\alpha_0, \alpha_1)}
+    }
+    $$
+
 $$
-\sum_{i=0}^n (f(x_i) - y_i)^2 \leq \sum_{i=0}^n (p(x_i) - y_i)^2
+\begin{align*}
+  \dfrac{\partial Q}{\partial \alpha_0} &= 2\sum_{i=0}^n (\alpha_0 + \alpha_1 x_i - y_i) = 0\\
+  &\quad\boxed{\alpha_0\sum_{i=0}^n1+\alpha_1\sum_{i=0}^n x_i=\sum_{i=0}^n y_i}\\
+  \dfrac{\partial Q}{\partial \alpha_1} &= 2\sum_{i=0}^n (\alpha_0 + \alpha_1 x_i - y_i)x_i = 0\\
+  &\quad\boxed{\alpha_0\sum_{i=0}^n x_i+\alpha_1\sum_{i=0}^n x_i^2=\sum_{i=0}^n y_ix_i}\\
+\end{align*}
 $$
 
-Lineární regrese (aproximace přímkou) je optimalizační úloha:
-$$
-(\alpha_0, \alpha_1) = \arg\min_{\alpha_0, \alpha_1 \in \mathbb{R}} \sum_{i=0}^n (\alpha_0 + \alpha_1 x_i - y_i)^2
-$$
-
----
-
-**Metoda nejmenších čtverců** – aproximace funkce polynomem:
-$$
-f_n(x) = \arg\min_{p_n \in \mathcal{P}_n} \|f(x) - p_n(x)\|
-$$  
-kde $\|g(x)\| = \sqrt{\langle g(x), g(x) \rangle}$ je norma indukovaná skalárním součinem.
-
----
+Z nulových bodů dostanu soustavu dvou rovnic o dvou neznámých $\alpha_0$ a $\alpha_1$:
 
 $$
 A \vec{\alpha} = \vec{b}
@@ -203,24 +336,21 @@ $$
 
 $$
 \begin{bmatrix}
-(\varphi_0, \varphi_0) & \cdots & (\varphi_0, \varphi_n) \\
-\vdots & \ddots & \vdots \\
-(\varphi_n, \varphi_0) & \cdots & (\varphi_n, \varphi_n)
+\sum 1 & \sum x_i & \\
+\sum x_i & \sum x_i^2 \\
 \end{bmatrix}
 \begin{bmatrix}
 \alpha_0 \\
-\alpha_1 \\
-\vdots \\
-\alpha_n
+\alpha_1
 \end{bmatrix}
 =
 \begin{bmatrix}
-(f, \varphi_0) \\
-(f, \varphi_1) \\
-\vdots \\
-(f, \varphi_n)
+\sum y_i \\
+\sum y_i x_i
 \end{bmatrix}
 $$
+
+Podobně lze odvodit **kvadratickou regresi** (polynom 2. stupně):
 
 $$
 \begin{bmatrix}
@@ -241,7 +371,75 @@ $$
 \end{bmatrix}
 $$
 
-### 9.1. Vyhodnocení
+Obdobně pro **vyšší dimenze** - hledám $f(x) = \alpha_0 + \alpha_1 x_1 + \ldots + \alpha_d x_d$, maticově:
+
+$$
+\begin{align*}
+  \mathsf{X}\vec{\alpha} &= \vec{y},\\
+  \begin{bmatrix}
+    1 & x_{11} & \ldots & x_{1d} \\
+    1 & x_{21} & \ldots & x_{2d} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    1 & x_{n1} & \ldots & x_{nd}
+  \end{bmatrix}
+  \begin{bmatrix}
+    \alpha_0 \\
+    \alpha_1 \\
+    \vdots \\
+    \alpha_d
+  \end{bmatrix}
+  &=
+  \begin{bmatrix}
+    y_1 \\
+    y_2 \\
+    \vdots \\
+    y_n
+  \end{bmatrix},
+\end{align*}
+$$
+
+kde $\mathsf{X}\in\mathbb{R}^{n,d+1}$, $\vec{\alpha}\in\mathbb{R}^{d+1}$ a $\vec{y}\in\mathbb{R}^n$. Řešení je opět pomocí metody nejmenších čtverců:
+
+$$
+\boxed{
+\vec{\alpha}=\mathrm{arg}\min_{\vec{\alpha}\in\mathbb{R}^{d+1}} \underbrace{||\mathsf{X}\vec{\alpha}-\vec{y}||^2}_{Q(\vec{\alpha})}
+}
+$$
+
+$$
+\begin{align*}Q(\vec{\alpha})&=\|\mathsf{X}{\vec {\alpha }}-\vec{y}\|^{2}\\&=\left(\mathsf{X}{\vec {\alpha }}-\vec{y}\right)^{\textsf {T}}\left(\mathsf{X}{\vec {\alpha }}-\vec{y}\right)\\&=\vec{y}^{\textsf {T}}\vec{y}-\vec{y}^{\textsf {T}}\mathsf{X}{\vec {\alpha }}-{\vec {\alpha }}^{\textsf {T}}\mathsf{X}^{\textsf {T}}\vec{y}+{\vec {\alpha }}^{\textsf {T}}\mathsf{X}^{\textsf {T}}\mathsf{X}{\vec {\alpha }}\end{align*}
+$$
+
+$$
+\begin{align*}
+  \dfrac{\partial Q}{\partial \vec{\alpha}} &= -\vec{y}\mathsf{X}-\mathsf{X}^T\vec{y}+2X^T\mathsf{X}\vec{\alpha} = 0\\
+  &= -2X^T\vec{y}+2X^T\mathsf{X}\vec{\alpha} = 0\\
+  &= \mathsf{X}^T\mathsf{X}\vec{\alpha} = \mathsf{X}^T\vec{y}\\
+  &\Rightarrow \vec{\hat{\alpha}} = (\mathsf{X}^T\mathsf{X})^{-1}\mathsf{X}^T\vec{y}\\
+\end{align*}
+$$
+
+Získané $\vec{\hat{\alpha}}$ může být minimum. Lze to ověřit pomocí Hessovy matice.
+
+### 9.2. Regresní stromy
+
+- [StatQuest: Regression Trees](https://youtu.be/g9c66TUylZ4?si=Z_PZZtBhxK0Bj5pW)
+
+<img src="figures/rt-1.png" alt="rt-1" width="550px">
+
+- Procházím pozorování $x_i$ a pro každý práh $T$ *(threshold)* spočítám průměr závislé proměnné nalevo od prahu $\frac{1}{|\{x_j < T\}|}\sum\limits_{j:x_j < T} y_j$ a napravo od prahu $\frac{1}{|\{x_j > T\}|}\sum\limits_{j:x_j > T} y_j$.
+- Následně spočítám $\mathrm{SS_{residuals}}$ pro levý a pravý podstrom.
+- Opakuji pro všechny možné prahy $T$ a vyberu práh, který minimalizuje $\mathrm{SS_{residuals}}$.
+
+<img src="figures/rt-2.png" alt="rt-1" width="550px">
+
+- Stanovím minimální počet pozorování v podstromu (tady např. 7) a opakuji pro všechny podstromy.
+
+<img src="figures/rt-3.jpg" alt="rt-1" width="200px">
+
+- Pro více dimenzí procházím prahy všech prediktorů a vybírám pravidlo, které minimalizuje $\mathrm{SS_{residuals}}$.
+
+### 9.3. Vyhodnocení
 
 - $\mathrm{MAE}=\frac{1}{n}\sum\limits_{i=1}^n |y_i - \hat{y}_i|$ (střední absolutní chyba)
 - $\mathrm{MSE}=\frac{1}{n}\sum\limits_{i=1}^n (y_i - \hat{y}_i)^2$ (střední kvadratická chyba)
@@ -260,7 +458,7 @@ $$
     - $\mathrm{df_{target}}=n-1$
 - $\mathrm{MAPE} = \dfrac{1}{n}\sum\limits_{i=1}^n \dfrac{|y_i - \hat{y}_i|}{|y_i|}$ (střední absolutní procentuální chyba)
   - není definováno, pokud $\exists i:y_i=0$
-- $\mathrm{SMAPE}=\dfrac{100}{n}\sum\limits_{i=1}^{n}\dfrac{2\cdot\lvert y_i-\hat{y}_i \rvert}{\lvert y_i \rvert + \lvert \hat{y}_i \rvert}$ (symetrická střední absolutní procentuální chyba)
+- $\mathrm{SMAPE}=\dfrac{1}{n}\sum\limits_{i=1}^{n}\dfrac{2\cdot\lvert y_i-\hat{y}_i \rvert}{\lvert y_i \rvert + \lvert \hat{y}_i \rvert}$ (symetrická střední absolutní procentuální chyba)
   - $[0,2]$ (nižší, lepší)
 
 ## 10. Typy sítí. Graf a matice sousednosti jako reprezentace sítě. Datové struktury pro reprezentaci různých typů sítí, výhody a nevýhody (matice sousednosti, seznamy sousedů, stromy sousedů), složitost operací, hybridní reprezentace
