@@ -1,10 +1,18 @@
 # AZD
 
-- [1. Druhy dat, předzpracování dat, vlastnosti dat. Výběr atributů (zdůvodnění, princip, entriopie, Gini index, …)](#1-druhy-dat-předzpracování-dat-vlastnosti-dat-výběr-atributů-zdůvodnění-princip-entriopie-gini-index-)
+- [1. Druhy dat, předzpracování dat, vlastnosti dat. Výběr atributů (zdůvodnění, princip, entropie, Gini index, …)](#1-druhy-dat-předzpracování-dat-vlastnosti-dat-výběr-atributů-zdůvodnění-princip-entropie-gini-index-)
+  - [1.1. Typy dat](#11-typy-dat)
+  - [1.2. Normalizace](#12-normalizace)
+  - [1.3. Feature Engineering](#13-feature-engineering)
+  - [1.4. Výběr atributů](#14-výběr-atributů)
+    - [1.4.1. Filter methods](#141-filter-methods)
+      - [1.4.1.1. Gini index](#1411-gini-index)
+      - [1.4.1.2. Entropie](#1412-entropie)
+    - [1.4.2. Wrapper methods](#142-wrapper-methods)
+    - [1.4.3. Embedded methods](#143-embedded-methods)
 - [2. Hledání častých vzorů v datech (základní principy, metody, varianty, implementace)](#2-hledání-častých-vzorů-v-datech-základní-principy-metody-varianty-implementace)
 - [3. Shlukovací metody (shlukování pomocí reprezentantů, hierarchické shlukování). Shlukování na základě hustoty, validace shluků, pokročilé metody shlukování (CLARANS, BIRCH, CURE)](#3-shlukovací-metody-shlukování-pomocí-reprezentantů-hierarchické-shlukování-shlukování-na-základě-hustoty-validace-shluků-pokročilé-metody-shlukování-clarans-birch-cure)
 - [4. Rozhodovací stromy (princip, algoritmus, metriky pro vhodnou volbu hodnot dělících atributů, prořezávání)](#4-rozhodovací-stromy-princip-algoritmus-metriky-pro-vhodnou-volbu-hodnot-dělících-atributů-prořezávání)
-  - [4.1. Boosting](#41-boosting)
 - [5. Pravděpodobnostní klasifikace (Bayesovský teorém, naivní Bayesovský teorém)](#5-pravděpodobnostní-klasifikace-bayesovský-teorém-naivní-bayesovský-teorém)
 - [6. Support Vector Machines (princip, algoritmus, kernel trick)](#6-support-vector-machines-princip-algoritmus-kernel-trick)
 - [7. Neuronové sítě (základní princip, metody učení, aktivační funkce)](#7-neuronové-sítě-základní-princip-metody-učení-aktivační-funkce)
@@ -41,7 +49,119 @@
   - [24.2. Long Short-Term Memory](#242-long-short-term-memory)
   - [24.3. Gated Recurrent Unit (GRU)](#243-gated-recurrent-unit-gru)
 
-## 1. Druhy dat, předzpracování dat, vlastnosti dat. Výběr atributů (zdůvodnění, princip, entriopie, Gini index, …)
+## 1. Druhy dat, předzpracování dat, vlastnosti dat. Výběr atributů (zdůvodnění, princip, entropie, Gini index, …)
+
+Explorativní datová analýza (EDA) - prvotní průzkum dat, hledání vzorů, anomálií, ...
+
+- grafy distribucí (histogram)
+- krabicové grafy (boxploty)
+
+  <img src="figures/boxplot.png" alt="boxplot" width="400px">
+- souhrné statistiky (průměr, medián, rozptyl, směrodatná odchylka, ...)
+- vztahy mezi daty, korelace (scatter plot, heatmapa)
+
+### 1.1. Typy dat
+
+1. **Numerická data**
+   - Tabulková data
+   - Časové řady - signálová data, zvuk
+   - Obrazová data
+2. **Kategorická data**
+   - příznak náleží do nějaké (konečné) množiny hodnot/tříd
+   - předzpracování:
+     - *ordinal encoding* (dataset Titanic - paluba)
+     - *one-hot encoding* *(dummy encoding, binarization)*
+       - Někdy je vhodné kódovat třeba $0.1$ místo jedničky, protože to může silně ovlivnit výpočty vzdáleností.
+     - *algorithmic encoding* - cyklické příznaky - třeba dny v týdnu *(feature engineering)*
+3. **Textová data**
+   - **tokenizace** - rozdělení textu na jednotlivé tokeny (slova, znaky, ...)
+   - odstranění **stop-slov** (slova, která nemají význam - např. "a", "the", "is", ...)
+   - **stemming** - zkracování slov na jejich základní tvar (např. "running" -> "run")
+     - Porterův stemmer
+   - **embedding** - převod slov na vektory
+     - Word2Vec - modely Skip-gram a CBOW
+     - GloVe - Global Vectors for Word Representation
+4. **Grafová data**
+
+### 1.2. Normalizace
+
+1. **Min-max** $[0,1]$
+    $$\tilde{x}=\dfrac{x-\min(x)}{\max(x)-\min(x)} \Rightarrow \tilde{x}\in[0,1]$$
+2. **Škálování průměrem**
+    $$\tilde{x}=\dfrac{x-\mu}{\max(x)-\min(x)} \Rightarrow \tilde{x}\in[-1,1]$$
+3. **Standardizace** (z-skóre)
+    $$z=\frac{x - \mu}{\sigma} \Rightarrow \mu(z)=0,\,\,\sigma(z)=1$$
+4. **Nelineární** transformace (mocninná / logaritmická)
+   - Transformace dat, aby byly více normální (gaussovské).
+   - **Box-Cox** - pouze pro (striktně) kladné hodnoty
+   - **Yeo-Johnson**
+5. **Interkvartilové rozpětí** (IQR) - robustní vůči odlehlým pozorování (outliers)
+   $$\tilde{x}=\dfrac{x-\mathrm{med}(x)}{x_{0.75}-x_{0.25}}$$
+
+### 1.3. Feature Engineering
+
+- Vytváření nových atributů z existujících dat.
+  - cyklické příznaky (např. dny v týdnu, hodiny v denním cyklu)
+  - obrazové příznaky
+
+### 1.4. Výběr atributů
+
+Proč vybírat atributy?
+
+- prokletí dimenzionality
+- snížit výpočetní náročnost
+- zlepšit interpretovatelnost/vysvětlitelnost modelu
+
+#### 1.4.1. Filter methods
+
+- Nezávisí na konkrétním klasifikačním algoritmu.
+- Využívají znalost tříd (supervised).
+
+##### 1.4.1.1. Gini index
+
+Buď třídy $1,2,\dots,C$ a buď $v_1,v_2, \dots, v_A$ všechny (diskrétní nebo diskretizované) hodnoty atributu $A$. Gini index pro konkrétní hodnotu $v_i, i=1,\dots,A,$ je definován jako:
+
+$$
+\begin{align*}
+\mathrm{Gini}(v_i) &= \sum_{c=1}^C p_c(v_i)(1 - p_c(v_i)),\\
+&= \underbrace{\sum_{c=1}^C p_c(v_i)}_{=1} - \sum_{c=1}^C p_c(v_i)^2,\\
+&= \boxed{1 - \sum_{c=1}^C p_c(v_i)^2,}
+\end{align*}
+$$
+
+kde $p_c(v_i)$ je pravděpodobnost, že náhodně vybraný prvek z množiny $v_i$ patří do třídy $c$.
+
+Gini index pro atribut (příznak) $A$ je definován jako vážený průměr Gini indexů pro jednotlivé hodnoty $v_i$:
+
+$$
+\mathrm{Gini}(A) = \sum_{i=1}^A \dfrac{N_i}{N} \cdot \mathrm{Gini}(v_i),
+$$
+
+##### 1.4.1.2. Entropie
+
+Entropie pro konkrétní hodnotu $v_i$ je definována jako:
+
+$$
+E(v_i) = -\sum_{c=1}^C p_c(v_i) \cdot \log(p_c(v_i))
+$$
+
+Entropie pro atribut $A$ je definována jako vážený průměr entropií pro jednotlivé hodnoty $v_i$:
+
+$$
+E(A) = \sum_{i=1}^A \dfrac{N_i}{N} \cdot E(v_i)
+$$
+
+#### 1.4.2. Wrapper methods
+
+- Závisí na konkrétním klasifikačním algoritmu.
+- Zvyšují riziko overfittingu.
+- Např. postupné přidávání atributů a vyhodnocení (opakuji, dokud se zlepšuje přesnost).
+
+#### 1.4.3. Embedded methods
+
+- Rozhodovací strom
+- Lineární regrese
+- Wrapper + Embedded: *Recursive Feature Elimination (RFE)* - seřadí atributy podle důležitosti (feature importance) a postupně je odstraňuje.
 
 ## 2. Hledání častých vzorů v datech (základní principy, metody, varianty, implementace)
 
@@ -49,9 +169,19 @@
 
 ## 4. Rozhodovací stromy (princip, algoritmus, metriky pro vhodnou volbu hodnot dělících atributů, prořezávání)
 
-### 4.1. Boosting
+<img src="figures/decision-tree.drawio.svg" alt="decision-tree.drawio.svg" width="700px">
 
-- [Adaptive Boosting (AdaBoost)](https://matejfric.github.io/mdbook/ano/ano.html#16-adaboost)
+Bez omezení vždy dojde k overfittingu (přetrénování). Preferujeme jednoduché stromy (s menším hloubkou a menším počtem uzlů).
+
+Přetrénování můžeme bránit:
+
+1. **Předčasným zastavením** *(early stopping)* - nastavením:
+   - maximální hloubky
+   - maximálního počtu příznaků
+   - minimálního počtu vzorků v listu
+   - minimálního počtu vzorků pro rozdělení uzlu
+2. **Prořezáváním**
+   - *Cost Complexity Pruning (CCP)* - prořezávání na základě přesnosti a složitosti (tzn. počtu listů)
 
 ## 5. Pravděpodobnostní klasifikace (Bayesovský teorém, naivní Bayesovský teorém)
 
@@ -288,6 +418,12 @@ $$
 
 ## 8. Vyhodnocení klasifikačních algoritmů (chybovost, přesnost, pokrytí, f-metrika)
 
+Hold-out set / train-test split - rozdělení dat na trénovací a testovací množinu. Obvykle 60-75 % dat na trénování.
+
+Robustnější varianta je $k$-fold cross-validation:
+
+<img src="figures/k-fold-cv.gif" alt="k-fold-cv https://en.wikipedia.org/wiki/Cross-validation_(statistics)" width="400px">
+
 Matice záměn (confusion matrix) pro binární klasifikaci:
 
 <img src="../ns/figures/confmat.png" alt="confmat" width="600px">
@@ -432,6 +568,12 @@ $$
 $$
 
 Získané $\vec{\hat{\alpha}}$ může být minimum. Lze to ověřit pomocí Hessovy matice.
+
+Varianty lineární regrese:
+
+- Lasso (L1 regularizace) - penalizuje součet absolutních hodnot koeficientů $\sum\limits_{i=1}^d |\alpha_i|$.
+- Ridge (L2 regularizace) - penalizuje součet čtverců koeficientů $\sum\limits_{i=1}^d \alpha_i^2$.
+- Elastic Net - kombinuje L1 a L2 regularizaci.
 
 ### 9.2. Regresní stromy
 
