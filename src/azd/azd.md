@@ -35,6 +35,9 @@
 - [22. Neuronové sítě a zpracování textu (word embedding, klasifikace textu, generování textu, …)](#22-neuronové-sítě-a-zpracování-textu-word-embedding-klasifikace-textu-generování-textu-)
 - [23. Popište architekturu konvolučních neuronových sítí, použité vrstvy, princip fungování, základní typy architektur](#23-popište-architekturu-konvolučních-neuronových-sítí-použité-vrstvy-princip-fungování-základní-typy-architektur)
 - [24. Popište architekturu rekurentních neuronových sítí, typy neuronů, princip fungování](#24-popište-architekturu-rekurentních-neuronových-sítí-typy-neuronů-princip-fungování)
+  - [24.1. Vanilla RNN](#241-vanilla-rnn)
+  - [24.2. Long Short-Term Memory](#242-long-short-term-memory)
+  - [24.3. Gated Recurrent Unit (GRU)](#243-gated-recurrent-unit-gru)
 
 ## 1. Druhy dat, předzpracování dat, vlastnosti dat. Výběr atributů (zdůvodnění, princip, entriopie, Gini index, …)
 
@@ -550,3 +553,53 @@ Centralita obsazenosti *(occupation centrality)* aktéra $a$ je pravděpodobnost
 ## 23. Popište architekturu konvolučních neuronových sítí, použité vrstvy, princip fungování, základní typy architektur
 
 ## 24. Popište architekturu rekurentních neuronových sítí, typy neuronů, princip fungování
+
+- Proč potřebujeme RNN? Berou v potaz kontext (mají "paměť"), což je nezbytné např. pro zpracování textu nebo pro časově závislé sekvence. Např. analýza sentimentů.
+
+- RNN jsou schopné zpracovávat sekvence libovolné konečné délky. Používá se *backpropagation through time*.
+
+### 24.1. Vanilla RNN
+
+- [StatQuest](https://youtu.be/AsNTP8Kwu80?si=P517XjnCdre0Py1K)
+
+<img src="figures/rnn-vanilla.png" alt="rnn-vanilla" width="275px">
+
+Díky **unrolling**u jsme schopni zpracovat různě dlouhé sekvenční data (třeba spotřebu plynu):
+
+<img src="figures/rnn.png" alt="rnn" width="600px">
+
+- *Váhy* a *biasy* jsou *stejné pro všechny časy*.
+- Dlouhý unrolling má nevýhody:
+  - **Vanishing/exploding gradient** (gradienty se zmenšují nebo zvětšují exponenciálně)
+    - Kdyby $w_2=2$ (a zanedbali bychom ostatní váhy), tak pro 50 dnů dat (což není moc) bychom vstup násobili $2^{50}$. Naopak pro $w_2 < 1$ nastává vashing gradient problem.
+      - **vanishing**: gradient descent udělá málo (zmenšujících se) kroků
+        <img src="figures/vanishing-gradient.png" alt="vanishing-gradient" width="300px">
+      - **exploding**: gradient descent "skáče tam a zpátky"
+        <img src="figures/exploding-gradient.png" alt="exploding-gradient" width="300px">
+    - Tzn. je těžké vanilla RNN natrénovat.
+  - Sekvenční zpracování (těžko paralelizovatelné).
+
+Zjednodušený diagram:
+
+<img src="../su/figures/rnn.png" alt="rnn" width="400px">
+
+### 24.2. Long Short-Term Memory
+
+- [StatQuest](https://youtu.be/YCzL96nL7j0?si=1NqY435Tcz4YTtLF)
+
+<img src="figures/lstm.png" alt="lstm" width="500px">
+<img src="figures/lstm-gates.jpg" alt="lstm-gates" width="750px">
+
+Protože ve výpočtu *long-term memory* (zelená linka) nejsou váhy, tak nenastávají problémy s *vanishing/exploding* gradientem!
+
+Unrolling:
+
+<img src="figures/lstm-unroll.png" alt="lstm-unroll" width="750px">
+
+"Zjednodušený" diagram:
+
+<img src="figures/lstm.drawio.svg" alt="lstm" width="750px">
+
+### 24.3. Gated Recurrent Unit (GRU)
+
+Podobné LSTM, ale nemá `output gate`, takže GRU má méně parametrů než LSTM.
