@@ -165,6 +165,65 @@ $$
 
 ## 2. Hledání častých vzorů v datech (základní principy, metody, varianty, implementace)
 
+**Formální kontext** je uspořádaná trojice $(X, Y, I)$, kde:
+
+- $X$ je množina objektů,  
+- $Y$ je množina atributů,  
+- $I \subseteq X \times Y$ je binární relace.
+
+Skutečnost, že objekt $x \in X$ má atribut $y \in Y$, značíme $(x, y) \in I$.
+
+Níže je příklad formálního kontextu (binární matice transakcí), kde $X=\{t_1,t_2,\ldots,t_6\}$ a $Y=\{i_1,i_2,i_3,i_4\}$ a $I=\mathsf{T}$. Tzn. objekty jsou transakce a atributy jsou položky v transakcích. Binární relace $I$ značí, že transakce $t_i$ (objekt) obsahuje položku $i_j$ (atribut).
+
+<img src="figures/apriori.drawio.svg" alt="apriori.drawio.svg" width="750px">
+
+<details><summary> Výpočet spolehlivosti pravidel </summary>
+
+|Pravidlo|Spolehlivost|
+|--|--|
+|$i_1 \Rightarrow i_2$| $\dfrac{\mathrm{supp}(i_1, i_2)}{\mathrm{supp}(i_1)}=\dfrac{\frac{1}{3}}{\frac{1}{2}}=\frac{2}{3}$|
+
+</details>
+
+Vytvoříme *Rymon Tree* - strom všech kombinací atributů (položek), pro které je podpora větší něž nula (obecně větší než minimální podpora). Proč je ve třetí úrovni stromu jen $i_{1,2,3}$? Bo, existuje jen jeden řádek kde bitový and pro tři atributy vyjde `true`.
+
+**Podporu (support)** $i$-tého atributu $y$ v matici $\mathsf{T}$ s $N$ objekty (řádky) definujeme:
+
+$$\mathrm{supp}(y_i) = \frac{1}{N}\sum\limits_{r=1}^N \mathsf{T}_{r,y_i}\quad\text{(relativní četnost)}$$
+
+Pro více atributů podporu spočteme jako relativní četnost bitového ANDu mezi příslušenými sloupci:
+
+$$\mathrm{supp}(y_i,y_j) = \frac{1}{N}\sum\limits_{r=1}^N \mathsf{T}_{r,i} \wedge \mathsf{T}_{r,j}$$
+
+a podobně pro více atributů.
+
+**Spolehlivost (confidence)** asociačního pravidla $A \Rightarrow B$ je definována jako:
+
+$$
+\text{conf}(A \Rightarrow B) = \frac{\text{supp}(A, B)}{\text{supp}(A)}
+$$
+
+Spolehlivost odpovídá **podmíněné pravděpodobnosti**, že se $B$ vyskytne za předpokladu, že se vyskytlo $A$:
+
+$$
+\text{conf}(A \Rightarrow B) = P(B \mid A) = \frac{P(A \cap B)}{P(A)}
+$$
+
+Implementace např. pomocí algoritmu **Apriori**.
+
+Generování kombinací:
+
+```py
+N = 5
+for a in range(1, N + 1):
+    for b in range(a + 1, N + 1):
+        for c in range(b + 1, N + 1):
+            # This will print all combinations
+            # of (a, b, c), s.t., a < b < c, s.t.,
+            # a, b, c are all in [1, N]
+            print(a, b, c)
+```
+
 ## 3. Shlukovací metody (shlukování pomocí reprezentantů, hierarchické shlukování). Shlukování na základě hustoty, validace shluků, pokročilé metody shlukování (CLARANS, BIRCH, CURE)
 
 ## 4. Rozhodovací stromy (princip, algoritmus, metriky pro vhodnou volbu hodnot dělících atributů, prořezávání)

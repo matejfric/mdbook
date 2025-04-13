@@ -3,6 +3,9 @@
 [Home](./home.md)
 
 - [Informační technologie (IT)](./it/it.md)
+  - [Matematické základy informatiky](./it/maths.md)
+  - [Softwarové inženýrství](./it/software_engineering.md)
+  - [Databázové systémy](./it/databases.md)
   - [Počítačové systémy a sítě](./it/systems_and_networking.md)
 - [Analýza a zpracování dat (AZD)](./azd/azd.md)
 - [Analýza obrazu (ANO)](./ano/ano.md)
