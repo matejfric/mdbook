@@ -34,6 +34,8 @@
 - [21. Lineární algebra v DIS (metody redukce dimenze, rozklady matic, latentní sémantika, analýza hypertextových dokumentů, PageRank)](#21-lineární-algebra-v-dis-metody-redukce-dimenze-rozklady-matic-latentní-sémantika-analýza-hypertextových-dokumentů-pagerank)
 - [22. Neuronové sítě a zpracování textu (word embedding, klasifikace textu, generování textu, …)](#22-neuronové-sítě-a-zpracování-textu-word-embedding-klasifikace-textu-generování-textu-)
 - [23. Popište architekturu konvolučních neuronových sítí, použité vrstvy, princip fungování, základní typy architektur](#23-popište-architekturu-konvolučních-neuronových-sítí-použité-vrstvy-princip-fungování-základní-typy-architektur)
+  - [23.1. Vrstvy](#231-vrstvy)
+  - [23.2. Typy architektur](#232-typy-architektur)
 - [24. Popište architekturu rekurentních neuronových sítí, typy neuronů, princip fungování](#24-popište-architekturu-rekurentních-neuronových-sítí-typy-neuronů-princip-fungování)
   - [24.1. Vanilla RNN](#241-vanilla-rnn)
   - [24.2. Long Short-Term Memory](#242-long-short-term-memory)
@@ -305,6 +307,13 @@ Vyhodnocení pravděpodobnostních klasifikátorů:
 - *ROC křivka* je TPR na ose $y$ a FPR na ose $x$ (pro definovaný threshold).
 - *Precision-Recall křivka* je $\text{Precision}$ na ose $y$ a $\text{Recall}$ na ose $x$ (pro definovaný threshold).
 
+**Precision/Recall Tradeoff**: Pokud chceme vyšší `recall` na úkor `precision`, tak obvykle zvolíme jiný threshold:
+
+```py
+threshold = 0.5
+y_pred = [1 if x >= threshold else 0 for x in y_pred]
+```
+
 ## 9. Regrese (lineární a nelineární regrese, regresní stromy, metody vyhodnocení kvality modelu)
 
 ### 9.1. Simple linear regression
@@ -551,6 +560,54 @@ Centralita obsazenosti *(occupation centrality)* aktéra $a$ je pravděpodobnost
 ## 22. Neuronové sítě a zpracování textu (word embedding, klasifikace textu, generování textu, …)
 
 ## 23. Popište architekturu konvolučních neuronových sítí, použité vrstvy, princip fungování, základní typy architektur
+
+Použití pro strukturovaná data uspořádaná do nějaké pravidelné mřížky. Např. obraz, časové řady, video.
+
+Hlavní motivací použití hlubokých neuronových sítí pro zpracování obrazu je složitost manuálního výběru obrazový příznaků, což CNN dělají automaticky *(representation learning)*.
+
+### 23.1. Vrstvy
+
+- Konvoluční vrstva
+  - `Conv1D` - zpracování signálu, časové řady
+  - `Conv2D` - obrázky
+  - `Conv3D` - video, lidar
+  - Počet kanálů (tj. hloubku obrazu) lze redukovat $1\times1$ konvolucí nebo 3D konvolucí.
+- Pooling vrstva
+  - `Pool2D` - redukce výšky a šířky
+  - `Pool3D` - redukce výšky, šířky a časové dimenze u videa
+  - Average Pooling
+  - Global Pooling
+- Transponovaná (dekonvoluční) vrstva
+
+  <img src="../ano/figures/transposed-convolutional-layer-stride-1.png" alt="transposed-convolutional-layer-stride-1" width="500px">
+
+### 23.2. Typy architektur
+
+- 1998 **LeNet**
+- 2012 **AlexNet**
+- 2015 **VGG** - vyšší hloubka
+  - Myšlenka, že dvě vrstvy $3\times3$ jsou ekvivalentní jedné vrstvě $5\times5$ a obdobně tři vrstvy $3\times3$ jsou ekvivalentní jedné vrstvě $7\times7$
+- 2015 **GoogleNet** - inception module
+- 2015 **ResNet** - residuální spojení
+  
+  <img src="../ano/figures/residual-block.png" alt="residual-block" width="250px">
+- 2020 **Vision Transformer** (ViT) - "an image is worth $16\times16$ words"
+  
+  <img src="../ano/figures/vit.gif" alt="vit" width="500px">
+  
+  1. Rozdělení obrazu na bloky *(patches)* (např. $16\times16$, tzn. $P=16$).
+  2. Lineární projekce na vektory *(flatten)*, výsledné vektory mají dimenzi $P^2\cdot C$, kde $C$ je počet kanálů. Každý *patch* odpovídá jednomu *tokenu*.
+  3. Poziční embedding.
+  4. Přidání *class token*.
+  5. **Transformer encoder** $(L\times)$.
+
+      <img src="../ano/figures/vit-transformer-encoder.png" alt="vit-transformer-encoder" width="125px">
+
+     1. *Layer normalization*
+     2. *Multi-head self attention*, násobení matic $Q, K, V$.
+        $$\text{SelfAttention}(Q,K,V)=\text{Softmax}\left(\dfrac{QK^T}{\sqrt{d_k}}\right)V$$
+     3. *Layer normalization*
+     4. MLP *(classification head)*
 
 ## 24. Popište architekturu rekurentních neuronových sítí, typy neuronů, princip fungování
 
