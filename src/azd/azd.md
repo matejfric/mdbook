@@ -41,6 +41,10 @@
 - [20. Dokumentografické informační systémy (DIS) (modely DIS - booleovský, vektorový, lexikální analýza, stemming a lematizace, stop slova, konstrukce indexů, vyhodnocení dotazu, relevance, přesnost, úplnost, F-míra)](#20-dokumentografické-informační-systémy-dis-modely-dis---booleovský-vektorový-lexikální-analýza-stemming-a-lematizace-stop-slova-konstrukce-indexů-vyhodnocení-dotazu-relevance-přesnost-úplnost-f-míra)
 - [21. Lineární algebra v DIS (metody redukce dimenze, rozklady matic, latentní sémantika, analýza hypertextových dokumentů, PageRank)](#21-lineární-algebra-v-dis-metody-redukce-dimenze-rozklady-matic-latentní-sémantika-analýza-hypertextových-dokumentů-pagerank)
 - [22. Neuronové sítě a zpracování textu (word embedding, klasifikace textu, generování textu, …)](#22-neuronové-sítě-a-zpracování-textu-word-embedding-klasifikace-textu-generování-textu-)
+  - [22.1. Word Embedding](#221-word-embedding)
+  - [22.2. Klasifikace textu](#222-klasifikace-textu)
+    - [22.2.1. BERT](#2221-bert)
+  - [22.3. Generování textu](#223-generování-textu)
 - [23. Popište architekturu konvolučních neuronových sítí, použité vrstvy, princip fungování, základní typy architektur](#23-popište-architekturu-konvolučních-neuronových-sítí-použité-vrstvy-princip-fungování-základní-typy-architektur)
   - [23.1. Vrstvy](#231-vrstvy)
   - [23.2. Typy architektur](#232-typy-architektur)
@@ -48,6 +52,7 @@
   - [24.1. Vanilla RNN](#241-vanilla-rnn)
   - [24.2. Long Short-Term Memory](#242-long-short-term-memory)
   - [24.3. Gated Recurrent Unit (GRU)](#243-gated-recurrent-unit-gru)
+  - [24.4. Jaký je rozdíl mezi RNN a architekturou Transformer?](#244-jaký-je-rozdíl-mezi-rnn-a-architekturou-transformer)
 
 ## 1. Druhy dat, předzpracování dat, vlastnosti dat. Výběr atributů (zdůvodnění, princip, entropie, Gini index, …)
 
@@ -760,6 +765,77 @@ Centralita obsazenosti *(occupation centrality)* aktéra $a$ je pravděpodobnost
 
 ## 22. Neuronové sítě a zpracování textu (word embedding, klasifikace textu, generování textu, …)
 
+### 22.1. Word Embedding
+
+Cílem je převést slova na numerické vektory takové, aby podobnost vektorů co nejlépe odpovídala podobnosti slov. Jedná se o *unsupervised learning* (učení bez učitele).
+
+- 2013 - **Word2Vec** - Tomáš Mikolov
+  - [StatQuest - Word Embedding](https://youtu.be/viZrOnJclY0?si=ZGnIm_xppDMso8iy)
+  - [Word2Vec Visualization](https://projector.tensorflow.org/)
+- 2014 - **GloVe** (Global Vectors for Word Representation)
+
+Pojmem **Word2Vec** rozumíme dvě architektury neuronových sítí pro učení word embeddingů:
+
+- **Continuous Bag of Words (CBOW)** - na základě okolních slov (kontextu) se síť snaží predikovat chybějící prostřední slovo (nezáleží na pořadí slov).
+  
+    <img src="figures/cbow.svg" alt="cbow.svg https://en.wikipedia.org/wiki/Word2vec" width="225px">
+  
+- **Skip-gram** - na základě jednoho slova se síť snaží predikovat okolní slova (kontext). Kontext slova lze nahradit dvojicemi `(target_word, context_word)`.
+
+    <img src="figures/skip-gram.svg" alt="skip-gram.svg https://en.wikipedia.org/wiki/Word2vec" width="225px">
+
+Okolí je hyperparameter (např. `window=2`, dvě slova nalevo a dvě napravo). Níže je příklad pro `window=1`, kde trénovací sada obsahuje jedinou větu se čtyřmi slovy `word embedding with word2vec`. Výsledkem tohoto příkladu je matice $4\times 2$ (4 slova, dimenze vektorů/embeddingů 2) - odpovídá tomu matice vah "mezi modrou a zelenou vrstvou". V praxi se používá větší dimenze výsledných vektorů (např. 100, 300, 768).
+
+<img src="figures/cbow.drawio.svg" alt="word2vec" width="470px">
+
+<img src="figures/skip-gram.drawio.svg" alt="word2vec" width="470px">
+
+Obdobně by šlo např. predikovat pouze *následující slovo*, ale to by nevedlo ke kvalitnímu embeddingu.
+
+Praktická implementace je trochu složitější, protože v SoftMax se počítá s každým slovem v korpusu, což je výpočetně náročné, proto vznikly některé optimalizace.
+
+Korpusy pro trénování embeddingů mají řádově stovky milionů slov.
+
+Pro vyhodnocení můžeme použít mimojiné redukci dimenze pomocí PCA, t-SNE nebo UMAP. Podobná slova by měla být blízko sebe:
+
+<img src="figures/word-embedding.png" alt="word-embedding https://en.wikipedia.org/wiki/Word2vec" width="250px">
+
+### 22.2. Klasifikace textu
+
+- **detekce spamu**
+- **analýza sentimentů** - např. určení, zda je recenze *pozitivní, neutrální nebo negativní*
+
+Před "AI" se používaly klasické metody jako např. Naive Bayes.
+
+Před trénováním modelu je potřeba text předzpracovat:
+
+1. Tokenizace - rozdělení textu na jednotlivé tokeny (slova, znaky nebo věty)
+2. Normalizace (volitelně)
+   - převedení textu na malá písmena
+   - odstranění **diakritiky**
+   - odstranění **interpunkce**
+   - odstranění **stop-slov**
+   - **stemming** (získání základního tvaru `words -> word, removed -> remove`)
+   - **lematizace** (`better -> good`)
+3. Vytvoření **embeddingu** - převedení textu na číselné vektory (např. Word2Vec, GloVe, BERT, ...).
+
+#### 22.2.1. BERT
+
+- *Bidirectional encoder representations from transformers.*
+- Používá pouze encoder z *Transformer* architektury.
+- Tokenizer *WordPiece* - vytváří *podslova* (velikostí "slovníku" 30 000 slov, neznámá slova se kódují tokenem `[UNK]`).
+  - Na začátku abeceda a speciální tokeny: např `word -> [w, ##o, ##r, ##d]`
+  - Postupně se potom tokeny na základě četnosti spojují.
+- Předtrénovaní probíhá na velkých korpusech dvěmi úlohami současně:
+  - **Masked Language Model (MLM)** - BERT *náhodně maskuje některá slova ve větě* a snaží se předpovědět původní slova, která byla maskována. Např. `"Dnes je slunečný [MASK]"`.
+  - **Next Sentence Prediction (NSP)** - BERT predikuje zda *jedna věta logicky následuje po druhé*
+
+### 22.3. Generování textu
+
+*Generative Pre-trained Transformer (GPT)* - jazykový model, který je schopen generovat text na základě zadaného promptu.
+
+Text lze generovat např. i znak po znaku pomocí RNN s LSTM.
+
 ## 23. Popište architekturu konvolučních neuronových sítí, použité vrstvy, princip fungování, základní typy architektur
 
 Použití pro strukturovaná data uspořádaná do nějaké pravidelné mřížky. Např. obraz, časové řady, video.
@@ -773,6 +849,15 @@ Hlavní motivací použití hlubokých neuronových sítí pro zpracování obra
   - `Conv2D` - obrázky
   - `Conv3D` - video, lidar
   - Počet kanálů (tj. hloubku obrazu) lze redukovat $1\times1$ konvolucí nebo 3D konvolucí.
+  - *Padding* - přidání okrajů pro zachování rozměrů výstupu.
+  
+    <img src="figures/convolution.png" alt="convolution" width="350px">
+
+  - *Stride* - posun konvolučního jádra (např. 2x2) - zmenšení rozměrů výstupu.
+  - *Dilated convolution* - větší *receptive field* - oblast, kterou konvoluční jádro pokrývá.
+
+      <img src="figures/dilated-convolution.png" alt="dilated-convolution" width="400px">
+
 - Pooling vrstva
   - `Pool2D` - redukce výšky a šířky
   - `Pool3D` - redukce výšky, šířky a časové dimenze u videa
@@ -861,3 +946,8 @@ Unrolling:
 ### 24.3. Gated Recurrent Unit (GRU)
 
 Podobné LSTM, ale nemá `output gate`, takže GRU má méně parametrů než LSTM.
+
+### 24.4. Jaký je rozdíl mezi RNN a architekturou Transformer?
+
+- **RNN** zpracovávají sekvence **prvek po prvku** a používají **skryté stavy** k zachycení informací o předchozích prvcích v sekvenci
+- **Transformer** zpracovává celou sekvenci najednou a používá **self-attention** k zachycení závislostí mezi různými prvky v sekvenci.
