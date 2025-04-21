@@ -33,9 +33,14 @@
   - [9.2. Regresní stromy](#92-regresní-stromy)
   - [9.3. Vyhodnocení](#93-vyhodnocení)
 - [10. Typy sítí. Graf a matice sousednosti jako reprezentace sítě. Datové struktury pro reprezentaci různých typů sítí, výhody a nevýhody (matice sousednosti, seznamy sousedů, stromy sousedů), složitost operací, hybridní reprezentace](#10-typy-sítí-graf-a-matice-sousednosti-jako-reprezentace-sítě-datové-struktury-pro-reprezentaci-různých-typů-sítí-výhody-a-nevýhody-matice-sousednosti-seznamy-sousedů-stromy-sousedů-složitost-operací-hybridní-reprezentace)
+  - [10.1. Datové struktury pro reprezentaci sítí](#101-datové-struktury-pro-reprezentaci-sítí)
 - [11. Topologické vlastnosti sítí, charakteristické hodnoty a jejich distribuce (stupeň, délka cesty, průměr, shlukovací koeficient), typy centralit](#11-topologické-vlastnosti-sítí-charakteristické-hodnoty-a-jejich-distribuce-stupeň-délka-cesty-průměr-shlukovací-koeficient-typy-centralit)
+  - [11.1. Centrality](#111-centrality)
 - [12. Globální vlastnosti sítí (malý svět, bezškálovost, růst a preferenční připojování). Mocninný zákon a jeho interpretace v prostředí reálných sítí. Assortarivita](#12-globální-vlastnosti-sítí-malý-svět-bezškálovost-růst-a-preferenční-připojování-mocninný-zákon-a-jeho-interpretace-v-prostředí-reálných-sítí-assortarivita)
 - [13. Modely sítí a jejich vlastnosti (Erdös–Rényi, Watts–Strogatz, Barabási–Albert)](#13-modely-sítí-a-jejich-vlastnosti-erdösrényi-wattsstrogatz-barabásialbert)
+  - [13.1. Erdős-Rényi (ER)](#131-erdős-rényi-er)
+  - [13.2. Watts-Strogatz (WS)](#132-watts-strogatz-ws)
+  - [13.3. Barabási–Albert (BA)](#133-barabásialbert-ba)
 - [14. Komunity. Globální a lokální přístupy. Modularita](#14-komunity-globální-a-lokální-přístupy-modularita)
 - [15. Jiné (pokročilé) modely sítí - modely orientované na komunitní strukturu, temporální sítě](#15-jiné-pokročilé-modely-sítí---modely-orientované-na-komunitní-strukturu-temporální-sítě)
   - [15.1. Temporální sítě](#151-temporální-sítě)
@@ -820,17 +825,189 @@ Varianty lineární regrese:
 
 ## 10. Typy sítí. Graf a matice sousednosti jako reprezentace sítě. Datové struktury pro reprezentaci různých typů sítí, výhody a nevýhody (matice sousednosti, seznamy sousedů, stromy sousedů), složitost operací, hybridní reprezentace
 
-- Sociální sítě
-- Biologické sítě (interakce proteinů)
-- Komunikační sítě (např. e-maily)
-- Sítě spolupráce/citační sítě
-- Dopravní sítě
+```mermaid
+mindmap
+  root )Typy sítí)
+      Sociální sítě
+        Přátelství uživatelů
+      Biologické sítě 
+        Interakce proteinů
+        Komunity delfínů
+      Informační 
+        E-maily
+        Internet
+        Citace
+      Transportní / Dopravní
+        Silnice
+        Železnice
+        Energetika
+```
+
+> Graf je znázorněním sítě. Graf je dvojice $G=(V,E)$, kde $V\neq\emptyset$ je množina vrcholů a $E$ množina hran (množina dvouprvkových podmnožin množiny $V$).
+
+### 10.1. Datové struktury pro reprezentaci sítí
+
+```mermaid
+mindmap
+  root )Datové struktury)
+      Matice sousednosti
+        Řídká matice
+          CSR - Compressed Sparse Row
+          CSC - Compressed Sparse Column
+          COO - Coordinate List
+      Matice incidence
+        Řídká matice
+      Seznam vrcholů a sousedů
+        dok ["Dictionary of Keys (DoK)"]
+        edgelist ["Seznam hran [(1,2),(2,3),...]"]
+        bs ["Setřízení sousedé (binární vyhledávání)"]
+      Stromy sousedů
+        BSTree
+        AVL
+        Red-black
+```
+
+Buď $\Delta$ největší stupeň v $G=(V,E)$. Záleží na hustotě grafu $\rho=\frac{2m}{\binom{n}{2}}$.
+
+| Operace   | Matice sousednosti          | Seznamy sousedů            | Stromy sousedů (BST)        | Vyvážený strom sousedů (AVL / Red-black) |
+|-------------|-----------------------|------------------------|-----------------------|--|
+| Vložení / odebrání uzlu | $\mathcal{O}(n^2)$    | ?       | $\mathcal{O}(\Delta)$ |$\mathcal{O}(\log_2(\Delta))$ |
+| Existence hrany   | $\mathcal{O}(1)$      | $\mathcal{O}(\Delta)$  | $\mathcal{O}(\Delta)$ | $\mathcal{O}(\log_2(\Delta))$ |
+| Paměť      | $\mathcal{O}(n^2)$    | $\mathcal{O}(n+m)$ | $\mathcal{O}(n+m)$ | $\mathcal{O}(n+m)$ |
+
+- Matice incidence:
+
+    $$
+      \mathbb{B}_{i,j}=
+        \begin{cases}
+          w & \text{$v_i$ inciduje s výstupní hranou $e_j$}\\
+          -w & \text{$v_i$ inciduje se vstupní hranou $e_j$}\\
+          0 &\text{jinak}
+        \end{cases}
+    $$
+
+- Dictionary of Keys (DoK) - `HashMap<node_id, neighbors>; neighbors = HashMap<node_id, weight>` (nebo `HashSet`)
+- Stromy sousedů - `type AdjTree = HashMap<node_id, BSTree<(node_id, weight)>>`
 
 ## 11. Topologické vlastnosti sítí, charakteristické hodnoty a jejich distribuce (stupeň, délka cesty, průměr, shlukovací koeficient), typy centralit
 
+- **Stupeň** $\mathrm{deg}(v)$ vrcholu $v$ je počet hran, které z něj vycházejí (nebo do něj vstupují). V neorientovaném grafu je stupeň symetrický. V orientovaném grafu je stupeň rozdělen na `in-degree` a `out-degree`.
+  - **Průměrný stupeň** neorientovaného grafu $\overline{d}=\frac{m}{n}$.
+  - **Distribuce stupňů** (často log-log, pro orientované grafy ve 3D)
+- **Délka cesty** je suma vah hran na cestě. Pro neorientovaný graf je to počet hran.
+  - Nejkratší cestu mezi dvěma vrcholy lze najít pomocí *Dijkstrova algoritmu* /ˈdaɪkstrə/.
+- **Průměr** sítě je délka nejdelší cesty mezi dvěma vrcholy v síti (často odlehlé pozorování).
+- **Distribuce vzdáleností** (Floydův–Warshallův algoritmus)
+- **Souvislost** sítě (existence cesty mezi libovolnými vrcholy).
+  - Histogram velikostí komponent.
+  - BFS nebo DFS - na konci zjistíme, jestli jsme prošli všechny vrcholy.
+- **Hustota neorientovaného grafu** $\rho=\frac{m}{\binom{n}{2}}$
+  - Řídký graf $n\approx m$
+  - Hustý graf $m > n^2$
+- **Lokální shlukovací koeficient** měří lokální hustotu trojúhelníků:
+  
+    $$
+    CC(v)=\dfrac{T(v)}{\binom{\mathrm{deg}(v)}{2}}=\dfrac{2\cdot T(v)}{\mathrm{deg}(v)(\mathrm{deg}(v)-1)}
+    $$
+
+- Globální shlukovací koeficient měří hustotu trojúhelníků:
+
+    $$
+    CC(G) = \dfrac{3 \times \text{\# trojúhelníků v $G$}}{\text{\# trojic v $G$}}
+    $$
+
+- **Shlukovací efekt** je graf *stupňů* na ose $x$ a *průměrného CC* vrcholů s daným stupněm.
+
+### 11.1. Centrality
+
+Centrality vyjadřují **míru důležitosti vrcholu** z hlediska struktury sítě.
+
+- **Degree centrality**:
+  - lokální - stupeň vrcholu
+  - globální - průměrný stupeň vrcholů
+- **Průměrná vzdálenost** k ostatním vrcholům:
+  
+    $$
+    \text{mean distance}(v)=\frac{1}{n}\sum\limits_{u \in V} d(v,u)
+    $$
+
+- **Closeness centrality** - inverze průměrné vzdálenosti k ostatním vrcholům:
+
+    $$
+    \mathrm{closeness}(v) = \frac{n}{\sum\limits_{u \in V} d(v,u)}
+    $$
+
+- **Betweenness centrality** měří **jak dobře vrchol propojuje síť** pomocí **počtu nejkratších cest** procházejících daným vrcholem $v$ mezi všemi dvojicemi vrcholů $s$ a $t$:
+
+    $$
+    \mathrm{betweenness}(v) = \sum\limits_{s\neq v\neq t} \frac{\text{\# nejkratších cest $s\leftrightarrow t$ procházejících $v$}}{\text{\# nejkratších cest $s\leftrightarrow t$}}
+    $$
+- **PageRank**
+- **Eccentricity centrality** - inverze vzdálenosti k nejvzdálenějšímu vrcholu v síti:
+
+    $$
+    \text{eccentricity centrality}(v) = \frac{1}{\max\limits_{u \in V} d(v,u)}
+    $$
+
 ## 12. Globální vlastnosti sítí (malý svět, bezškálovost, růst a preferenční připojování). Mocninný zákon a jeho interpretace v prostředí reálných sítí. Assortarivita
 
+Vlastnost **malého světa** je, že *průměrná vzdálenost* je přibližně $\log(n)$. Shlukovací koeficient je větší než u náhodného grafu.
+
+Bezškálové sítě mají **distribuci stupňů** podle **mocninného zákona** (pravidlo 80-20):
+
+<img src="figures/power_law.svg" alt="power_law.svg https://en.wikipedia.org/wiki/Power_law" width="400px">
+
+<img src="figures/power-law-log-log.png" alt="power-law-log-log" width="400px">
+
+TODO:
+
+```t
+- $\boxed{f(x)=bx^{\alpha} + g(x^{\alpha})}$, kde $g(x^{\alpha})$ je asymptoticky menší oproti $bx^{\alpha}$, a proto se zanedbává
+- v logaritmickém měřítku (log-log) získáme: $\boxed{\log \big(f(x)\big)=\log (b) + \alpha\log (x)}$, tzn. mocninný zákon je **invariantní vůči změně měřítka** - nezávislost na násobící konstantě $b$ (scale-free)
+  - sítě, které mají tuto vlastnost se nazývají jako **scale-free sítě** ("bezškálové")
+- buď $d=0,1,\ldots$ stupně a buď $p(d)$ pravděpodobnost, že uzel má stupeň $d$ $\Rightarrow$ $p(d)\approx Cd^{-\alpha}$, kde $C\sum\limits_{d=0}^{+\infty} d^{-\alpha}=1$
+- "heavy tail" - right skew ("zprava stlačená" distribuce, kladná šikmost)
+```
+
 ## 13. Modely sítí a jejich vlastnosti (Erdös–Rényi, Watts–Strogatz, Barabási–Albert)
+
+### 13.1. Erdős-Rényi (ER)
+
+- /ˈɛrdøːʃ  ˈrɛɲi/
+- **náhodný graf**
+
+### 13.2. Watts-Strogatz (WS)
+
+Vychází z pravidelné kruhové mřížky o $N\in\mathbb{N}$ vrcholech a $k\in\{2n \mid n\in\mathbb{N}\}$ sousedech:
+
+<img src="figures/watts-strogatz.png" alt="watts-strogatz" width="650px">
+
+Algoritmus:
+
+0. Zvolím parametry $N\in\mathbb{N}$, $k\in\{2n \mid n\in\mathbb{N}\}$, $p\in[0,1]$.
+1. Vytvořím pravidelnou kruhovou mřížku (každý vrchol je spojen s $k$ sousedy).
+2. Pro každý vrchol:
+   1. Každou hranu s pravděpodobností $p$ přepojím na náhodný vrchol (ne na sebe, aby nevznikla smyčka).
+
+- Pro $p=0$ dostanu pravidelnou kruhovou mřížku.
+- Pro $p=1$ dostanu náhodný graf (Erdös–Rényi).
+- Jinak má vlastnosti malého světa, ale není bezškálová. Distribuce stupňů je přibližně Poissonovo.
+
+### 13.3. Barabási–Albert (BA)
+
+- Model **preferenčního připojování**.
+- Bezškálový graf (distribuce stupňů podle mocninného zákonu).
+
+Algoritmus:
+
+0. Zvolím parametry $m_0\in\mathbb{N}$ (počáteční počet vrcholů), $m\in\mathbb{N}$.
+1. Vygeneruji nějaký počáteční graf $G$ s $m_0 > m$ vrcholy (třeba cyklus $C_{m_0}$).
+2. Iterativně přidávám vrcholy. Pravděpodobnost, že se nový vrchol připojí k vrcholu $v_i$ je dána vzorcem:
+
+    $$\boxed{(\forall i=1,\ldots,n)\colon p(v_i) = \dfrac{\mathrm{deg}(v_i)}{\sum\limits_{j=1}^n \mathrm{deg}(v_j)} = \dfrac{\mathrm{deg}(v_i)}{2|E(G)|} = \dfrac{\mathrm{deg}(v_i)}{2mt+m_0}}$$
+
+    (tzn. nový vrchol bude pravděpodobněji přiřazen k vrcholu s větším stupněm; rovnost plyne z principu sudosti "$\sum\mathrm{deg}=2m$".)
+    1. nový vrchol se připojí k $m$ stávajícím vrcholům.
 
 ## 14. Komunity. Globální a lokální přístupy. Modularita
 
@@ -977,9 +1154,9 @@ Text lze generovat např. i znak po znaku pomocí RNN s LSTM.
 
 ## 23. Popište architekturu konvolučních neuronových sítí, použité vrstvy, princip fungování, základní typy architektur
 
-Použití pro strukturovaná data uspořádaná do nějaké pravidelné mřížky. Např. obraz, časové řady, video.
-
-Hlavní motivací použití hlubokých neuronových sítí pro zpracování obrazu je složitost manuálního výběru obrazový příznaků, což CNN dělají automaticky *(representation learning)*.
+- CNN používají v alespoň jedné vrstvě konvoluci namísto maticového násobení.
+- Použití pro strukturovaná data uspořádaná do nějaké pravidelné mřížky. Např. obraz, časové řady, video.
+- Hlavní motivací použití hlubokých neuronových sítí pro zpracování obrazu je složitost manuálního výběru obrazový příznaků, což CNN dělají automaticky *(representation learning)*.
 
 ### 23.1. Vrstvy
 
