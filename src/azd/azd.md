@@ -12,6 +12,15 @@
     - [1.4.3. Embedded methods](#143-embedded-methods)
 - [2. Hledání častých vzorů v datech (základní principy, metody, varianty, implementace)](#2-hledání-častých-vzorů-v-datech-základní-principy-metody-varianty-implementace)
 - [3. Shlukovací metody (shlukování pomocí reprezentantů, hierarchické shlukování). Shlukování na základě hustoty, validace shluků, pokročilé metody shlukování (CLARANS, BIRCH, CURE)](#3-shlukovací-metody-shlukování-pomocí-reprezentantů-hierarchické-shlukování-shlukování-na-základě-hustoty-validace-shluků-pokročilé-metody-shlukování-clarans-birch-cure)
+  - [3.1. Shlukování pomocí reprezentantů](#31-shlukování-pomocí-reprezentantů)
+    - [3.1.1. K-means](#311-k-means)
+    - [3.1.2. K-medians](#312-k-medians)
+    - [3.1.3. K-medoids](#313-k-medoids)
+    - [3.1.4. Affinity propagation](#314-affinity-propagation)
+  - [3.2. Hierarchické shlukování](#32-hierarchické-shlukování)
+  - [3.3. Shlukování na základě hustoty](#33-shlukování-na-základě-hustoty)
+    - [3.3.1. DBSCAN](#331-dbscan)
+  - [3.4. Validace shluků](#34-validace-shluků)
 - [4. Rozhodovací stromy (princip, algoritmus, metriky pro vhodnou volbu hodnot dělících atributů, prořezávání)](#4-rozhodovací-stromy-princip-algoritmus-metriky-pro-vhodnou-volbu-hodnot-dělících-atributů-prořezávání)
 - [5. Pravděpodobnostní klasifikace (Bayesovský teorém, naivní Bayesovský teorém)](#5-pravděpodobnostní-klasifikace-bayesovský-teorém-naivní-bayesovský-teorém)
 - [6. Support Vector Machines (princip, algoritmus, kernel trick)](#6-support-vector-machines-princip-algoritmus-kernel-trick)
@@ -230,6 +239,136 @@ for a in range(1, N + 1):
 ```
 
 ## 3. Shlukovací metody (shlukování pomocí reprezentantů, hierarchické shlukování). Shlukování na základě hustoty, validace shluků, pokročilé metody shlukování (CLARANS, BIRCH, CURE)
+
+Co je shlukovaní? Rozdělení dat do skupin (shluků) takových, že jejiž členové jsou si v nějakým smyslu podobní.
+
+- učení bez učitele *(unsupervised learning)*
+
+### 3.1. Shlukování pomocí reprezentantů
+
+#### 3.1.1. K-means
+
+- Vstup: $k$ - počet shluků, $X$ - množina bodů (dat)
+- Výstup: $k$ shluků (shluky jsou reprezentovány svými centroidy - průměry bodů ve shluku)
+
+1. Inicializace centroidů (náhodně nebo pomocí K-means++).
+2. Přiřazení bodů k nejbližšímu centroidu (shluku).
+3. Aktualizace centroidů (průměry bodů ve shluku).
+4. Opakuj 2-3, dokud se centroidy nezmění.
+
+#### 3.1.2. K-medians
+
+- Stejné jako K-means, ale místo průměru se používá medián.
+- K-medians je robustnější vůči odlehlým pozorováním (outliers).
+- Často se používá Manhattanovská vzdálenost (L1 norm).
+
+#### 3.1.3. K-medoids
+
+- Reprezentantem shluku *(medoid)* je záznam z datové sady (nikoliv průměr nebo medián).
+- Přesné řešení je NP-těžký problém, obvykle se používají heuristiky.
+
+**PAM** *(Partitioning Around Medoids)*:
+
+1. Náhodně vybereme $k$ medoidů.
+2. Přiřadíme každý bod k nejbližšímu medoidu.
+3. (SWAP) Dokud se snižuje cenová funkce (třeba SSE):
+    - Pro každý medoid $m$ a bod $x$ (který není medoid):
+        - Vypočítáme změnu cenové funkce při výměně $m$ za $x$.
+        - Pokud je aktuální změna lepší, uložíme dvojici $(m_{best},x_{best})=(m,x)$.
+    - Pokud $(m_{best},x_{best})$ sníží cenovou funkci, vyměníme $m_{best}$ za $x_{best}$. Jinak algoritmus končí.
+
+**CLARA** a **CLARANS** urychlují PAM za cenu menší kvality shlukování.
+
+#### 3.1.4. Affinity propagation
+
+- Reprezentantem shluku *(exemplar)* je záznam z datové sady.
+
+### 3.2. Hierarchické shlukování
+
+- Časová složitost alespoň $\mathcal{O}(n^2)$, kde $n$ je počet bodů.
+- Vhodné pro menší množiny dat.
+- Na začátku máme $n$ shluků (každý bod je shluk).
+- Postupně slučujeme shluky do větších shluků.
+
+|||
+|--|--|
+|<img src="figures/hierarchical-clustering-1.svg" alt="hierarchical-clustering-1" width="300px">|<img src="figures/hierarchical-clustering-2.svg" alt="hierarchical-clustering-1" width="400px">|
+
+<img src="figures/hierarchical-clustering.png" alt="hierarchical-clustering" width="700px">
+
+- **Single Linkage**
+
+  $$d_{SL}(C_i,C_j) = \min\set{d(x,y)\mid x\in C_i, y\in C_j}$$
+
+- **Complete Linkage**
+
+  $$d_{CL}(C_i,C_j) = \max\set{d(x,y)\mid x\in C_i, y\in C_j}$$
+
+- **Average Linkage**
+
+  $$d_{AL}(C_i,C_j)=\dfrac{\sum\limits_{x\in C_i}\sum\limits_{y\in C_j}d(x,y)}{\lvert C_i \rvert\cdot\lvert C_j\rvert}$$
+
+- **Centroid method** (vzdálenost mezi centroidy)
+
+  $$d_C(C_i,C_j) = d(\mu_i,\mu_j),\text{ kde } \mu_i=\dfrac{1}{\lvert C_i\rvert}\sum\limits_{x\in C_i}x$$
+
+- **Ward's method**
+
+  $$d_W(C_i,C_j)=\dfrac{\lvert C_i\rvert\cdot\lvert C_j\rvert}{\lvert C_i\rvert+\lvert C_j\rvert}d^2(C_i,C_j)$$
+- **Bisecting k-means** - top-down
+  - Na začátku máme jeden shluk (všechny body).
+  - Rozdělujeme shluk na dva pomocí 2-means.
+- **CURE** (Clustering Using REpresentatives)
+  - k-d strom
+  - funguje i pro různě velké shluky
+- **BIRCH** (Balanced Iterative Reducing and Clustering using Hierarchies)
+  - používá stromovou strukturu *Clustering Feature Tree (CFT)* - díky tomu lze efektivně aplikovat hierarchické shlukování (nad listy CFT)
+  - lze použít i nad velkými databázemi, není nutné mít všechny body v paměti
+
+### 3.3. Shlukování na základě hustoty
+
+#### 3.3.1. DBSCAN
+
+- Vstup: $X$ - množina bodů, $\varepsilon$ - velikost okolí, `min_sample` - minimální počet bodů v okolí
+- Výstup: shluky a šum (outliers, shluk `-1`)
+- Není nutné specifikovat počet shluků. Shluky mohou mít různou velikost a tvar a nemusí být lineárně separabilní.
+
+<img src="figures/dbscan-example.svg" alt="dbscan-example.svg https://en.wikipedia.org/wiki/DBSCAN" width="300px">
+
+Algoritmus:
+
+1. Identifikace jádrových bodů *(core points)* - body, které mají alespoň `min_sample` bodů v okolí o velikosti $\varepsilon$.
+2. Identifikace bodů dostupných z jádrových bodů *(border points)* - body, které mají méně než `min_sample` bodů v okolí o velikosti $\varepsilon$, ale jsou v okolí jádrového bodu.
+3. Identifikace šumu *(noise/outliers)* - body, které nejsou jádrové ani okrajové.
+
+<img src="figures/dbscan.svg" alt="dbscan.svg https://en.wikipedia.org/wiki/DBSCAN" width="450px">
+
+<details><summary> Popis příkladu </summary>
+
+- `min_sample=4`
+
+Bod `A` a ostatní červené body jsou **jádrové body** (mají alespoň `min_sample` bodů v okolí o velikosti $\varepsilon$). Body `B` a `C` jsou dostupné z jádrových bodů, takže patří do červeného shluku. Bod `N` je šum (není jádrový ani okrajový).
+
+</details>
+
+Jak zvolit hyperparametry?
+
+- pro `min_sample = 1` je každý bod *core point* (tzn. jeden shluk), `min_sample = 2` odpovídá *single linkage*, tzn. dává smysl pouze `min_sample >= 3`
+- heuristika: `min_sample = 2 * dim(X)`
+- následně lze zvolit $\varepsilon$ pomocí *k-nearest neighbor distance* (k-NN) - pro každý bod spočítáme vzdálenost k `min_sample - 1`-tému nejbližšímu bodu a seřadíme podle vzdálenosti. Pak hledáme "loket" (elbow) v grafu. Alternativně pro malé datové sady lze zkoumat distribuci vzdáleností v matici vzdáleností.
+
+**OPTICS** *(Ordering Points To Identify the Clustering Structure)* - zobecňuje DBSCAN.
+
+### 3.4. Validace shluků
+
+- **Elbow method** - graf SSE (sum of squared errors) v závislosti na počtu shluků. Hledáme "loket" (elbow), kde se SSE přestává snižovat. (Pouze pro sférické shluky.)
+- **Silhouette score** - měří, jak dobře je bod přiřazen do shluku. Čím vyšší hodnota, tím lepší shlukování $[-1,1]$.
+- **Intra/Inter cluster distance** - měří vzdálenosti mezi shluky a uvnitř shluku. Minimalizujeme vzdálenosti uvnitř shluku a maximalizujeme vzdálenosti mezi shluky.
+  - $\mathrm{intra}(C_i) = \dfrac{1}{\lvert C_i\rvert}\sum\limits_{x,y\in C_i}d(x,y)$
+  - $\mathrm{inter}(C_i,C_j) = d(\mu_i,\mu_j)$
+- Pokud je počet shluků roven počtu tříd, můžeme spočítat **matici záměn** *(confusion matrix)* a spočítat přesnost klasifikace.
+
+*Curse of dimensionality* - ve vysokých dimenzích je obtížné najít shluky, protože vzdálenosti mezi body se stávají podobné.
 
 ## 4. Rozhodovací stromy (princip, algoritmus, metriky pro vhodnou volbu hodnot dělících atributů, prořezávání)
 
