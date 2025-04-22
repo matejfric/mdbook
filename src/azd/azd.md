@@ -36,7 +36,7 @@
   - [10.1. Datové struktury pro reprezentaci sítí](#101-datové-struktury-pro-reprezentaci-sítí)
 - [11. Topologické vlastnosti sítí, charakteristické hodnoty a jejich distribuce (stupeň, délka cesty, průměr, shlukovací koeficient), typy centralit](#11-topologické-vlastnosti-sítí-charakteristické-hodnoty-a-jejich-distribuce-stupeň-délka-cesty-průměr-shlukovací-koeficient-typy-centralit)
   - [11.1. Centrality](#111-centrality)
-- [12. Globální vlastnosti sítí (malý svět, bezškálovost, růst a preferenční připojování). Mocninný zákon a jeho interpretace v prostředí reálných sítí. Assortarivita](#12-globální-vlastnosti-sítí-malý-svět-bezškálovost-růst-a-preferenční-připojování-mocninný-zákon-a-jeho-interpretace-v-prostředí-reálných-sítí-assortarivita)
+- [12. Globální vlastnosti sítí (malý svět, bezškálovost, růst a preferenční připojování). Mocninný zákon a jeho interpretace v prostředí reálných sítí. Asortativita](#12-globální-vlastnosti-sítí-malý-svět-bezškálovost-růst-a-preferenční-připojování-mocninný-zákon-a-jeho-interpretace-v-prostředí-reálných-sítí-asortativita)
 - [13. Modely sítí a jejich vlastnosti (Erdös–Rényi, Watts–Strogatz, Barabási–Albert)](#13-modely-sítí-a-jejich-vlastnosti-erdösrényi-wattsstrogatz-barabásialbert)
   - [13.1. Erdős-Rényi (ER)](#131-erdős-rényi-er)
   - [13.2. Watts-Strogatz (WS)](#132-watts-strogatz-ws)
@@ -949,25 +949,29 @@ Centrality vyjadřují **míru důležitosti vrcholu** z hlediska struktury sít
     \text{eccentricity centrality}(v) = \frac{1}{\max\limits_{u \in V} d(v,u)}
     $$
 
-## 12. Globální vlastnosti sítí (malý svět, bezškálovost, růst a preferenční připojování). Mocninný zákon a jeho interpretace v prostředí reálných sítí. Assortarivita
+## 12. Globální vlastnosti sítí (malý svět, bezškálovost, růst a preferenční připojování). Mocninný zákon a jeho interpretace v prostředí reálných sítí. Asortativita
 
 Vlastnost **malého světa** je, že *průměrná vzdálenost* je přibližně $\log(n)$. Shlukovací koeficient je větší než u náhodného grafu.
 
+**Asortativita** znamená, že vrcholy s *podobnými vlastnostmi* jsou *spojeny častěji* než vrcholy s různými vlastnostmi (např. bohatí s bohatými, vrcholy s podobným stupněm atd.)
+
 Bezškálové sítě mají **distribuci stupňů** podle **mocninného zákona** (pravidlo 80-20):
 
-<img src="figures/power_law.svg" alt="power_law.svg https://en.wikipedia.org/wiki/Power_law" width="400px">
+| Mocninný zákon | Log-log distribuce stupňů |
+|---|---|
+| <img src="figures/power_law.svg" alt="power_law.svg https://en.wikipedia.org/wiki/Power_law" width="375px"> | <img src="figures/power-law-log-log.png" alt="power-law-log-log" width="375px"> |
 
-<img src="figures/power-law-log-log.png" alt="power-law-log-log" width="400px">
+Mocninný zákon:
 
-TODO:
+$$\boxed{f(x)=bx^{\alpha} + g(x^{\alpha}),}$$
 
-```t
-- $\boxed{f(x)=bx^{\alpha} + g(x^{\alpha})}$, kde $g(x^{\alpha})$ je asymptoticky menší oproti $bx^{\alpha}$, a proto se zanedbává
-- v logaritmickém měřítku (log-log) získáme: $\boxed{\log \big(f(x)\big)=\log (b) + \alpha\log (x)}$, tzn. mocninný zákon je **invariantní vůči změně měřítka** - nezávislost na násobící konstantě $b$ (scale-free)
-  - sítě, které mají tuto vlastnost se nazývají jako **scale-free sítě** ("bezškálové")
-- buď $d=0,1,\ldots$ stupně a buď $p(d)$ pravděpodobnost, že uzel má stupeň $d$ $\Rightarrow$ $p(d)\approx Cd^{-\alpha}$, kde $C\sum\limits_{d=0}^{+\infty} d^{-\alpha}=1$
-- "heavy tail" - right skew ("zprava stlačená" distribuce, kladná šikmost)
-```
+kde $g(x^{\alpha})$ je asymptoticky menší než $bx^{\alpha}$, a proto se zanedbává.
+
+V logaritmickém měřítku:
+
+$$\boxed{\log \big(f(x)\big)=\log (b) + \alpha\log (x)\approx \alpha\log (x), }$$
+
+tzn. mocninný zákon je **invariantní vůči změně měřítka** - nezávislost na násobící konstantě $b$ - bezškálový, scale-free. "Heavy tail" - kladná šikmost, right skew ("zprava stlačená" distribuce). Buď $d=0,1,\ldots$ stupně a buď $p(d)$ pravděpodobnost, že uzel má stupeň $d$ $\Rightarrow$ $p(d)\approx Cd^{-\alpha}$, kde $C\sum\limits_{d=0}^{+\infty} d^{-\alpha}=1$.
 
 ## 13. Modely sítí a jejich vlastnosti (Erdös–Rényi, Watts–Strogatz, Barabási–Albert)
 
