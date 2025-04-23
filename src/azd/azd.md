@@ -42,6 +42,8 @@
   - [13.2. Watts-Strogatz (WS)](#132-watts-strogatz-ws)
   - [13.3. Barabási–Albert (BA)](#133-barabásialbert-ba)
 - [14. Komunity. Globální a lokální přístupy. Modularita](#14-komunity-globální-a-lokální-přístupy-modularita)
+  - [14.1. Modularita](#141-modularita)
+  - [14.2. Hledání komunit](#142-hledání-komunit)
 - [15. Jiné (pokročilé) modely sítí - modely orientované na komunitní strukturu, temporální sítě](#15-jiné-pokročilé-modely-sítí---modely-orientované-na-komunitní-strukturu-temporální-sítě)
   - [15.1. Temporální sítě](#151-temporální-sítě)
 - [16. Odolnost sítí, šíření jevů v sítích. Šíření a maximalizace vlivu v sítích. Predikce linků. Sampling](#16-odolnost-sítí-šíření-jevů-v-sítích-šíření-a-maximalizace-vlivu-v-sítích-predikce-linků-sampling)
@@ -904,11 +906,13 @@ Buď $\Delta$ největší stupeň v $G=(V,E)$. Záleží na hustotě grafu $\rho
 - **Hustota neorientovaného grafu** $\rho=\frac{m}{\binom{n}{2}}$
   - Řídký graf $n\approx m$
   - Hustý graf $m > n^2$
-- **Lokální shlukovací koeficient** měří lokální hustotu trojúhelníků:
+- **Lokální shlukovací koeficient** v neorientovaném grafu měří lokální hustotu trojúhelníků:
   
     $$
     CC(v)=\dfrac{T(v)}{\binom{\mathrm{deg}(v)}{2}}=\dfrac{2\cdot T(v)}{\mathrm{deg}(v)(\mathrm{deg}(v)-1)}
     $$
+
+    (počet trojúhelníků kde jedním z vrcholů je $v$ děleno maximálním počtem hran mezi sousedy $v$).
 
 - Globální shlukovací koeficient měří hustotu trojúhelníků:
 
@@ -940,7 +944,7 @@ Centrality vyjadřují **míru důležitosti vrcholu** z hlediska struktury sít
 - **Betweenness centrality** měří **jak dobře vrchol propojuje síť** pomocí **počtu nejkratších cest** procházejících daným vrcholem $v$ mezi všemi dvojicemi vrcholů $s$ a $t$:
 
     $$
-    \mathrm{betweenness}(v) = \sum\limits_{s\neq v\neq t} \frac{\text{\# nejkratších cest $s\leftrightarrow t$ procházejících $v$}}{\text{\# nejkratších cest $s\leftrightarrow t$}}
+    \mathrm{BC}(v) = \sum\limits_{s\neq v\neq t} \frac{\text{\# nejkratších cest $s\leftrightarrow t$ procházejících $v$}}{\text{\# nejkratších cest $s\leftrightarrow t$}}
     $$
 - **PageRank**
 - **Eccentricity centrality** - inverze vzdálenosti k nejvzdálenějšímu vrcholu v síti:
@@ -953,7 +957,7 @@ Centrality vyjadřují **míru důležitosti vrcholu** z hlediska struktury sít
 
 Vlastnost **malého světa** je, že *průměrná vzdálenost* je přibližně $\log(n)$. Shlukovací koeficient je větší než u náhodného grafu.
 
-**Asortativita** znamená, že vrcholy s *podobnými vlastnostmi* jsou *spojeny častěji* než vrcholy s různými vlastnostmi (např. bohatí s bohatými, vrcholy s podobným stupněm atd.)
+**Asortativita** znamená, že vrcholy s *podobnými vlastnostmi* jsou *spojeny častěji* než vrcholy s různými vlastnostmi (např. bohatí s bohatými, vrcholy s podobným stupněm atd.) (kladná korelace)
 
 Bezškálové sítě mají **distribuci stupňů** podle **mocninného zákona** (pravidlo 80-20):
 
@@ -979,6 +983,21 @@ tzn. mocninný zákon je **invariantní vůči změně měřítka** - nezávislo
 
 - /ˈɛrdøːʃ  ˈrɛɲi/
 - **náhodný graf**
+- nesplňuje vlastnost malého světa, ani mocninný zákon, ani existenci komunit
+
+Model náhodného grafu $\boxed{G(n,m):}$
+  
+- Průměrný stupeň pro dost velká $n$ je $\overline{d}=\frac{2m}{n}$.
+
+Model náhodného grafu $\boxed{G(n,p):}$
+
+- Průměrný stupeň pro dost velká $n$ je $\overline{d}=np$ (střední hodnota binomické náhodné veličiny).
+- Distribuce stupňů má Poissonovo rozdělení okolo průměrného stupně (pro dost velké $n$). Realné sítě mají distribuci stupňů podle mocninného zákona.
+- Pro dost velká $n$ je $CC \approx p$ (nízký shlukovací koeficient oproti reálným sítím).
+- $|E|\approx p\binom{n}{2}$
+- Algoritmus:
+  1. Zvolím parametry $n\in\mathbb{N}$ a $p\in[0,1]$.
+  2. Pro každý pár vrcholů $(v_i,v_j)$ s pravděpodobností $p$ vytvořím hranu. (Tzn. pro $\binom{n}{2}$ hran vygeneruju náhodné číslo $\sim U(0,1)$ a porovnám s $p$).
 
 ### 13.2. Watts-Strogatz (WS)
 
@@ -1014,6 +1033,97 @@ Algoritmus:
     1. nový vrchol se připojí k $m$ stávajícím vrcholům.
 
 ## 14. Komunity. Globální a lokální přístupy. Modularita
+
+- **Komunita je lokálně hustý podgraf.**
+- Snažíme se najít podsítě s vysokou hustotou a nízkou mírou propojení s ostatními podsítěmi.
+- Vrcholy v komunitě by měly mít podobné vlastnosti.
+- Obdoba hledání shluků v datech.
+
+### 14.1. Modularita
+
+- Funkce **modularity** měří *kvalitu komunitní struktury*.
+- Čím vyšší modularita, tím "lepší" komunitní struktura.
+- Je definovaná pro **ne**překrývající se komunity.
+
+Modularita komunity $C_c$ se definuje jako *počet hran v komunitě* minus *očekávaný počet hran v komunitě*, pokud by se jednalo o *náhodný graf se stejnou distribucí stupňů*:
+
+$$
+\boxed{
+M(C_c) = \frac{1}{2m}\sum\limits_{(i,j)\in C_c} ( \mathbb{A}_{i,j} - \underbrace{p_{i,j}}_{\dfrac{k_i k_j}{2m}} ),
+}
+$$
+
+kde $k_v$ je *stupeň vrcholu* $v$, $\mathbb{A}$ je *matice sousednosti*, $m$ je *počet hran* v síti a $p_{i,j}$ je pravděpodobnost, že mezi vrcholy $i$ a $j$ existuje hrana, kdyby se jednalo o náhodný graf se stejnou distribucí stupňů.
+
+Pro celou síť $G$ je modularita definována jako:
+
+$$
+\boxed{
+M(C_c) = \frac{1}{2m}\sum\limits_{i=1}^n\sum\limits_{j=1}^n \delta_{c_i,c_j}\left( \mathbb{A}_{i,j} - \dfrac{k_i k_j}{2m} \right),
+}
+$$
+
+kde $\delta_{c_i,c_j}$ je *Kroneckerovo delta* (jsou vrcholy ve stejné komunitě?):
+
+$$
+\delta_{c_i,c_j}=\begin{cases}
+  1, & \text{pokud $c_i=c_j$}, \\
+  0, & \text{jinak}.
+\end{cases}
+$$
+
+### 14.2. Hledání komunit
+
+- **Globální přístup** - hledá komunity v celé síti (např. Girvan-Newman, Louvain, Infomap).
+- **Lokální přístup** - hledá komunity v okolí vrcholu (např. Label Propagation, Walktrap, Fast Greedy).
+
+```mermaid
+mindmap
+  root )Komunity)
+      (Globální přístup)
+        [Girvan-Newman]
+          Edge betweenness
+        [Louvain]
+          Hladová optimalizace modularity
+        [Kernighan-Lin]
+        [K-core]
+        [Hierarchické shlukování]
+        cpm ["Clique Percolation Method (CPM)"]
+          Překlápí hrany klik
+          Překrývající se komunity
+        [Minimální hranový řez]
+          Maximální tok v grafu
+      (Lokální přístup)
+        [Label Propagation]
+        [Walktrap]
+          Náhodné procházky
+```
+
+- **$k$-core** - maximální podgraf, ve kterém mají všechny vrcholy stupeň alespoň $k$ (tj. $k$ sousedů).
+
+    <img src="../ns/figures/k-core.png" alt="ns/figures/k-core.png" width="375px">
+
+- **Girvan-Newman - Betweenness Clustering**:
+
+    $$
+    \mathrm{BC}(e) = \sum\limits_{s\neq t} \frac{\text{\# nejkratších cest $s\leftrightarrow t$ procházejících $e$}}{\text{\# nejkratších cest $s\leftrightarrow t$}}
+    $$
+
+    1. Spočítám $\mathrm{BC}$ pro všechny hrany.
+    2. Odstraním hranu s nejvyšší $\mathrm{BC}$.
+    3. Opakuji, dokud nedostanu požadovaný počet komponent.
+
+- **Walktrap** - náhodné procházky v grafech mají tendenci zůstávat v lokálně hustých podgrafech.
+- **Label Propagation**:
+    1. Přiřadíme každému vrcholu unikátní label (číslo).
+    2. Iterativně: vrchol změní label podle toho, jaký label mají nejčastěji sousedé.
+    3. Konec, když se žádný label nezmění.
+- **Clique Percolation Method (CPM)**
+    1. Pro $k=3$ překlápíme *trojúhelník* $(K_3)$ sítí (obr. a,b), dokud trojúhelníky sdílí dva vrcholy (jednu hranu) - zelená komunita (obr. c).
+       1. Obecně $k$-kliky musí sdílet $k-1$ vrcholů.
+    2. Potom pokračujeme v hledání další komunity - modrá (obr. c).
+
+        <img src="figures/cmp.jpg" alt="cmp" width="500px">
 
 ## 15. Jiné (pokročilé) modely sítí - modely orientované na komunitní strukturu, temporální sítě
 
