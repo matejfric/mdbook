@@ -45,7 +45,9 @@
   - [14.1. Modularita](#141-modularita)
   - [14.2. Hledání komunit](#142-hledání-komunit)
 - [15. Jiné (pokročilé) modely sítí - modely orientované na komunitní strukturu, temporální sítě](#15-jiné-pokročilé-modely-sítí---modely-orientované-na-komunitní-strukturu-temporální-sítě)
-  - [15.1. Temporální sítě](#151-temporální-sítě)
+  - [15.1. Stochastic Block Model (SBM)](#151-stochastic-block-model-sbm)
+  - [15.2. Hierarchické síťové modely](#152-hierarchické-síťové-modely)
+  - [15.3. Temporální sítě](#153-temporální-sítě)
 - [16. Odolnost sítí, šíření jevů v sítích. Šíření a maximalizace vlivu v sítích. Predikce linků. Sampling](#16-odolnost-sítí-šíření-jevů-v-sítích-šíření-a-maximalizace-vlivu-v-sítích-predikce-linků-sampling)
   - [16.1. Šíření a maximalizace vlivu v sítích](#161-šíření-a-maximalizace-vlivu-v-sítích)
   - [16.2. Predikce linků](#162-predikce-linků)
@@ -1118,7 +1120,7 @@ mindmap
     1. Přiřadíme každému vrcholu unikátní label (číslo).
     2. Iterativně: vrchol změní label podle toho, jaký label mají nejčastěji sousedé.
     3. Konec, když se žádný label nezmění.
-- **Clique Percolation Method (CPM)**
+- **Clique Percolation Method (CPM)** - vytváří komunity ze sousedních $k$-klik.
     1. Pro $k=3$ překlápíme *trojúhelník* $(K_3)$ sítí (obr. a,b), dokud trojúhelníky sdílí dva vrcholy (jednu hranu) - zelená komunita (obr. c).
        1. Obecně $k$-kliky musí sdílet $k-1$ vrcholů.
     2. Potom pokračujeme v hledání další komunity - modrá (obr. c).
@@ -1127,9 +1129,36 @@ mindmap
 
 ## 15. Jiné (pokročilé) modely sítí - modely orientované na komunitní strukturu, temporální sítě
 
-### 15.1. Temporální sítě
+### 15.1. Stochastic Block Model (SBM)
 
-Hrany mohou existovat jen v určitou chvíli (přerušovaně, např. e-maily). Hrany mohou mít měnící se váhu. Obvykle musíme zvolit nějaké časové období (třeba měsíc/rok) a analyzujeme síť vytvořenou z hran, které vznikly v tomto období. Může nás také zajímat vývoj v čase, případně vývoj strukturálních vlastností sítě v čase.
+- Model pro generování sítí s komunitní strukturou.
+- Zobecňuje ER model (Erdös-Rényi).
+
+Vstupní parametry jsou:
+
+1. Disjunktní rozdělení $n$ vrcholů $\{1,\ldots,n\}$ do $k$ komunit $C_1,\ldots,C_k$.
+2. Symetrická matice pravděpodobností hran $\mathsf{P}\in[0,1]^{k\times k}$
+
+Speciální případy:
+
+- Pokud $(\forall i,j=1,\ldots,k):\mathsf{P}_{i,j}=p$, tak dostaneme ER model $G_{n,p}$.
+- Pokud $(\forall i,j=1,\ldots,k):\mathsf{P}_{i,i}=p\,\,\wedge\,\,\mathsf{P}_{i,j}=q$, tak hrany v rámci komunity existují s pravděpodobností $p$ a hrany mezi komunitami s pravděpodobností $q$.
+
+### 15.2. Hierarchické síťové modely
+
+Obvykle se vytváří iterativně opakováním počáteční konfigurace. Např. 5 propojených vrcholů:
+
+<img src="figures/hierarchical-network-model-example.svg" alt="hierarchical-network-model-example By Freek Dijkstra, based on work by Rudolf.rajczi - Own work, based on File:Hierarchical_network_model_example.png, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=39794527" width="350px">
+
+(Samozřejmě existují i jiné varianty.)
+
+### 15.3. Temporální sítě
+
+- Hrany mohou existovat jen v určitou chvíli (přerušovaně, např. sítě elektronické komunikace, e-maily).
+- Hrany mohou mít měnící se váhu.
+- Obvykle musíme zvolit nějaké časové období (třeba měsíc/rok) a analyzujeme síť vytvořenou z hran, které vznikly v tomto období.
+- Může nás také zajímat vývoj v čase, případně vývoj strukturálních vlastností sítě v čase.
+- Můžeme analyzovat pomocí metod analýzy časových řad (strojové učení).
 
 ## 16. Odolnost sítí, šíření jevů v sítích. Šíření a maximalizace vlivu v sítích. Predikce linků. Sampling
 
