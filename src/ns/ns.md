@@ -1107,12 +1107,7 @@ Díky zploštění můžeme používat standardní metody analýzy sítí, jako 
 
 > **Nevážený flattening** vrstev $L\subseteq \mathcal{L}$ vícevrstvé sítě $(A,\mathcal{L},V,E)$ je graf $(V_f,E_f)$, kde $(\forall l\in L)\colon$
 >
-> $$
-\begin{align*}
-  V_f&=\{a\mid(a,l)\in V\},\\
-  E_f&=\{(a,a')\mid\{(a,l),(a',l)\}\in E\},
-\end{align*}
-$$
+> $$\begin{align*} V_f&=\{a\mid(a,l)\in V\},\\ E_f&=\{(a,a')\mid\{(a,l),(a',l)\}\in E\}, \end{align*} $$
 
 > **Vážený flattening** vícevrstvé sítě $(A,\mathcal{L},V,E)$, je vážený graf $(V_f,E_f,w)$, kde
 >

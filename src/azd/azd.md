@@ -47,10 +47,19 @@
 - [15. Jiné (pokročilé) modely sítí - modely orientované na komunitní strukturu, temporální sítě](#15-jiné-pokročilé-modely-sítí---modely-orientované-na-komunitní-strukturu-temporální-sítě)
   - [15.1. Stochastic Block Model (SBM)](#151-stochastic-block-model-sbm)
   - [15.2. Hierarchické síťové modely](#152-hierarchické-síťové-modely)
-  - [15.3. Temporální sítě](#153-temporální-sítě)
+  - [15.3. Link Selection](#153-link-selection)
+  - [15.4. Copying Model](#154-copying-model)
+  - [15.5. Temporální sítě](#155-temporální-sítě)
 - [16. Odolnost sítí, šíření jevů v sítích. Šíření a maximalizace vlivu v sítích. Predikce linků. Sampling](#16-odolnost-sítí-šíření-jevů-v-sítích-šíření-a-maximalizace-vlivu-v-sítích-predikce-linků-sampling)
-  - [16.1. Šíření a maximalizace vlivu v sítích](#161-šíření-a-maximalizace-vlivu-v-sítích)
-  - [16.2. Predikce linků](#162-predikce-linků)
+  - [16.1. Odolnost sítí](#161-odolnost-sítí)
+  - [16.2. Šíření a maximalizace vlivu v sítích](#162-šíření-a-maximalizace-vlivu-v-sítích)
+    - [16.2.1. Susceptible-Infected (SI) model](#1621-susceptible-infected-si-model)
+    - [16.2.2. Nezávislý kaskádový model šíření (IC, Independent Cascade)](#1622-nezávislý-kaskádový-model-šíření-ic-independent-cascade)
+  - [16.3. Predikce linků](#163-predikce-linků)
+    - [16.3.1. Predikce linků na základě podobnosti](#1631-predikce-linků-na-základě-podobnosti)
+  - [16.4. Sampling](#164-sampling)
+    - [16.4.1. Pravděpodobnostní vzorkování](#1641-pravděpodobnostní-vzorkování)
+    - [16.4.2. Vzorkování prohledáváním grafu](#1642-vzorkování-prohledáváním-grafu)
 - [17. Vícevrstvé sítě, jejich typy a reprezentace. Metody analýzy a vizualizace vícevrstvých sítí, projekce, zploštění](#17-vícevrstvé-sítě-jejich-typy-a-reprezentace-metody-analýzy-a-vizualizace-vícevrstvých-sítí-projekce-zploštění)
   - [17.1. Zploštění](#171-zploštění)
   - [17.2. Projekce](#172-projekce)
@@ -1129,6 +1138,15 @@ mindmap
 
 ## 15. Jiné (pokročilé) modely sítí - modely orientované na komunitní strukturu, temporální sítě
 
+```mermaid
+mindmap
+  root )Pokročilé modely sítí)
+      Stochastic Block Model
+      Hierarchické síťové modely
+      Link Selection
+      Copying Model
+```
+
 ### 15.1. Stochastic Block Model (SBM)
 
 - Model pro generování sítí s komunitní strukturou.
@@ -1152,7 +1170,22 @@ Obvykle se vytváří iterativně opakováním počáteční konfigurace. Např.
 
 (Samozřejmě existují i jiné varianty.)
 
-### 15.3. Temporální sítě
+### 15.3. Link Selection
+
+- Nový vrchol se připojí k jednomu z vrcholů náhodně vybrané hrany.
+- Vede k **preferenčnímu připojení** *(preferential attachment)*.
+
+<img src="../ns/figures/link-selection.png" alt="link-selection" width="60px">
+
+### 15.4. Copying Model
+
+- S pravděpodobností $p$ se nový vrchol připojí k náhodnému vrcholu $u$.
+- S pravděpodobností $1-p$ se připojí k vrcholu, do kterého z $u$ vede hrana.
+- Vede k preferenčnímu připojení *(preferential attachment)*.
+
+<img src="../ns/figures/two-step.png" alt="two-step" width="350px">
+
+### 15.5. Temporální sítě
 
 - Hrany mohou existovat jen v určitou chvíli (přerušovaně, např. sítě elektronické komunikace, e-maily).
 - Hrany mohou mít měnící se váhu.
@@ -1162,46 +1195,143 @@ Obvykle se vytváří iterativně opakováním počáteční konfigurace. Např.
 
 ## 16. Odolnost sítí, šíření jevů v sítích. Šíření a maximalizace vlivu v sítích. Predikce linků. Sampling
 
-### 16.1. Šíření a maximalizace vlivu v sítích
+### 16.1. Odolnost sítí
 
-Využití např. pro marketing a epidemiologii. Cílem je zjistit, jak se šíří informace v síti hledáním vrcholů s velkým vlivem.
+- Hledání "slabých míst", které vedou k rozdělení sítě na souvislé komponenty.
+- Např. $k$-souvislé komponenty - pokud odstraníme $k$ vrcholů, tak komponenta přestane být souvislá.
 
-Šíření vlivu/informace lze simulovat např. pomocí modelů *susceptible-infected* ([SI](https://matejfric.github.io/mdbook/ns/ns.html#131-susceptible-infected-si-model)) a independent-cascade ([IC](https://matejfric.github.io/mdbook/ns/ns.html#132-nez%C3%A1visl%C3%BD-kask%C3%A1dov%C3%BD-model-%C5%A1%C3%AD%C5%99en%C3%AD-independent-cascade-model)). Při maximalizaci vlivu se snažíme zvolit minimální počet aktérů a pokrýt maximální (relevantní) část sítě. V sociálních sítích obvykle stačí 3-4 vlivní aktéři k dostatečnému pokrytí (cena/výkon).
+    <img src="../ns/figures/k-connected-component.png" alt="" style="width: 400px;">
 
-### 16.2. Predikce linků
+- *"Cílený útok"* na - např. centra (hubs) - vrcholy s největším stupněm - vede k rychlejšímu rozdělení sítě na komponenty než *"náhodný útok"*. (Nebo třeba mosty.)
+- *Betweenness centralita / Girvan-Newman Betweenness Clustering* - postupné odstraňování vrcholu/hrany s nejvyšší BC (nejvíc procházejících cest).
+
+### 16.2. Šíření a maximalizace vlivu v sítích
+
+- Využití např. pro *marketing* a *epidemiologii*.
+- Cílem je zjistit, jak se šíří informace v síti hledáním vrcholů s velkým vlivem.
+- Šíření vlivu/informace lze simulovat např. pomocí modelů:
+  - *susceptible-infected (SI)*
+  - *independent-cascade (IC)*
+- Při *maximalizaci vlivu* se snažíme zvolit *minimální počet aktérů* a pokrýt *maximální* (relevantní) *část sítě*. V sociálních sítích obvykle stačí 3-4 vlivní aktéři k dostatečnému pokrytí (cena/výkon).
+- Maximalizace vlivu (nalezení optimální skupiny) je NP-úplný problém.
+
+#### 16.2.1. Susceptible-Infected (SI) model
+
+- Aktéři jsou ve dvou stavech: zdravý *(susceptible)* a nemocný/infekční *(infected)*.
+- *Míra infekce* $\beta\in\langle0,1\rangle$ je pravděpodobnost nakažení v čase $t$.
+
+#### 16.2.2. Nezávislý kaskádový model šíření (IC, Independent Cascade)
+
+1. Začneme s počáteční neprázdnou množinou aktivních vrcholů a pravděpodobností $p$.
+2. Když se uzel poprvé stane aktivním, tak má pravděpodobnost $p$ aktivovat každého ze svých neaktivních sousedů.
+3. Aktivovaní sousedé se stávají aktivními v čase $t+1$. Vrchol, který byl aktivní už nemůže být znova aktivován a nemůže znova aktivovat svoje sousedy.
+4. Opakujeme, dokud není možná žádná další aktivace (neexistují žádné aktivní vrcholy).
+5. Nakonec spočítáme, kolik vrcholů bylo aktivováno.
+6. Simulaci opakuje (třeba 100x) a statisticky vyhodnotíme ($\mu$, $\sigma$).
+
+### 16.3. Predikce linků
 
 Predikce, že vznikne nová hrana nebo hrana zanikne.
 
+<img src="../ns/figures/link-prediction.png" alt="link-prediction" width="350px">
+
 Zajímá nás, které vrcholy by měly být v čase $t+1$ nově spojené a které hrany by měly zaniknout.
 
-Metody založené na podobnosti:
+- Systémy doporučování.
+- Interakce v proteinových sítích.
+- Metody např.:
+  - Na základě podobnosti.
+  - Na základě strojového učení.
 
-- [Common neighbors](https://matejfric.github.io/mdbook/ns/ns.html#1041-common-neighbors-cn)
-- [Jaccard Coefficient](https://matejfric.github.io/mdbook/ns/ns.html#1042-jaccard-coefficient-jc)
-- [Preferential attachment](https://matejfric.github.io/mdbook/ns/ns.html#1044-preferential-attachment-pa)
-- [Adamic Adar](https://matejfric.github.io/mdbook/ns/ns.html#1043-adamic-adar-index-aa)
-- [Resource Allocation index](https://matejfric.github.io/mdbook/ns/ns.html#1045-resource-allocation-index-ra)
-- [Cosine similary (Salton index)](https://matejfric.github.io/mdbook/ns/ns.html#1046-cosine-similarity-or-salton-index)
-- [Sorensen index](https://matejfric.github.io/mdbook/ns/ns.html#1047-sorensen-index)
+#### 16.3.1. Predikce linků na základě podobnosti
 
-[Vyhodnocení predikce linků](https://matejfric.github.io/mdbook/ns/ns.html#105-vyhodnocen%C3%AD-predikce-link%C5%AF):
+Buď $G=(V,E)$ a buď $\Gamma(v)$ množina sousedů vrcholu $v\in V$.
 
-- Precision, Recall, F1-score, Accuracy, ...
+| Metoda | Zkratka | Vzorec |
+|--|--------|----------------|
+|Preferential Attachment |PA | $S(x,y)=\lvert\Gamma(x)\rvert \cdot \lvert\Gamma(y)\rvert$ |
+|Common Neighbors | CN | $S(x,y)=\lvert\Gamma(x)\cap\Gamma(y)\rvert$ |
+|Jaccard Coefficient | JC | $S(x,y)=\dfrac{\lvert\Gamma(x)\cap\Gamma(y)\rvert}{\lvert\Gamma(x)\cup\Gamma(y)\rvert}$ |
+|Sorensen Index | SI | $S(x,y)=\dfrac{2\lvert\Gamma(x)\cap\Gamma(y)\rvert}{\lvert\Gamma(x)\rvert+\lvert\Gamma(y)\rvert}$ |
+|Cosine Similary| CS | $S(x,y)=\dfrac{\lvert\Gamma(x)\cap\Gamma(y)\rvert}{\sqrt{\lvert\Gamma(x)\rvert\cdot\lvert\Gamma(y)\rvert}}$ |
+|Adamic Adar | AA | $S(x,y)=\sum\limits_{z\in\Gamma(x)\cap\Gamma(y)}\dfrac{1}{\log\lvert\Gamma(z)\rvert}$ |
+| Resource Allocation Index | RA | AA bez $\log$ |
+
+- AA - větší váha je přiřazena společným sousedům, kteří mají nižší stupeň.
+- Vyhodnocení pomocí klasifikačních metrik (Precision, Recall, F1-score, Accuracy, ...).
+
+### 16.4. Sampling
+
+- Získání reprezentativního vzorku z velké sítě. (Mnoho síťových algoritmů má příliš vysokou časovou složitost.)
+- Např. marketing, průzkumy.
+
+#### 16.4.1. Pravděpodobnostní vzorkování
+
+- Pokud máme *přístup k celé síti*.
+
+**Random Node Sampling** - výběr vrcholu s uniformní pravděpodobností $p=\frac{1}{n}$ (do vzorku přidáme hrany vedoucí do již vybraných vrcholů).
+
+**Random Degree Node Sampling** - výběr vrcholu s $p=\frac{\mathrm{degree}(v)}{2m}$. Vzorek bude mít vyšší průměrný stupeň než původní síť.
+
+**Random Edge Sampling** - výběr hrany s $p=\frac{1}{m}$ (upřednostňuje vrcholy s vyšším stupněm).
+
+**Random Node-Edge Sampling** - výběr *vrcholu* s $p=\frac{1}{n}$ a následně jedné *incidentní hrany*.
+
+#### 16.4.2. Vzorkování prohledáváním grafu
+
+- **Ne**musíme mít přístup k celé síti.
+
+1. *Procházení grafem* - **BFS**, **DFS**, **Snowball** (DFS vybírající maximálně $k$ sousedů).
+2. *Náhodný průzkum* - náhodné procházky (RW)
+   - **RW** - v každém kroku vyberu další vrchol s $p(v)=\frac{1}{\mathrm{degree}(v)}$, může uvíznout v izolované komponentě
+   - **RW with Restart** - pravděpodobností $p$ se vrátím na startovní vrchol (restart).
+   - **RW with Random Jump** - pravděpodobností $p$ skočím na náhodný vrchol (skok).
 
 ## 17. Vícevrstvé sítě, jejich typy a reprezentace. Metody analýzy a vizualizace vícevrstvých sítí, projekce, zploštění
 
-Vícevrstvá síť je čtveřice (A, $\mathcal{L}$, V, E), kde $G=(V,E)$ je graf, $A\subseteq V\times \mathcal{L}$ je množina aktérů a $\mathcal{L}$ je množina vrstev.
+> Vícevrstvá síť je čtveřice (A, $\mathcal{L}$, V, E), kde $G=(V,E)$ je graf, $A\subseteq V\times \mathcal{L}$ je množina aktérů a $\mathcal{L}$ je množina vrstev.
+>
+> - Aktér je entita z reálného světa reprezentovaná vrcholem, která má vztahy s jinými aktéry.
+> - Vrchol je konkrétní aktér v dané vrstvě.
 
-Například můžeme mít třívrstvou homogenní sociální síť, kde někteří lidé (tj. aktéři) spolu pracují, chodí na oběd a chodí běhat.
+Například můžeme mít třívrstvou *homogenní* sociální síť, kde někteří uživatelé (tj. aktéři) spolu pracují (1. vrstva), chodí na oběd (2. vrstva) a jsou přátelé na LinkedIn (3. vrstva).
+
+Typy vícevrstvých sítí:
+
+- **homogenní** - stejné vrcholy ve všech vrstvách (např. uživatelé)
+- **heterogenní** - různé vrcholy ve vrstvách (např. uživatelé a produkty)
+
+Metody analýzy a vizualizace vícevrstvých sítí:
+
+- Každou vrstvu zvlášť (nejjednodušší).
+- Zploštění *(flattening)* - projekce na jednu vrstvu.
+- Napříč vrstvami. (Vizualizace ve 3D.)
 
 ### 17.1. Zploštění
 
-1. Nevážené.
-2. Vážené.
+Díky zploštění můžeme používat standardní metody analýzy sítí, jako např. detekci komunit. Sloučíme vrcholy z různých vrstev do jedné vrstvy.
+
+> 1. **Nevážený flattening** vrstev $L\subseteq \mathcal{L}$ vícevrstvé sítě $(A,\mathcal{L},V,E)$ je graf $(V_f,E_f)$, kde $(\forall l\in L)\colon$
+>
+>     $$\begin{align*} V_f&=\{a\mid(a,l)\in A\},\\ E_f&=\{(a,a')\mid\{(a,l),(a',l)\}\in E\}. \end{align*} $$
+>
+> 2. **Vážený flattening** vícevrstvé sítě $(A,\mathcal{L},V,E)$, je vážený graf $(V_f,E_f,w)$, kde
+>
+>     $$w(a_i,a_j)=\sum\limits_{\{(a_i,L_k),(a_j,L_l)\}\in E}\Theta_{k,l},$$
+>
+>     kde $\Theta\in\mathbb{R}^{|\mathcal{L}|\times |\mathcal{L}|}$ je matice vah přechodů mezi vrstvami, tzn. $\Theta_{k,l}$ representuje váhu přechodu z $k$-té vrstvy do $l$-té vrstvy.
+>
+>     <img src="../ns/figures/weighted_flattening.png" alt="weighted_flattening" width="500px">
+>
+>     Jednodušší alternativa spočívá v tom, že váhu hrany mezi vrcholy $a_i$ a $a_j$ v grafu $G_f$ definujeme jako součet vah hran mezi vrcholy $a_i$ a $a_j$ ve všech vrstvách. Tzn. $\Theta=\mathbf{1}$
 
 ### 17.2. Projekce
 
 Z heterogenní sítě na homogenní.
+
+<img src="figures/multilayer-projection.drawio.svg" alt="multilayer-projection.drawio.svg" width="550px">
+
+- Mezi $\,\square\,$  a  $\,\circ\,$ existují dvě cesty, proto je v projekci váha 2.
 
 ## 18. Lokální a globální vlastnosti vícevrstvých sítí, typy centralit a náhodné procházky. Metody detekce komunit ve vícevrstvých sítích
 
