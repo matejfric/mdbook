@@ -65,11 +65,24 @@
   - [17.2. Projekce](#172-projekce)
 - [18. Lokální a globální vlastnosti vícevrstvých sítí, typy centralit a náhodné procházky. Metody detekce komunit ve vícevrstvých sítích](#18-lokální-a-globální-vlastnosti-vícevrstvých-sítí-typy-centralit-a-náhodné-procházky-metody-detekce-komunit-ve-vícevrstvých-sítích)
   - [18.1. Náhodná procházka ve vícevrstvé síti](#181-náhodná-procházka-ve-vícevrstvé-síti)
-  - [11.8. Vzdálenosti ve vícevrstvých sítích](#118-vzdálenosti-ve-vícevrstvých-sítích)
-  - [18.1. Detekce komunit ve vícevrstvých sítích](#181-detekce-komunit-ve-vícevrstvých-sítích)
+  - [18.2. Vzdálenosti ve vícevrstvých sítích](#182-vzdálenosti-ve-vícevrstvých-sítích)
+  - [18.3. Detekce komunit ve vícevrstvých sítích](#183-detekce-komunit-ve-vícevrstvých-sítích)
 - [19. Algoritmy pro pattern matching (Vyhledávání jednoho vzorku, více vzorků; Vyhledávání regulárních výrazů; Přibližné vyhledávání)](#19-algoritmy-pro-pattern-matching-vyhledávání-jednoho-vzorku-více-vzorků-vyhledávání-regulárních-výrazů-přibližné-vyhledávání)
+  - [19.1. Vyhledávání jednoho a více vzorků](#191-vyhledávání-jednoho-a-více-vzorků)
+    - [19.1.1. Hrubou silou](#1911-hrubou-silou)
+    - [19.1.2. Pomocí konečného automatu](#1912-pomocí-konečného-automatu)
+    - [19.1.3. Morris-Pratt (MP)](#1913-morris-pratt-mp)
+    - [19.1.4. Horspool](#1914-horspool)
+  - [19.2. Vyhledávání regulárních výrazů](#192-vyhledávání-regulárních-výrazů)
+  - [19.3. Přibližné vyhledávání](#193-přibližné-vyhledávání)
 - [20. Dokumentografické informační systémy (DIS) (modely DIS - booleovský, vektorový, lexikální analýza, stemming a lematizace, stop slova, konstrukce indexů, vyhodnocení dotazu, relevance, přesnost, úplnost, F-míra)](#20-dokumentografické-informační-systémy-dis-modely-dis---booleovský-vektorový-lexikální-analýza-stemming-a-lematizace-stop-slova-konstrukce-indexů-vyhodnocení-dotazu-relevance-přesnost-úplnost-f-míra)
+  - [20.1. Lexikální analýza](#201-lexikální-analýza)
+  - [20.2. Booleovský model](#202-booleovský-model)
+  - [20.3. Vektorový model](#203-vektorový-model)
+  - [20.4. Vyhodnocení dotazu](#204-vyhodnocení-dotazu)
 - [21. Lineární algebra v DIS (metody redukce dimenze, rozklady matic, latentní sémantika, analýza hypertextových dokumentů, PageRank)](#21-lineární-algebra-v-dis-metody-redukce-dimenze-rozklady-matic-latentní-sémantika-analýza-hypertextových-dokumentů-pagerank)
+  - [21.1. Latentní sémantická analýza (LSA)](#211-latentní-sémantická-analýza-lsa)
+  - [21.2. PageRank](#212-pagerank)
 - [22. Neuronové sítě a zpracování textu (word embedding, klasifikace textu, generování textu, …)](#22-neuronové-sítě-a-zpracování-textu-word-embedding-klasifikace-textu-generování-textu-)
   - [22.1. Word Embedding](#221-word-embedding)
   - [22.2. Klasifikace textu](#222-klasifikace-textu)
@@ -1376,7 +1389,7 @@ mindmap
 - V každém kroku se náhodný chodec s *uniformní pravděpodobností* buď přemístí do jednoho ze *sousedních vrcholů* v rámci vrstvy, ve které se nachází, nebo přejde do svého *protějšku* v jiné vrstvě (pokud takový protějšek existuje).
 - **Centralita obsazenosti** *(occupation centrality)* aktéra $a$ je pravděpodobnost, že se náhodný chodec na vícevrstvé síti nachází na jakémkoliv vrcholu příslušném $a$.
 
-### 11.8. Vzdálenosti ve vícevrstvých sítích
+### 18.2. Vzdálenosti ve vícevrstvých sítích
 
 - Vzdálenosti reprezentujeme pomocí matice. Na diagonále jsou počty přechodů v rámci $i$-té vrstvy sítě. Mimo diagonálu jsou počty přechodů mezi vrstvami (prvek na indexu $(i,j)$ znamená přechod z $i$-té vrstvy do $j$-té vrstvy).
 
@@ -1393,7 +1406,7 @@ mindmap
   - $\mathrm{trace}(A)$ ...zanedbává přechody mezi vrstvami,
   - $\sum\limits_{i}\sum\limits_{j}A_{i,j}$ ...zanedbává vrstvy.
 
-### 18.1. Detekce komunit ve vícevrstvých sítích
+### 18.3. Detekce komunit ve vícevrstvých sítích
 
 - Lze rozšířit standardní funkci *modularity*.
 - Lze použít *zploštění*, *projekci* nebo analyzovat *každou vrstvu zvlášť*.
@@ -1401,9 +1414,296 @@ mindmap
 
 ## 19. Algoritmy pro pattern matching (Vyhledávání jednoho vzorku, více vzorků; Vyhledávání regulárních výrazů; Přibližné vyhledávání)
 
+### 19.1. Vyhledávání jednoho a více vzorků
+
+#### 19.1.1. Hrubou silou
+
+Prohledáváme text znak po znaku a porovnáváme s hledaným vzorem. Časová složitost $\mathcal{O}(nm)$, kde $n$ je délka textu a $m$ je délka vzoru.
+
+<details><summary> Brute force </summary>
+
+```py
+p0 = pattern[0]
+for idx, char in enumerate(text):
+    if char == p0:
+        for i in range(1, len(pattern)):
+            if (text[idx + i] != pattern[i]):
+                break
+        else:
+            # Found pattern
+            yield idx
+```
+
+</details>
+
+#### 19.1.2. Pomocí konečného automatu
+
+>Deterministický konečný automat (DKA/DFA) je pětice $(Q, \Sigma, \delta, q_0, F)$, kde
+>
+>- $Q$ je neprázdná konečná množina stavů,
+>- $\Sigma$ je abeceda (neprázdná konečná množina symbolů),
+>- $\delta : Q \times \Sigma \rightarrow Q$ je přechodová funkce,
+>- $q_0 \in Q$ je počáteční stav,
+>- $F \subseteq Q$ je množina přijímajících stavů.
+
+Pro vzor $p$ vytvoříme DKA, s.t.
+
+- $Q$ je množina všech prefixů vzoru $p$, tzn.
+  
+    $$Q = \{\varepsilon, p[1], p[0..1], \ldots, p[0..m-2], p\}$$
+- $q_0=\varepsilon$,
+- $\Sigma$ je abeceda textu,
+- $F=\{p\}$,
+- Buď $a\in\Sigma$ a $q\in Q$. Přechodová funkce $\delta$ je definována jako $\delta(q,a)=qa$ právě tehdy, když $qa$ je prefix vzoru $p$. Jinak $\delta(q,a)=x$, kde $x$ je nejdelší suffix $qa$, který je prefixem $p$. Podobně lze sestrojit DKA pro více vzorů.
+
+Složitost:
+
+- Prostorová $\mathcal{O}(m|\Sigma|)$.
+- Časová:
+  - Předzpracování $\mathcal{O}(m|\Sigma|)$.
+  - Vyhledávání $\mathcal{O}(n)$.
+
+Předzpracování, tzn. vytvoření DKA, trvá $\mathcal{O}(m|\Sigma|)$, kde $|\Sigma|$ je velikost abecedy. Prohledávání textu trvá $\mathcal{O}(n)$, takže celková složitost je $\mathcal{O}(m|\Sigma| + n)$.
+
+#### 19.1.3. Morris-Pratt (MP)
+
+Rozšíření brute-force algoritmu. Využívá tabulku prefixů, aby se omezil počet porovnání.
+
+|       |    |   |   |   |   |          |
+|-------|----|---|---|---|---|----------|
+| Index | 0  | 1 | 2 | 3 | 4 | 5        |
+| Vzor  | a  | b | a | b | c | $\times$ |
+| Krok  | -1 | 0 | 0 | 1 | 2 | 0        |
+
+Např. `abcababc`:
+
+- `abc` - shoda `ab`, `c` je špatně, tzn. `i=2`, proto přeskočíme `i-Krok[i]=2-0` znaků.
+- `c` je špatně, tzn. `i=0`, přeskočíme `i-Krok[i]=0-(-1)=1` znak.
+- `ababc` našli jsme vzor, `i=5`, přeskočíme `i-Krok[i]=5-0=5` znaků.
+
+#### 19.1.4. Horspool
+
+- Hledá vzor zprava doleva.
+- Vytvoří tabulku posunů pro každý znak abecedy $T = [m] * |\Sigma|$.
+
+```py
+m = len(p)
+T = [m] * 256  # ASCII
+for i in range(m - 1):
+    T[ord(p[i])] = m - 1 - i  
+```
+
+- Při neshodě posune vzor o $T[\mathrm{ord}(\mathrm{text}[i + m - 1])]$ znaků (podle prvního porovnávaného znaku - zprava).
+
+<img src="figures/horspool.gif" alt="horspool" width="600px">
+
+### 19.2. Vyhledávání regulárních výrazů
+
+Pomocí derivace regulárních výrazů a konečných automatů.
+
+### 19.3. Přibližné vyhledávání
+
+> 1. **Hamming**ova vzdálenost - počet pozic, kde se řetězce liší (nejmenší počet substitucí).
+> 2. **Levenshtein**ova (editační) vzdálenost - nejmenší počet operací *vkládání, mazání a substituce*.
+
+Lze implementovat pomocí NDKA.
+
+<img src="figures/approx-pattern-matching.png" alt="approx-pattern-matching" width="600px">
+
 ## 20. Dokumentografické informační systémy (DIS) (modely DIS - booleovský, vektorový, lexikální analýza, stemming a lematizace, stop slova, konstrukce indexů, vyhodnocení dotazu, relevance, přesnost, úplnost, F-míra)
 
+- Cílem DIS je efektivní vyhledávání dokumentů nebo informací v dokumentech na základě dotazu uživatele.
+  - Není možné sekvenčně procházet všechny dokumenty na internetu pro každý dotaz.
+- Využití v knihovnách, databázích, vyhledávačích, atd.
+
+### 20.1. Lexikální analýza
+
+Lexikální analýza slouží k přípravě textu před zpracováním v DIS.
+
+- **Tokenizace** – rozdělení textu na slova (tokeny),
+- **Stemming** – převod slov na základní tvar, který ale nemusí být existující slovo, obvykle odstraňováním konců slov (heuristika).
+  - **Porter**ův algoritmus *(stemmer)* pro angličtinu - `fishing, fished, fisher` $\rightarrow$ `fish`
+- **Lematizace** – seskupování slov na základní tvar (lemma) podle jejich významu ve větě.
+  - `better` $\rightarrow$ `good`
+  - `talking` $\rightarrow$ `talk`
+  - `saw` $\rightarrow$ `see` NEBO `saw` (sloveso nebo podstatné jméno)
+  - `meeting` $\rightarrow$ `meet` NEBO `meeting` (sloveso nebo podstatné jméno)
+- **Odstranění stop-slov** – odstranění častých slov, které běžně neovlivňují význam `"the", "a", ...`
+  - Typicky seřadímě term frequency (TF) a vybere nejčastější slova k vyřazení z indexu - `stop list` (nebo použijeme existující `stop list`).
+
+### 20.2. Booleovský model
+
+- Vyhledávání pomocí logických operátorů (`AND`, `OR`, `NOT`).
+- Např. `analyza AND obraz` (lze optimalizovat pořadí operátorů pro zvýšení efektivity).
+- Booleovský model je jednoduchý, rychlý, ale **nerespektuje relevanci** výsledků – dokument buď odpovídá dotazu, nebo ne.
+
+| TD | Doc 1 | Doc 2 | ... | Doc N |
+|--|--|--|--|--|
+| term 1 | 1 | 0 | ... |  1 |
+| term 2 | 1 | 0 | ... |  0 |
+| ... | ... | ... | ... |  ... |
+| term M | 0 | 1 | ... |  1 |
+
+- Prvek $(t,d)=1$ právě tehdy, když slovo $t$ je v dokumentu $d$. Jinak $0$.
+- Vyhodnocení dotazu probíhá pomocí logických operátorů nad řádky.
+- Term-Document (TD) matice je řídká.
+
+### 20.3. Vektorový model
+
+- Umožňuje vyjádřit míru relevance dokumentu k dotazu.
+- Složitější výpočet než Booleovský model.
+
+| TF | Doc 1 | Doc 2 | ... | Doc N |
+|--|--|--|--|--|
+| term 1 | 10 | 0 | ... |  3 |
+| term 2 | 15 | 0 | ... |  0 |
+| ... | ... | ... | ... |  ... |
+| term M | 0 | 8 | ... |  7 |
+
+Buď $N$ počet dokumentů v kolekci a buď *document frequency* $\mathrm{DF}({\mathrm{term}})$ počet dokumentů obsahujících $\mathrm{term}$. Pak definujeme *inverse document frequency (IDF)* pro slovo $\mathrm{term}$ jako:
+
+$$\boxed{\mathrm{IDF}(\mathrm{term}) = \log\dfrac{N}{\mathrm{DF}(\mathrm{term})}.}$$
+
+Tzn. vzácnější slova mají větší váhu *(IDF)* než častější.
+
+Dále se používá $\text{TF-IDF}$ vážení, které je nejvyšší, pokud se slovo často vyskytuje v malém počtu dokumentů (a nejnižší, pokud se slovo vyskytuje ve všech dokumentech):
+
+$$\boxed{\text{TF-IDF}(t,d) = \mathrm{TF}(t,d)\cdot \mathrm{IDF}(t)}$$
+
+Vyhodnocení pro dotaz $q$:
+
+$$\boxed{
+    \begin{align*}
+        \text{Score}(q,d) &= \sum\limits_{t\in q} \text{TF-IDF}(t,d)
+    \end{align*}
+}$$
+
+Navíc můžeme určit podobnost dvou dokumentů pomocí *kosinové podobnosti*. Buď $\vec{v}(d)=\text{TF-IDF}(:,d)$, pak:
+
+$$\boxed{\cos(\theta)=\mathrm{sim}(d_1,d_2)=\dfrac{\langle \vec{v}(d1),\vec{v}(d_2) \rangle}{\lVert\vec{v}(d_1)\rVert\lVert\vec{v}(d_2)\rVert}}$$
+
+### 20.4. Vyhodnocení dotazu
+
+Pro dotaz $q$ musíme prvně použít stejné předzpracování (lexikální analýzu) jako pro dokumenty.
+
+- **Relevance** - míra shody mezi dotazem a dokumentem.
+- **Přesnost** *(precision)* - podíl relevantních dokumentů ve výsledku dotazu vůči všem *nalezeným dokumentům* $\dfrac{\text{TP}}{\text{TP}+\text{FP}}$
+- **Úplnost** *(recall)* - podíl relevantních dokumentů ve výsledku dotazu vůči všem *relevantním dokumentům v kolekci* $\dfrac{\text{TP}}{\text{TP}+\text{FN}}$
+- **F-míra** - harmonický průměr přesnosti a úplnosti $\dfrac{2 \cdot \text{precision} \cdot \text{recall}}{\text{precision} + \text{recall}}$
+
 ## 21. Lineární algebra v DIS (metody redukce dimenze, rozklady matic, latentní sémantika, analýza hypertextových dokumentů, PageRank)
+
+### 21.1. Latentní sémantická analýza (LSA)
+
+Využívá **singulární rozklad matice** *(SVD - Singular Value Decomposition)* k odhalení skrytých (latentních) významů v textech.
+
+>Buď $\mathsf{A}\in\R^{m\times n}$ libovolná matice. Pak existují *ortogonální* matice  $\mathsf{U}\in\R^{m\times m}$, $\mathsf{V}\in\R^{n\times n}$ a *diagonální* matice $\mathsf{\Sigma}\in\R^{m\times n}$ takové, že
+>
+>$$\boxed{\,\,\mathsf{A}=\mathsf{U}\mathsf{\Sigma}\mathsf{V}^\top.\,\,}$$
+
+Buď $\mathsf{A}$ TF matice. Alternativně můžeme místo dokumentů uvažovat věty.
+
+| TF | $D_1$ | $D_2$ | ... | $D_N$ |
+|--|--|--|--|--|
+| $t_1$ | 10 | 0 | ... |  3 |
+| $t_2$ | 15 | 0 | ... |  0 |
+| ... | ... | ... | ... |  ... |
+| $t_M$ | 0 | 8 | ... |  7 |
+
+| $\mathsf{U}$ | $b_1$ | $b_2$ | ... | $b_M$ |
+|--|--|--|--|--|
+| $w_1$ |  |  | ... |  |
+| $w_2$ |  |  | ... |  |
+| ... | ... | ... | ... |  ... |
+| $w_M$ |  |  | ... |  |
+
+| $\Sigma$ | 1 | $\cdots$ | N |
+|--|--|--|--|
+| 1 | $\sigma_1$ |  |  |
+| $\vdots$ |  | $\ddots$ |  |
+| N |  |  | $\sigma_N$  |
+
+$\sigma_1 > \sigma_2 > \cdots > \sigma_N$
+
+| $\mathsf{V}^\top$ | $b_1$ | $b_2$ | ... | $b_N$ |
+|--|--|--|--|--|
+| $D_1$ |  |  | ... |  |
+| $D_2$ |  |  | ... |  |
+| ... | ... | ... | ... |  ... |
+| $D_N$ |  |  | ... |  |
+
+Singulární čísla matice $\Sigma$ udávají, jak důležitý je daný bázový vektor $b$ - **koncept** (latentní dimenze).
+
+- `argmax(U[:,0])` je index nejvýznamějšího slova
+- `argmax(V_T[:,0])` je index nejvýznamějšího dokumentu
+
+SVD lze využít k redukci dimenze. Zachováme pouze $k$ největších singulárních čísel, zbytek vynulujeme a vypočteme aproximaci matice $\mathsf{A}$:
+
+$$\mathsf{A}_k=\mathsf{U}\mathsf{\Sigma}_k\mathsf{V}^\top$$
+
+Tuto metodu označujeme jako **LSI (Latent Semantic Indexing)**. Dotaz $\vec{q}$ mapujeme do latentního prostoru:
+
+$$\vec{q}_k=\mathsf{\Sigma}_k^{-1}\mathsf{U}_k^\top\vec{q}$$
+
+<!--
+Buď $V$ VP a buď $\mathsf{A}\in\R^{n,n}$. Pokud existuje *nenulový* vektor $v\in V$ a číslo $\lambda\in\mathbb{C}$ takové, že
+$$
+\boxed{\mathsf{A}\cdot v = \lambda\cdot v,}
+$$
+tak $\lambda$ nazýváme *vlastním číslem* a $v$ *vlastním vektorem* matice $\mathsf{A}$.
+-->
+
+### 21.2. PageRank
+
+- PageRank je algoritmus pro analýzu hypertextových odkazů, který každému hypertextovému dokumentu přiřazuje číselnou váhu.
+- Web je modelován jako orientovaný graf, kde stránky jsou uzly a odkazy jsou hrany.
+- PageRank je centralita grafu (určuje míru důležitosti vrcholu z hlediska struktury sítě).
+  
+    $$\boxed{\mathrm{PR}(u)=\dfrac{1-\tau}{|V|}+\tau\sum\limits_{v\in N \rightarrow u}\dfrac{\mathrm{PR}(v)}{|N\leftarrow v|}},$$
+
+  - kde $V$ je množina vrcholů grafu $G$,
+  - $N\leftarrow v$ je množina vrcholů, do kterých vedou hrany z $v$ (odchozí hrany z $v$)
+    - tzn. výstupní stupeň $\mathrm{out}(v) = |N\leftarrow v|$
+  - $N\rightarrow v$ je množina vrcholů, ze kterých vede hrana do $v$ (příchozí hrany do $v$)
+  - $\tau\in[0,1]$ je teleportační faktor - konstanta - obvykle nastavená na 0.85
+  - Na začátku se $\mathrm{PR}$ inicializuje na $\dfrac{1}{|V|}$.
+  - Výstupem je pravděpodobnostní rozdělení $\Rightarrow\sum\limits_{v\in V}\mathrm{PR}(v)=1$.
+
+<details><summary> Příklad </summary>
+
+- [PageRank | Medium](https://medium.com/analytics-vidhya/parallel-pagerank-an-overview-of-algorithms-and-their-performance-ce3b2a2bfdb6)
+
+<img src="../pa/figures/page_rank.png" alt="page_rank.png" width="300px">
+
+- $\tau=0.85$
+- $\mathrm{PR}(A)=\dfrac{1-0.85}{4}+0.85\cdot \dfrac{\mathrm{PR}(C)}{|\set{A}|}$
+- $\mathrm{PR}(B)=\dfrac{1-0.85}{4}+0.85\cdot \left(\dfrac{\mathrm{PR}(A)}{|\set{B,C,D}|} + \dfrac{\mathrm{PR}(D)}{|\set{B}|}\right)$
+- $\mathrm{PR}(C)=\dfrac{1-0.85}{4}+0.85\cdot \left(\dfrac{\mathrm{PR}(A)}{|\set{B,C,D}|} + \dfrac{\mathrm{PR}(B)}{|\set{C}|}\right)$
+- $\mathrm{PR}(D)=\dfrac{1-0.85}{4}+0.85\cdot \dfrac{\mathrm{PR}(A)}{|\set{B,C,D}|}$
+
+</details>
+
+<details><summary> Alternativní výpočet </summary>
+
+Alternativně lze PageRank počítat mocninnou metodou. Buď $N$ počet hypertextových stránek $p_1,\ldots,p_N$.
+
+$$
+\mathbf {R} ={\begin{bmatrix}{(1-\tau)/N}\\{(1-\tau)/N}\\\vdots \\{(1-\tau)/N}\end{bmatrix}}+d{\begin{bmatrix}\ell (p_{1},p_{1})&\ell (p_{1},p_{2})&\cdots &\ell (p_{1},p_{N})\\\ell (p_{2},p_{1})&\ddots &&\vdots \\\vdots &&\ell (p_{i},p_{j})&\\\ell (p_{N},p_{1})&\cdots &&\ell (p_{N},p_{N})\end{bmatrix}}\mathbf {R}
+$$
+
+$$
+\mathbf {R} ={\begin{bmatrix}\mathrm{PR}(p_{1})\\\mathrm{PR}(p_{2})\\\vdots \\\mathrm{PR}(p_{N})\end{bmatrix}}
+$$
+
+kde $\ell(p_i,p_j)=\dfrac{1}{\mathrm{out}(p_j)}$ pokud vede odkaz z $p_j$ do $p_i$ jinak 0. Navíc platí:
+
+$$
+\sum\limits_{i=1}^{N}\ell (p_{i},p_{j})=1,
+$$
+
+tzn. jedná se o řádkovou stochastickou matici.
+
+</details>
 
 ## 22. Neuronové sítě a zpracování textu (word embedding, klasifikace textu, generování textu, …)
 
