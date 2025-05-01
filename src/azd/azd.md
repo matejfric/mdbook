@@ -64,6 +64,9 @@
   - [17.1. Zploštění](#171-zploštění)
   - [17.2. Projekce](#172-projekce)
 - [18. Lokální a globální vlastnosti vícevrstvých sítí, typy centralit a náhodné procházky. Metody detekce komunit ve vícevrstvých sítích](#18-lokální-a-globální-vlastnosti-vícevrstvých-sítí-typy-centralit-a-náhodné-procházky-metody-detekce-komunit-ve-vícevrstvých-sítích)
+  - [18.1. Náhodná procházka ve vícevrstvé síti](#181-náhodná-procházka-ve-vícevrstvé-síti)
+  - [11.8. Vzdálenosti ve vícevrstvých sítích](#118-vzdálenosti-ve-vícevrstvých-sítích)
+  - [18.1. Detekce komunit ve vícevrstvých sítích](#181-detekce-komunit-ve-vícevrstvých-sítích)
 - [19. Algoritmy pro pattern matching (Vyhledávání jednoho vzorku, více vzorků; Vyhledávání regulárních výrazů; Přibližné vyhledávání)](#19-algoritmy-pro-pattern-matching-vyhledávání-jednoho-vzorku-více-vzorků-vyhledávání-regulárních-výrazů-přibližné-vyhledávání)
 - [20. Dokumentografické informační systémy (DIS) (modely DIS - booleovský, vektorový, lexikální analýza, stemming a lematizace, stop slova, konstrukce indexů, vyhodnocení dotazu, relevance, přesnost, úplnost, F-míra)](#20-dokumentografické-informační-systémy-dis-modely-dis---booleovský-vektorový-lexikální-analýza-stemming-a-lematizace-stop-slova-konstrukce-indexů-vyhodnocení-dotazu-relevance-přesnost-úplnost-f-míra)
 - [21. Lineární algebra v DIS (metody redukce dimenze, rozklady matic, latentní sémantika, analýza hypertextových dokumentů, PageRank)](#21-lineární-algebra-v-dis-metody-redukce-dimenze-rozklady-matic-latentní-sémantika-analýza-hypertextových-dokumentů-pagerank)
@@ -1335,16 +1338,66 @@ Z heterogenní sítě na homogenní.
 
 ## 18. Lokální a globální vlastnosti vícevrstvých sítí, typy centralit a náhodné procházky. Metody detekce komunit ve vícevrstvých sítích
 
+```mermaid
+mindmap
+  root )Vlastnosti)
+    Stupeň aktéra
+    Sousedé aktéra
+    Sousedství aktéra
+    Exkluzivní sousedství aktéra
+    Relevance vrcholu
+    Exkluzivní relevance vrcholu
+    Connective Redundancy
+    Vzdálenosti
+    Centralita obsazenosti
+```
+
+| Vlastnost | Definice | Vzorec |
+|--|--|--|
+|**Stupeň aktéra**|Suma stupňů vrcholů příslušných $a$ ve vrstvách $L\subseteq{\mathcal{L}}$.|$(\forall(a,l), (a',l')\in A)(\forall l,l' \in L)\colon\boxed{\mathrm{deg}(a, L) = \lvert\left\{ ((a,l),(a',l))\in E \right\}\rvert}$|
+|**Sousedé aktéra**|Unikátní sousedé vrcholů příslušných $a$ ve vrstvách $L\subseteq{\mathcal{L}}$.|$(\forall(a,l), (a',l')\in A)(\forall l,l' \in L)\colon\boxed{\mathrm{neighbors}(a, L) = \left\{ a' \mid ((a,l),(a',l))\in E \right\}}$|
+|**Sousedství aktéra**|Počet sousedů aktéra.|$\boxed{\mathrm{neighborhood}(a, L) = \lvert\mathrm{neighbors}(a, L)\rvert}$|
+|**Exkluzivní sousedství aktéra**|Počet sousedů bez sousedů z vrstev $\mathcal{L}\setminus L$.|$\boxed{\mathrm{x\_neighborhood}(a, L) = \lvert\mathrm{neighbors}(a, L)\setminus\mathrm{neighbors}(a, \mathcal{L}\setminus L)\rvert}$|
+|**Relevance vrcholu**|Centralita sousedství děleno počtem sousedů ve všech vrstvách (tzn. sousedství pro $\mathcal{L}$).|$\boxed{\mathrm{relevance}(a, L) = \frac{\mathrm{neighborhood}(a, L)}{\mathrm{neighborhood}(a, \mathcal{L})}}$|
+|**Exkluzivní relevance vrcholu**|Centralita exkluzivního sousedství děleno počtem všech sousedů.|$\boxed{\mathrm{x\_relevance}(a, L) = \frac{\mathrm{x\_neighborhood}(a, L)}{\mathrm{neighborhood}(a, \mathcal{L})}}$|
+|**Connective Redundancy**|Počet sousedů děleno suma stupňů příslušných $a$ ve vrstvách $L\subseteq{\mathcal{L}}$.|$\boxed{\mathrm{con\_red}=1-\dfrac{\mathrm{neighborhood}(a, L)}{\mathrm{deg}(a, L)}}$|
+
+<!-- 
 - Stupeň aktéra *(degree centrality)* $a$ je suma stupňů vrcholů příslušných $a$ ve vrstvách $L\subseteq{\mathcal{L}}$.
 - Sousedé *(neigbors)* aktéra $a$ jsou unikátní sousedé vrcholů příslušných $a$ ve vrstvách $L\subseteq{\mathcal{L}}$.
 - Sousedství *(neighborhood)* je počet sousedů aktéra.
 - Exluzivní sousedství *(exclusive neighborhood)* je počet sousedů bez sousedů z vrstev $\mathcal{L}\setminus L$.
 - Relevance vrcholu je centralita sousedství děleno počtem sousedů ve všech vrstvách (tzn. sousedství pro $\mathcal{L}$).
-- Exkluzivní relevance vrcholu je centralita exkluzivního sousedství děleno počtem všech sousedů.
+- Exkluzivní relevance vrcholu je centralita exkluzivního sousedství děleno počtem všech sousedů. 
+-->
 
-Náhodná procházka ve vícevrstvé síti: V každém kroku má náhodný chodec uniformní pravděpodobnost, že se buď přemístí do jednoho ze sousedních vrcholů v rámci vrstvy, ve které se nachází, nebo přejde do svého protějšku v jiné vrstvě (pokud takový protějšek existuje).
+### 18.1. Náhodná procházka ve vícevrstvé síti
 
-Centralita obsazenosti *(occupation centrality)* aktéra $a$ je pravděpodobnost, že se náhodný chodec na vícevrstvé síti nachází na jakémkoliv vrcholu příslušném $a$.
+- V každém kroku se náhodný chodec s *uniformní pravděpodobností* buď přemístí do jednoho ze *sousedních vrcholů* v rámci vrstvy, ve které se nachází, nebo přejde do svého *protějšku* v jiné vrstvě (pokud takový protějšek existuje).
+- **Centralita obsazenosti** *(occupation centrality)* aktéra $a$ je pravděpodobnost, že se náhodný chodec na vícevrstvé síti nachází na jakémkoliv vrcholu příslušném $a$.
+
+### 11.8. Vzdálenosti ve vícevrstvých sítích
+
+- Vzdálenosti reprezentujeme pomocí matice. Na diagonále jsou počty přechodů v rámci $i$-té vrstvy sítě. Mimo diagonálu jsou počty přechodů mezi vrstvami (prvek na indexu $(i,j)$ znamená přechod z $i$-té vrstvy do $j$-té vrstvy).
+
+    $$
+    \begin{pmatrix}
+    \# 1 & \# 1 \rightarrow 2 \\
+    \# 2 \rightarrow 1 & \#2
+    \end{pmatrix}
+    $$
+
+- Můžeme získat různé množství informací:
+
+  - $A$ ...všechny přechody,
+  - $\mathrm{trace}(A)$ ...zanedbává přechody mezi vrstvami,
+  - $\sum\limits_{i}\sum\limits_{j}A_{i,j}$ ...zanedbává vrstvy.
+
+### 18.1. Detekce komunit ve vícevrstvých sítích
+
+- Lze rozšířit standardní funkci *modularity*.
+- Lze použít *zploštění*, *projekci* nebo analyzovat *každou vrstvu zvlášť*.
+- Existují i specializované algoritmy, např. rozšíření metody *Louvain* pro vícevrstvé sítě.
 
 ## 19. Algoritmy pro pattern matching (Vyhledávání jednoho vzorku, více vzorků; Vyhledávání regulárních výrazů; Přibližné vyhledávání)
 
