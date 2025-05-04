@@ -7,9 +7,14 @@
 - [5. Jazyk predikátové logiky prvního řádu. Práce s kvantifikátory a ekvivalentní transformace formulí](#5-jazyk-predikátové-logiky-prvního-řádu-práce-s-kvantifikátory-a-ekvivalentní-transformace-formulí)
 - [6. Pojem relace, operace s relacemi, vlastnosti binárních homogenních relací. Relace ekvivalence a relace uspořádání a jejich aplikace](#6-pojem-relace-operace-s-relacemi-vlastnosti-binárních-homogenních-relací-relace-ekvivalence-a-relace-uspořádání-a-jejich-aplikace)
 - [7. Pojem operace a obecný pojem algebra. Algebry s jednou a dvěma binárními operacemi](#7-pojem-operace-a-obecný-pojem-algebra-algebry-s-jednou-a-dvěma-binárními-operacemi)
+  - [7.1. Algebry s jednou binární operací](#71-algebry-s-jednou-binární-operací)
+  - [7.2. Algebry se dvěma binárními operacemi](#72-algebry-se-dvěma-binárními-operacemi)
 - [8. FCA – formální kontext, formální koncept, konceptuální svazy](#8-fca--formální-kontext-formální-koncept-konceptuální-svazy)
 - [9. Asociační pravidla, hledání často se opakujících množin položek](#9-asociační-pravidla-hledání-často-se-opakujících-množin-položek)
 - [10. Metrické a topologické prostory – metriky a podobnosti. Jejich aplikace](#10-metrické-a-topologické-prostory--metriky-a-podobnosti-jejich-aplikace)
+  - [10.1. Metriky](#101-metriky)
+  - [10.2. Podobnosti](#102-podobnosti)
+  - [10.3. Topologické prostory](#103-topologické-prostory)
 - [11. Shlukování. Typy shlukování, metody pro určení kvality shlukování, aplikace shlukování](#11-shlukování-typy-shlukování-metody-pro-určení-kvality-shlukování-aplikace-shlukování)
 - [12. Náhodná veličina. Základní typy náhodných veličin. Funkce určující rozdělení náhodných veličin](#12-náhodná-veličina-základní-typy-náhodných-veličin-funkce-určující-rozdělení-náhodných-veličin)
 - [13. Vybraná rozdělení diskrétní a spojité náhodné veličiny. Binomické, hypergeometrické, negativně binomické, Poissonovo, exponenciální, Weibullovo, normální rozdělení](#13-vybraná-rozdělení-diskrétní-a-spojité-náhodné-veličiny-binomické-hypergeometrické-negativně-binomické-poissonovo-exponenciální-weibullovo-normální-rozdělení)
@@ -30,17 +35,331 @@
 
 ## 5. Jazyk predikátové logiky prvního řádu. Práce s kvantifikátory a ekvivalentní transformace formulí
 
+Predikátová logika prvního řádu *(First-Order Logic, FOL)* je rozšíření výrokové logiky.
+
+Existují výroky, které nelze vyjádřit pomocí výrokové logiky. Např.
+
+- `Každý student rozumí FOL.`
+- `Každé sudé celé číslo je dělitelné dvěma.`
+
+Jazyk predikátové logiky prvního řádu obsahuje:
+
+|Termy|Formule|
+|---|---|
+| **Konstantní symboly** `42`, `Bob` | **Atomické formule** `Knows(Bob, FOL)`, `P(x,y)` |
+| **Proměnné** `x` | **Logické spojky** $\neg, \lor, \land, \implies, \iff$ |
+| **Funkce** ($n$-ární) `Sum(x,3)` | **Kvantifikátory** $\forall, \exist$ |
+
+- Univerzální kvantifikátor $\forall$:
+  - $\forall x\, P(x)$ rozumíme $P(A)\land P(B)\land \ldots$
+- Existenciální kvantifikátor $\exist$:
+  - $\exist x\, P(x)$ rozumíme $P(A)\lor P(B)\lor \ldots$
+- Vlastnosti kvantifikátorů:
+  - De Morgan: $\neg(\forall x\, P(x)) \Leftrightarrow \exist x\, \neg P(x)$
+  - De Morgan: $\neg(\exist x\, P(x)) \Leftrightarrow \forall x\, \neg P(x)$
+  - Záleží na pořadí kvantifikátorů. Např. $\forall x\, \exist y\, P(x,y)$ není to stejné jako $\exist y\, \forall x\, P(x,y)$.
+  - $\forall x\,\forall y\,P(x,y)\Leftrightarrow \forall y\,\forall x\,P(x,y)$
+  - $\exists x\,\exists y\,P(x,y)\Leftrightarrow \exists y\,\exists x\,P(x,y)$
+  - $\forall x\,P(x)\land \forall x\,Q(x)\Leftrightarrow \forall x\,(P(x)\land Q(x))$
+  - $\exists x\,P(x)\lor \exists x\,Q(x)\Leftrightarrow \exists x\,(P(x)\lor Q(x))$
+- **Vázaná proměnná** je taková proměnná, která se vyskytuje vedle kvantifikátoru $(\forall,\exist)$. Proměnné, které nejsou vázané nazýváme **volné**.
+- Formuli nazveme **otevřenou** právě tehdy, když obsahuje alespoň jednu volnou proměnnou. V opačném případě nazveme formuli **uzavřenou**.
+- **Valuace** je jedno konkrétní přiřazení prvků univerza proměnným.
+
+<details><summary> Příklady </summary>
+
+|Výrok|Formule FOL|
+|---|---|
+|*Každý* student rozumí FOL.|$\forall x\, \text{Student}(x) \implies \text{Knows}(x, \text{FOL})$|
+|*Nějaký* student rozumí FOL.|$\exist x\, \text{Student}(x) \land \text{Knows}(x, \text{FOL})$|
+|Každé sudé celé číslo je dělitelné dvěma.| $\forall x\, \text{Even}(x) \implies \text{Div}(x, 2)$|
+|Existuje kurz, který absolvoval každý student.| $\exist y\,\text{Course}(y) \land \left[ \forall x\, \text{Student}(x) \implies \text{Took}(x,y)\right ]$|
+
+</details>
+
 ## 6. Pojem relace, operace s relacemi, vlastnosti binárních homogenních relací. Relace ekvivalence a relace uspořádání a jejich aplikace
+
+> ($n$-ární) **relace** $R$ je podmnožina kartézského součinu množin $R\subseteq A_1 \times \ldots \times A_n = \set{(a_1,\ldots,a_n)\mid (\forall i = 1,\ldots,n): a_i\in A_i}$.
+
+Dělení podle arity:
+
+- unární $R_1\subseteq A_1$
+- binární $R_2 \subseteq A_1 \times A_2$
+- ternární
+- $n$-ární
+
+Relace je *homogenní*, pokud $A_1 = A_2 = \ldots = A_n$. Jinak je *heterogenní*.
+
+> Binární relace $R\subseteq X,Y$ je **zobrazení** z $X$ do $Y$ právě tehdy, když
+>
+> $$(\forall x\in X)(\forall y_1,y_2\in Y)\colon [xRy_1 \land xRy_2] \Rightarrow y_1=y_2$$
+
+Operace s relacemi:
+
+> Zobrazení $R$ kartézského součinu množin $A_1,\ldots,A_n$ do množiny $B$ nazveme $n$-ární **operací**.
+>
+> $$R\colon A_1,\ldots,A_n \to B$$
+
+- unární: $|x|,\frac{1}{x},(-x)$, reflexivní uzávěr $\mathrm{Re}(R)$
+- binární: $x\cap y, x+y, \langle x,y\rangle$ (skalární součin vektorů je heterogenní)
+- $n$-ární: aritmetický průměr, maximum
+
+> Vlastnosti binárních homogenních relací $(\forall x,y,z):$
+>
+> | Vlastnost           | Výraz                                                      | poznámka |
+> |---------------------|-------------------------------------------------------------|----------|
+> | **RE**flexivita     | $xRx$                                                      |  $\mathrm{diag}(\mathbb{A})=\mathbf{1}$        |
+> | **IR**eflexivita    | $(x,x)\notin R$                                            |  $\mathrm{diag}(\mathbb{A})=\mathbf{0}$         |
+> | **SY**metrie        | $xRy \Rightarrow yRx$                                     |  $\mathbb{A}^\top=\mathbb{A}$        |
+> | **AS**ymetrie       | $(x,y) \in R \Rightarrow (y,x) \notin R$                  | žádné smyčky a opačně orientované hrany         |
+> | **AN**tisymetrie    | $xRy \wedge yRx \Rightarrow x=y$                          | žádné opačně orientované hrany         |
+> | **TR**anzitivita    | $xRy \wedge yRz \Rightarrow xRz$                          | každá cesta délky 2 má i zkratku         |
+> | **ÚP**lnost         | $xRy \vee yRx$                                             | po zanedbání orientace $K_n$ se všemi smyčkami          |
+> | **SO**uvislost      | $x\neq y \Rightarrow xRy \vee yRx$                        | jako ÚP, ale nemusí mít všechny smyčky         |
+>
+> **AS**ymetrie $\Rightarrow$ **AN**tisymetrie.
+
+**Relace ekvivalence** je binární homogenní relace, která splňuje vlastnosti **ReSyTr**.
+
+**Relace uspořádání** je binární homogenní relace, která splňuje vlastnosti:
+
+| Uspořádání | Částečné | Úplné |
+|:---:|---|---|
+| Ostré $\,\,<$ | **IrAsTr** | (+SO) |
+| Neostré $\,\,\leq$ | **ReAnTr** | (+ÚP) |
 
 ## 7. Pojem operace a obecný pojem algebra. Algebry s jednou a dvěma binárními operacemi
 
+> Binární relace $R\subseteq X,Y$ je **zobrazení** z $X$ do $Y$ právě tehdy, když
+>
+> $$(\forall x\in X)(\forall y_1,y_2\in Y)\colon [xRy_1 \land xRy_2] \Rightarrow y_1=y_2$$
+
+<!--  -->
+
+> Zobrazení $R$ kartézského součinu množin $A_1,\ldots,A_n$ do množiny $B$ nazveme $n$-ární **operací**.
+>
+> $$R\colon A_1,\ldots,A_n \to B$$
+
+- unární: $|x|,\frac{1}{x},(-x)$, reflexivní uzávěr $\mathrm{Re}(R)$
+- binární: $x\cap y, x+y, \langle x,y\rangle$ (skalární součin vektorů je heterogenní)
+- $n$-ární: aritmetický průměr, maximum
+
+> **Algebraický systém** je uspořádaná dvojice nosičů a operací $\left(\set{A_i},\set{f_j}\right)$.
+
+Vlastnosti binárních operací. Buď $\circ$ binární homogenní operace na mže $A$.
+
+| Vlastnost                                          | Výraz                                                                       |
+| -------------------------------------------------- | --------------------------------------------------------------------------- |
+| **UZ**avřenost                                     | $(\forall a,b\in A)(\exists c \in A): a\circ b = c$                         |
+| **AS**ociativita                                   | $(\forall a,b,c\in A):\ a\circ (b\circ c) = (a\circ b)\circ c$              |
+| **E**xistence **J**ednotkového (neutrálního) prvku | $(\forall x\in A)(\exists e\in A):\ a\circ e = e\circ a = a$                |
+| **E**xistence **N**ulového (agresivního) prvku     | $(\forall x\in A)(\exists n\in A):\ a\circ n = n\circ a = n$                |
+| **E**xistence **I**nverzního prvku                 | $(\forall a\in A)(\exists a^{-1}\in A):\ a\circ a^{-1}= a^{-1}\circ  a = e$ |
+| **KO**mutativita                                   | $(\forall a,b\in A):\ a\circ b= b\circ  a$                                  |
+| **ID**empotentnost                                 | $(\forall a\in A):\ a\circ a= a$                                            |
+
+- **Grupoid** je dvojice $(A,\circ)$, kde $A$ je neprázdná množina a $\circ$ je binární operace **uzavřená** na $A$ **(UZ)**
+- **Pologrupa** je asociativní grupoid (**+AS**).
+- **Monoid** je pologrupa s jednotkovým prvkem(**+EJ**).
+- **Grupa** je monoid s inverzními prvky ke každému prvku (**+IN**).
+- **Abelova grupa** je komutativní grupa (**+KO**).
+
+### 7.1. Algebry s jednou binární operací
+
+- *(užzasejeiko**t)*
+
+| Algebra        | Popis                                                                                   | Vlastnost       |
+|----------------|------------------------------------------------------------------------------------------|-----------------|
+| **Grupoid**     | Dvojice $(A,\circ)$, kde $A$ je neprázdná množina a $\circ$ je binární operace uzavřená na $A$ | **UZ**          |
+| **Pologrupa**   | Asociativní grupoid                                                                      | **+ AS**     |
+| **Monoid**      | Pologrupa s jednotkovým prvkem                                                           | **+ EJ**|
+| **Grupa**       | Monoid s inverzními prvky ke každému prvku                                               | **+ EI** |
+| **Abelova grupa** | Komutativní grupa                                                                       | **+ KO** |
+
+- Nechť $(A,\circ)$. Pokud existuje jednotkový/nulový prvek, pak je právě jeden.
+- Nechť $(A,\circ)$, $\circ$ je AS, a platí EJ na $A$. Pak $(\forall a \in A): [\exists ! \, a^{-1} \vee \nexists\, a^{-1}]$.
+- Nechť $(A,\circ)$ je grupa, pak $(\forall a \in A): \exists ! \, a^{-1}.$
+- Pokud v Cayleyho tabulce existuje řádek nebo sloupec s neunikátními hodnotami, pak se nemůže jednat o grupu.
+- Neutrální prvek je tam, kde se zkopíruje záhlaví Cayleyho tabulky.
+
+### 7.2. Algebry se dvěma binárními operacemi
+
+- **Dělitelé nuly** jsou $(a\neq0 \wedge b\neq0): a\cdot b = 0$.
+
+| Algebra        | Popis                                                                                   |
+|--|--|
+| **Okruh** *(Ring)* | Trojice $(R,+,\cdot)$, kde $(R,+)$ je *Abelova grupa,* $(R,\cdot)$ *pologrupa* a platí *distributivní zákony*. |
+| **Unitární okruh** | Okruh, kde $(R,\cdot)$ je monoid. |
+| **Obor** | Unitární okruh bez *dělitelů nuly*. |
+| **Obor integrity** | Komutativní obor. |
+| **Těleso** | $(R,+)$ je *Abelova grupa* a $(R\setminus\{0\},\cdot)$ je grupa |
+| **Galoisovo těleso** | Konečné těleso. |
+| **Pole** | Těleso, kde násobení je komutativní, tj. $(R\setminus\{0\},\cdot)$ je Abelova grupa. |
+
+- Jednotkový prvek aditivní grupy *okruhu* je nulovým prvkem jeho multiplikativního *monoidu*. Tento prvek nazýváme nulovým prvkem okruhu.
+- Těleso $\Rightarrow$ obor integrity.
+- Konečný obor integrity $\Rightarrow$ konečné pole.
+
+<details><summary> Příklady </summary>
+
+- $(\mathbb{Z}_6,+,\cdot)$ je okruh, ale není to obor integrity, protože ex. dělitelé nuly
+
+    $$\overline{2_6}\cdot\overline{3_6}=\overline{6_6}=\overline{0_6}.$$
+
+- $(\mathbb{Z},+,\cdot)$ je obor integrity, ale není to těleso, protože neex. některé inverze
+
+    $$2\in\mathbb{Z}\quad\wedge\quad 2^{-1}=\dfrac{1}{2}\notin\mathbb{Z}.$$
+
+- $(\mathbb{Z}_p,+,\cdot)$, kde $p$ je prvočíslo je konečné (Galoisovo) těleso.
+
+</details>
+
 ## 8. FCA – formální kontext, formální koncept, konceptuální svazy
+
+**Formální konceptuální analýza (FCA)** je metoda, která pracuje s binárními tabulkovými daty - **formálním kontextem** - které popisují relaci mezi objekty a atributy.
+
+**Formální kontext** je uspořádaná trojice $(X,Y,I)$, kde
+
+- $X$ je množina **objektů**,
+- $Y$ je množina **atributů**,
+- $I\subseteq X\times Y$ je binární **relace**.
+
+Skutečnost, že **objekt** $x\in X$ **má atribut** $y\in Y$, značíme $(x,y)\in I$.
+
+Každý kontext indukuje **šipkové zobrazení** $^\uparrow\colon2^{X}\rightarrow2^{Y}$ a $^\downarrow\colon2^{Y}\rightarrow2^{X}$ definované:
+
+- $A\subseteq X, A^\uparrow=\set{y\in Y \mid (\forall x\in A): (x,y)\in I}$,
+- $B\subseteq Y, B^\downarrow=\set{x\in X \mid (\forall y\in B): (x,y)\in I}$.
+
+**Formální koncept** formálního kontextu $(X,Y,I)$ definujeme jako dvojici $(A,B)$, kde
+
+- $X\supseteq \red{A}=B^\downarrow$ nazýváme **extent** a
+- $Y\supseteq B=\red{A}^\uparrow$ nazýváme **intent**.
+
+**Konceptuální svaz** je formální kontext $(X,Y,I)$ spolu s relací '$\leq$', s.t.
+
+$$(A_1,B_1)\leq(A_2,B_2)\Leftrightarrow A_1 \subseteq A_2 \Leftrightarrow B_1 \supseteq B_2.$$
+
+<details><summary> Příklad FCA </summary>
+
+Pomocí FCA lze analyzovat hierarchii objektů a atributů, např. vodní plochy:
+
+- Zápisem $x_{a,b,c}$ rozumíme $\set{x_a,x_b,x_c}$.
+
+| "Vodní plochy" | Přírodní $(y_1)$ |  Stojatá $(y_2)$ | Tekoucí $(y_3)$|
+|---|---|---|---|
+| **Jezero** $(x_1)$ | 1 | 1 | 0 |
+| **Rybník** $(x_2)$| 0 | 1 | 0 |
+| **Řeka** $(x_3)$| 1 | 0 | 1 |
+| **Kanál** $(x_4)$| 0 | 0 | 1 |
+
+| Extent | Intent |
+|---|---|
+| $e_1=y_1^{\downarrow} = x_{1,3}$ | $i_1=x_{1,3}^{\uparrow} = y_1$ |
+| $e_2=y_2^{\downarrow} = x_{1,2}$ | $i_2=x_{1,2}^{\uparrow} = y_2$ |
+| $e_3=y_3^{\downarrow} = x_{3,4}$ | $i_3=x_{3,4}^{\uparrow} = y_3$ |
+| $e_4= e_1\cap e_2=x_1$ | $i_4=x_{1}^{\uparrow}=y_{1,2}$ |
+| $e_5= e_1\cap e_3=x_3$ | $i_5=x_{1}^{\uparrow}=y_{1,2}$ |
+| $e_6= e_2\cap e_3=\emptyset$ | $i_6=\emptyset^{\uparrow}=y_{1,2,3}$ |
+| $e_7= x_{1,2,3,4}$ | $i_7=x_{1,2,3,4}^{\uparrow}=\emptyset$ |
+
+"Konceptuální svaz vytvářím podle velikosti extentu od spodu nahoru:"
+
+```mermaid
+flowchart TB
+    e7["$$x_{1,2,3,4} \mid \emptyset$$"] --> e2["$$x_{1,2} \mid y_2$$"]
+    e7 --> e3["$$x_{3,4} \mid y_3$$"]
+    e7 --> e1["$$x_{1,3} \mid y_1$$"]
+    
+    e1 --> e5["$$x_{3} \mid y_{1,3}$$"]
+    e2 --> e4["$$x_{1} \mid y_{1,2}$$"]
+    e1 --> e4
+    e3 --> e5
+    e4 --> e6["$$\emptyset \mid y_{1,2,3}$$"]
+    e5 --> e6
+```
+
+</details>
 
 ## 9. Asociační pravidla, hledání často se opakujících množin položek
 
+[Asociační pravidla](../azd/azd.md#2-hledání-častých-vzorů-v-datech-základní-principy-metody-varianty-implementace).
+
 ## 10. Metrické a topologické prostory – metriky a podobnosti. Jejich aplikace
 
+Aplikace např. ve *strojovém učení* - shlukování, klasifikace, ...
+
+### 10.1. Metriky
+
+>**Metrický prostor** je dvojice $(\mathcal{M},\rho)$, kde $\mathcal{M}\neq\emptyset$ a $\rho\colon\mathcal{M}\times\mathcal{M}\rightarrow \R$ je metrika, která splňuje $\forall x,y,z\in \mathcal{M}$ axiomy:
+>
+> 1. **Totožnost** $\boxed{\rho(x,y) = 0 \iff x=y.}$
+> 2. **Symetrie** $\boxed{\rho(x,y) = \rho(y,x).}$
+> 3. **Trojúhelníková nerovnost** $\boxed{\rho(x,z) \leq \rho(x,y)+\rho(y,z).}$
+
+Metrika je *nezáporná*: $2\rho(x,y)=\rho(x,y)+\rho(y,x)\geq \rho(x,x) = 0$.
+
+| Metrika                         | Vzorec                                                                                                               |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **Minkowského** $(p)$ norma     | $\rho_p(x,y)=\left(\sum\limits_{i=1}^n\lvert x_i - y_i \rvert^p\right)^{\frac{1}{p}}, \quad p \in \langle1,+\infty)$ |
+| **Manhattanská** $(L_1)$ norma  | $\rho_1(x,y)=\sum\limits_{i=1}^n\lvert x_i - y_i \rvert$                                                             |
+| **Eukleidova** $(L_2)$ norma    | $\rho_2(x,y)=\sqrt{\sum\limits_{i=1}^n(x_i - y_i)^2}$                                                                |
+| **Čebyševova** $(\infty)$ norma | $\rho_{\infty}(x,y)=\max\limits_{i=1...n} \lbrace \lvert x_i - y_i \rvert \rbrace$                                   |
+
+- $\rho_1 \geq \rho_2 \geq \dots \geq \rho_{\infty}$
+
+| Metrika                        | Vzorec                                                     |
+| ------------------------------ | ---------------------------------------------------------- |
+| **Hammingova**                 | Počet rozdílných pozic mezi řetězci stejné délky           |
+| **Longest Common Subsequence** | Nejmenší počet operací `vkládání` a `mazání`               |
+| **Levenshteinova**             | Nejmenší počet operací `vkládání`, `mazání` a `substituce` |
+
+### 10.2. Podobnosti
+
+> **Podobnost** je zobrazení $\text{sim}\colon\mathcal{V}\times\mathcal{V}\rightarrow \R$, kde $\mathcal{V}\neq\emptyset$, které splňuje $\forall x,y\in \mathcal{V}$ axiomy:
+>
+> 1. **Nezápornost** $\boxed{\text{sim}(x,y) \geq 0.}$
+> 2. **Symetrie** $\boxed{\text{sim}(x,y) = \text{sim}(y,x).}$
+> 3. **Totožnost** $\boxed{\text{sim}(x,y) \leq \text{sim}(x,x)}$ a $\boxed{\text{sim}(x,y) = \text{sim}(x,x) \iff x=y}$ (bod je nejvíce podobný sám sobě).
+
+| Podobnost                        | Vzorec                                                     |
+| ------------------------------ | ---------------------------------------------------------- |
+| **Kosinová podobnost**                 | $\text{sim}_C(x,y)=\dfrac{\langle x,y \rangle}{\lVert{x}\rVert\lVert{y}\rVert}$           |
+| **Jaccardova podobnost** | $\text{sim}_J(A,B)=\dfrac{\lvert A \cap B \rvert}{\lvert A \cup B \rvert}$               |
+
+### 10.3. Topologické prostory
+
+> Na množině $X$ je dána **topologie pomocí otevřených množin**, je-li dán systém podmnožin $\mathcal{T} \subseteq 2^X$ takový, že:
+>
+> - Prázdná a celá množina $\boxed{\emptyset\in \mathcal{T} \wedge X \in \mathcal{T}}$
+> - Uzavřenost vůči *průniku dvojic* $\boxed{A,B \in \mathcal{T} \Rightarrow A \cap B\in \mathcal{T}}$
+> - Uzavřenost vůči *sjednocení* $\boxed{(\forall A_i \in \mathcal{T}):\,\bigcup\limits_{i} A_i \in \mathcal{T}}$
+>
+> Pak $(X,\mathcal{T})$ tvoří topologický prostor (TP), kde prvky topologie $\mathcal{T}$ jsou otevřené množiny.
+
+<!--  -->
+
+> Duálně, na množině $X$ je dána **topologie pomocí uzavřených množin**, je-li dán systém podmnožin $\mathcal{T}' \subseteq 2^X$ takový, že:
+>
+> - Prázdná a celá množina $\boxed{\emptyset\in \mathcal{T}' \wedge X \in \mathcal{T}'}$
+> - Uzavřenost vůči *sjednocení dvojic* $\boxed{A,B \in \mathcal{T}' \Rightarrow A \cup B\in \mathcal{T}'}$
+> - Uzavřenost vůči *průniku* $\boxed{(\forall A_i \in \mathcal{T}'):\,\bigcap\limits_{i} A_i \in \mathcal{T}'}$
+>
+> Pak $(X,\mathcal{T}')$ tvoří topologický prostor (TP), kde prvky topologie $\mathcal{T}'$ jsou uzavřené množiny.
+
+- Duální topologii vytvořím $\boxed{\mathcal{T}' = X \setminus \mathcal{T}.}$
+- Trivialní topologie $\boxed{\mathcal{T} = \lbrace \emptyset, X \rbrace}$.
+- Každý metrický prostor je topologický prostor.
+
+<details><summary> Příklad </summary>
+
+Dvojice $(\lbrace a,b,c \rbrace, \mathcal{T})$, kde $\mathcal{T} = \lbrace \emptyset, \lbrace a,b \rbrace, \lbrace a,c \rbrace,\lbrace a,b,c \rbrace\rbrace$ **není** topologickým prostorem, protože $\lbrace a,b \rbrace \cap \lbrace a,c \rbrace = \lbrace a \rbrace\notin \mathcal{T}$.
+
+</details>
+
 ## 11. Shlukování. Typy shlukování, metody pro určení kvality shlukování, aplikace shlukování
+
+[Shlukování](../azd/azd.md#3-shlukovací-metody-shlukování-pomocí-reprezentantů-hierarchické-shlukování-shlukování-na-základě-hustoty-validace-shluků-pokročilé-metody-shlukování-clarans-birch-cure).
 
 ## 12. Náhodná veličina. Základní typy náhodných veličin. Funkce určující rozdělení náhodných veličin
 
