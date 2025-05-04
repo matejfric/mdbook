@@ -274,9 +274,44 @@ for a in range(1, N + 1):
 
 ## 3. Shlukovací metody (shlukování pomocí reprezentantů, hierarchické shlukování). Shlukování na základě hustoty, validace shluků, pokročilé metody shlukování (CLARANS, BIRCH, CURE)
 
-Co je shlukovaní? Rozdělení dat do skupin (shluků) takových, že jejiž členové jsou si v nějakým smyslu podobní.
+Co je shlukovaní? Rozdělení dat do skupin (shluků) takových, že jejiž členové jsou si v nějakým smyslu podobní. Učení bez učitele *(unsupervised learning)*.
 
-- učení bez učitele *(unsupervised learning)*
+```mermaid
+mindmap
+  root )Shlukování)
+      (Shlukování pomocí reprezentantů)
+        [K-means]
+        [K-medians]
+        [K-medoids]
+          pam["Partitioning Around Medoids (PAM)"]
+            [CLARA]
+            [CLARANS]
+        [Affinity propagation]
+        [Bisecting K-means]
+      (Hierarchické shlukování)
+        [Single Linkage]
+        [Complete Linkage]
+        [Average Linkage]
+        [Centroid method]
+        [Ward method]
+        cure["CURE (Clustering Using REpresentatives)"]
+        [BIRCH]
+          cft["Clustering Feature Tree (CFT)"]
+      (Shlukování na základě hustoty)
+        [DBSCAN]
+          [min sample]
+          [eps]
+          [shluky a šum]
+        [OPTICS]
+      (Validace shluků)
+        [Scatter plot]
+        [Elbow method]
+        [Silhouette score]
+        [Intra/Inter cluster distance]
+      (Shlukování s překryvem)
+        [Fuzzy C-means]
+        cpm["Clique Percolation Method (CPM)"]
+```
 
 ### 3.1. Shlukování pomocí reprezentantů
 
@@ -402,7 +437,9 @@ Jak zvolit hyperparametry?
   - $\mathrm{inter}(C_i,C_j) = d(\mu_i,\mu_j)$
 - Pokud je počet shluků roven počtu tříd, můžeme spočítat **matici záměn** *(confusion matrix)* a spočítat přesnost klasifikace.
 
-*Curse of dimensionality* - ve vysokých dimenzích je obtížné najít shluky, protože vzdálenosti mezi body se stávají podobné.
+> *Curse of dimensionality* - ve vysokých dimenzích je obtížné najít shluky, protože vzdálenosti mezi body se stávají podobné.
+>
+> <img src="figures/curse-of-dimensionality.svg" alt="curse_of_dimensionality" width="550px">
 
 ## 4. Rozhodovací stromy (princip, algoritmus, metriky pro vhodnou volbu hodnot dělících atributů, prořezávání)
 
