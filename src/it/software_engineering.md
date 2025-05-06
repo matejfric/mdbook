@@ -4,6 +4,13 @@
   - [1.1. Modely testování](#11-modely-testování)
   - [1.2. Úrovně testování](#12-úrovně-testování)
 - [2. Architektonické styly](#2-architektonické-styly)
+  - [2.1. Client-Server](#21-client-server)
+  - [2.2. Peer-to-Peer (P2P)](#22-peer-to-peer-p2p)
+  - [2.3. Pipes-and-Filter](#23-pipes-and-filter)
+  - [2.4. Publish-Subscribe (Event-Driven)](#24-publish-subscribe-event-driven)
+  - [2.5. Repository](#25-repository)
+  - [2.6. Layering (Vrstvená architektura)](#26-layering-vrstvená-architektura)
+  - [2.7. Kombinace architektonických stylů](#27-kombinace-architektonických-stylů)
 - [3. Kvalitativní požadavky a jejich dosažení. Měření kvality návrhu](#3-kvalitativní-požadavky-a-jejich-dosažení-měření-kvality-návrhu)
 - [4. Návrhové principy](#4-návrhové-principy)
 - [5. Návrhové vzory](#5-návrhové-vzory)
@@ -89,6 +96,143 @@ U nasazených systému nás může zajímat **Mean Time Between Failures (MTBF)*
 5. Obslužné testování *(Maintenance testing)*
 
 ## 2. Architektonické styly
+
+```mermaid
+mindmap
+  root )Architektonické<br>styly)
+    (Client-Server)
+        [Centralizace]
+        [Protokol request/reply]
+            [HTTP]
+            [SQL]
+    (Peer-to-Peer)
+        [Decentralizace]
+        [Bitcoin, torrenty]
+    (Pipes-and-Filter)
+        [ETL]
+    (Publish-Subscribe / Event-Driven)
+        [Apache Camel]
+        [Integrace systémů]
+    (Repository)
+        [Centrální úložiště]
+        [Data Lake]
+    ("Layering (Vrstvená architektura)")
+        [Hierarchické vrstvy]
+        [ISO/OSI model]
+    (Kombinace)
+        [REST]
+        [Medallion architecture]
+```
+
+### 2.1. Client-Server
+
+<img src="figures/client-server.drawio.svg" alt="client-server.drawio" width="400px">
+
+- server nabízí nějakou službu, klient ji používá
+- klient používá služby serveru na základě protokolu požadavek / odpověď *(request / reply)*
+- **centralizace** - snaha centralizovat funkce na server
+- jednoduchost aktualizací
+
+### 2.2. Peer-to-Peer (P2P)
+
+<img src="figures/p2p.drawio.svg" alt="p2p.drawio" width="250px">
+
+- **decentralizace** ("opak klient-server")
+- dobré škálování, vysoká odolnost vůči výpadkům
+- každý komponent (klient) má vlastní procesy a chová se zároveň jako *klient a server*
+- bitcoin, torrenty *(bittorrent protokol)*
+- složité zajištění bezpečnosti
+
+### 2.3. Pipes-and-Filter
+
+```mermaid
+flowchart LR
+    A[Pump]-->|Pipe| B[Filter]
+    B -->|Pipe| C[Filter]
+    C -->|Pipe| D[Sink]
+```
+
+- **pipe** - tok dat (jedním směrem)
+- **filter** - transformace dat
+- **pump** - zdroj dat
+- **sink** - cíl dat
+- např. programy v Linuxu: `ls -R | grep "swi" | wc -l` (`ls` je pump, `grep` je filter, `wc -l` počet řádků)
+- snadná znovupoužitelnost, rozšiřitelnost a škálovatelnost
+- jednoduchý paralelismus
+- filtry mohou být přidány, odstraněny nebo přesunuty bez zásadních změn v ostatních filtrech
+- *Single Responsibility Principle* - každý filtr by měl mít pouze jednu zodpovědnost
+- typicky se používá v **ETL (Extract, Transform, Load) pipelines**
+
+```mermaid
+flowchart LR
+    subgraph Extract
+        A1[Read from DB]
+        A2[Read from API]
+        A3[Read from Data Lake]
+    end
+
+    subgraph Transform
+        B1[Clean]
+        B2[Normalize]
+    end
+
+    subgraph Load
+        C1[Write to DB]
+        C2[Write to Data Lake]
+    end
+
+    A1 -->|Pipe| B1
+    A2 -->|Pipe| B1
+    A3 -->|Pipe| B1
+    B1 -->|Pipe| B2
+    B2 -->|Pipe| C1
+    B2 -->|Pipe| C2
+```
+
+### 2.4. Publish-Subscribe (Event-Driven)
+
+```mermaid
+flowchart LR
+    A1[Publisher 1]-->|"Notify (1)"| B[Event Broker]
+    A2[Publisher 2]-->|"Notify (2)"| B
+    B -->|"Notify (1,2)"| C1[Subscriber A to 1,2]
+    B -->|"Notify (2)"| C2[Subscriber B to 2]
+```
+
+- když nějaký komponent ohlásí event - **publish** - tak komponenty, které jsou přihlášeny k odběru zpráv tohoto komponentu (subscribed) jsou notifikovány
+- registrace k odběru zpráv - **subscribe** - komponenty vyjadřují zájem o eventy vytvořené daným komponentem
+- používá se k **integraci systémů**
+  - např. *Apache Camel*
+- jednoduchá rozšiřitelnost a znovupoužitelnost
+- složité testování
+- potřeba sdíleného repozitáře
+- např. implementace e-shopu
+
+### 2.5. Repository
+
+- **centrální sdílené úložiště** (např. soubor na disku) a **komponenty**, které nad tímto úložištěm komunikují (aktualizace, zápis a čtení dat)
+- dostupnost dat pro všechny komponenty, ale zároveň musí všechny komponenty být schopny s těmito daty pracovat
+- např. **data lake** - jednotný přístup k datům z různých zdrojů - různé databáze, parquet, csv, ...
+
+### 2.6. Layering (Vrstvená architektura)
+
+- vrstvy jsou hierarchické
+  - vnější vrstva se chová jako klient vůči vnitřní vrstvě (komponenta z vnitřní vrstvy by neměla záviset na komponentě z vnější)
+  - layer bridging - nějaká vrstva se přeskočí
+  - komunikace mezi vrstvami probíhá pomocí protokolů
+- vysoká úroveň abstrakce
+- relativně jednoduchá úprava vrstev
+- ne vždy je možné tuto architekturu snadno použít (nemusí být jednoduché rozdělit problém do vrstev podle míry abstrakce)
+- výkon může být omezený režijními náklady *(overhead cost)* komunikace mezi vrstvami
+- např. ISO/OSI model
+
+### 2.7. Kombinace architektonických stylů
+
+- **REST** (Representational state transfer) - RESTful-API
+- **Medallion architecture** - "Pipes-and-Filter + Repository + Layering"
+  - **Bronze** - raw data (ETL)
+  - **Silver** - cleaned data (ELT)
+  - **Gold** - data products (ELT)
 
 ## 3. Kvalitativní požadavky a jejich dosažení. Měření kvality návrhu
 
