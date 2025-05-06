@@ -3,6 +3,7 @@
 - [1. Význam testování, terminologie, testovací proces, Úrovně testování (V-model), Testovací techniky](#1-význam-testování-terminologie-testovací-proces-úrovně-testování-v-model-testovací-techniky)
   - [1.1. Modely testování](#11-modely-testování)
   - [1.2. Úrovně testování](#12-úrovně-testování)
+  - [1.3. Testování UI](#13-testování-ui)
 - [2. Architektonické styly](#2-architektonické-styly)
   - [2.1. Client-Server](#21-client-server)
   - [2.2. Peer-to-Peer (P2P)](#22-peer-to-peer-p2p)
@@ -12,6 +13,7 @@
   - [2.6. Layering (Vrstvená architektura)](#26-layering-vrstvená-architektura)
   - [2.7. Kombinace architektonických stylů](#27-kombinace-architektonických-stylů)
 - [3. Kvalitativní požadavky a jejich dosažení. Měření kvality návrhu](#3-kvalitativní-požadavky-a-jejich-dosažení-měření-kvality-návrhu)
+  - [3.1. Měření kvality návrhu](#31-měření-kvality-návrhu)
 - [4. Návrhové principy](#4-návrhové-principy)
 - [5. Návrhové vzory](#5-návrhové-vzory)
 - [6. Co je to Secure Software Development Lifecycle (SSDLC)? Jaká jsou jeho specifika a využití?](#6-co-je-to-secure-software-development-lifecycle-ssdlc-jaká-jsou-jeho-specifika-a-využití)
@@ -94,6 +96,12 @@ U nasazených systému nás může zajímat **Mean Time Between Failures (MTBF)*
 3. Testování systému (funkční a nefunkční)
 4. Akceptační testování
 5. Obslužné testování *(Maintenance testing)*
+
+### 1.3. Testování UI
+
+**A/B testování** - porovnání dvou verzí UI (např. webové stránky) a vyhodnocení, která verze je lepší.
+
+<img src="figures/ab_testing.png" alt="ab_testing" width="400px">
 
 ## 2. Architektonické styly
 
@@ -235,6 +243,90 @@ flowchart LR
   - **Gold** - data products (ELT)
 
 ## 3. Kvalitativní požadavky a jejich dosažení. Měření kvality návrhu
+
+> **Funkční požadavky** - požadavky na **funkcionalitu** systému - např.: *systém umožní registraci uživatelů pomocí e-mailu a hesla*.
+>
+> **Kvalitativní požadavky** - požadavky na **kvalitu** systému - např.: *systém musí být dostupný 99,9 % času*.
+
+```mermaid
+mindmap
+  root )"""Kvalitativní
+  požadavky""")
+    (Dostupnost)
+        ["99,9% provozuschopnost (uptime)"]
+        [MTBF]
+    (Bezpečnost)
+        ["Autentizace (ověření uživatele)"]
+            [2FA]
+        [Autorizace]
+            [Role a práva]
+            [Omezení přístupu]
+        [Šifrování]
+        [Imunita vůči útokům]
+        ["Zotavení (robustnost)"]
+            [Rollback]
+            [Zálohování]
+    (Výkon)
+        ["Minimální propustnost (throughput)"]
+            [Počet požadavků za sekundu]
+        ["Maximální odezva (latency)"]
+        [Škálovatelnost]
+            [Zatížení - 20 000 uživatelů bez ztráty výkonu]
+            [Paralelismus]
+                [Kubernetes]
+                [Více procesorů, VM]
+            [Snížení požadavků na zdroje]
+                [Caching]
+                [Load balancing]
+        [Zátěžové testy]
+    (Údržba)
+        [Upravitelnost]
+            [Zapouzdření]
+            [Obecnost]
+            [Použití rozhraní]
+            ["Soudržnost (SRP), modularita"]
+        [Testování]
+    (Přenositelnost)
+        [Platforma]
+            [Windows, Linux, MacOS, Android, iOS]
+            [Azure, AWS]
+        [Jazyk]
+    (Použitelnost)
+        ["""User Experience (UX) /
+        User Interface (UI)"""]
+            [A/B testování]
+            ["Snadná registrace do 5 minut"]
+```
+
+### 3.1. Měření kvality návrhu
+
+- **Chidamber & Kemerer metriky** (1996, 100 citací `¯\_(ツ)_/¯`) - pro každou třídu definují:
+  1. Hloubku stromu dedičnosti.
+  2. Počet metod.
+  3. Počet potomků.
+  4. Provázanost mezi objekty.
+- **McCabova cyklomatická míra složitosti** - počet rozhodnutí v grafu řídícího toku
+- **Úroveň vnoření** - cykly, podmínky
+- **Fan-in, Fan-out** - kolik modulů daný modul volá a kolika moduly je modul volán.
+- **Modularita** závisí na **soudržnosti (cohesion)** a **provázanosti (coupling)**.
+- **Minimalizujeme provázanost** - míru (ne)závislosti mezi moduly. Provázanost měří komplexitu vazeb mezi moduly a jejich počet.
+  1. **Provázání obsahu** *(content)* - jedna SW jednotka přímo mění interní data jiné SW jednotky.
+  2. **Společné provázání** *(common)* - SW jednotky mají přístup ke stejným globálním datům
+  3. **Řídící provázanost** *(control)* - jeden modul řídí chování (volá metody) jiného modulu
+  4. **Stamp coupling** - vyměňování složitých datových struktur (např. serializované objekty)
+  5. **Datová provázanost** - pouze hodnoty
+  6. **Žádná provázanost** - např. `print("Hello")`
+
+      <img src="figures/coupling.png" alt="coupling" width="400px">
+
+- **Maximalizujeme soudržnost** - souvislost vnitřních prvků modulu.
+  1. **Nesouvisející** soudržnost - části SW jednotky spolu nesouvisí (porušení SRP, god object, anti-pattern).
+  2. **Logická** soudržnost - části SW jednotky jsou projeny jen strukturou kódu.
+  3. **Časová** soudržnost - části SW jednotky jsou propojeny, protože se spouští ve stejný čas.
+  4. **Procedurální** soudržnost - části SW jednotky jsou propojeny, protože se spouští při stejné akci (např. backup).
+  5. **Komunikační** soudržnost - SW jednotka funguje nad stejnými daty.
+  6. **Funkční** soudržnost - SW jednotka obsahuje pouze prvky nezbytné pro výkon jedné funkcionality.
+  7. **Informační** soudržnost - `f(x) = x^2 + 1`
 
 ## 4. Návrhové principy
 
