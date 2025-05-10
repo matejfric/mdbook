@@ -16,9 +16,17 @@
   - [3.1. Měření kvality návrhu](#31-měření-kvality-návrhu)
 - [4. Návrhové principy](#4-návrhové-principy)
 - [5. Návrhové vzory](#5-návrhové-vzory)
+  - [5.1. Gamma kategorizace](#51-gamma-kategorizace)
+  - [5.2. Vzory vytváření](#52-vzory-vytváření)
+  - [5.3. Vzory strukturální](#53-vzory-strukturální)
+  - [5.4. Vzory chování](#54-vzory-chování)
 - [6. Co je to Secure Software Development Lifecycle (SSDLC)? Jaká jsou jeho specifika a využití?](#6-co-je-to-secure-software-development-lifecycle-ssdlc-jaká-jsou-jeho-specifika-a-využití)
 - [7. Popište pět základních bezpečnostních vlastností, které se používají k zajištění bezpečnosti a spolehlivosti informačních systémů. Zkratka “CIAAN”, tedy “Confidentiality”, “Integrity”, “Availability”, “Authenticity” a “Non-repudiation”. Uveďte příklady softwarových požadavků, které z těchto vlastností vycházejí](#7-popište-pět-základních-bezpečnostních-vlastností-které-se-používají-k-zajištění-bezpečnosti-a-spolehlivosti-informačních-systémů-zkratka-ciaan-tedy-confidentiality-integrity-availability-authenticity-a-non-repudiation-uveďte-příklady-softwarových-požadavků-které-z-těchto-vlastností-vycházejí)
 - [8. Penetrační testování software. Deskriptivní a preskriptivní rámce pro penetrační testování. Metody penetračního testování](#8-penetrační-testování-software-deskriptivní-a-preskriptivní-rámce-pro-penetrační-testování-metody-penetračního-testování)
+  - [8.1. Deskriptivní rámce](#81-deskriptivní-rámce)
+  - [8.2. Preskriptivní rámce](#82-preskriptivní-rámce)
+  - [8.3. Metody penetračního testování](#83-metody-penetračního-testování)
+  - [8.4. Proces PT](#84-proces-pt)
 
 ## 1. Význam testování, terminologie, testovací proces, Úrovně testování (V-model), Testovací techniky
 
@@ -39,6 +47,9 @@ mindmap
         [Analýza hraničních hodnot]
             [Hranice]
             [Rohy]
+        [Fuzzing]
+            [Atypické náhodné vstupy]
+        [Property-based]
     (Modely testování)
         [Vodopádový model]
         [V-model]
@@ -348,8 +359,555 @@ mindmap
 
 ## 5. Návrhové vzory
 
+Gamma et al. *Design Patterns: Elements of Reusable Object-Oriented Software* (1994).
+
+### 5.1. Gamma kategorizace
+
+1. **Vzory vytváření** *(Creational Patterns)* - tvorba / konstrukce objektů
+2. **Vzory strukturální** *(Structural Patterns)* - význam pro dobrý API design
+3. **Vzory chování** *(Behavioral Patterns)*
+
+```mermaid
+mindmap
+  root )Návrhové vzory)
+    (Vytváření)
+        ["Builder"]
+        ["Factory"]
+        ["Abstract Factory"]
+        ["Prototype"]
+        ["Singleton"]
+    (Strukturální)
+        ["Adapter"]
+        ["Bridge"]
+        ["Composite"]
+        ["Decorator"]
+        ["Facade"]
+        ["Flyweight"]
+        ["Proxy"]
+    (Chování)
+        ["Observer"]
+        ["State"]
+        ["Strategy"]
+        ["Command"]
+        ["Iterator"]
+        ["Mediator"]
+        ["Chain of Responsibility"]
+        ["Visitor"]
+        ["Template Method"]
+        ["Memento"]
+        ["Interpreter"]
+```
+
+### 5.2. Vzory vytváření
+
+1. **Stavitel (Builder)** - vzor pro vytváření složitých objektů po částech.
+    - Např. `PersonBuilder().with_name("John").with_age(30)`, praktičtější příklad - složité předzpracování dat
+    - Můžeme definovat "recepty" pro často vytvářené objekty (např. `PersonBuilder.get_recipe("john")`)
+
+2. **Továrna (Factory)** - vzor pro vytváření objektů bez nutnosti specifikovat konkrétní třídu.
+
+    <details><summary> Factory </summary>
+
+    ```python
+    class Person:
+        def __init__(self, id, name):
+            self.id = id
+            self.name = name
+
+    class PersonFactory:
+        id = 0
+
+        def create_person(self, name):
+            p = Person(PersonFactory.id, name)
+            PersonFactory.id += 1
+            return p
+    ```
+
+    </details>
+
+3. **Abstraktní továrna (Abstract Factory)** - hierarchie továren.
+4. **Prototyp (Prototype)** - klonování objektu. Vytváření objektu pomocí kopie jiného objektu. Např. `copy.copy()` nebo `copy.deepcopy()`.
+
+    <details><summary> Prototyp </summary>
+
+    ```python
+    import copy
+
+    class Person:
+        def __init__(self, name):
+            self.name = name
+
+        def clone(self):
+            return copy.copy(self)
+
+    john = Person("John")
+    john_clone = john.clone()
+    ```
+
+    </details>
+
+5. **Singleton** - vzor pro zajištění, že třída má pouze jednu instanci a poskytuje globální přístup k této instanci. Např. `logging`.
+
+### 5.3. Vzory strukturální
+
+1. **Adaptér (Adapter)** - vzor pro **přizpůsobení rozhraní** jedné třídy jinému rozhraní.
+2. **Most (Bridge)** - vzor pro **oddělení abstrakce od implementace** (decoupling) pomocí vytvoření mostu mezi hierarchiemi.
+
+    <img src="figures/bridge.drawio.svg" alt="bridge.drawio" width="470px">
+
+    <details><summary> Most </summary>
+
+    ```python
+    # Shapes can be rendered in vector or raster form
+
+    class Renderer():
+        def render_circle(self, radius):
+            pass
+
+
+    class VectorRenderer(Renderer):
+        def render_circle(self, radius):
+            print(f'Drawing a circle of radius {radius}')
+
+
+    class RasterRenderer(Renderer):
+        def render_circle(self, radius):
+            print(f'Drawing pixels for circle of radius {radius}')
+
+
+    class Shape:
+        def __init__(self, renderer):
+            self.renderer = renderer
+
+        def draw(self): pass
+        def resize(self, factor): pass
+
+
+    class Circle(Shape):
+        def __init__(self, renderer, radius):
+            super().__init__(renderer)
+            self.radius = radius
+
+        def draw(self):
+            self.renderer.render_circle(self.radius)
+
+
+    if __name__ == '__main__':
+        raster = RasterRenderer()
+        vector = VectorRenderer()
+        circle = Circle(vector, 5)
+        circle.draw()
+    ```
+
+    </details>
+
+3. **Kompozit (Composite)** - když od jednoduchého (skalárního) i složeného objektu očekáváme podobné nebo stejné chování.
+
+    <details><summary> Kompozit </summary>
+
+    ```python
+    class Graphic:
+        def draw(self): pass
+
+
+    class Circle(Graphic):
+        def draw(self):
+            print("Drawing a circle")
+
+
+    class Square(Graphic):
+        def draw(self):
+            print("Drawing a square")
+
+
+    class Group(Graphic):
+        def __init__(self):
+            self.graphics = []
+
+        def add(self, graphic):
+            self.graphics.append(graphic)
+
+        def draw(self):
+            for graphic in self.graphics:
+                graphic.draw()
+
+    group = Group()
+    group.add(Circle())
+    group.add(Square())
+    group.draw()
+    ```
+
+    </details>
+
+    ```mermaid
+    classDiagram
+        class Graphic {
+            + draw()
+        }
+        
+        class Circle {
+            + draw()
+        }
+        
+        class Square {
+            + draw()
+        }
+        
+        class Group {
+            - graphics: List~Graphic~
+            + add(graphic)
+            + draw()
+        }
+        
+        Graphic <|.. Circle
+        Graphic <|.. Square
+        Graphic <|..o Group  : contains
+    ```
+
+4. **Dekorátor (Decorator)** - vzor pro **dynamické přidání chování** objektu.
+
+    <details><summary> Dekorátor </summary>
+
+    ```python
+    class Shape(ABC):
+        def __str__(self):
+            return ''
+
+
+    class Circle(Shape):
+        def __init__(self, radius=0.0):
+            self.radius = radius
+
+
+    class ColoredShape(Shape):
+        def __init__(self, shape, color):
+            if isinstance(shape, ColoredShape):
+                raise Exception('Cannot apply ColoredDecorator twice')
+            self.shape = shape
+            self.color = color
+
+    circle = Circle(5.0)
+    colored_circle = ColoredShape(circle, 'red')
+    ```
+
+    </details>
+
+5. **Facade** - vzor pro **zjednodušení rozhraní** komplexního kódu.
+    - Např. `std::cout` (výpis do konzole - na pozadí musí být nějaký buffer a nevím co všechno) nebo `sklearn`.
+6. **Flyweight** - vzor pro **snížení paměťové náročnosti**. Uložení dat mimo objekt a přístup přes referenci.
+    1. Př. u *formátování textu* si nebudeme ukládat formátování pro každý znak, ale budeme si pamatovat pouze indexy `start`, `end` a typ formátování.
+    2. Ve 2D hře nebude mít každý objekt uvnitř uložený svůj *sprite*, ale pouze *referenci* na daný sprite.
+7. **Proxy** - úprava existující třídy buď pomocí *kompozice* nebo *dědičnosti*. **OCP**.
+    - Virtualní proxy - načítání objektu až když je potřeba (`lazy loading`).
+    - Protection proxy - omezení přístupu. Např. `CarProxy` - protection proxy pro `Car`, která zajišťuje, že auto může řídit pouze řidič, který je starší 18 let.
+    - Caching proxy
+
+        ```mermaid
+            classDiagram
+                class Driver {
+                    - name: String
+                    - age: Integer
+                    + __init__(name, age)
+                }
+                
+                class Car {
+                    - driver: Driver
+                    + __init__(driver)
+                    + drive()
+                }
+                
+                class CarProxy {
+                    - driver: Driver
+                    - car: Car
+                    + __init__(driver)
+                    + drive()
+                }
+                
+                Car o-- Driver
+                CarProxy o-- Driver
+                CarProxy o-- Car
+        ```
+
+### 5.4. Vzory chování
+
+1. **Chain of Responsibility** - umožňuje předat požadavek řetězci zpracovatelů *(handlers)*. Každý zpracovatel buď pošle požadavek v řetězci dál nebo požadavek zpracuje.
+2. **Command** - zapouzdřuje nějaký *požadavek jako objekt*. Umožňuje ukládání požadavků do fronty, čímž lze implementovat `undo` a `redo`.
+3. **Interpreter** - vzor pro **interpretaci** jazyků:
+    1. *lexing* - rozdělení textu na tokeny.
+    2. *parsing* - interpretace tokenů
+4. **Iterator** - Přístup k prvkům kolekce bez znalosti imlementace dané kolekce. Např. binární strom.
+    - `get_next()` - vrátí další prvek
+    - `has_next()` - vrátí `True`, pokud existuje další prvek
+5. **Memento** - reprezentuje *stav systému* (typicky bez metod), *ke kterému se můžeme vrátit* (quicksave, rollback).
+
+    <details><summary> Memento </summary>
+
+    ```python
+    class Memento:
+        def __init__(self, balance: int) -> None:
+            self.balance = balance
+
+
+    class BankAccount:
+        def __init__(self, balance: int = 0) -> None:
+            self.balance = balance
+
+        def deposit(self, amount: int) -> Memento:
+            self.balance += amount
+            return Memento(self.balance)
+
+        def restore(self, memento: int) -> None:
+            self.balance = memento.balance
+    ```
+
+    </details>
+
+6. **Mediator** - Definuje, jak by spolu měla množina objektů interagovat. Např. *chatovací aplikace* `ChatRoom` je mediátor mezi uživateli `User`.
+7. **Observer** - Definuje one-to-many závislost publisher-subscriber(s). Pokud jeden objekt změní stav, tak všechny závislé objekty jsou automaticky aktualizovány.
+8. **State** - Umožňuje změnu chování objektu na základě změny vnitřního stavu - změnou třídy objektu (níže `state` je buď `OnState` nebo `OffState`). Konečný automat (lze implementovat třeba přes `enum`, nemusí to být OOP).
+
+    ```mermaid
+    classDiagram
+        class Switch {
+            - state: State
+            + on()
+            + off()
+        }
+        
+        class State {
+            <<Abstract>>
+            + on(switch)
+            + off(switch)
+        }
+        
+        class OnState {
+            + off(switch)
+        }
+        
+        class OffState {
+            + on(switch)
+        }
+        
+        State --o Switch
+        State <|.. OnState
+        State <|.. OffState
+    ```
+
+9. **Strategy** - Definuje skupinu algoritmů, zapouzdří je a docílí jejich vzájemné zaměnitelnosti. Volba algoritmu probíhá až v době běhu programu.
+
+    ```mermaid
+    classDiagram
+        class Navigator {
+            - route_strategy
+            + build_route(A, B)
+        }
+        
+        class RouteStrategy {
+            <<interface>>
+            + build_route(A, B)
+        }
+        
+        class RoadStrategy {
+            + build_route(A, B)
+        }
+        
+        class PublicTransportStrategy {
+            + build_route(A, B)
+        }
+        
+        class WalkingStrategy {
+            + build_route(A, B)
+        }
+        
+        RouteStrategy --o Navigator
+        RouteStrategy <|.. RoadStrategy
+        RouteStrategy <|.. PublicTransportStrategy
+        RouteStrategy <|.. WalkingStrategy
+    ```
+
+10. **Visitor** - Reprezentuje operaci, která se provádí na struktuře složené z objektů. Např. `IntegerExpression`, `AdditionExpression` a `Visitor` který spočítá hodnotu výrazu.
+11. **Template method** - Definuje "skeleton" algoritmu, konkrétní implementace se provádí v podtřídě.
+
+    <details><summary> Template Method </summary>
+
+    ```python
+    from abc import ABC
+
+    class Game(ABC):
+
+        def run(self):
+            self.start()
+            while not self.have_winner:
+                self.take_turn()
+            print(f'Player {self.winning_player} wins!')
+
+        def start(self): pass
+
+        @property
+        def have_winner(self): pass
+
+        def take_turn(self): pass
+
+        @property
+        def winning_player(self): pass
+    ```
+
+    </details>
+
 ## 6. Co je to Secure Software Development Lifecycle (SSDLC)? Jaká jsou jeho specifika a využití?
+
+**SDLC** je proces vývoje SW.
+
+**SSDLC** přidává do každé fáze **SDLC** požadavky na počítačovou bezpečnost.
+
+National Institute of Standards and Technology **(NIST)** definuje Secure software development framework **(SSDF)**, který definuje jak realizovat **SSDLC**.
+
+1. **Analýza požadavků** - stanovení *bezpečnostních požadavků* (např. 2FA, šifrování, ...)
+2. **Plánování** - identifikace potenciálních zranitelností *(threat modeling)*
+3. **Návrh** - architektura zohledňující bezpečnost (např. nastavení uživatelských rolí, ...)
+4. **Implementace/vývoj** - zaměření na bezpečný kód (SQL injection, ...), code reviews, statická analýza kódu
+5. **Testování** - *penetrační testy*, skenování zranitelností, testování kódu
+6. **Nasazení** - zajištění bezpečnosti produkčního prostředí (např. aktuální verze OS)
+7. **Údržba** - pravidelné bezpečnostní aktualizace (security patches), penetrační testy, bug bounties (odměny za nahlášení vady), skenování zranitelností, monitoring, bezpečnostní audity
+
+Důležitá je **komunikace** mezi vývojáři a experty na počítačovou bezpečnost. Bezpečnostní experti by měli být zapojeni do každé fáze vývoje SW.
+
+Mezi další specifika SSDLC patří:
+
+- **Prevence místo detekce** - zaměření na prevenci zranitelností a útoků
+- **Školení vývojářů** - školení vývojářů v oblasti bezpečnosti a zranitelností
+- Soulad s **bezpečnostními normami a standardy**
+- **Snížení nákladů na opravy zranitelností**, protože jsou zranitelnosti odhaleny dříve v procesu vývoje.
+- Zranitelnosti jsou odhaleny dříve v procesu vývoje, což snižuje riziko nasazaní zranitelného SW do produkčního prostředí.
+- Ochrana citlivých dat a informací před zneužitím útočníky.
+
+Známé příklady SSDLC:
+
+- **OWASP SAMM** - Software Assurance Maturity Model
+- **NIST SSDF** - Secure Software Development Framework
 
 ## 7. Popište pět základních bezpečnostních vlastností, které se používají k zajištění bezpečnosti a spolehlivosti informačních systémů. Zkratka “CIAAN”, tedy “Confidentiality”, “Integrity”, “Availability”, “Authenticity” a “Non-repudiation”. Uveďte příklady softwarových požadavků, které z těchto vlastností vycházejí
 
+Jedná se o softwarové požadavky, které mají zajistit bezpečnost systému:
+
+1. **Confidentiality** (důvěrnost) - informace jsou přístupné pouze oprávněným osobám
+2. **Integrita** - zamezení neautorizované modifikace nebo zničení informací
+3. **Availability** - informace musí být vždy přístupné oprávněným uživatelům, když je potřebují
+4. **Authenticity** (autentičnost) - ověření identity uživatele a integrity dat
+   - **Autentizace** - ověření identity uživatele (např. heslo, 2FA, biometrie)
+   - **Autorizace** - určení, co může uživatel dělat (např. role a práva)
+5. **Non-repudiation** (nepopiratelnost) - odesílatel nemůže popřít, že zprávu odeslal a příjemce nemůže popřít, že zprávu přijal
+   - **Digitální podpisy** - zajišťují nepopiratelnost a integritu dat
+
+```mermaid
+mindmap
+  root )CIAAN)
+    (Confidentiality)
+        [Šifrování dat]
+        [Přístupové role]
+    (Integrity)
+        [Logování změn v systému]
+        [Kontrolní součet nebo digitální podpis přenášených dat]
+        [Peněžní transakce]
+    (Availability)
+        [Zálohování]
+        [Redundantní systémy]
+        [Zatížení systému]
+    (Authenticity)
+        [2FA]
+        [Bezpečné heslo]
+        [Biometrické přihlášení]
+        ["Transport Layer Security (TLS)"]
+    (Non-repudiation)
+        [Digitální podpisy]
+```
+
+[Ukázka asymetrického šifrování](./systems_and_networking.md#5-bezpečnost-počítačových-sítí-s-tcpip-útoky-paketové-filtry-stavový-firewall-šifrování-a-autentizace-virtuální-privátní-sítě).
+
 ## 8. Penetrační testování software. Deskriptivní a preskriptivní rámce pro penetrační testování. Metody penetračního testování
+
+> **Penetrační testování** je kontrolovaný proces simulující útok na informační systém, aplikaci nebo síť s cílem odhalit *zranitelnosti*, které by mohly být zneužity útočníkem.
+
+Analytici zabývající penetračním testováním jsou experti v oblasti etického hackování, kteří vyživájí hackerské nástroje a techniky k odhalené zranitelností informačního systému.
+
+### 8.1. Deskriptivní rámce
+
+Deskriptivní (popisné) rámce popisují jak penetrační testy ve *skutečnosti probíhají*.
+
+- **BSIMM** /bee sim/ - **Building Security in Maturity Model** - analýza existujícího SW.
+- **MITRE ATT&CK** (MITRE Adversarial Tactics, Techniques and Common Knowledge)
+  - Útočný vektor.
+  - MITRE ATT&CK® je celosvětově dostupná znalostní databáze taktik a technik útočníků založená na reálných pozorováních.
+- **Cyber Kill Chain - Lockheed Martin**
+
+### 8.2. Preskriptivní rámce
+
+Preskriptivní rámce *přesně* popisují jak by měly penetrační testy probíhat.
+
+- **OWASP - Open Worldwide Application Security Project**
+
+### 8.3. Metody penetračního testování
+
+```mermaid
+mindmap
+  root )PT)
+    {{Podle přístupu k systémovým informacím 📃}}
+        (White Box PT)
+        (Black Box PT)
+        (Grey Box PT)
+        (Covert PT)
+    {{"Podle cíle 🎯"}}
+        (PT aplikace)
+        (PT sítě)
+            [externí]
+            [interní]
+        (PT hardware)
+        (PT zaměstnanců)
+            [phishing]
+            [vishing]
+            [smishing]
+```
+
+**Podle přístupu k systémovým informacím:**
+
+- **White Box PT**
+  - Analytik má přístup k *systémovým informacím*.
+  - Sdílení zdrojového kódu a informací o komponentách, zapojení a architektuře.
+- **Black Box PT**
+  - Analytikovi jsou poskytnuty nanejvýš *základní nebo žádné informace*.
+  - Analytik tak *vystupuje jako útočník*, který má k dispozici pouze veřejně dostupnou dokumentaci.
+  - Tam, kde znalosti a veřejně dostupná dokumentace nestačí, je zapotřebí reverzní inženýrství.
+- **Grey Box PT**
+  - Kombinace předchozích dvou přístupů.
+- **Covert PT** (tajné) - testování probíhá bez vědomí zaměstnanců organizace.
+
+**Podle cíle:**
+
+- PT **aplikace** - často podle **OWASP Top 10** zranitelností (pravidelně aktualizovaný seznam 10 nejzávažnějších zranitelností webových aplikací)
+- PT **sítě**
+  - **externí** - útok zvenku
+  - **interní** - útok zevnitř pomocí odcizených přihlašovacích údajů
+- PT **hardware** - notebooky, IoT zařízení, USB drop
+- PT **zaměstnanců** - social engineering
+  - *phishing*
+  - *vishing (voice phishing)*
+  - *smishing (SMS phishing)*
+
+### 8.4. Proces PT
+
+(Pouze pro ilustraci.)
+
+1. **Průzkum** (reconnaissance) - shromáždění informací o cíli
+2. **Skenování** (scanning) - skenování cíle a shromáždění informací např. o *otevřených portech*
+3. **Zneužití** (exploitation) - pokus o zneužití zranitelnosti
+   - SQL injection
+   - DOS (Denial of Service)
+   - XSS (Cross-Site Scripting) - umístění škodlivého skriptu do webové stránky organizace
+   - Social engineering - manipulace s lidmi
+   - Man-in-the-middle - odposlech komunikace mezi dvěma stranami
+   - Brute-force - pokus o prolomení hesla pomocí hrubé síly
+4. **Získání přístupu** (gaining access) - pokus o získání přístupu do systému
+5. **Eskalace** (escalation) - pokus o zvýšení úrovně přístupu
+6. **Udržení přístupu** (maintaining access) - pokus o udržení přístupu do systému
+7. **Zpráva** (reporting) - zpráva o výsledcích penetračního testování
+8. **Úklid** (cleanup) - odstranění všech změn provedených během penetračního testování

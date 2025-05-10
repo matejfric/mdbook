@@ -254,7 +254,8 @@ Asymetrická kryptografie - šifrování pomocí veřejného a privátního klí
 
 - **C**onfidentiality (důvěrnost) - šifrování zprávy
 - **I**ntegrity (of data; integrita) - zpráva nebyla změněna během přenosu
-- **A**uthentication (autenticita) - ověření identity odesílatele
+- **A**uthenticity (autenticita) - ověření identity odesílatele
+- **N**on-repudiation (nepopiratelnost) - odesílatel nemůže popřít, že zprávu odeslal
 
 ## 6. Paralelní výpočty a platformy: Flynnova taxonomie, SIMD, MIMD, SPMD. Paralelismus na úrovni instrukcí, datový a funkční paralelismus. Procesy a vlákna
 
