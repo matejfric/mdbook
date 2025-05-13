@@ -4,6 +4,10 @@
   - [1.1. Funkční závislosti](#11-funkční-závislosti)
   - [1.2. Normální formy](#12-normální-formy)
 - [2. Transakce, zotavení, log, ACID, operace COMMIT a ROLLBACK; problémy souběhu, řízení souběhu: zamykání, úroveň izolace v SQL](#2-transakce-zotavení-log-acid-operace-commit-a-rollback-problémy-souběhu-řízení-souběhu-zamykání-úroveň-izolace-v-sql)
+  - [2.1. Techniky zotavení](#21-techniky-zotavení)
+  - [2.2. Souběh](#22-souběh)
+  - [2.3. Techniky řízení souběhu](#23-techniky-řízení-souběhu)
+  - [2.4. Úrovně izolace](#24-úrovně-izolace)
 - [3. Procedurální rozšíření SQL, PL/SQL, T-SQL, triggery, funkce, procedury, kurzory, hromadné operace](#3-procedurální-rozšíření-sql-plsql-t-sql-triggery-funkce-procedury-kurzory-hromadné-operace)
 - [4. Fyzická implementace databázových systémů: tabulka (halda a shlukovaná tabulka) a index typu B-strom, materializované pohledy, rozdělení dat](#4-fyzická-implementace-databázových-systémů-tabulka-halda-a-shlukovaná-tabulka-a-index-typu-b-strom-materializované-pohledy-rozdělení-dat)
 - [5. Plán vykonávání dotazů, logické a fyzické operace, náhodné a sekvenční přístupy, ladění vykonávání dotazů](#5-plán-vykonávání-dotazů-logické-a-fyzické-operace-náhodné-a-sekvenční-přístupy-ladění-vykonávání-dotazů)
@@ -48,8 +52,9 @@ Navíc lze dokázat platnost:
 
 1. **Dekompozice**: Pokud $X\to YZ$, pak $X\to Y$ a $X\to Z$. Důkaz:
    1. $X\to YZ$ (dáno)
-   2. $YZ\to Y$ (rozšíření)
+   2. $YZ\to Y$ (reflexivita)
    3. $[X\to YZ \land YZ\to Y] \implies X\to Y$ (transitivita)
+   4. (stejně jako 2,3 pro $X\to Z$)
 2. **Sjednocení**: Pokud $X\to Y$ a $X\to Z$, pak $X\to YZ$. Důkaz:
    1. $X\to Y$ a $X\to Z$ (dáno)
    2. $X\to Z \implies X\to XZ$ (rozšíření o $X$)
@@ -81,7 +86,7 @@ Tabulka `Kniha`. Předpokládáme jednoho autora a *kandidátní klíč* `(Autor
 | Codd | Databázové systémy | e-kniha | 300 | 399 | Cambridge | UK |
 | Boyce | Databázové systémy 2 | e-kniha | 400 | 299 | Harvard | USA |
 
-Cena závisí na formátu, tzn. existuje závislost `Formát -> Cena`, která není závislá na klíči. Vytvoříme tabulku `FormatCena(*Název, Formát, Cena)` a tabulku `Kniha(*Název, Autor, Formát, Strany, Nakladatelství, Země nakladatelství)`, kde klíč je `Název`. Tím získáme 2NF.
+Cena závisí na formátu a tato závislost *není závislá na klíči*. Vytvoříme tabulku `FormatCena(*Název, *Formát, Cena)` a tabulku `Kniha(*Název, Autor, Formát, Strany, Nakladatelství, Země nakladatelství)`, kde klíč je `Název`. Tím získáme 2NF.
 
 Dále existuje tranzitivní závislost `Název -> Nakladatelství -> Země nakladatelství`. Vytvoříme tabulku `Nakladatelství(*Nakladatelství, Země)`. Tím získáme 3NF.
 
@@ -96,17 +101,327 @@ Poznámky:
 
 ## 2. Transakce, zotavení, log, ACID, operace COMMIT a ROLLBACK; problémy souběhu, řízení souběhu: zamykání, úroveň izolace v SQL
 
-> **Transakce** je sekvence příkazů která převede databázi z jednoho konzistentního stavu do druhého
-konzistentního stavu. Transakce je atomická operace, buď jsou provedeny všechny příkazy transakce, nebo žádný.
+```mermaid
+mindmap
+  root )"""Relační
+  DBS""")
+    (Techniky Zotavení)
+      UNDO
+      REDO
+      Odložená aktualizace NO-UNDO / REDO
+      Okamžitá aktualizace UNDO / NO-REDO
+      Kombinovaná aktualizace UNDO / REDO
+    (Problémy souběhu)
+      Ztráta aktualizace
+      Nepotvrzená závislost
+      Nekonzistentní analýza
+    (Řízení souběhu)
+      Zamykání
+        Sdílené zámky
+        Výlučné zámky
+        Uváznutí
+      Správa verzí
+    (Úrovně izolace)
+      SERIALIZABLE
+      READ UNCOMMITED
+      READ COMMITED
+      REPEATABLE READ
+```
 
-Relační databáze musí splňovat vlastnosti kterým souhrnně říkáme **ACID**:
+> **Transakce** je sekvence příkazů která převede databázi z jednoho korektního stavu do druhého korektního stavu. Transakce je atomická operace, buď jsou provedeny všechny příkazy transakce, nebo žádný. Transakce začíná operací `BEGIN TRANSACTION` a končí provedením operací `COMMIT` nebo `ROLLBACK`.
 
-- **A**tomicity (atomičnost) — operace se provede buď celá nebo vůbec.
-- **C**onsistency (konzistence) — databáze musí být vždy v konzistentním stavu (musí být splněny všechny integritní omezení).
-- **I**solation (izolovanost) — souběžné transakce musí být izolované (nesmí se navzájem ovlivňovat).
-- **D**urability (trvalost) — po dokončení transakce je stav databáze trvale uložen.
+- `COMMIT` – úspěšné ukončení transakce. Programátor oznamuje *transakčnímu manageru*, že transakce byla úspěšně dokončena, databáze je nyní v *korektním stavu*, a všechny změny provedené v rámci transakce mohou být trvale uloženy v databázi.
+- `ROLLBACK` – neúspěšné provedení transakce. Programátor oznamuje *transakčnímu manageru*, že databáze může být v nekorektním stavu a všechny změny provedené v rámci transakce musí být zrušeny *(roll back / undo)*.
+
+**Zotavení** znamená zotavení databáze z nějaké chyby (přetečení hodnoty atributu, pád systému). *Základní jednotkou zotavení je transakce*.
+
+<details><summary> Příklad: Transakce mezi účty </summary>
+
+Chceme převést 100 Kč z účtu číslo 345 na účet číslo 789. Převod musí být proveden jako jedna atomická (nedělitelná) operace, ačkoli se jedná o dvě operace `UPDATE`.
+
+```sql
+BEGIN TRANSACTION;
+try {
+  UPDATE Account 345 { balance -= 100; }
+  UPDATE Account 789 { balance += 100; }
+  COMMIT;
+}
+catch(SqlException) {
+  ROLLBACK;
+}
+```
+
+</details>
+
+Jak může dojít k chybě při provádění transakce?
+
+- lokální chyby:
+  - chyba v dotazu,
+  - přetečení hodnoty atributu
+- chyby globální:
+  - chyby systémové *(soft crash)* - výpadek proudu, pád systému či SŘBD
+  - chyby média *(hard crash)*
+
+Pro podporu operace `ROLLBACK` má systém k dispozici soubor `log` nebo `journal` na disku, kde jsou zaznamenány detaily o všech provedených operacích.
+
+Transakce nesmí být uvnitř jiné transakce.
+
+> Řekneme, že databáze je **konzistentní** právě tehdy, když jsou splněny všechny integritní omezení.
+
+Operace `COMMIT` zavádí tzv. **potvrzovací bod** *(commit point)*. Operace `ROLLBACK` vrací DBS k předchozímu potvrzovacímu bodu.
+
+> V relační databázi musí každá transakce splňovat vlastnosti **ACID**:
+>
+> - **A**tomicity *(atomičnost)* - jsou provedeny všechny operace transakce nebo žádná.
+> - **C**orrectness *(korektnost)* - transakce převádí korektní stav databáze do jiného korektního stavu.
+> - **I**solation *(izolovanost)* - transakce jsou navzájem izolované, změny provedené jednou transakcí jsou pro ostatní viditelné až po provední `COMMIT`.
+> - **D**urability *(trvalost)* - jakmile je transakce potvrzena, změny v databázi se stávají trvalými (i po případném pádu systému).
+
+Kvůli efektivity se používá *vyrovnávací paměť* umístěna v hlavní paměti (RAM). Databáze je kvůli perzistence dat umístěna na disku v datovém souboru.
+
+Všechny změny musí být zapsány do logu před samotným zápisem změn do databáze. Před ukončením vykonávání operace `COMMIT` je do logu zapsán tzv. `COMMIT` záznam. Takovéto pravidlo nazýváme **pravidlo dopředného zápisu do logu** *(write-ahead log rule)*. Systém je pak schopen na základě informací z logu provést zotavení databáze.
+
+Proč nezapisovat změny rovnou na disk? Protože potom často dochází k náhodnému přístupu k paměti (aktualizace datových struktur), zatímco do logu se zapisuje sekvenčně (řádově rychleji).
+
+### 2.1. Techniky zotavení
+
+Během zotavení se po restartu systému provádí pro jednotlivé transakce operace:
+
+- `UNDO` - stav transakce není znám (nebyla ukončena). Transakce musí být zrušena.
+- `REDO` - transakce byla úspěšně ukončena (příkazem `COMMIT`), ale změny z *logu* nebyly přeneseny do databáze. Transakce musí být přepracována.
+
+Techniky aktualizace logu a databáze:
+
+1. **Odložená aktualizace** `(NO-UNDO / REDO)`
+    - Aktualizace logu a DB se provádí až po potvrzení transakce. Všechny změny se zaznamenávají do paměti.
+    - Teprve po provední `COMMIT` se aktualizace zapíšou do logu a potom do DB (pravidlo dopředného zápisu do logu).
+    - V případě selhání není nutno provádět `UNDO`.
+    - Hrozí přetečení vyrovnávací paměti.
+
+      <img src="../ds/figures/deferred-update.png" alt="deferred-update" width="400px">
+
+2. **Okamžitá aktualizace** `(UNDO / NO-REDO)`
+    - Zotavení okamžitou aktualizací provádí aktualizace logu a databáze *po každé aktualizaci transakce*.
+    - Pokud transakce selže před dosažením potvrzovacího bodu, pak je nutné provést `UNDO` (na disk byly zapsány aktualizace, které musí být zrušeny).
+  
+      <img src="../ds/figures/immediate-update.png" alt="immediate-update" width="400px">
+
+    - Do logu se ukládají *původní hodnoty*, což umožní systému provést při zotavení operaci `UNDO`.
+    - Dochází k velkému počtu zápisů do databáze, ale nedochází k přetečení vyrovnávací paměti.
+3. **Kombinovaná aktualizace** `(UNDO / REDO)`
+    - V praxi se používá kombinovaný `UNDO / REDO` algoritmus.
+      - Odložená aktualizace – hrozí přetečení paměti.
+      - Okamžitá aktualizace – nízký výkon (častý zápis do databáze).
+    - Aktualizace jsou zapisovány do logu po `COMMIT`.
+    - K aktualizaci databáze dochází v určitých časových intervalech - kontrolních bodech **(check points)**. Např. po určitém počtu zapsaných záznamů do logu.
+
+      <img src="../ds/figures/combined-update.png" alt="combined-update" width="400px">
+
+    - V čase kontrolního bodu $t_c$ jsou:
+      - Aktualizace transakce $T_1$ zapsány do databáze.
+      - Aktualizace transakcí $T_2$ a $T_3$ provedené před $t_c$ zapsány do databáze (v logu jsou uloženy staré hodnoty pro případné `UNDO`).
+    - Zotavení ze systémové chyby $t_f$:
+      - $T_1$ neřešíme, aktualizace zapsaný v $t_c$.
+      - $T_5$ neřešíme, `COMMIT` nebyl proveden a žádné změny nebyly ještě zapsány.
+      - $T_2$ `REDO` pro aktualizace po $t_c$ (byly zapsány do logu při `COMMITu`).
+      - $T_4$ `REDO` pro všechny aktualizace.
+      - $T_3$ `UNDO` pro aktualizace provedené do $t_c$.
+    - O transakce $T_3$ a $T_5$ přijdeme, nebyly potvrzené commitem.
+
+### 2.2. Souběh
+
+Souběh nastává, pokud v DBS současně běží několik transakcí.
+
+Problémy souběhu, které mohou nastat jsou:
+
+1. **Ztráta aktualizace** *(lost update)*
+
+    <img src="figures/dbms-concurrency.drawio.svg" alt="dbms-concurrency.drawio" width="400px">
+
+    - Dojde ke ztrátě aktualizace provedené transakcí $A$ v čase $t_3$.
+
+2. **Nepotvrzená závislost** *(uncommitted dependency)*
+
+    <img src="figures/dbms-uncommited-dependency.drawio.svg" alt="dbms-uncommited-dependency.drawio" width="400px">
+
+    1. Transakce $B$ načetla v čase $t_2$ nepotrzenou aktualizaci $x$ zapsanou transakcí $A$ v čase $t_1$.
+    2. Transakce $A$ je v čase $t_3$ zrušena.
+    3. Transakce $B$ dále pracuje s chybnými hodnotami $x$ (WR konflikt, špinavé čtení).
+
+    <img src="figures/dbms-uncommited-dependency-write.drawio.svg" alt="dbms-uncommited-dependency-write.drawio" width="400px">
+
+    1. Transakce B se stala závislou na nepotvrzené změně z času $t_1$.
+    2. V čase $t_3$ je proveden `ROLLBACK` transakce $A$, který zapříčiní ztrátu aktualizace z času $t_2$ zapsanou transakcí $B$ (bude místo toho nastavená hodnota z času před $t_1$).
+
+3. **Nekonzistentní analýza** *(inconsistent analysis)*
+    - Jedna transakce počítá s daty, které jiná transakce upraví. Např. suma hodnot, kdy nějaká transakce upraví hodnotu, kterou už první transakce sečetla (tzn. suma není konzistentní se stavem databáze).
+
+Pokud dvě transakce pracují se stejným záznamem, mohou nastat čtyři konflikty:
+
+1. **RR** - read-read (neovlivňují se)
+2. **RW** - může zapříčinit **problém nekonzistentní analýzy** nebo **neopakovatelné čtení** (čtení stejné n-tice s jinými hodnotami)
+3. **WR** - může zapříčinit **problém nepotvrzené závislosti** nebo **špinavé čtení** (čtení nepotvrzené hodnoty)
+4. **WW** - může zapříčinit **problém nepotvrzené závislosti** i **problém ztráty aktualizace** (špinavý zápis)
+
+### 2.3. Techniky řízení souběhu
+
+- **Zamykání** - jedna kopie dat a přidělování zámků transakcím. Pokud transakce chce provést čtení nebo zápis, tak požádá o zámek na daný objekt. **Dvoufázové uzamykání**:
+  1. Pro **čtení** si transakce vyžádá **sdílený zámek** `S`.
+  2. Pro **aktualizace** si transakce vyžádá **výlučný zámek** `X`.
+  3. Pokud zámek drži jiná transakce, přejde transakce do **stavu čekání** (nesmí nastat **uváznutí** - **deadlock**).
+  4. Výlučné i sdílené zámky jsou uvolněny na konci transakce (`COMMIT` nebo `ROLLBACK`).
+- **Správa verzí** - při aktualizaci dat DBS vytváří kopie a určuje, která kopie má být viditelná pro ostatní transakce.
+  - Vyšší režie, vyšší požadavky na paměť.
+  - Pokud převyšují operace `READ`, tak správa verzí je efektivnější.
+- **Kombinace** zamykání a správy verzí (časté v SŘBD, např. Oracle).
+
+Uváznutí/deadlock:
+
+| Transakce $A$                  | Čas | Transakce $B$                  |
+|-----------------------------|-----|------------------------------|
+| získán zámek `S` na $r_1$        | $t_1$  | -                            |
+| -                           | $t_2$  | získán zámek `S` na $r_2$         |
+| požadavek na zámek `X` na $r_2$  | $t_3$  | -                            |
+| wait                        | $t_4$  | požadavek na zámek `X` na $r_1$   |
+| wait                        |  $t_5$   | wait                         |
+| wait                        |  $\vdots$   | wait                         |
+
+- **Detekce uváznutí**:
+  - Nastavení **časových limitů**.
+  - **Detekce cyklu** v grafu `Wait-For`, kde se zaznamenávají čekající transakce. Jedna z uváznutých transakcí je zrušena (`ROLLBACK`) a potom spuštěna znova.
+- **Prevence pomocí časových razítek**. Jedna z transakcí, která by uvázla, je zrušena podle jejího vzniku (časového razítka).
+
+> Pokud je **plán transakcí serializovatelný**, pak se neprojevují negativní vlivy souběhu a je dodržena **izolace** transakcí ve smyslu ACID. **Dvoufázové zamykání zaručuje serializovatelnost**.
+
+### 2.4. Úrovně izolace
+
+Izolace snižuje propustnost (výkon) DBS. Nicméně nižší izolace přináší rizika problémů souběhu.
+
+| Úroveň izolace   | Špinavé čtení | Neopakovatelné čtení | Výskyt fantomů |
+|------------------|----------------|------------------------|-----------------|
+| `READ UNCOMMITTED` | Ano            | Ano                    | Ano             |
+| `READ COMMITTED`   | Ne             | Ano                    | Ano             |
+| `REPEATABLE READ`  | Ne             | Ne                     | Ano             |
+| `SERIALIZABLE`     | Ne             | Ne                     | Ne              |
+
+- `SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;`
+- `RU` - uvolnění *výlučných zámků* před koncem transakce.
+- `RC` - dřívejší uvolnění *sdílených zámků*.
+
+<details><summary> Výskyt fantomů </summary>
+
+| Transakce A                              | Čas | Transakce B                                |
+|------------------------------------------|-----|---------------------------------------------|
+| `SELECT * FROM student`                    | $t_1$  |                                            |
+| `WHERE rocnik BETWEEN 1 AND 2`             |     |                                             |
+|                                         | $t_2$  | `INSERT INTO student`                         |
+|                                          |     | `VALUES('mar006', 'Marek', 2)`                |
+|                                          | $t_3$  | `COMMIT`                                      |
+| `SELECT * FROM student`                    | $t_4$  |                                            |
+| `WHERE rocnik BETWEEN 1 AND 2`             |     |                                             |
+| `COMMIT`                                   | $t_5$  |                                            |
+
+</details>
+
+Navíc SŘBD umožňují explicitní zamykání programátorem.
 
 ## 3. Procedurální rozšíření SQL, PL/SQL, T-SQL, triggery, funkce, procedury, kurzory, hromadné operace
+
+- **Trigger** je PL/SQL blok, který je spouštěn v závislosti na nějakém příkazu DML jako je `INSERT`, `UPDATE` nebo `DELETE`.
+  - Např. trigger, který každý před smazáním záznamu `BEFORE DELETE` záznam uloží do historizační tabulky.
+
+```sql
+CREATE [OR REPLACE] TRIGGER jmeno_triggeru
+  {BEFORE | AFTER | INSTEAD OF}
+  {INSERT [OR] | UPDATE [OR] | DELETE}
+  [OF jmeno_sloupce]
+  ON jmeno_tabulky
+  [REFERENCING OLD AS stara_hodnota NEW AS nova_hodnota]
+  [FOR EACH ROW [WHEN (podminka)]]
+BEGIN
+  prikazy
+END;
+```
+
+- **Anonymní procedury** jsou nepojmenované procedury, které nemohou být volány z jiné procedury.
+- **Pojmenované procedury** obsahují *hlavičku se jménem a parametry* procedury.
+  - Na rozdíl od anonymních procedur jsou pojmenované procedury **předkompilovány a uloženy v databázi**.
+  - Pro parametry se používá prefix `p_`.
+  - `mod` může být `{IN | OUT | IN OUT}` - vstupní, výstupní nebo vstupně výstupní proměnná.
+  - Proměnné typu `VARCHAR2` nebo `NUMBER` se uvádějí bez závorek, které by specifikovaly jejich velikost.
+
+```sql
+CREATE [OR REPLACE] PROCEDURE jmeno_procedury
+  (p_jmeno_parametru [mod] datovy_typ, ...)
+IS | AS
+  v_definice_lokalnich_promennych
+BEGIN
+  -- tělo procedury
+END [jmeno_procedury];
+```
+
+- **(Pojmenované) funkce** oproti procedurám specifikují návratový typ a *musí vracet hodnotu*.
+
+```sql
+CREATE [OR REPLACE] FUNCTION jmeno_funkce
+  (p_jmeno_parametru [mod] datovy_typ, ...)
+  RETURN navratovy_datovy_typ
+IS | AS
+  v_definice_lokalnich_promennych
+BEGIN
+  -- tělo funkce
+END [jmeno_funkce];
+```
+
+- **Kurzor** je *pomocná proměnná* vytvořená *po* provedení nějakého SQL příkazu.
+
+```sql
+CURSOR jmeno_kursoru IS vysledek_prikazu_select;
+```
+
+- **Hromadné operace** umožňují efektivní práci s kolekcemi (pole).
+
+```sql
+-- načtení do kolekce
+SELECT ...
+BULK COLLECT INTO v_my_collection[,v_my_other_collection] ...
+FROM MyTable;
+
+-- hromadná SQL operace (třeba UPDATE)
+FORALL index IN lower_bound..upper_bound
+  -- SQL
+;
+```
+
+<details><summary> Příklad hromadné operace </summary>
+
+Tento blok jazyka PL/SQL deklaruje dvě vnořené tabulky `empl_ids` a `names` a poté provede hromadný sběrný dotaz pro získání ID a příjmení zaměstnanců z tabulky `Employees`.
+
+Následně příkazem `FORALL` provede aktualizaci tabulky `Myemp` s odpovídajícími jmény na základě získaných ID zaměstnanců.
+
+```sql
+DECLARE
+  TYPE NumTab IS TABLE OF Employees.employee_id%TYPE;
+  TYPE NameTab IS TABLE OF Employees.last_name%TYPE;
+  
+  empl_ids NumTab;
+  names NameTab;
+BEGIN
+  SELECT employee_id, last_name
+  BULK COLLECT INTO empl_ids, names
+  FROM Employees
+  WHERE employee_id > 1000;
+
+  --rest of the code...
+
+  FORALL i IN empl_ids.FIRST..empl_ids.LAST
+    UPDATE Myemp
+    SET name = names(i)
+    WHERE Employee = empl_ids(i);
+END;
+```
+
+</details>
 
 ## 4. Fyzická implementace databázových systémů: tabulka (halda a shlukovaná tabulka) a index typu B-strom, materializované pohledy, rozdělení dat
 
@@ -145,8 +460,9 @@ ROWS FETCH NEXT 100 ROWS ONLY;
 2. Tyto hodnoty jsou uloženy jako metadata *(compression information - CI)* za hlavičkou tabulky.
 3. Shodující se prefixy jsou nahrazeny referencemi do *CI*.
 
-<img src="../ds/figures/prefix-compression-before.png" alt="prefix-compression-before" width="200px">
-<img src="../ds/figures/prefix-compression-after.png" alt="prefix-compression-after" width="200px">
+|||
+|--|--|
+|<img src="../ds/figures/prefix-compression-before.png" alt="prefix-compression-before" width="200px">|<img src="../ds/figures/prefix-compression-after.png" alt="prefix-compression-after" width="200px">|
 
 #### 6.2.2. Slovníková komprimace
 
@@ -173,6 +489,28 @@ Slovníková komprimace je aplikována po prefixové. Není omezena jen na jedno
 - Při sloupcovém uložení můžeme dosáhnout **vyššího kompresního poměru**.
 
 ## 7. CAP teorém, NoSQL DBS, BASE, replikace, MongoDB, CRUD operace
+
+```mermaid
+mindmap
+  root )NoSQL)
+    (CAP)
+      Consistency
+      Availability
+      Partition Tolerance
+      CP
+      AP
+    (BASE)
+      Basically Available
+      Soft-state
+      Eventual Consistency
+    (Nepoužívají)
+      Transakční model ACID
+      SQL
+      Relační datový model
+    (MongoDB)
+      Klíč-hodnota
+      BSON dokumenty
+```
 
 > Mějme **distribuovaný DBS** (DDBS) rozložený na více počítačích v síti (tzv. **uzlech**).
 >
@@ -211,13 +549,11 @@ Typicky rozlišujeme dva typy DBS na základě CAP teorému:
 
 Případná konzistence znamená, že pokud provedeme nějaké zápisy a systém bude pracovat **dostatečně dlouho bez dalších zápisů, data se nakonec zkonsolidují**: další čtení pak budou vracet stejnou hodnotu (posledního zápisu).
 
-Systémy založené na **případné konzistenci** jsou často klasifikovány jako systémy s vlastností **BASE**:
-
-- **V podstatě dostupné (Basically-available)**: Čtení a zápis jsou **maximálně dostupné** s použitím všech uzlů sítě, ale **nemusí být konzistentní**, což znamená, že **čtení nemusí vracet poslední zápis**.
-- **Soft-state**: Není garantována konzistence. Po zápisech a nějakém čase chodu systému existuje pouze určitá pravděpodobnost konvergence dat $\Rightarrow$ případná konzistence.
-- **Případná konzistence (Eventual consistency)**.
-
-> **Replikace dat** znamená, že data jsou uložena v několika kopiích (replikách) na uzlech DDBS systému. Cílem je zvýšení dostupnosti.
+> Systémy založené na **případné konzistenci** jsou často klasifikovány jako systémy s vlastností **BASE**:
+>
+> - **V podstatě dostupné (Basically-available)**: Čtení a zápis jsou **maximálně dostupné** s použitím všech uzlů sítě, ale **nemusí být konzistentní**, což znamená, že **čtení nemusí vracet poslední zápis**.
+> - **Soft-state**: Není garantována konzistence. Po zápisech a nějakém čase chodu systému existuje pouze určitá pravděpodobnost konvergence dat $\Rightarrow$ případná konzistence.
+> - **Případná konzistence (Eventual consistency)**.
 
 ### 7.2. MongoDB
 
@@ -228,5 +564,7 @@ Systémy založené na **případné konzistenci** jsou často klasifikovány ja
 - Položky v dokumentu odpovídají roli sloupců v SQL databázi a lze je indexovat pro zvýšení rychlosti vyhledávání.
 - **Nevýhoda**: **redundance**, není možná validace dat dle schématu.
 - **Výhoda**: **jednodušší dotazování**, ptáme se na dokument, **nepoužíváme operaci spojení** pro spojování entit.
+
+> **Replikace dat** znamená, že data jsou uložena v několika kopiích (replikách) na uzlech DDBS systému. Cílem je zvýšení dostupnosti.
 
 **CRUD** - `Create`, `Read`, `Update`, `Delete`

@@ -562,7 +562,7 @@ sql_statement;
 
 <details><summary> Příklad: PL/SQL BULK COLLECT </summary>
 
-Tento blok jazyka PL/SQL deklaruje dvě vnořené tabulky `enums` a `names` a poté provede hromadný sběrný dotaz pro získání ID a příjmení zaměstnanců z tabulky `Employees`.
+Tento blok jazyka PL/SQL deklaruje dvě vnořené tabulky `empl_ids` a `names` a poté provede hromadný sběrný dotaz pro získání ID a příjmení zaměstnanců z tabulky `Employees`.
 
 Následně příkazem `FORALL` provede aktualizaci tabulky `Myemp` s odpovídajícími jmény na základě získaných ID zaměstnanců.
 
@@ -571,20 +571,20 @@ DECLARE
   TYPE NumTab IS TABLE OF Employees.employee_id%TYPE;
   TYPE NameTab IS TABLE OF Employees.last_name%TYPE;
   
-  enums NumTab;
+  empl_ids NumTab;
   names NameTab;
 BEGIN
   SELECT employee_id, last_name
-  BULK COLLECT INTO enums, names
+  BULK COLLECT INTO empl_ids, names
   FROM Employees
   WHERE employee_id > 1000;
 
   --rest of the code...
 
-  FORALL i IN enums.FIRST..enums.LAST
+  FORALL i IN empl_ids.FIRST..empl_ids.LAST
     UPDATE Myemp
     SET name = names(i)
-    WHERE Employee = enums(i);
+    WHERE Employee = empl_ids(i);
 END;
 ```
 
@@ -1133,20 +1133,26 @@ Techniky aktualizace logu a databáze:
     - Teprve po provední `COMMIT` se aktualizace zapíšou do logu a potom do DB (pravidlo dopředného zápisu do logu).
     - V případě selhání není nutno provádět `UNDO`.
     - Hrozí přetečení vyrovnávací paměti.
-    <img src="figures/deferred-update.png" alt="deferred-update" width="400px">
-1. **Okamžitá aktualizace** `(UNDO / NO-REDO)`
+
+      <img src="figures/deferred-update.png" alt="deferred-update" width="400px">
+
+2. **Okamžitá aktualizace** `(UNDO / NO-REDO)`
     - Zotavení okamžitou aktualizací provádí aktualizace logu a databáze *po každé aktualizaci transakce*.
     - Pokud transakce selže před dosažením potvrzovacího bodu, pak je nutné provést `UNDO` (na disk byly zapsány aktualizace, které musí být zrušeny).
-    <img src="figures/immediate-update.png" alt="immediate-update" width="400px">
+  
+      <img src="figures/immediate-update.png" alt="immediate-update" width="400px">
+
     - Do logu se ukládají *původní hodnoty*, což umožní systému provést při zotavení operaci `UNDO`.
     - Dochází k velkému počtu zápisů do databáze, ale nedochází k přetečení vyrovnávací paměti.
-1. **Kombinovaná aktualizace** `(UNDO / REDO)`
+3. **Kombinovaná aktualizace** `(UNDO / REDO)`
     - V praxi se používá kombinovaný `UNDO / REDO` algoritmus.
       - Odložená aktualizace – hrozí přetečení paměti.
       - Okamžitá aktualizace – nízký výkon (častý zápis do databáze).
     - Aktualizace jsou zapisovány do logu po `COMMIT`.
     - K aktualizaci databáze dochází v určitých časových intervalech - kontrolních bodech **(check points)**. Např. po určitém počtu zapsaných záznamů do logu.
-    <img src="figures/combined-update.png" alt="combined-update" width="400px">
+
+      <img src="figures/combined-update.png" alt="combined-update" width="400px">
+
     - V čase kontrolního bodu $t_c$ jsou:
       - Aktualizace transakce $T_1$ zapsány do databáze.
       - Aktualizace transakcí $T_2$ a $T_3$ provedené před $t_c$ zapsány do databáze (v logu jsou uloženy staré hodnoty pro případné `UNDO`).
