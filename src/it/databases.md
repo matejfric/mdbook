@@ -10,6 +10,14 @@
   - [2.4. Úrovně izolace](#24-úrovně-izolace)
 - [3. Procedurální rozšíření SQL, PL/SQL, T-SQL, triggery, funkce, procedury, kurzory, hromadné operace](#3-procedurální-rozšíření-sql-plsql-t-sql-triggery-funkce-procedury-kurzory-hromadné-operace)
 - [4. Fyzická implementace databázových systémů: tabulka (halda a shlukovaná tabulka) a index typu B-strom, materializované pohledy, rozdělení dat](#4-fyzická-implementace-databázových-systémů-tabulka-halda-a-shlukovaná-tabulka-a-index-typu-b-strom-materializované-pohledy-rozdělení-dat)
+  - [4.1. Tabulka typu halda (heap table)](#41-tabulka-typu-halda-heap-table)
+  - [4.2. Shlukovaná tabulka](#42-shlukovaná-tabulka)
+  - [4.3. Index typu B-strom](#43-index-typu-b-strom)
+    - [4.3.1. B-strom](#431-b-strom)
+    - [4.3.2. B+strom](#432-bstrom)
+    - [4.3.3. Složený klíč indexu](#433-složený-klíč-indexu)
+  - [4.4. Materializované pohledy (materialized views)](#44-materializované-pohledy-materialized-views)
+  - [4.5. Rozdělení dat (partitioning)](#45-rozdělení-dat-partitioning)
 - [5. Plán vykonávání dotazů, logické a fyzické operace, náhodné a sekvenční přístupy, ladění vykonávání dotazů](#5-plán-vykonávání-dotazů-logické-a-fyzické-operace-náhodné-a-sekvenční-přístupy-ladění-vykonávání-dotazů)
 - [6. Stránkování výsledku dotazu, komprimace tabulek a indexů, sloupcové a řádkové uložení tabulek](#6-stránkování-výsledku-dotazu-komprimace-tabulek-a-indexů-sloupcové-a-řádkové-uložení-tabulek)
   - [6.1. Stránkování výsledku dotazu](#61-stránkování-výsledku-dotazu)
@@ -425,7 +433,106 @@ END;
 
 ## 4. Fyzická implementace databázových systémů: tabulka (halda a shlukovaná tabulka) a index typu B-strom, materializované pohledy, rozdělení dat
 
+Fyzická implementace databázových systémů zahrnuje využití různých datových struktur pro efektivní organizaci dat s cílem zvýšit výkon databáze.
+
+### 4.1. Tabulka typu halda (heap table)
+
+> Lineární složitost vyhledávání a neprovádění fyzického mazání záznamů. Záznamy v tabulce **nejsou** nijak **uspořádány**.
+
+- Základní datová struktura pro tabulky relačního datového modelu je **tabulka typu halda** (stránkované pole, resp. **stránkovaný seznam**).
+- Záznamy jsou uloženy ve stránkách/blocích o velikosti nejčastěji **8 kB** (používají se násobky alokační jednotky systému, nejčastěji 2kB).
+- **Vyhledávání** je *sekvenční* $\mathcal{O}(n)$.
+- **Mazání** po každé operaci `DELETE` by v nejhorším případě znamenalo přesouvání $n$ záznamů v haldě. Proto operace mazání pouze **označí záznam jako smazaný**! Tzn. počet bloků haldy se po operaci mazání nezmění. Záznam musíme prvně najít, proto složitost $\mathcal{O}(n)$.
+- Při **vkládání** je záznam umístěn na první nalezenou volnou pozici v tabulce (časová složitost $\mathcal{O}(n)$) nebo na konec pole (složitost $\mathcal{O}(1)$). Teoretická složitost je konstantní, ale DBS musí ještě kontrolovat:
+  - **Jedinečnost** primárního klíče a jedinečných atributů.
+  - **Referenční integritu** - cizí klíče odkazují na existující záznamy.
+  - **Integritní omezení**.
+
+### 4.2. Shlukovaná tabulka
+
+> Shlukovaná tabulka obsahuje **kompletní záznamy**. Pro každou tabulku existuje **vždy jen jedna datová struktura obsahující kompletní záznamy**: halda nebo shlukovaná tabulka.
+
+- Využití stránek:
+  - Halda $\approx 100\%$
+  - Shlukovaná tabulka $\approx 50\%$
+- Proč se shlukovaná tabulka často používá? **Eliminuje přístup do haldy** pro kompletní záznam, což je kritické zejména u rozsahových dotazů nad primárním klíčem s vyšším počtem záznamů výsledku.
+- Záznamy ve shlukované tabulce jsou **setřízeny dle PK**. Pokud potřebujeme rychlejší přístup k hodnotám dalších atributů, musíme vytvořit index na tyto atributy.
+- Dotaz na shlukovanou tabulku a index bývá pomalejší než pro haldu a index. 
+- Dotaz na jiný atribut než na PK znamená sekvenční průchod B-stromem.
+
+### 4.3. Index typu B-strom
+
+#### 4.3.1. B-strom
+
+<img src="../ds/figures/b-tree.png" alt="b-tree" width="500px">
+
+Častěji se používá varianta $B^+$strom, která obsahuje indexované položky - **klíče** - pouze v listových uzlech.
+
+#### 4.3.2. B+strom
+
+Obr. $B^+$strom: klíče / indexované položky $\{1,2,\dots,7\}$, ukazatele na záznam v haldě $\{d_1,\dots,d_7\}$.
+
+<img src="../ds/figures/b+tree.png" alt="b+tree" width="350px">
+
+#### 4.3.3. Složený klíč indexu
+
+> Pokud klíč obsahuje více než jeden atribut $a_1,a_2,\ldots,a_k$, mluvíme o
+složeném klíči. Složený klíč je **lexikograficky uspořádán**. Záleží tedy na pořadí atributů složeného klíče!
+
+<details><summary> Příklad lexikografického uspořádání </summary>
+
+Např. pro PK `(ID_ORDER, ID_PRODUCT)`, jsou klíče prvně setřízeny podle `ID_ORDER` a až poté podle `ID_PRODUCT`:
+
+| ID_ORDER | ID_PRODUCT | UNIT_PRICE | QUANTITY |
+|---------|-----------|------------|----------|
+|    1    |    4320   |   1796023  |    1     |
+|    1    |    7795   |    28533   |    9     |
+|    1    |   24477   |    4157    |    9     |
+|    1    |   25231   |   41566    |    6     |
+|    2    |   19090   |   62625    |    8     |
+|    2    |   24733   |   71542    |   10     |
+
+Důsledek: pro dotaz na `ID_PRODUCT` bude použit sekvenční průchod haldou! Záznamy nejsou seřazené, a tedy index nebude využit.
+
+</details>
+
+> Lexikografickému uspořádání pro klíč $a_1, a_2,\ldots, a_k$ odpovídají dotazy obsahující **bodové dotazy** *(tzn. selekce na konkrétní hodnotu atributu)* pro atributy $a_1,\ldots, a_l$, kde $l\leq k$. Pro atribut $a_{l+1}$ může být specifikován **rozsah**, zatímco atributy $a_{l+2},\ldots, a_k$ mohou zůstat nespecifikované. Jakýkoliv jiný dotaz znamená **nevyužití indexu** (dotaz není kompatibilní s lexikografickým uspořádáním indexu). Výjimkou je optimalizace `INDEX SKIP SCAN` v Oracle.
+
+- Např. pro složený klíč o pěti atributech můžu přesně specifikovat první dva, pro třetí zadat rozsah, ale čtvrtý a pátý nechat nespecifikovaný.
+- Navíc pokud bude odhad velikosti dotazu dle DBS příliš vysoký, provede se sekvenční průchod.
+
+> **Shrnutí:**
+>
+>Index pro (složený) klíč je použit pouze v případě, kdy dotaz odpovídá lexikografickému uspořádání klíče a selektivita dotazu je spíše nízká (zde 1%).
+>
+>Při vytváření většího počtu indexů, můžeme snadno přesáhnout velikost haldy. Navíc budeme snižovat čas vykonání operací insert a update.
+
+### 4.4. Materializované pohledy (materialized views)
+
+- Předpočítané výsledky dotazu uložené jako tabulka.
+- Narozdíl od běžných pohledů *(views)*, které se přepočítávají při každém dotazu, materializované pohledy uchovávají data.
+- Používají se ke **zrychlení častých složitých dotazů**.
+- Musí se pravidelně aktualizovat. Aktualizace databáze se může zpomalit.
+
+### 4.5. Rozdělení dat (partitioning)
+
+- Pro velké tabulky, např. pro dlouhodobé měření.
+- Data v tabulce se rozdělují na menší části (partitions).
+- Rozdělení např. podle jednotlivých *geografických oblastí* nebo *roků*.
+
 ## 5. Plán vykonávání dotazů, logické a fyzické operace, náhodné a sekvenční přístupy, ladění vykonávání dotazů
+
+Jakmile optimalizátor DBS vybere nejlevnější (nejrychlejší) plán, dotaz je proveden a uživateli je navrácen výsledek.
+
+V DBS máme možnost zobrazit vybraný **plán vykonávání dotazu** (angl. **query execution plan - QEP**), který obsahuje provedené **fyzické i logické operace**. Tento plán může sloužit ladění dotazu.
+
+Cenu fyzických operací měříme pomocí:
+
+- **IO Cost** – počet přístupů ke **stránkám** datových struktur.
+- **CPU Cost** – počet operací, např. počet porovnání provedených při provádění operace. Přístupy ke stránkám dělíme na:
+  - **logické přístupy** - `logical reads` nebo `buffer gets`.
+  - `physical reads` – fyzické přístupy: stránky nejsou v paměti (cache buffer) a musí být načteny z disku. Pokud se nám, i při opakování dotazu, stále objevují **nenulové fyzické přístupy, musíme zvětšit cache buffer**.
+- **Processing time** – používáme méně často, závisí na **výkonu** konkrétního serveru, aktuálním **vytížení** atd.
 
 ## 6. Stránkování výsledku dotazu, komprimace tabulek a indexů, sloupcové a řádkové uložení tabulek
 
