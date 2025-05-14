@@ -1,7 +1,7 @@
 # Počítačové systémy a sítě
 
 - [1. Architektura univerzálních procesorů. Principy urychlování činnosti procesorů](#1-architektura-univerzálních-procesorů-principy-urychlování-činnosti-procesorů)
-  - [1.1. Zpracování instrukce a zřetězení](#11-zpracování-instrukce-a-zřetězení)
+  - [1.1. Zpracování instrukce a zřetězení (pipelining)](#11-zpracování-instrukce-a-zřetězení-pipelining)
   - [1.2. Problémy zřetězení](#12-problémy-zřetězení)
   - [1.3. Paměťová hierarchie](#13-paměťová-hierarchie)
 - [2. Základní vlastnosti monolitických počítačů a jejich typické integrované periférie. Možnosti použití](#2-základní-vlastnosti-monolitických-počítačů-a-jejich-typické-integrované-periférie-možnosti-použití)
@@ -55,10 +55,15 @@ mindmap
         (Datové hazardy)
         (Strukturální hazardy)
         (Řídící hazardy)
-      [Cache]
+      ["Cache (L1,L2,L3)"]
+      [Větší počet jader]
+      [Vyšší frekvence jader]
+      ["SIMD instrukce (AVX)"]
 ```
 
-### 1.1. Zpracování instrukce a zřetězení
+### 1.1. Zpracování instrukce a zřetězení (pipelining)
+
+Zpracování instrukce je rozděleno do několika fází a často je možné aby se fáze překrývaly (pokud nejsou instrukce na sobě závislé).
 
 | Krok | Zkratka |Význam                 |
 |:------|:-------:|:-----------------|
@@ -146,6 +151,8 @@ Pro program se používá *nevolatilní* paměť, která zachovává data i po o
 
 Podle typu procesoru rozlišujeme **CISC** (Complex Instruction Set Computer) a **RISC** (Reduced Instruction Set Computer) monolitické počítače.
 
+**Sběrnice** je skupina signálových vodičů, která přenáší data mezi komponenty počítače (např. PCI, USB, I$^2$C).
+
 ### 2.1. Typické periferní zařízení
 
 - LCD displej
@@ -158,37 +165,43 @@ Podle typu procesoru rozlišujeme **CISC** (Complex Instruction Set Computer) a 
 - Rádio
 - IR přijímač
 
+**Časovač** umožní provádět události v pevných intervalech které se řídí hodinovým signálem (např. polling periferií).
+
+**Watchdog** je časovač který resetuje systém nebo jinak převezme řízení, pokud přestane odpovídat hlavní program (např. zacyklení).
+
 ## 3. Protokolová rodina TCP/IP
 
 <img src="figures/tcp-ip.png" alt="tcp-ip" width="800px">
 
 Vrstvy OSI RM:
 
-1. Fyzická vrstva
+1. **Fyzická** vrstva
     - fyzický přenos bitů
     - hub (rozbočovač), repeater (opakovač), modemy
-2. Spojová vrstva
+    - optické kabely, *Unshielded Twisted Pair (UTP)* kabely (s RJ45 koncovkou)
+2. **Spojová** vrstva
     - přenos rámců s **MAC** adresami,
     - **switche** (přepínače)
     - detekce a korekce chyb
-3. Síťová vrstva
-    - směrování paketů **routery** (směrovače)
+3. **Síťová** vrstva
+    - *směrování paketů* **routery** (směrovače)
     - **IP** adresy
-4. Transportní vrstva
-    - protokol **TCP** - spolehlivý, velký soubor
-    - protokol **UDP** - nespolehlivý, rychlost, stream
+4. **Transportní** vrstva
+    - protokol **TCP** *(Transmission Control Protocol)* - spolehlivý, velký soubor - *segmenty*
+    - protokol **UDP** *(User Datagram Protocol)* - nespolehlivý, rychlost, stream - *datagramy*
     - **port**y (trans**port**ní vrstva) `0-65535` $\langle0, 2^{16} - 1\rangle$
-5. Relační (session) vrstva
-    - dialog mezi účastníky
-6. Prezentační vrstva
-    - sjednocení formátů dat
-7. Aplikační vrstva
+5. **Relační** (session) vrstva
+    - *dialog mezi účastníky* (udržování a synchronizace komunikace)
+6. **Prezentační** vrstva
+    - sjednocení formátů dat, kódování
+7. **Aplikační** vrstva
+    - konkrétní aplikace (prohlížeč, databázový klient)
 
 **ARP** *(Address Resolution Protocol)* - mapování IP adresy na MAC adresu
 
 **ICMP** *(Internet Control Message Protocol)* - `ping`, `traceroute`
 
-**NAT** *(Network Address Translation)* - překlad libovolné IP adresy an jinou IP adresu (nejčastěji privátní na veřejné)
+**NAT** *(Network Address Translation)* - překlad libovolné IP adresy an jinou IP adresu (nejčastěji privátní na veřejné). Umožňuje aby pod jednou IPv4 adresou bylo více počítačů najednou.
 
 **DNS** *(Domain Name System)* - překlad doménového jména na IP adresu (a naopak)
 
@@ -206,7 +219,7 @@ Vrstvy OSI RM:
 
 **FTP** *(File Transfer Protocol)* - protokol pro přenos souborů mezi počítači (klient-server/server-klient)
 
-HTTP *(Hypertext Transfer Protocol)* - `GET`, `POST`, `PUT`, `DELETE`, ...
+**HTTP** *(Hypertext Transfer Protocol)* - `GET`, `POST`, `PUT`, `DELETE`, ...
 
 Kdysi byla fyzická topologie sítě totožná s logickou, ale dnes se použivají VLAN (virtuální LAN) na spojové vrstvě (L2). Jeden fyzický switch se může chovat jako více logických switchů.
 
@@ -233,7 +246,12 @@ mindmap
 
 ```
 
-*Dynamické směrovací protokoly* *(RIP, OSPF)* hledají nejkratší cesty v síti. Samotné směrování provádí *směrovače (routery)* podle *směrovací tabulky*.
+**Statické směrování** znamená, že pravidla ve směrovací tabulce jsou spravovány manuálně. Vhodné pouze pro malé sítě.
+
+**Dynamické směrování** se automaticky adaptuje na změny v síti. *Dynamické směrovací protokoly* *(RIP, OSPF)* hledají nejkratší cesty v síti. Samotné směrování provádí *směrovače (routery)* podle *směrovací tabulky*.
+
+- **Routing Information Protocol** *(RIP)* - používá *Distance Vector Algorithm (DVA)*, který nezná rychlost spojení a používá *hop-count* (počet skoků) jako metriku pro určení nejkratší cesty. Router periodicky broadcastem (RIPv1, nebo multicast RIPv2) posílá svoji směrovací tabulku. Nevhodné pro velké sítě.
+- **Open Shortest Path First** *(OSPF)* - používá *Link State Algorithm (LSA)*. Router zná topologii sítě a pomocí *Dikstra algoritmu* určí nejkratší cestu na základě ceny spojení podle *přenosové rychlosti*.
 
 |Typ| Cíl/maska | Next hop | Metrika (nižší je lepší) |
 |:--:|:---------:|:--------:|:-----------------------:|
@@ -246,9 +264,57 @@ Typ znamená *typ směrování*:
 - R - RIP
 - O - OSPF
 
+**IP adresa** slouží k identifikaci zařízení v síťové vrstvě TPC/IP modelu. Dnes existují dvě verze adres:
+
+- původní **IPv4** - 32bitové číslo (čtveřice bajtů)
+- novější **IPv6** - 128bitové číslo (osmice hexadecimálních číslic)
+  - IPv6 poskytuje mnohem větší adresní prostor než IPv4 který už je vyčerpaný.
+
 ## 5. Bezpečnost počítačových sítí s TCP/IP: útoky, paketové filtry, stavový firewall. Šifrování a autentizace, virtuální privátní sítě
 
-Asymetrická kryptografie - šifrování pomocí veřejného a privátního klíče. Veřejný klíč je známý všem, privátní klíč je tajný.
+```mermaid
+mindmap
+  root )"""Bezpečnost
+  TCP/IP""")
+    (Útoky)
+      [Man-in-the-middle]
+      [Denial-of-Service]
+      [Spoofing]
+      [Sniffing]
+    (Firewall)
+      [Stavový]
+      [Paketový filtr]
+    (Šifrování)
+      [Symetrické]
+      [Asymetrické]
+    (VPN)
+      [Šifrovaný tunel]
+    (Protokoly)
+      [TLS]
+      [IPsec]
+      [SSH]
+```
+
+Problém TCP/IP sítí je, že typicky jsou všechna data přenášena nešifrovaně. Data lze nejen přečíst, ale i upravit.
+
+Útoky:
+
+- **Man-in-the-middle (MITM)** - útočník odposlouchává nebo modifikuje komunikaci mezi dvěma stranami. (Lze řešit šifrováním.)
+- **Denial-of-Service (DoS)** - cílem je přetížit systém nebo službu velkým množstvím požadavků a způsobit tak její nedostupnost.
+- **Spoofing** - útočník se vydává za jiného uživatele (např. podvržením IP adresy).
+- **Sniffing** - odposlech síťového provozu.
+
+**Paketové filtry** - druh **firewallu**, který kontroluje pakety na základě pravidel: **IP adresa, port, protokol**.
+
+**Stavový firewall** (stateful) - sleduje **stav spojení**. Bezpečnější než čistý paketový filtr.
+
+**Transport Layer Security** (TLS) je kryptografický protokol pro komunikaci přes počítačovou síť. Používá se v **aplikační vrstvě** TCP/IP. Navíc *Datagram Transport Layer Security (DTLS)* se používá v *transportní vrstvě*. Nahradil zastaralý protokol *Secure Sockets Layer (SSL)*.
+
+**Internet Protocol Security (IPsec)** - sada protokolů **síťové vrstvy**, která obstarává *autentizaci a šifrování paketů* při komunikaci přes Internet Protocol (IP).
+
+**Symetrická kryptografie** - stejný klíč pro šifrování i dešifrování (např. **AES**).
+
+**Asymetrická kryptografie** - šifrování pomocí *veřejného* a *privátního* klíče (např. **RSA**). Veřejný klíč je známý všem, privátní klíč je tajný.
 
 <img src="figures/asymmetric-cryptography.svg" alt="asymmetric-cryptography" width="800px">
 
@@ -256,6 +322,10 @@ Asymetrická kryptografie - šifrování pomocí veřejného a privátního klí
 - **I**ntegrity (of data; integrita) - zpráva nebyla změněna během přenosu
 - **A**uthenticity (autenticita) - ověření identity odesílatele
 - **N**on-repudiation (nepopiratelnost) - odesílatel nemůže popřít, že zprávu odeslal
+
+Asymetrická kryptografie je založena na vynásobení dvou velkých prvočísel, což je rychlý proces, nicméně zpětné hledání těchto dvou čísel (tedy rozklad na prvočísla) je velmi náročný.
+
+**Virtuální privátní sítě** *(VPN – Virtual Private Network)* - vytváří **šifrovaný tunel** mezi klientem a cílovou sítí přes *veřejný internet*. Např. umožňuje bezpečný vzdálený přístup k podnikové síti.
 
 ## 6. Paralelní výpočty a platformy: Flynnova taxonomie, SIMD, MIMD, SPMD. Paralelismus na úrovni instrukcí, datový a funkční paralelismus. Procesy a vlákna
 
