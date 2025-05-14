@@ -150,7 +150,8 @@ mindmap
 - server nabízí nějakou službu, klient ji používá
 - klient používá služby serveru na základě protokolu požadavek / odpověď *(request / reply)*
 - **centralizace** - snaha centralizovat funkce na server
-- jednoduchost aktualizací
+- jednoduchost aktualizací, oddělení zodpovědnosti
+- selhání serveru může způsobit výpadek celého systému
 
 ### 2.2. Peer-to-Peer (P2P)
 
@@ -158,8 +159,8 @@ mindmap
 
 - **decentralizace** ("opak klient-server")
 - dobré škálování, vysoká odolnost vůči výpadkům
-- každý komponent (klient) má vlastní procesy a chová se zároveň jako *klient a server*
-- bitcoin, torrenty *(bittorrent protokol)*
+- každý komponent (klient) má vlastní procesy a chová se zároveň jako *klient a server* (všechny komponenty jsou si rovny)
+- bitcoin, torrenty *(BitTorrent protokol)*
 - složité zajištění bezpečnosti
 
 ### 2.3. Pipes-and-Filter
@@ -311,6 +312,26 @@ mindmap
 
 ### 3.1. Měření kvality návrhu
 
+```mermaid
+mindmap
+  root )"""Měření
+  kvality
+  návrhu""")
+    ("Chidamber & Kemerer metriky")
+        [Hloubka stromu dedičnosti]
+        [Počet metod]
+        [Počet potomků]
+        [Provázanost mezi objekty]
+    (McCabova cyklomatická míra složitosti)
+    (Modularita)
+        [Soudržnost]
+        [Provázanost]
+    (Fan-in, Fan-out)
+    (Úroveň vnoření)
+        [Cykly]
+        [Podmínky]
+```
+
 - **Chidamber & Kemerer metriky** (1996, 100 citací `¯\_(ツ)_/¯`) - pro každou třídu definují:
   1. Hloubku stromu dedičnosti.
   2. Počet metod.
@@ -356,6 +377,14 @@ mindmap
 |Nižší modul závisí na vyšším.| Změna `IBar` vynutí změnu u vyššího modulu. | Princip obrácení závislostí (DIP) - vyšší modul vlastní `IBar`, změny jdou směrem dolů. |
 |--|--|--|
 |<img src="figures/dip-1.png" alt="dip-1" height="200px">| <img src="figures/dip-2.png" alt="dip-2" height="200px"> | <img src="figures/dip-3.png" alt="dip-3" height="200px"> |
+
+**DRY - Don't Repeat Yourself** - místo opakování kódu je většinou lepší vytvořit znovupoužitelný modul.
+
+**KIS - Keep it Simple** - kód by neměl být zbytečně složitý. Velmi důležité pro práci v týmu.
+
+**YAGNI - You Ain't Gonna Need It** - neimplementuj funkčnost, kterou aktuálně nepotřebuješ.
+
+**Modularita** - soudržnost a provázanost (viz [Měření kvality návrhu](#31-měření-kvality-návrhu)).
 
 ## 5. Návrhové vzory
 
@@ -766,7 +795,7 @@ National Institute of Standards and Technology **(NIST)** definuje Secure softwa
 2. **Plánování** - identifikace potenciálních zranitelností *(threat modeling)*
 3. **Návrh** - architektura zohledňující bezpečnost (např. nastavení uživatelských rolí, ...)
 4. **Implementace/vývoj** - zaměření na bezpečný kód (SQL injection, ...), code reviews, statická analýza kódu
-5. **Testování** - *penetrační testy*, skenování zranitelností, testování kódu
+5. **Testování** - *penetrační testy*, skenování zranitelností, testování kódu, automatizované testy
 6. **Nasazení** - zajištění bezpečnosti produkčního prostředí (např. aktuální verze OS)
 7. **Údržba** - pravidelné bezpečnostní aktualizace (security patches), penetrační testy, bug bounties (odměny za nahlášení vady), skenování zranitelností, monitoring, bezpečnostní audity
 
@@ -809,15 +838,21 @@ mindmap
         [Logování změn v systému]
         [Kontrolní součet nebo digitální podpis přenášených dat]
         [Peněžní transakce]
+        [Main-in-the-middle]
+        [SQL injection]
     (Availability)
         [Zálohování]
         [Redundantní systémy]
         [Zatížení systému]
+        [Ochrana před DDoS útoky]
+        [Monitorování]
     (Authenticity)
         [2FA]
         [Bezpečné heslo]
         [Biometrické přihlášení]
         ["Transport Layer Security (TLS)"]
+        [Spoofing]
+        [Phishing]
     (Non-repudiation)
         [Digitální podpisy]
 ```
