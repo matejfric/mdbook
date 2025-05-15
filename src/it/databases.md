@@ -15,10 +15,18 @@
   - [4.3. Index typu B-strom](#43-index-typu-b-strom)
     - [4.3.1. B-strom](#431-b-strom)
     - [4.3.2. B+strom](#432-bstrom)
-    - [4.3.3. Složený klíč indexu](#433-složený-klíč-indexu)
+    - [4.3.3. Rozsahový dotaz](#433-rozsahový-dotaz)
+    - [4.3.4. Složený klíč indexu](#434-složený-klíč-indexu)
   - [4.4. Materializované pohledy (materialized views)](#44-materializované-pohledy-materialized-views)
   - [4.5. Rozdělení dat (partitioning)](#45-rozdělení-dat-partitioning)
 - [5. Plán vykonávání dotazů, logické a fyzické operace, náhodné a sekvenční přístupy, ladění vykonávání dotazů](#5-plán-vykonávání-dotazů-logické-a-fyzické-operace-náhodné-a-sekvenční-přístupy-ladění-vykonávání-dotazů)
+  - [5.1. Operace spojení (JOIN)](#51-operace-spojení-join)
+    - [5.1.1. Nested loop join](#511-nested-loop-join)
+    - [5.1.2. Nested loop join with index](#512-nested-loop-join-with-index)
+    - [5.1.3. Merge Join (spojení sléváním)](#513-merge-join-spojení-sléváním)
+    - [5.1.4. Hash join](#514-hash-join)
+    - [5.1.5. Shrnutí](#515-shrnutí)
+    - [5.1.6. Použití indexu při ladění dotazů se spojením](#516-použití-indexu-při-ladění-dotazů-se-spojením)
 - [6. Stránkování výsledku dotazu, komprimace tabulek a indexů, sloupcové a řádkové uložení tabulek](#6-stránkování-výsledku-dotazu-komprimace-tabulek-a-indexů-sloupcové-a-řádkové-uložení-tabulek)
   - [6.1. Stránkování výsledku dotazu](#61-stránkování-výsledku-dotazu)
   - [6.2. Komprimace](#62-komprimace)
@@ -470,11 +478,86 @@ Fyzická implementace databázových systémů zahrnuje využití různých dato
 
 #### 4.3.2. B+strom
 
+```mermaid
+mindmap
+  root )B+strom)
+    ("""Listový uzel (stránka)
+    má C-1 klíčů""")
+    (Stránkovatelný)
+    (Vyvážený)
+    ("Hloubka log(C)")
+    ("Mazání, vkládání a dotaz na jeden klíč O(log(n))")
+    ("""Bodový dotaz
+    IO cost = h + 1""")
+    ("""Rozsahový dotaz
+    IO cost = h + b + r""")
+    (Listové uzly jsou propojené)
+```
+
 Obr. $B^+$strom: klíče / indexované položky $\{1,2,\dots,7\}$, ukazatele na záznam v haldě $\{d_1,\dots,d_7\}$.
 
 <img src="../ds/figures/b+tree.png" alt="b+tree" width="350px">
 
-#### 4.3.3. Složený klíč indexu
+$B^+$strom řádu $C$ má vlastnosti:
+
+- Listový uzel (stránka) obsahuje $C-1$ klíčů, vnitřní uzel obsahuje $C$ ukazatelů na dětské uzly.
+- **Stránkovatelný** (srovnáme s binárním stromem): $C$ je nastaveno dle velikosti stránky (např. 8 kB).
+- **Vyvážený**: vzdálenost od všech listů ke kořenovému uzlu je stejná. Tzn. všechny listy jsou ve stejné hloubce.
+- **Výška** $h$ je vzdálenost od kořene k listu (počet hran): $h\approx \lceil \log C \rceil$ $\Rightarrow$ maximální počet klíčů $\boxed{n = C^{h+1} − 1}$.
+- **Mazání, vkládání** a dotaz na jeden klíč (**bodový dotaz**) mají **časovou složitost** $\boxed{\mathcal{O}(\log(n))}$.
+- Počet uzlů/stránek (**IO cost**), které je nutné projít při bodovém dotazu, je $h + 1$.
+- Klíče jsou uloženy pouze v interních uzlech. Oproti $B$-stromu má hodnoty pouze v listových uzlech.
+- Listové uzly jsou propojené, což pomáhá v rozsahových dotazech.
+
+- Pokud chceme vložit klíč do listového uzlu, který je plný, dojde k operaci **štěpení (split)**.
+- V původním uzlu se ponechá 50 % položek, do nově vytvořeného uzlu se přesune 50 % položek. Důsledkem je **50% využití stránek** $B$-stromu $\Rightarrow$ $B$-strom je tedy (teoreticky) cca. 2x větší než halda.
+
+Obr. štěpení uzlu pro $C=6$:
+
+<img src="../ds/figures/btree-split.png" alt="btree-split" width="300px">
+
+#### 4.3.3. Rozsahový dotaz
+
+`between 42 and 420`
+
+1. Bodový dotaz pro nižší hodnotu v rozsahu $(42)$.
+2. Porovnávání dalších klíčů ve stránce dokud klíč $\leq 420$.
+3. Po porovnání všech klíčů stránky je načtena další listová stránka (Každá listová stránka $B^+$stromu obsahuje odkaz na následující listovou stránku).
+
+<img src="../ds/figures/b+tree-range-query.png" alt="b+tree-range-query" width="350px">
+
+- $\boxed{\text{IO cost} = h + b + r}$
+    1. $h$: bodový dotaz bez přístupu k listovému uzlu.
+    2. $b$: počet prohledávaných listových uzlů.
+    3. $r$: počet přístupů k záznamům haldy pomocí `RID/ROWID`.
+- Nejhorší případ $\boxed{\mathcal{O}(n)}$ (průchod všech listových stránek).
+- Nejlepší případ: $\boxed{\text{IO cost} = h+1,}$ tzn. $\Omega(h)$.
+- Ke stránkám na disku se přistupuje *náhodnými přístupy* (řádově pomalejší než hlavní paměti).
+- Bodový dotaz je použit pouze v případě, kdy DBS předem ví, že **velikost výsledku bude nejvýše 1** (selekce na PK nebo jedinečný atribut). Ve všech ostatních případech musí být použit **rozsahový dotaz**.
+
+> Index v DBS je většinou implementován jako $B^+$strom.
+
+<div class="warning">
+
+- Index neobsahuje celé záznamy, ale pouze:
+  - **setřízené hodnoty indexovaných atributů (klíč)**.
+  - **ROWID** (**RID** v SQL Server), které odkazuje na záznam (řádek) v haldě. 4–10 bytová hodnota skládající se z **čísla bloku** a **pozice záznamu v haldě**.
+- Klíč a ROWID pak nazýváme **položkou** uzlu B-stromu.
+
+</div>
+
+Typy indexů:
+
+1. **Automaticky vytvořený index** - je vytvořen pro primární klíče a jedinečné atributy (unique), když je úložištěm tabulky halda (heap).
+2. **Ručně vytvořený index**:
+
+    ```sql
+    CREATE INDEX <index name>
+    ON <table name>(<list of attributes>)
+    -- Klíč B-stromu obsahuje hodnoty atributů z `<list of attributes>`.
+    ```
+
+#### 4.3.4. Složený klíč indexu
 
 > Pokud klíč obsahuje více než jeden atribut $a_1,a_2,\ldots,a_k$, mluvíme o
 složeném klíči. Složený klíč je **lexikograficky uspořádán**. Záleží tedy na pořadí atributů složeného klíče!
@@ -522,17 +605,194 @@ Důsledek: pro dotaz na `ID_PRODUCT` bude použit sekvenční průchod haldou! Z
 
 ## 5. Plán vykonávání dotazů, logické a fyzické operace, náhodné a sekvenční přístupy, ladění vykonávání dotazů
 
-Jakmile optimalizátor DBS vybere nejlevnější (nejrychlejší) plán, dotaz je proveden a uživateli je navrácen výsledek.
+Jakmile **optimalizátor** DBS vybere **nejlevnější** (nejrychlejší) **plán**, dotaz je proveden a uživateli je navrácen výsledek.
+
+- Jednou ze statistik je odhad počtu záznamů, které budou vráceny.
+- Dále existence indexů.
+- Datová struktura tabulky.
+- Počet záznamů v tabulce.
+- Přítomnost (části) tabulky v paměti (cache buffer).
 
 V DBS máme možnost zobrazit vybraný **plán vykonávání dotazu** (angl. **query execution plan - QEP**), který obsahuje provedené **fyzické i logické operace**. Tento plán může sloužit ladění dotazu.
 
-Cenu fyzických operací měříme pomocí:
+>**Logické operace** popisují **co** se má udělat. Např.:
+>
+>```sql
+>SELECT * FROM Student
+>WHERE rocnik = 1;
+>```
+>
+>**Fyzické operace** popisují **jak** se konkrétně provede *logická operace*. Např. `Hash Join`, `Table Scan` atd.
+
+**Cenu fyzických operací** měříme pomocí:
 
 - **IO Cost** – počet přístupů ke **stránkám** datových struktur.
 - **CPU Cost** – počet operací, např. počet porovnání provedených při provádění operace. Přístupy ke stránkám dělíme na:
   - **logické přístupy** - `logical reads` nebo `buffer gets`.
-  - `physical reads` – fyzické přístupy: stránky nejsou v paměti (cache buffer) a musí být načteny z disku. Pokud se nám, i při opakování dotazu, stále objevují **nenulové fyzické přístupy, musíme zvětšit cache buffer**.
-- **Processing time** – používáme méně často, závisí na **výkonu** konkrétního serveru, aktuálním **vytížení** atd.
+  - **fyzické přístupy** - `physical reads` – stránky nejsou v paměti (cache buffer) a musí být načteny z disku. Pokud se nám, i při opakování dotazu, stále objevují **nenulové fyzické přístupy, musíme zvětšit cache buffer**.
+- **Processing time** – používáme méně často, závisí na **výkonu** konkrétního serveru, aktuálním **vytížení**, paralelizaci atd.
+
+|Fyzická operace|MS SQL|Oracle|
+|----------------|------|------|
+|Sekvenční průchod haldou|`Table Scan`|`TABLE ACCESS (FULL)`|
+|Bodový dotaz v B-stromu|`Index Seek`|`INDEX (UNIQUE SCAN)`|
+|Rozsahový dotaz v B-stromu|`Index Seek`|`INDEX (RANGE SCAN)`|
+|Načtení záznamu podle odkazu (`RID/ROWID`) do haldy (B+strom)|`RID Lookup`|`TABLE ACCESS BY INDEX ROWID`|
+
+### 5.1. Operace spojení (JOIN)
+
+Při návrhu databáze provádíme **dekompozici schématu do příslušné normální formy**, důvodem je především **odstranění redundance**. Důsledkem potom je nutnost použít operaci **spojení** při dotazování, tak abychom spojovali záznamy v různých tabulkách na základě hodnot atributů.
+
+Nejčastějším spojením je **spojení na rovnost hodnot atributů (equality join)**, kde typicky spojujeme dle cizího klíče jedné tabulky a primárního klíče tabulky druhé. Operace spojení je **častá a drahá**, má tedy radikální dopad na efektivitu provádění dotazů aplikace.
+
+Algoritmy operace spojení:
+
+- **Nested loop join**
+  - **Nested loop join with index**
+- **Merge join**
+- **Hash join**
+
+Vstupy algoritmu spojení:
+
+- Dvě relace $R_1, R_2$ s $n_1, n_2$ záznamy a $b_1, b_2$ stránkami.
+- Pořadová čísla spojovaných atributů $R_1(x)$ a $R_2(y)$.
+
+Velikost výsledku: $[0, n_1\cdot n_2]$
+
+#### 5.1.1. Nested loop join
+
+- $\mathcal{O}(n_1\cdot n_2), \Theta(n_1\cdot n_2)$
+- $\text{IO cost} = n_1\cdot n_2$
+
+```cpp
+for (int i = 0; i < n1; i++)
+{
+    for (int j = 0; j < n2; j++)
+    {
+        if (R1[i].x == R2[j].y)
+        {
+            addToResult(R1[i], R2[j]);
+        }
+    }
+}
+```
+
+Nebo **stránkovaná verze**, kde složitost zůstává stejná, ale $\boxed{\text{IO cost} = b_1 \cdot b_2}$ (oproti $n_1\cdot n_2$)
+
+```cpp
+void joinBlocks(Block B1, Block B2)
+{
+    for (int i = 0; i < B1.count; i++)
+    {
+        for (int j = 0; j < B2.count; j++)
+        {
+            if (B1[i].x == B2[j].y)
+            {
+                addToResult(B1[i], B2[j]);
+            }
+        }
+    }
+}
+
+for (int i = 0; i < b1; i++)
+{
+    Block B1 = readBlock(R1, i);
+    for (int j = 0; j < b2; j++)
+    {
+        Block B2 = readBlock(R2, j);
+        joinBlocks(B1, B2);
+    }
+}
+```
+
+#### 5.1.2. Nested loop join with index
+
+- $\Theta(n_1\cdot\log n_2)$
+- $\text{IO cost} \in [b_1 \cdot (h+1), b_1 \cdot (h+2)]$
+  - Pokud není nalezena společná hodnota atributu, tak není potřeba provádět čtení záznamu z haldy, tzn. je proveden pouze bodový dotaz v B+stromu $\Rightarrow\text{IO cost} =h+1$.
+- Předpoklad: pro spojovaný atribut $y$ relace $R_2$ je vytvořen index.
+
+```c++
+for (int i = 0; i < n1; i++) {
+    { ROWID } = RangeScan(I2y, R1[i].x);
+    for (int j = 0; j < |{ ROWID }|; j++) {
+        r = ReadRecord(R2, ROWID[j]);
+        AddToResult(R1[i], r);
+    }
+}
+```
+
+Pokud budou relace a index umístěny na disku, pak rozsahový dotaz indexu bude zpomalen náhodnými diskovými operacemi. **IO cost poroste s velikostí výsledku spojení** (kvůli přístupu k záznamu v $R_2$). IO cost tedy významně redukujeme, pokud v indexu $I_2.y$ budou k dispozici všechny atributy projekce $\Longrightarrow$ **shlukovaná tabulka, pokrývající index**.
+
+#### 5.1.3. Merge Join (spojení sléváním)
+
+- $\Theta(n_1 + n_2)$
+- $\text{IO cost} = b_1 + b_2$
+- Předpoklad: Relace $R_1$ a $R_2$ jsou **setřízené** dle spojovaných atributů $R_1.x$ resp. $R_2.y$.
+
+>Algoritmus:
+>
+>1. Porovnáváme aktuální prvky $R_1$ a $R_2$.
+>2. Pokud jsou stejné, zařadíme do výsledku.
+>3. Jinak posuneme ukazatel na další prvek v relaci s menším aktuálním prvkem.
+>4. Provádíme, dokud nedojdeme na konec jedné z relací.
+
+```python
+def merge_join(r1, r2, x, y):
+    i = 0
+    j = 0
+    intersection = []
+
+    # select columns to join
+    r1x = r1[x]  
+    r2y = r2[y]
+
+    while i < len(r1x) and j < len(r2y):
+        a = r1x[i]  # left
+        b = r2y[j]  # right
+        if a == b:
+            intersection.append(a)
+            i += 1
+            j += 1
+        elif a < b:
+            i += 1
+        else:
+            j += 1
+
+    return intersection
+```
+
+#### 5.1.4. Hash join
+
+- $\Theta(n_1 + n_2)$ (neuvažujeme operace hashované tabulky)
+- $\text{IO cost} = b_1 + b_2$ (neuvažujeme operace hashované tabulky)
+- Algoritmus je využíván, pokud je nutné spojovat **větší nesetřízené** relace nebo **jedna z relací je menší**.
+
+>Algoritmus:
+>
+>1. **Menší** relace (tabulka) je vložena **do hashovací tabulky** (slovník), kde **klíčem je spojovaný atribut**.
+>2. **Větší** relace (tabulka) je procházena po záznamech:
+>    1. Pro každý záznam větší tabulky se vypočte hash.
+>    2. Průchod po klíčích slovníku, záznamy se stejnou hodnotou spojovaných atributů přidáme do výsledku.
+
+#### 5.1.5. Shrnutí
+
+<div class="warning">
+
+- **Nested loop join** se využívá pokud DBS spojuje menší, **nesetřízené** relace.
+- Pokud je u druhé relace k dispozici index, využívá se **Nested loop join s indexem** (stále se musí jednat o dotaz s vysokou selektivitou, a tedy malým počtem záznamů $<1\%$).
+- Pokud má DBS k dispozici obě relace **setřízené**, použije algoritmus **Merge join**.
+- **Hash join** se využívá, pokud je nutné spojovat **větší nesetřízené relace**, zvláště pokud jedna z relací je menší.
+
+</div>
+
+#### 5.1.6. Použití indexu při ladění dotazů se spojením
+
+- Obecně platí, že index se využívá pro selekci získávající malý počet záznamů (tzv. **vysoce selektivní dotazy**).
+- V případě operace spojení se můžeme pokusit vytvořit **složený klíč** obsahující spojovaný **cizí klíč** a atributy tabulky, pro které se provádí **selekce**.
+- Pro dotazy `SELECT *` se složený index využije jen v případě dotazů s vyšší selektivitou.
+- Pokud dotaz obsahuje projekci jinou než `*`, dáme atributy projekce na konec složeného klíče indexu. Vyhneme se drahým přístupům ke kompletnímu záznamu tabulky a složený index bude spíše využit. Pokud bude takový složený index využit, namísto sekvenčních
+průchodů tabulkou získáme výrazně nižší čas vykonání dotazu.
 
 ## 6. Stránkování výsledku dotazu, komprimace tabulek a indexů, sloupcové a řádkové uložení tabulek
 
