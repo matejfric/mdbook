@@ -20,13 +20,14 @@
   - [4.4. Materializované pohledy (materialized views)](#44-materializované-pohledy-materialized-views)
   - [4.5. Rozdělení dat (partitioning)](#45-rozdělení-dat-partitioning)
 - [5. Plán vykonávání dotazů, logické a fyzické operace, náhodné a sekvenční přístupy, ladění vykonávání dotazů](#5-plán-vykonávání-dotazů-logické-a-fyzické-operace-náhodné-a-sekvenční-přístupy-ladění-vykonávání-dotazů)
-  - [5.1. Operace spojení (JOIN)](#51-operace-spojení-join)
-    - [5.1.1. Nested loop join](#511-nested-loop-join)
-    - [5.1.2. Nested loop join with index](#512-nested-loop-join-with-index)
-    - [5.1.3. Merge Join (spojení sléváním)](#513-merge-join-spojení-sléváním)
-    - [5.1.4. Hash join](#514-hash-join)
-    - [5.1.5. Shrnutí](#515-shrnutí)
-    - [5.1.6. Použití indexu při ladění dotazů se spojením](#516-použití-indexu-při-ladění-dotazů-se-spojením)
+  - [5.1. Statistiky pro výběr plánu](#51-statistiky-pro-výběr-plánu)
+  - [5.2. Operace spojení (JOIN)](#52-operace-spojení-join)
+    - [5.2.1. Nested loop join](#521-nested-loop-join)
+    - [5.2.2. Nested loop join with index](#522-nested-loop-join-with-index)
+    - [5.2.3. Merge Join (spojení sléváním)](#523-merge-join-spojení-sléváním)
+    - [5.2.4. Hash join](#524-hash-join)
+    - [5.2.5. Shrnutí](#525-shrnutí)
+    - [5.2.6. Použití indexu při ladění dotazů se spojením](#526-použití-indexu-při-ladění-dotazů-se-spojením)
 - [6. Stránkování výsledku dotazu, komprimace tabulek a indexů, sloupcové a řádkové uložení tabulek](#6-stránkování-výsledku-dotazu-komprimace-tabulek-a-indexů-sloupcové-a-řádkové-uložení-tabulek)
   - [6.1. Stránkování výsledku dotazu](#61-stránkování-výsledku-dotazu)
   - [6.2. Komprimace](#62-komprimace)
@@ -445,10 +446,10 @@ Fyzická implementace databázových systémů zahrnuje využití různých dato
 
 ### 4.1. Tabulka typu halda (heap table)
 
-> Lineární složitost vyhledávání a neprovádění fyzického mazání záznamů. Záznamy v tabulce **nejsou** nijak **uspořádány**.
+> Sekvenční vyhledávání s lineární složitostí. Neprovádění fyzického mazání záznamů. Záznamy v tabulce **nejsou** nijak **uspořádány**.
 
 - Základní datová struktura pro tabulky relačního datového modelu je **tabulka typu halda** (stránkované pole, resp. **stránkovaný seznam**).
-- Záznamy jsou uloženy ve stránkách/blocích o velikosti nejčastěji **8 kB** (používají se násobky alokační jednotky systému, nejčastěji 2kB).
+- Záznamy jsou uloženy ve **stránkách/blocích** o velikosti nejčastěji **8 kB** (používají se násobky alokační jednotky systému, nejčastěji 2kB). Slouží to pro efektivní výměnu dat mezi pamětí *(cache buffer)* a diskem.
 - **Vyhledávání** je *sekvenční* $\mathcal{O}(n)$.
 - **Mazání** po každé operaci `DELETE` by v nejhorším případě znamenalo přesouvání $n$ záznamů v haldě. Proto operace mazání pouze **označí záznam jako smazaný**! Tzn. počet bloků haldy se po operaci mazání nezmění. Záznam musíme prvně najít, proto složitost $\mathcal{O}(n)$.
 - Při **vkládání** je záznam umístěn na první nalezenou volnou pozici v tabulce (časová složitost $\mathcal{O}(n)$) nebo na konec pole (složitost $\mathcal{O}(1)$). Teoretická složitost je konstantní, ale DBS musí ještě kontrolovat:
@@ -458,17 +459,30 @@ Fyzická implementace databázových systémů zahrnuje využití různých dato
 
 ### 4.2. Shlukovaná tabulka
 
-> Shlukovaná tabulka obsahuje **kompletní záznamy**. Pro každou tabulku existuje **vždy jen jedna datová struktura obsahující kompletní záznamy**: halda nebo shlukovaná tabulka.
+> Shlukovaná tabulka je uložena jako B+ strom. Obsahuje **kompletní záznamy** indexované podle PK. Pro každou tabulku existuje **vždy jen jedna datová struktura obsahující kompletní záznamy**: halda nebo shlukovaná tabulka.
 
 - Využití stránek:
   - Halda $\approx 100\%$
-  - Shlukovaná tabulka $\approx 50\%$
-- Proč se shlukovaná tabulka často používá? **Eliminuje přístup do haldy** pro kompletní záznam, což je kritické zejména u rozsahových dotazů nad primárním klíčem s vyšším počtem záznamů výsledku.
+  - Shlukovaná tabulka $\approx 50\%$ (štěpení B+ stromu)
+- Proč se shlukovaná tabulka často používá? **Eliminuje přístup do haldy** pro kompletní záznam, což je kritické zejména u *rozsahových dotazů nad primárním klíčem s vyšším počtem záznamů výsledku*.
 - Záznamy ve shlukované tabulce jsou **setřízeny dle PK**. Pokud potřebujeme rychlejší přístup k hodnotám dalších atributů, musíme vytvořit index na tyto atributy.
-- Dotaz na shlukovanou tabulku a index bývá pomalejší než pro haldu a index. 
+- Dotaz na shlukovanou tabulku a index bývá pomalejší než pro haldu a index.
 - Dotaz na jiný atribut než na PK znamená sekvenční průchod B-stromem.
 
 ### 4.3. Index typu B-strom
+
+Typy indexů:
+
+1. **Automaticky vytvořený index** - je vytvořen pro primární klíč a jedinečné atributy (unique), když je úložištěm tabulky halda (heap).
+2. **Ručně vytvořený index**:
+
+    ```sql
+    CREATE INDEX <index name>
+    ON <table name>(<list of attributes>)
+    -- Klíč B-stromu obsahuje hodnoty atributů z `<list of attributes>`.
+    ```
+
+> Index v DBS je většinou implementován jako $B^+$strom.
 
 #### 4.3.1. B-strom
 
@@ -535,8 +549,6 @@ Obr. štěpení uzlu pro $C=6$:
 - Ke stránkám na disku se přistupuje *náhodnými přístupy* (řádově pomalejší než hlavní paměti).
 - Bodový dotaz je použit pouze v případě, kdy DBS předem ví, že **velikost výsledku bude nejvýše 1** (selekce na PK nebo jedinečný atribut). Ve všech ostatních případech musí být použit **rozsahový dotaz**.
 
-> Index v DBS je většinou implementován jako $B^+$strom.
-
 <div class="warning">
 
 - Index neobsahuje celé záznamy, ale pouze:
@@ -545,17 +557,6 @@ Obr. štěpení uzlu pro $C=6$:
 - Klíč a ROWID pak nazýváme **položkou** uzlu B-stromu.
 
 </div>
-
-Typy indexů:
-
-1. **Automaticky vytvořený index** - je vytvořen pro primární klíče a jedinečné atributy (unique), když je úložištěm tabulky halda (heap).
-2. **Ručně vytvořený index**:
-
-    ```sql
-    CREATE INDEX <index name>
-    ON <table name>(<list of attributes>)
-    -- Klíč B-stromu obsahuje hodnoty atributů z `<list of attributes>`.
-    ```
 
 #### 4.3.4. Složený klíč indexu
 
@@ -605,13 +606,11 @@ Důsledek: pro dotaz na `ID_PRODUCT` bude použit sekvenční průchod haldou! Z
 
 ## 5. Plán vykonávání dotazů, logické a fyzické operace, náhodné a sekvenční přístupy, ladění vykonávání dotazů
 
-Jakmile **optimalizátor** DBS vybere **nejlevnější** (nejrychlejší) **plán**, dotaz je proveden a uživateli je navrácen výsledek.
+**Plán vykonávání dotazu** je sekvence kroků - algoritmus - který databázový systém provádí v rámci vykonávání konkrétního dotazu.
 
-- Jednou ze statistik je odhad počtu záznamů, které budou vráceny.
-- Dále existence indexů.
-- Datová struktura tabulky.
-- Počet záznamů v tabulce.
-- Přítomnost (části) tabulky v paměti (cache buffer).
+**Query optimizer** je komponent DBS, který vybírá **nejlevnější** *(nejrychlejší)* **plán**.
+
+**Plan cache** je mezipaměť obsahující nedávno vygenerované plány. Využívá se pro urychlení opakovaných dotazů (nemusí se pokaždé hledat plán; proto je důležité používat vázané proměnné v PL/SQL `:x`).
 
 V DBS máme možnost zobrazit vybraný **plán vykonávání dotazu** (angl. **query execution plan - QEP**), který obsahuje provedené **fyzické i logické operace**. Tento plán může sloužit ladění dotazu.
 
@@ -628,8 +627,8 @@ V DBS máme možnost zobrazit vybraný **plán vykonávání dotazu** (angl. **q
 
 - **IO Cost** – počet přístupů ke **stránkám** datových struktur.
 - **CPU Cost** – počet operací, např. počet porovnání provedených při provádění operace. Přístupy ke stránkám dělíme na:
-  - **logické přístupy** - `logical reads` nebo `buffer gets`.
-  - **fyzické přístupy** - `physical reads` – stránky nejsou v paměti (cache buffer) a musí být načteny z disku. Pokud se nám, i při opakování dotazu, stále objevují **nenulové fyzické přístupy, musíme zvětšit cache buffer**.
+  - **logické přístupy** - `logical reads` nebo `buffer gets` - počet přístupů k datům, když jsou načtena v paměti.
+  - **fyzické přístupy** - `physical reads` – počet přístupů ke stránkám na disku. Stránky nejsou v paměti (cache buffer) a musí být načteny z disku. Pokud se nám, i při opakování dotazu, stále objevují **nenulové fyzické přístupy, musíme zvětšit cache buffer**.
 - **Processing time** – používáme méně často, závisí na **výkonu** konkrétního serveru, aktuálním **vytížení**, paralelizaci atd.
 
 |Fyzická operace|MS SQL|Oracle|
@@ -639,7 +638,18 @@ V DBS máme možnost zobrazit vybraný **plán vykonávání dotazu** (angl. **q
 |Rozsahový dotaz v B-stromu|`Index Seek`|`INDEX (RANGE SCAN)`|
 |Načtení záznamu podle odkazu (`RID/ROWID`) do haldy (B+strom)|`RID Lookup`|`TABLE ACCESS BY INDEX ROWID`|
 
-### 5.1. Operace spojení (JOIN)
+> Náhodné přístupy jsou řádově pomalejší než sekvenční přístupy.
+
+### 5.1. Statistiky pro výběr plánu
+
+- Odhad počtu záznamů, které budou vráceny *(selektivita dotazu)*.
+- Hustota sloupce = 1 / počet unikátních hodnot v tabulce.
+- Existence indexů.
+- Datová struktura tabulky.
+- Počet záznamů v tabulce *(kardinalita)*.
+- Přítomnost (části) tabulky v paměti (cache buffer).
+
+### 5.2. Operace spojení (JOIN)
 
 Při návrhu databáze provádíme **dekompozici schématu do příslušné normální formy**, důvodem je především **odstranění redundance**. Důsledkem potom je nutnost použít operaci **spojení** při dotazování, tak abychom spojovali záznamy v různých tabulkách na základě hodnot atributů.
 
@@ -659,7 +669,7 @@ Vstupy algoritmu spojení:
 
 Velikost výsledku: $[0, n_1\cdot n_2]$
 
-#### 5.1.1. Nested loop join
+#### 5.2.1. Nested loop join
 
 - $\mathcal{O}(n_1\cdot n_2), \Theta(n_1\cdot n_2)$
 - $\text{IO cost} = n_1\cdot n_2$
@@ -705,7 +715,7 @@ for (int i = 0; i < b1; i++)
 }
 ```
 
-#### 5.1.2. Nested loop join with index
+#### 5.2.2. Nested loop join with index
 
 - $\Theta(n_1\cdot\log n_2)$
 - $\text{IO cost} \in [b_1 \cdot (h+1), b_1 \cdot (h+2)]$
@@ -724,7 +734,7 @@ for (int i = 0; i < n1; i++) {
 
 Pokud budou relace a index umístěny na disku, pak rozsahový dotaz indexu bude zpomalen náhodnými diskovými operacemi. **IO cost poroste s velikostí výsledku spojení** (kvůli přístupu k záznamu v $R_2$). IO cost tedy významně redukujeme, pokud v indexu $I_2.y$ budou k dispozici všechny atributy projekce $\Longrightarrow$ **shlukovaná tabulka, pokrývající index**.
 
-#### 5.1.3. Merge Join (spojení sléváním)
+#### 5.2.3. Merge Join (spojení sléváním)
 
 - $\Theta(n_1 + n_2)$
 - $\text{IO cost} = b_1 + b_2$
@@ -762,7 +772,7 @@ def merge_join(r1, r2, x, y):
     return intersection
 ```
 
-#### 5.1.4. Hash join
+#### 5.2.4. Hash join
 
 - $\Theta(n_1 + n_2)$ (neuvažujeme operace hashované tabulky)
 - $\text{IO cost} = b_1 + b_2$ (neuvažujeme operace hashované tabulky)
@@ -775,7 +785,7 @@ def merge_join(r1, r2, x, y):
 >    1. Pro každý záznam větší tabulky se vypočte hash.
 >    2. Průchod po klíčích slovníku, záznamy se stejnou hodnotou spojovaných atributů přidáme do výsledku.
 
-#### 5.1.5. Shrnutí
+#### 5.2.5. Shrnutí
 
 <div class="warning">
 
@@ -786,7 +796,7 @@ def merge_join(r1, r2, x, y):
 
 </div>
 
-#### 5.1.6. Použití indexu při ladění dotazů se spojením
+#### 5.2.6. Použití indexu při ladění dotazů se spojením
 
 - Obecně platí, že index se využívá pro selekci získávající malý počet záznamů (tzv. **vysoce selektivní dotazy**).
 - V případě operace spojení se můžeme pokusit vytvořit **složený klíč** obsahující spojovaný **cizí klíč** a atributy tabulky, pro které se provádí **selekce**.
