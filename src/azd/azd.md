@@ -99,18 +99,52 @@
 
 ## 1. Druhy dat, předzpracování dat, vlastnosti dat. Výběr atributů (zdůvodnění, princip, entropie, Gini index, …)
 
+```mermaid
+mindmap
+  root )Typy dat)
+      (Kvantitativní data)
+        [Tabulková data]
+        [Časové řady]
+        [Obrazová data]
+        [Histogram, boxplot]
+        [Normalizace]
+          [Min-max]
+          [Škálování průměrem]
+          [Standardizace]
+          [Nelineární transformace]
+          ["Interkvartilové rozpětí (IQR)"]
+      (Kategorická data)
+        [Sloupcový graf]
+        [Nominální]
+          [One-hot encoding]
+          [Algorithmic encoding]
+            ["Cyklické příznaky (feature engineering)"]
+        [Ordinální]
+          [Ordinal encoding]
+      (Textová data)
+        [Tokenizace]
+        [Stop-slova]
+        [Stemming]
+        [Embedding]
+          [Word2Vec]
+            [Skip-gram]
+            [CBOW]
+          [GloVe]
+      (Grafová data)
+```
+
 Explorativní datová analýza (EDA) - prvotní průzkum dat, hledání vzorů, anomálií, ...
 
 - grafy distribucí (histogram)
 - krabicové grafy (boxploty)
 
   <img src="figures/boxplot.png" alt="boxplot" width="400px">
-- souhrné statistiky (průměr, medián, rozptyl, směrodatná odchylka, ...)
+- souhrné číselné statistiky (průměr, medián, rozptyl, směrodatná odchylka, ...)
 - vztahy mezi daty, korelace (scatter plot, heatmapa)
 
 ### 1.1. Typy dat
 
-1. **Numerická data**
+1. **Kvantitativní data**
    - Tabulková data
    - Časové řady - signálová data, zvuk
    - Obrazová data
@@ -153,6 +187,25 @@ Explorativní datová analýza (EDA) - prvotní průzkum dat, hledání vzorů, 
   - obrazové příznaky
 
 ### 1.4. Výběr atributů
+
+```mermaid
+mindmap
+  root )Výběr atributů)
+      (Proč?)
+        [Prokletí dimenzionality]
+        [Výpočetní náročnost]
+        [Vysvětlitelnost modelu]
+      (Filter methods)
+        [Znalost tříd]
+        [Gini index]
+        [Entropie]
+      (Wrapper methods)
+        [Postupné přidávání atributů]
+      (Embedded methods)
+        [Rozhodovací strom]
+        [Lineární regrese]
+        [RFE]
+```
 
 Proč vybírat atributy?
 
@@ -259,6 +312,8 @@ $$
 
 Implementace např. pomocí algoritmu **Apriori**.
 
+Algoritmus **FP Growth** je efektivnější než Apriori, protože neprovádí generování kandidátů. Místo toho vytváří stromovou strukturu **FP Tree**. Je vhodný i pro velké datové sady. Existuje paralelní distribuovaná implementace pro *Apache Spark*.
+
 Generování kombinací:
 
 ```py
@@ -295,6 +350,7 @@ mindmap
         [Centroid method]
         [Ward method]
         cure["CURE (Clustering Using REpresentatives)"]
+          [k-d-tree]
         [BIRCH]
           cft["Clustering Feature Tree (CFT)"]
       (Shlukování na základě hustoty)
@@ -443,6 +499,8 @@ Jak zvolit hyperparametry?
 
 ## 4. Rozhodovací stromy (princip, algoritmus, metriky pro vhodnou volbu hodnot dělících atributů, prořezávání)
 
+Rozhodovací strom je klasifikační algoritmus. Je to příklad učení s učitelem *(supervised learning)*.
+
 <img src="figures/decision-tree.drawio.svg" alt="decision-tree.drawio.svg" width="700px">
 
 Bez omezení vždy dojde k overfittingu (přetrénování). Preferujeme jednoduché stromy (s menším hloubkou a menším počtem uzlů).
@@ -505,25 +563,20 @@ Buď $\mathcal{X}=(\mathbf{x}_1,y_1),\ldots,(\mathbf{x}_n,y_n)$ trénovací data
 
 Lineární SVM je klasifikační algoritmus, který se snaží najít hyperrovinu, která odděluje jednotlivé třídy ve smyslu maximální mezery *(maximum-margin hyperplane / widest-street principle)*.
 
-<img src="figures/svm-1.svg" alt="svm" width="350px">
+<img src="figures/svm-1.drawio.svg" alt="svm" width="350px">
+
+Vektor $\mathbf{w}$ je normálový vektor k dělící hyperrovině a $b$ je posun.
 
 >Rozhodovací pravidlo:
 >
->$$
-\begin{equation}
-  \mathrm{sgn}\left(\left\langle\mathbf{w},\mathbf{u} \right\rangle + b\right)=\begin{cases}
-    +1 & \text{ (positive class)}\\
-    -1 & \text{ (negative class)}
-  \end{cases}
-\end{equation}
->$$
+>$$\begin{equation}\mathrm{sgn}\left(\left\langle\mathbf{w},\mathbf{u} \right\rangle + b\right)=\begin{cases}+1 & \text{ (positive class)}\\-1 & \text{ (negative class)}\end{cases}\tag{1}\end{equation}$$
 
 Z (1) vyplývá (hodnoty 1 a -1 jsou libovolné, ale pevné):
 
 $$
 \begin{align}
-  \left\langle\mathbf{w},\mathbf{x}^+ \right\rangle + b &\geq 1,\\
-  \left\langle\mathbf{w},\mathbf{x}^- \right\rangle + b &\leq -1,
+  \left\langle\mathbf{w},\mathbf{x}^+ \right\rangle + b &\geq 1,\tag{2}\\
+  \left\langle\mathbf{w},\mathbf{x}^- \right\rangle + b &\leq -1,\tag{3}
 \end{align}
 $$
 
@@ -545,19 +598,24 @@ $$
 
 >Navíc pro $\mathbf{x}_i$ ležící "na krajnici (hranice mezery)":
 >
->$$
-\begin{equation}
-   y_i(\left\langle\mathbf{w},\mathbf{x}_i \right\rangle + b) - 1= 0
-\end{equation}
->$$
+>$$\begin{equation}   y_i(\left\langle\mathbf{w},\mathbf{x}_i \right\rangle + b) - 1= 0 \tag{4}\end{equation}$$
+>
+> Tuto podmínku nazýváme *hard margin*. Lze také definovat *soft margin*, kdy povolíme chyby, které modulujeme hyperparametrem $C\in\mathbb{R}$.
+
+Rovnice (4) reprezentuje tzv. podpůrné nadroviny:
+
+$$\begin{align*}
+&\left\langle\mathbf{w},\mathbf{x}^+ \right\rangle + b = +1\tag{4a}\\
+&\left\langle\mathbf{w},\mathbf{x}^- \right\rangle + b = -1\tag{4b}
+\end{align*}$$
 
 <img src="figures/svm-2.svg" alt="svm" width="350px">
 
 $$
 \begin{align*}
-  \text{width} &= (\mathbf{x}^+-\mathbf{x}^-)\dfrac{\mathbf{w}}{||\mathbf{w}||}\\
+  \text{width} &= \dfrac{\left\langle \mathbf{x}^+-\mathbf{x}^-, \mathbf{w}\right\rangle}{||\mathbf{w}||}\\
   &= \dfrac{\left\langle\mathbf{w},\mathbf{x}^+ \right\rangle - \left\langle\mathbf{w},\mathbf{x}^- \right\rangle}{||\mathbf{w}||}\\
-  &= \dfrac{1-b - (-1-b)}{||\mathbf{w}||}\quad\text{(from (4))}\\
+  &= \dfrac{1-b - (-1-b)}{||\mathbf{w}||}\quad\text{(from (4a,4b))}\\
   &= \dfrac{2}{||\mathbf{w}||}\\
 \end{align*}
 $$
@@ -576,8 +634,8 @@ Lagrangeova funkce:
 $$
 \begin{align}
   L&=\frac{1}{2}||\mathbf{w}||^2-\sum_{i=1}^n \alpha_i\left[y_i(\left\langle\mathbf{w},\mathbf{x}_i \right\rangle + b) - 1\right]\notag\\
-  \dfrac{\partial L}{\partial \mathbf{w}} &= \mathbf{w} - \sum_{i=1}^n \alpha_i y_i \mathbf{x}_i \Rightarrow \mathbf{w} =\boxed{\sum_{i=1}^n \alpha_i y_i \mathbf{x}_i} \\
-  \dfrac{\partial L}{\partial b} &= -\sum_{i=1}^n \alpha_i y_i \Rightarrow \boxed{\sum_{i=1}^n \alpha_i y_i = 0}\notag\\
+  \dfrac{\partial L}{\partial \mathbf{w}} &= \mathbf{w} - \sum_{i=1}^n \alpha_i y_i \mathbf{x}_i \Rightarrow \mathbf{w} =\boxed{\sum_{i=1}^n \alpha_i y_i \mathbf{x}_i}\tag{5} \\
+  \dfrac{\partial L}{\partial b} &= -\sum_{i=1}^n \alpha_i y_i \Rightarrow \boxed{\sum_{i=1}^n \alpha_i y_i = 0}\tag{6}\\
 \end{align}
 $$
 
@@ -589,8 +647,8 @@ $$
   &-\sum_{i=1}^n \alpha_i\left[y_i\left(\sum_{j=1}^n \alpha_j y_j \left\langle\mathbf{x}_j,\mathbf{x}_i\right\rangle + b\right) - 1\right]=\notag\\
   &=\max\frac{1}{2}\sum_{i=1}^n\sum_{j=1}^n \alpha_i\alpha_j y_i y_j \left\langle\mathbf{x}_i,\mathbf{x}_j\right\rangle-\notag\\
   &-\sum_{i=1}^n\sum_{j=1}^n \alpha_i\alpha_j y_i y_j \left\langle\mathbf{x}_i,\mathbf{x}_j\right\rangle -\notag\\
-  &-\sum_{i=1}^n \underbrace{\alpha_i y_i}_{=0} b + \sum_{i=1}^n \alpha_i=\notag\\
-  &=\boxed{\max\sum_{i=1}^n \alpha_i -  \sum_{i=1}^n \sum_{j=1}^n \alpha_i\alpha_j y_iy_j\left\langle\mathbf{x}_i,\mathbf{x}_j\right\rangle}\\
+  &-\sum_{i=1}^n \underbrace{\alpha_i y_i}_{=0\text{ (6)}} b + \sum_{i=1}^n \alpha_i=\notag\\
+  &=\boxed{\max\sum_{i=1}^n \alpha_i -  \sum_{i=1}^n \sum_{j=1}^n \alpha_i\alpha_j y_iy_j\left\langle\mathbf{x}_i,\mathbf{x}_j\right\rangle}\tag{7}\\
 \end{align}
 $$
 
@@ -602,7 +660,7 @@ $$
 \end{align}
 $$
 
-Lze si všimnout, že (6) a (7) záleží pouze na skalárním součinu vektorů $\mathbf{x}_i$ a $\mathbf{x}_j$.
+Lze si všimnout, že (7) záleží pouze na skalárním součinu vektorů $\mathbf{x}_i$ a $\mathbf{x}_j$.
 
 Tento algoritmus není schopný vyřešit lineárně **ne**separabilní problém (XOR):
 
@@ -692,6 +750,33 @@ $$
 
 ## 8. Vyhodnocení klasifikačních algoritmů (chybovost, přesnost, pokrytí, f-metrika)
 
+```mermaid
+mindmap
+  root )"""Vyhodnocení
+  klasifikačních
+  algoritmů""")
+      (Co je klasifikace?)
+      (Hold-out set)
+      (k-fold cross-validation)
+      (Matice záměn)
+      (Pravděpodobnostní klasifikace)
+        [ROC křivka]
+          [TPR]
+          [FPR]
+        [Precision-Recall křivka]
+      (Výkonnostní metriky)
+        ["Chybovost (accuracy)"]
+          ["""Nevyváženost tříd
+          TN=990, FN=10"""]
+            ["Matthews correlation coefficient (MCC)"]
+        ["Přesnost (precision)"]
+        ["Pokrytí (recall)"]
+        ["F-metrika (F-beta-score)"]
+      (Precision/Recall Tradeoff)
+```
+
+Co je to klasifikace? Např. uvažujme měření délky okvětních lístků, výšku a barvu rostliny a na základě těchto dat bychom chtěli určit o jaký druh rostliny se jedná. (Nebo třeba obsah e-mailové zprávy a klasifikaci, jestli se jedná o spam.) K tomu použijeme trénovací sadu dat.
+
 Hold-out set / train-test split - rozdělení dat na trénovací a testovací množinu. Obvykle 60-75 % dat na trénování.
 
 Robustnější varianta je $k$-fold cross-validation:
@@ -714,7 +799,7 @@ Matice záměn (confusion matrix) pro binární klasifikaci:
 
 Vyhodnocení pravděpodobnostních klasifikátorů:
 
-- *ROC křivka* je TPR na ose $y$ a FPR na ose $x$ (pro definovaný threshold).
+- *ROC křivka* je TPR na ose $y$ *("bo TPR je v matici záměn nahoře")* a FPR na ose $x$ (pro definovaný threshold).
 - *Precision-Recall křivka* je $\text{Precision}$ na ose $y$ a $\text{Recall}$ na ose $x$ (pro definovaný threshold).
 
 **Precision/Recall Tradeoff**: Pokud chceme vyšší `recall` na úkor `precision`, tak obvykle zvolíme jiný threshold:
@@ -725,6 +810,13 @@ y_pred = [1 if x >= threshold else 0 for x in y_pred]
 ```
 
 ## 9. Regrese (lineární a nelineární regrese, regresní stromy, metody vyhodnocení kvality modelu)
+
+Lineární regrese je model pro odhad závislosti mezi závislou proměnnou $y$ a jednou nebo více nezávislými proměnnými $x$. Je to příklad učení s učitelem *(supervised learning)*.
+
+<img src="figures/linear-least-squares.svg" alt="linear-least-squares https://en.wikipedia.org/wiki/Linear_regression" width="250px">
+
+- $x$ může být dávka léku
+- $y$ může být jeho efektivita
 
 ### 9.1. Simple linear regression
 
@@ -841,13 +933,13 @@ $$
 \end{align*}
 $$
 
-Získané $\vec{\hat{\alpha}}$ může být minimum. Lze to ověřit pomocí Hessovy matice.
+Získané $\vec{\hat{\alpha}}$ může být minimum. Lze to ověřit tím, že ukážeme, že Hessova matice je pozitivně definitní.
 
 Varianty lineární regrese:
 
-- Lasso (L1 regularizace) - penalizuje součet absolutních hodnot koeficientů $\sum\limits_{i=1}^d |\alpha_i|$.
-- Ridge (L2 regularizace) - penalizuje součet čtverců koeficientů $\sum\limits_{i=1}^d \alpha_i^2$.
-- Elastic Net - kombinuje L1 a L2 regularizaci.
+- **Lasso** (L1 regularizace) - penalizuje součet absolutních hodnot koeficientů $\sum\limits_{i=1}^d |\alpha_i|$.
+- **Ridge** (L2 regularizace) - penalizuje součet čtverců koeficientů $\sum\limits_{i=1}^d \alpha_i^2$.
+- **Elastic Net** - kombinuje L1 a L2 regularizaci.
 
 ### 9.2. Regresní stromy
 
