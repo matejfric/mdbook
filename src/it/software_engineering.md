@@ -12,6 +12,7 @@
   - [2.5. Repository](#25-repository)
   - [2.6. Layering (Vrstvená architektura)](#26-layering-vrstvená-architektura)
   - [2.7. Kombinace architektonických stylů](#27-kombinace-architektonických-stylů)
+  - [2.8. Výběr architektonického vzoru - trade-off analýza](#28-výběr-architektonického-vzoru---trade-off-analýza)
 - [3. Kvalitativní požadavky a jejich dosažení. Měření kvality návrhu](#3-kvalitativní-požadavky-a-jejich-dosažení-měření-kvality-návrhu)
   - [3.1. Měření kvality návrhu](#31-měření-kvality-návrhu)
 - [4. Návrhové principy](#4-návrhové-principy)
@@ -39,6 +40,8 @@ mindmap
             [Nedostupný kód, deprecations]
     ("Testování komponent (unit testing)")
     (Integrační testování)
+    (Regresní testování)
+        [Funguje SW po změně? Došlo k regresi?]
     (Graf kontrolního toku)
         [Pokrytí cest]
         ["McCabova cyklomatická míra složitosti (počet rozhodnutí)"]
@@ -253,6 +256,14 @@ flowchart LR
   - **Bronze** - raw data (ETL)
   - **Silver** - cleaned data (ELT)
   - **Gold** - data products (ELT)
+
+### 2.8. Výběr architektonického vzoru - trade-off analýza
+
+- "analýza kompromisů"
+- prioritu nastavíme se stake-holdery a přiřadíme vhodnost vzorů podle zkušenosti
+- vynásobím *vektor priorit* s *vektorem vzoru*, čím vyšší číslo, tím vhodnější
+
+<img src="../ks/figures/trade-off-analysis.png" alt="" style="width: 500px;">
 
 ## 3. Kvalitativní požadavky a jejich dosažení. Měření kvality návrhu
 

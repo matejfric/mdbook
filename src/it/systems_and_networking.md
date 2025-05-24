@@ -404,7 +404,7 @@ _mm256_storeu_ps(c, vec_c);
 
 Procesy *sdílejí adresní prostor*, kde můžou *asynchronně* číst a zapisovat.
 
-**Souběh** *(race condition)* nastane např. když dvě nebo více vláken přistupuje současně ke stejnému místu v paměti, alespoň jedno z nich zapisuje a vlákna nepoužívají synchronizaci k řízení svého přístupu (toto je porušení základního pravidla Rustu - *aliasing + mutabilita*). K souběhu může dojít také pokud výsledek programu závisí na pořadí vykonávání vláken.
+**Souběh** *(race condition)* může nastat např. když dvě nebo více vláken přistupuje současně ke stejnému místu v paměti **(kritická sekce)**, alespoň jedno z nich zapisuje a vlákna nepoužívají synchronizaci k řízení svého přístupu (toto je porušení základního pravidla Rustu - *aliasing + mutabilita*). K souběhu může dojít také pokud výsledek programu závisí na pořadí vykonávání vláken.
 
 Přístup do sdílené paměti je synchronizován pomocí **vzájemného vyloučení** *(**mut**ual **ex**clusion - mutex)*, což lze řešit například pomocí *binárního semaforu* neboli zámku (hodnota `0/1` - `locked/unlocked`).
 

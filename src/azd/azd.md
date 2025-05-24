@@ -70,7 +70,7 @@
 - [19. Algoritmy pro pattern matching (Vyhledávání jednoho vzorku, více vzorků; Vyhledávání regulárních výrazů; Přibližné vyhledávání)](#19-algoritmy-pro-pattern-matching-vyhledávání-jednoho-vzorku-více-vzorků-vyhledávání-regulárních-výrazů-přibližné-vyhledávání)
   - [19.1. Vyhledávání jednoho a více vzorků](#191-vyhledávání-jednoho-a-více-vzorků)
     - [19.1.1. Hrubou silou](#1911-hrubou-silou)
-    - [19.1.2. Pomocí konečného automatu](#1912-pomocí-konečného-automatu)
+    - [19.1.2. Aho-Corasick - pomocí konečného automatu](#1912-aho-corasick---pomocí-konečného-automatu)
     - [19.1.3. Morris-Pratt (MP)](#1913-morris-pratt-mp)
     - [19.1.4. Horspool](#1914-horspool)
   - [19.2. Vyhledávání regulárních výrazů](#192-vyhledávání-regulárních-výrazů)
@@ -988,10 +988,12 @@ mindmap
   root )Typy sítí)
       Sociální sítě
         Přátelství uživatelů
-      Biologické sítě 
+        LinkedIn
+        Kolik hran mezi uživateli?
+      Biologické sítě
         Interakce proteinů
         Komunity delfínů
-      Informační 
+      Informační
         E-maily
         Internet
         Citace
@@ -1002,6 +1004,8 @@ mindmap
 ```
 
 > Graf je znázorněním sítě. Graf je dvojice $G=(V,E)$, kde $V\neq\emptyset$ je množina vrcholů a $E$ množina hran (množina dvouprvkových podmnožin množiny $V$).
+
+<img src="figures/adjacency-matrix.png" alt="adjacency-matrix" width="400px">
 
 ### 10.1. Datové struktury pro reprezentaci sítí
 
@@ -1052,9 +1056,10 @@ Buď $\Delta$ největší stupeň v $G=(V,E)$. Záleží na hustotě grafu $\rho
 - **Stupeň** $\mathrm{deg}(v)$ vrcholu $v$ je počet hran, které z něj vycházejí (nebo do něj vstupují). V neorientovaném grafu je stupeň symetrický. V orientovaném grafu je stupeň rozdělen na `in-degree` a `out-degree`.
   - **Průměrný stupeň** neorientovaného grafu $\overline{d}=\frac{m}{n}$.
   - **Distribuce stupňů** (často log-log, pro orientované grafy ve 3D)
-- **Délka cesty** je suma vah hran na cestě. Pro neorientovaný graf je to počet hran.
+- **Cesta** je posloupnost $P=(v_{0},e_{1},v_{1},\ldots ,e_{n},v_{n})$, pro kterou platí $e_i=(v_{i-1},v_i)$ (hrany na sebe navazují) a $(\forall i,j\in\set{0,\ldots,n}, i\neq j)\colon v_i\neq v_j$ (vrcholy se neopakují, tzn. ani hrany se neopakují).
+- **Délka cesty** je suma vah hran na cestě. Žádné dva vrcholy (a tedy ani hrany) se přitom neopakují. Pro neorientovaný graf je to počet hran.
   - Nejkratší cestu mezi dvěma vrcholy lze najít pomocí *Dijkstrova algoritmu* /ˈdaɪkstrə/.
-- **Průměr** sítě je délka nejdelší cesty mezi dvěma vrcholy v síti (často odlehlé pozorování).
+- **Průměr** sítě je délka *nejdelší nejkratší cesty* mezi dvěma vrcholy v síti (často odlehlé pozorování).
 - **Distribuce vzdáleností** (Floydův–Warshallův algoritmus)
 - **Souvislost** sítě (existence cesty mezi libovolnými vrcholy).
   - Histogram velikostí komponent.
@@ -1068,7 +1073,8 @@ Buď $\Delta$ největší stupeň v $G=(V,E)$. Záleží na hustotě grafu $\rho
     CC(v)=\dfrac{T(v)}{\binom{\mathrm{deg}(v)}{2}}=\dfrac{2\cdot T(v)}{\mathrm{deg}(v)(\mathrm{deg}(v)-1)}
     $$
 
-    (počet trojúhelníků kde jedním z vrcholů je $v$ děleno maximálním počtem hran mezi sousedy $v$).
+     (počet trojúhelníků, kde jedním z vrcholů je $v$, děleno maximálním počtem hran mezi sousedy $v$).
+     <!--https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.cluster.clustering.html -->
 
 - Globální shlukovací koeficient měří hustotu trojúhelníků:
 
@@ -1078,7 +1084,20 @@ Buď $\Delta$ největší stupeň v $G=(V,E)$. Záleží na hustotě grafu $\rho
 
 - **Shlukovací efekt** je graf *stupňů* na ose $x$ a *průměrného CC* vrcholů s daným stupněm.
 
+<img src="figures/clustering-effect.png" alt="clustering-effect" width="500px">
+
 ### 11.1. Centrality
+
+```mermaid
+mindmap
+  root )"""Centrality""")
+    (Degree centrality)
+    (Průměrná vzdálenost)
+    (Closeness centrality)
+    (Betweenness centrality)
+    (PageRank)
+    (Eccentricity centrality)
+```
 
 Centrality vyjadřují **míru důležitosti vrcholu** z hlediska struktury sítě.
 
@@ -1111,7 +1130,7 @@ Centrality vyjadřují **míru důležitosti vrcholu** z hlediska struktury sít
 
 ## 12. Globální vlastnosti sítí (malý svět, bezškálovost, růst a preferenční připojování). Mocninný zákon a jeho interpretace v prostředí reálných sítí. Asortativita
 
-Vlastnost **malého světa** je, že *průměrná vzdálenost* je přibližně $\log(n)$. Shlukovací koeficient je větší než u náhodného grafu.
+Vlastnost **malého světa** je, že *průměrná (nejkratší) vzdálenost* v síti je přibližně $\log(n)$. Shlukovací koeficient je větší než u náhodného grafu.
 
 **Asortativita** znamená, že vrcholy s *podobnými vlastnostmi* jsou *spojeny častěji* než vrcholy s různými vlastnostmi (např. bohatí s bohatými, vrcholy s podobným stupněm atd.) (kladná korelace)
 
@@ -1134,6 +1153,23 @@ $$\boxed{\log \big(f(x)\big)=\log (b) + \alpha\log (x)\approx \alpha\log (x), }$
 tzn. mocninný zákon je **invariantní vůči změně měřítka** - nezávislost na násobící konstantě $b$ - bezškálový, scale-free. "Heavy tail" - kladná šikmost, right skew ("zprava stlačená" distribuce). Buď $d=0,1,\ldots$ stupně a buď $p(d)$ pravděpodobnost, že uzel má stupeň $d$ $\Rightarrow$ $p(d)\approx Cd^{-\alpha}$, kde $C\sum\limits_{d=0}^{+\infty} d^{-\alpha}=1$.
 
 ## 13. Modely sítí a jejich vlastnosti (Erdös–Rényi, Watts–Strogatz, Barabási–Albert)
+
+```mermaid
+mindmap
+  root )Modely sítí)
+    ("Erdös-Rényi")
+      ["G(n,m)"]
+      ["G(n,p)"]
+      [Poissonovo rozdělení]
+    (Watts-Strogatz)
+      [Pravidelná kruhová mřížka]
+      [Přepojování hran]
+      [Poissonovo rozdělení]
+    (Barabási-Albert)
+      [Preferenční připojování]
+      [Bezškálový graf]
+      [Distribuce stupňů podle mocninného zákona]
+```
 
 ### 13.1. Erdős-Rényi (ER)
 
@@ -1179,8 +1215,8 @@ Algoritmus:
 
 Algoritmus:
 
-0. Zvolím parametry $m_0\in\mathbb{N}$ (počáteční počet vrcholů), $m\in\mathbb{N}$.
-1. Vygeneruji nějaký počáteční graf $G$ s $m_0 > m$ vrcholy (třeba cyklus $C_{m_0}$).
+0. Zvolím parametry $m_0\in\mathbb{N}$ (počáteční počet vrcholů), $m\in\mathbb{N}$ (ke kolika vrcholům se nový vrchol připojí v každé iteraci).
+1. Vygeneruji nějaký počáteční graf $G$ s $m_0 \geq m$ vrcholy (třeba cyklus $C_{m_0}$).
 2. Iterativně přidávám vrcholy. Pravděpodobnost, že se nový vrchol připojí k vrcholu $v_i$ je dána vzorcem:
 
     $$\boxed{(\forall i=1,\ldots,n)\colon p(v_i) = \dfrac{\mathrm{deg}(v_i)}{\sum\limits_{j=1}^n \mathrm{deg}(v_j)} = \dfrac{\mathrm{deg}(v_i)}{2|E(G)|} = \dfrac{\mathrm{deg}(v_i)}{2mt+m_0}}$$
@@ -1215,7 +1251,7 @@ Pro celou síť $G$ je modularita definována jako:
 
 $$
 \boxed{
-M(C_c) = \frac{1}{2m}\sum\limits_{i=1}^n\sum\limits_{j=1}^n \delta_{c_i,c_j}\left( \mathbb{A}_{i,j} - \dfrac{k_i k_j}{2m} \right),
+M(G) = \frac{1}{2m}\sum\limits_{i=1}^n\sum\limits_{j=1}^n \delta_{c_i,c_j}\left( \mathbb{A}_{i,j} - \dfrac{k_i k_j}{2m} \right),
 }
 $$
 
@@ -1241,14 +1277,15 @@ mindmap
           Edge betweenness
         [Louvain]
           Hladová optimalizace modularity
-        [Kernighan-Lin]
         [K-core]
         [Hierarchické shlukování]
         cpm ["Clique Percolation Method (CPM)"]
           Překlápí hrany klik
           Překrývající se komunity
         [Minimální hranový řez]
-          Maximální tok v grafu
+          Kernighan-Lin
+          Maximální tok v grafu je roven kapacitě minimálního hranového řezu
+            Ford-Fulkersonův algoritmus
       (Lokální přístup)
         [Label Propagation]
         [Walktrap]
@@ -1339,6 +1376,48 @@ Obvykle se vytváří iterativně opakováním počáteční konfigurace. Např.
 - Můžeme analyzovat pomocí metod analýzy časových řad (strojové učení).
 
 ## 16. Odolnost sítí, šíření jevů v sítích. Šíření a maximalizace vlivu v sítích. Predikce linků. Sampling
+
+```mermaid
+mindmap
+  root )Sítě)
+    (Odolnost sítí)
+      [k-souvislé komponenty]
+      [Betweenness centralita]
+      [Cílený útok]
+        [Centra]
+        [Mosty]
+    (Šíření jevů v sítích)
+      [Epidemiologie]
+      [Marketing]
+      [Maximalizace vlivu]
+        [NP-úplnost]
+      ["Susceptible-Infected (SI)"]
+      ["Independent Cascade (IC)"]
+    (Predikce linků)
+      [Systémy doporučování]
+      [Interakce v proteinových sítích]
+      [Na základě podobnosti]
+        [Preferential Attachment]
+        [Jaccardův koeficient]
+        [Adamic-Adar koeficient]
+        [Common Neighbors]
+        [Resource allocation index]
+        [Sorensenův index]
+      [Na základě strojového učení]
+        ["Graph Neural Networks (GNN)"]
+    ("Vzorkování (Sampling)")
+      [Pravděpodobností]
+        [Random Node]
+        [Random Edge]
+        [Random Node-Edge]
+        [Random Degree Node]
+      [Průchodem grafu]
+        [Random Walk]
+          [Restart]
+          [Random Jump]
+        [Snowball Sampling]
+        [Forest Fire]
+```
 
 ### 16.1. Odolnost sítí
 
@@ -1496,8 +1575,8 @@ mindmap
 
 | Vlastnost | Definice | Vzorec |
 |--|--|--|
-|**Stupeň aktéra**|Suma stupňů vrcholů příslušných $a$ ve vrstvách $L\subseteq{\mathcal{L}}$.|$(\forall(a,l), (a',l')\in A)(\forall l,l' \in L)\colon\boxed{\mathrm{deg}(a, L) = \lvert\left\{ ((a,l),(a',l))\in E \right\}\rvert}$|
-|**Sousedé aktéra**|Unikátní sousedé vrcholů příslušných $a$ ve vrstvách $L\subseteq{\mathcal{L}}$.|$(\forall(a,l), (a',l')\in A)(\forall l,l' \in L)\colon\boxed{\mathrm{neighbors}(a, L) = \left\{ a' \mid ((a,l),(a',l))\in E \right\}}$|
+|**Stupeň aktéra**|Suma stupňů vrcholů příslušných $a$ ve vrstvách $L\subseteq{\mathcal{L}}$.|$(\forall(a,l), (a',l')\in A)(\forall l,l' \in L)\colon\boxed{\mathrm{deg}(a, L) = \lvert\left\{ ((a,l),(a',l'))\in E \right\}\rvert}$|
+|**Sousedé aktéra**|Unikátní sousedé vrcholů příslušných $a$ ve vrstvách $L\subseteq{\mathcal{L}}$.|$(\forall(a,l), (a',l')\in A)(\forall l,l' \in L)\colon\boxed{\mathrm{neighbors}(a, L) = \left\{ a' \mid ((a,l),(a',l'))\in E \right\}}$|
 |**Sousedství aktéra**|Počet sousedů aktéra.|$\boxed{\mathrm{neighborhood}(a, L) = \lvert\mathrm{neighbors}(a, L)\rvert}$|
 |**Exkluzivní sousedství aktéra**|Počet sousedů bez sousedů z vrstev $\mathcal{L}\setminus L$.|$\boxed{\mathrm{x\_neighborhood}(a, L) = \lvert\mathrm{neighbors}(a, L)\setminus\mathrm{neighbors}(a, \mathcal{L}\setminus L)\rvert}$|
 |**Relevance vrcholu**|Centralita sousedství děleno počtem sousedů ve všech vrstvách (tzn. sousedství pro $\mathcal{L}$).|$\boxed{\mathrm{relevance}(a, L) = \frac{\mathrm{neighborhood}(a, L)}{\mathrm{neighborhood}(a, \mathcal{L})}}$|
@@ -1543,6 +1622,28 @@ mindmap
 
 ## 19. Algoritmy pro pattern matching (Vyhledávání jednoho vzorku, více vzorků; Vyhledávání regulárních výrazů; Přibližné vyhledávání)
 
+```mermaid
+mindmap
+  root )"""Pattern
+  matching""")
+    (Vyhledávání jednoho vzorku)
+      [Hrubou silou]
+      ["DKA (Aho-Corasick)"]
+      [Morris-Pratt]
+      [Horspool]
+    (Vyhledávání více vzorků)
+      ["DKA (Aho-Corasick)"]
+    (Vyhledávání regulárních výrazů)
+      [ZNKA]
+    (Přibližné vyhledávání)
+      [Metriky]
+        [Levenshtein]
+        [Damerau-Levenshtein]
+        [Hamming]
+        [LCS]
+      [ZNKA]
+```
+
 ### 19.1. Vyhledávání jednoho a více vzorků
 
 #### 19.1.1. Hrubou silou
@@ -1565,7 +1666,7 @@ for idx, char in enumerate(text):
 
 </details>
 
-#### 19.1.2. Pomocí konečného automatu
+#### 19.1.2. Aho-Corasick - pomocí konečného automatu
 
 >Deterministický konečný automat (DKA/DFA) je pětice $(Q, \Sigma, \delta, q_0, F)$, kde
 >
@@ -1577,13 +1678,18 @@ for idx, char in enumerate(text):
 
 Pro vzor $p$ vytvoříme DKA, s.t.
 
-- $Q$ je množina všech prefixů vzoru $p$, tzn.
+- $Q$ je *množina* všech *prefixů* vzoru $p$, tzn.
   
     $$Q = \{\varepsilon, p[1], p[0..1], \ldots, p[0..m-2], p\}$$
 - $q_0=\varepsilon$,
 - $\Sigma$ je abeceda textu,
 - $F=\{p\}$,
-- Buď $a\in\Sigma$ a $q\in Q$. Přechodová funkce $\delta$ je definována jako $\delta(q,a)=qa$ právě tehdy, když $qa$ je prefix vzoru $p$. Jinak $\delta(q,a)=x$, kde $x$ je nejdelší suffix $qa$, který je prefixem $p$. Podobně lze sestrojit DKA pro více vzorů.
+- Buď $a\in\Sigma$ a $q\in Q$. Přechodová funkce $\delta$ je definována jako:
+   $$\delta(q,a)=\begin{cases}
+    qa & \text{pokud } qa \text{ je }\textbf{prefix}\text{ vzoru } p,\\
+    x & \text{jinak, kde } x \text{ je }\textbf{nejdelší suffix } qa \text{, který je prefixem } p.
+   \end{cases}$$
+   Podobně lze sestrojit DKA pro více vzorů.
 
 Složitost:
 
@@ -1592,11 +1698,15 @@ Složitost:
   - Předzpracování $\mathcal{O}(m|\Sigma|)$.
   - Vyhledávání $\mathcal{O}(n)$.
 
-Předzpracování, tzn. vytvoření DKA, trvá $\mathcal{O}(m|\Sigma|)$, kde $|\Sigma|$ je velikost abecedy. Prohledávání textu trvá $\mathcal{O}(n)$, takže celková složitost je $\mathcal{O}(m|\Sigma| + n)$.
+- Předzpracování, tzn. vytvoření DKA, trvá $\mathcal{O}(m|\Sigma|)$, kde $|\Sigma|$ je velikost abecedy.
+- Prohledávání textu trvá $\mathcal{O}(n)$, takže celková složitost je $\mathcal{O}(m|\Sigma| + n)$.
+- Ideální pro aplikace, kde lze DKA předem vytvořit a poté pouze využívat $\mathcal{O}(n)$.
 
 #### 19.1.3. Morris-Pratt (MP)
 
-Rozšíření brute-force algoritmu. Využívá tabulku prefixů, aby se omezil počet porovnání.
+- Rozšíření brute-force algoritmu.
+- Využívá tabulku prefixů, aby se omezil počet porovnání.
+- Přeskakování `i-Krok[i]` znaků, pokud dojde k neshodě.
 
 |       |    |   |   |   |   |          |
 |-------|----|---|---|---|---|----------|
@@ -1612,7 +1722,7 @@ Např. `abcababc`:
 
 #### 19.1.4. Horspool
 
-- Hledá vzor zprava doleva.
+- Hledá vzor **zprava doleva**.
 - Vytvoří tabulku posunů pro každý znak abecedy $T = [m] * |\Sigma|$.
 
 ```py
@@ -1622,7 +1732,7 @@ for i in range(m - 1):
     T[ord(p[i])] = m - 1 - i  
 ```
 
-- Při neshodě posune vzor o $T[\mathrm{ord}(\mathrm{text}[i + m - 1])]$ znaků (podle prvního porovnávaného znaku - zprava).
+- Při **neshodě** posune vzor o $T[\mathrm{ord}(\mathrm{text}[i + m - 1])]$ znaků **(podle prvního porovnávaného znaku zprava)**.
 
 <img src="figures/horspool.gif" alt="horspool" width="600px">
 
@@ -1630,14 +1740,39 @@ for i in range(m - 1):
 
 Pomocí derivace regulárních výrazů a konečných automatů.
 
+> **Regulární výrazy** popisující *jazyky* nad abecedou $\Sigma$, kde
+>
+> - $a \in \Sigma$ (znak),
+> - $\emptyset$ (prázdný jazyk),
+> - $\varepsilon$ (jazyk $\{ \varepsilon \}$),
+>
+> jsou regulární výrazy. Navíc pokud $\alpha, \beta$ jsou regulární výrazy, pak i 
+>
+> - $(\alpha + \beta)$ (sjednocení),
+> - $(\alpha \cdot \beta)$ (zřetězení),
+> - $(\alpha^*)$ (iterace),
+>
+> jsou regulární výrazy. Neexistují žádné další regulární výrazy.
+
 ### 19.3. Přibližné vyhledávání
 
 > 1. **Hamming**ova vzdálenost - počet pozic, kde se řetězce liší (nejmenší počet substitucí).
-> 2. **Levenshtein**ova (editační) vzdálenost - nejmenší počet operací *vkládání, mazání a substituce*.
+> 2. **Longest Common Subsequence (LCS)** - nejmenší počet operací *vkládání a mazání*.
+> 3. **Levenshtein**ova (editační) vzdálenost - nejmenší počet operací *vkládání, mazání a substituce*.
+> 4. **Damerau–Levenshtein**ova vzdálenost */demró/* - nejmenší počet operací *vkládání, mazání, substituce a transpozice*. `DV(abcc, acbc) = 1` (transpozice `c` a `b`).
+>
+> |Metrika|Význam|
+> |--|--|
+> |Hamming| substituce|
+> |Longest Common Subsequence| vkládání a mazání|
+> |Levenshtein| vkládání, mazání a substituce|
+> |Damerau-Levenshtein| vkládání, mazání, substituce a transpozice|
 
-Lze implementovat pomocí NDKA.
+Lze implementovat zobecněným nedeterministickým automatem (ZNKA). Může mít více počátečních stavů a má jinou přechodovou funkci: $\delta : Q \times (\Sigma \cup \set{\varepsilon}) \rightarrow 2^Q$.
 
 <img src="figures/approx-pattern-matching.png" alt="approx-pattern-matching" width="600px">
+
+<img src="figures/approx-pattern-matching.drawio.png" alt="approx-pattern-matching" width="400px">
 
 ## 20. Dokumentografické informační systémy (DIS) (modely DIS - booleovský, vektorový, lexikální analýza, stemming a lematizace, stop slova, konstrukce indexů, vyhodnocení dotazu, relevance, přesnost, úplnost, F-míra)
 
@@ -1675,7 +1810,7 @@ Lexikální analýza slouží k přípravě textu před zpracováním v DIS.
 
 - Prvek $(t,d)=1$ právě tehdy, když slovo $t$ je v dokumentu $d$. Jinak $0$.
 - Vyhodnocení dotazu probíhá pomocí logických operátorů nad řádky.
-- Term-Document (TD) matice je řídká.
+- Term-Document (TD) matice je řídká. (Možnost uložení pomocí COO, CSR nebo CSC formátu.)
 
 ### 20.3. Vektorový model
 
@@ -1703,9 +1838,36 @@ Vyhodnocení pro dotaz $q$:
 
 $$\boxed{
     \begin{align*}
-        \text{Score}(q,d) &= \sum\limits_{t\in q} \text{TF-IDF}(t,d)
+        (\forall d)\colon\text{Score}(q,d) &= \sum\limits_{t\in q} \text{TF-IDF}(t,d)
     \end{align*}
 }$$
+
+Vyšší skóre znamená větší relevanci.
+
+<details><summary> Implementace vektorového modelu </summary>
+
+V databázovém systému bychom mohli mít tabulku `VectorModel` s indexem nad `(word, doc)` uloženou jako:
+
+| doc   | word | tfidf |
+|-------|------|-------|
+| 42    | 0    | 21.0   |
+| 123   | 0    | 12.0   |
+| 15    | 2    | 14.0   |
+
+Výsledek spočteme pomocí:
+
+```sql
+SELECT doc AS Document, SUM(tfidf) AS Score
+FROM VectorModel
+WHERE word IN (q)
+GROUP BY doc
+ORDER BY score DESC
+LIMIT 10;
+```
+
+Plus nějaký `JOIN` na mapování slov a informací o dokumentech...
+
+</details>
 
 Navíc můžeme určit podobnost dvou dokumentů pomocí *kosinové podobnosti*. Buď $\vec{v}(d)=\text{TF-IDF}(:,d)$, pak:
 
@@ -1787,16 +1949,16 @@ tak $\lambda$ nazýváme *vlastním číslem* a $v$ *vlastním vektorem* matice 
 - PageRank je algoritmus pro analýzu hypertextových odkazů, který každému hypertextovému dokumentu přiřazuje číselnou váhu.
 - Web je modelován jako orientovaný graf, kde stránky jsou uzly a odkazy jsou hrany.
 - PageRank je centralita grafu (určuje míru důležitosti vrcholu z hlediska struktury sítě).
-  
-    $$\boxed{\mathrm{PR}(u)=\dfrac{1-\tau}{|V|}+\tau\sum\limits_{v\in N \rightarrow u}\dfrac{\mathrm{PR}(v)}{|N\leftarrow v|}},$$
+
+    $$\boxed{\mathrm{PR}(v)=\dfrac{1-\tau}{|V|}+\tau\sum\limits_{u\in L(v)}\dfrac{\mathrm{PR}(u)}{\mathrm{out}(u)}},$$
 
   - kde $V$ je množina vrcholů grafu $G$,
-  - $N\leftarrow v$ je množina vrcholů, do kterých vedou hrany z $v$ (odchozí hrany z $v$)
-    - tzn. výstupní stupeň $\mathrm{out}(v) = |N\leftarrow v|$
-  - $N\rightarrow v$ je množina vrcholů, ze kterých vede hrana do $v$ (příchozí hrany do $v$)
+  - $L(v)$ je množina vrcholů takových, že z nich existuje **link** do $v$, tzn. $L(v)=\set{(x,v)\mid x\in V}$.
+  - $\mathrm{out}(u)$ je výstupní stupeň $u$
   - $\tau\in[0,1]$ je teleportační faktor - konstanta - obvykle nastavená na 0.85
   - Na začátku se $\mathrm{PR}$ inicializuje na $\dfrac{1}{|V|}$.
   - Výstupem je pravděpodobnostní rozdělení $\Rightarrow\sum\limits_{v\in V}\mathrm{PR}(v)=1$.
+  - Iterativní výpočet dokud $\left|\overrightarrow{\mathrm{PR}}_{t-1} - \overrightarrow{\mathrm{PR}}_{t}\right| > \varepsilon$
 
 <details><summary> Příklad </summary>
 
@@ -1814,10 +1976,10 @@ tak $\lambda$ nazýváme *vlastním číslem* a $v$ *vlastním vektorem* matice 
 
 <details><summary> Alternativní výpočet </summary>
 
-Alternativně lze PageRank počítat mocninnou metodou. Buď $N$ počet hypertextových stránek $p_1,\ldots,p_N$.
+Alternativně lze PageRank počítat maticově. Buď $N$ počet hypertextových stránek $p_1,\ldots,p_N$.
 
 $$
-\mathbf {R} ={\begin{bmatrix}{(1-\tau)/N}\\{(1-\tau)/N}\\\vdots \\{(1-\tau)/N}\end{bmatrix}}+d{\begin{bmatrix}\ell (p_{1},p_{1})&\ell (p_{1},p_{2})&\cdots &\ell (p_{1},p_{N})\\\ell (p_{2},p_{1})&\ddots &&\vdots \\\vdots &&\ell (p_{i},p_{j})&\\\ell (p_{N},p_{1})&\cdots &&\ell (p_{N},p_{N})\end{bmatrix}}\mathbf {R}
+\mathbf {R} ={\begin{bmatrix}{(1-\tau)/N}\\{(1-\tau)/N}\\\vdots \\{(1-\tau)/N}\end{bmatrix}}+d\underbrace{{\begin{bmatrix}\ell (p_{1},p_{1})&\ell (p_{1},p_{2})&\cdots &\ell (p_{1},p_{N})\\\ell (p_{2},p_{1})&\ddots &&\vdots \\\vdots &&\ell (p_{i},p_{j})&\\\ell (p_{N},p_{1})&\cdots &&\ell (p_{N},p_{N})\end{bmatrix}}}_{\mathcal{M}}\mathbf {R}
 $$
 
 $$
@@ -1832,9 +1994,43 @@ $$
 
 tzn. jedná se o řádkovou stochastickou matici.
 
+Navíc platí:
+
+$$\mathbf{R} = \underbrace{(\dfrac{1-\tau}{|V|}\mathbf{1}^{N\times N}+d\mathcal{M}^\top)}_{\widehat{\mathcal{M}}}\mathbf{R}$$
+
+Kde $\mathcal{M}^\top$ je sloupcová stochastická matice (tzn. matice přechodových pravděpodobností). Potom lze použít mocninnou metodu:
+
+$$\mathbf{x}_{t+1} = \widehat{\mathcal{M}}\mathbf{x}_t,$$
+
+kde $\mathbf{x}_0$ je libovolný odhad vektor PageRanku. Iterujeme dokud $\left|\overrightarrow{\mathbf{x}}_{t-1} - \overrightarrow{\mathbf{x}}_{t}\right| > \varepsilon$.
+
 </details>
 
 ## 22. Neuronové sítě a zpracování textu (word embedding, klasifikace textu, generování textu, …)
+
+```mermaid
+mindmap
+  root )NLP)
+    (Word embedding)
+      [Word2Vec]
+        [CBOW]
+          [Podle okolí odhad prostředního slova]
+        [Skip-gram]
+          [Odhad okolí podle jednoho slova]
+      [GloVe]
+    (Klasifikace textu)
+      [Detekce spamu]
+      [Analýza sentimentů]
+      [Naive Bayes]
+      [BERT]
+    (Generování textu)
+      [RNN]
+        [LSTM]
+      [Transformer]
+      [GPT]
+      [Claude]
+      [Gemini]
+```
 
 ### 22.1. Word Embedding
 
@@ -1855,7 +2051,11 @@ Pojmem **Word2Vec** rozumíme dvě architektury neuronových sítí pro učení 
 
     <img src="figures/skip-gram.svg" alt="skip-gram.svg https://en.wikipedia.org/wiki/Word2vec" width="225px">
 
-Okolí je hyperparameter (např. `window=2`, dvě slova nalevo a dvě napravo). Níže je příklad pro `window=1`, kde trénovací sada obsahuje jedinou větu se čtyřmi slovy `word embedding with word2vec`. Výsledkem tohoto příkladu je matice $4\times 2$ (4 slova, dimenze vektorů/embeddingů 2) - odpovídá tomu matice vah "mezi modrou a zelenou vrstvou". V praxi se používá větší dimenze výsledných vektorů (např. 100, 300, 768).
+- Okolí je hyperparameter (např. `window=2`, dvě slova nalevo a dvě napravo).
+- Níže je příklad pro `window=1`, kde trénovací sada obsahuje jedinou větu se čtyřmi slovy `word embedding with word2vec`.
+- Výsledkem tohoto příkladu je matice $4\times 2$ (4 slova, dimenze vektorů/embeddingů 2), odpovídá tomu matice vah "mezi modrou a zelenou vrstvou".
+- V praxi se používá větší dimenze výsledných vektorů (např. 100, 300, 768).
+- Pro slovník *(vocabulary)* se používá **one-hot encoding** (např. níže je slovo `with` reprezentováno jako `[0, 0, 1, 0]`).
 
 <img src="figures/cbow.drawio.svg" alt="word2vec" width="470px">
 
@@ -1870,6 +2070,9 @@ Korpusy pro trénování embeddingů mají řádově stovky milionů slov.
 Pro vyhodnocení můžeme použít mimojiné redukci dimenze pomocí PCA, t-SNE nebo UMAP. Podobná slova by měla být blízko sebe:
 
 <img src="figures/word-embedding.png" alt="word-embedding https://en.wikipedia.org/wiki/Word2vec" width="250px">
+
+Můžeme počítat kosínovou podobnost mezi embeddingy:
+$$\boxed{\cos(\theta)=\mathrm{sim}(a,b)=\dfrac{\langle a,b \rangle}{\lVert a \rVert \lVert b \rVert}}$$
 
 ### 22.2. Klasifikace textu
 
@@ -1886,24 +2089,27 @@ Před trénováním modelu je potřeba text předzpracovat:
    - odstranění **diakritiky**
    - odstranění **interpunkce**
    - odstranění **stop-slov**
-   - **stemming** (získání základního tvaru `words -> word, removed -> remove`)
-   - **lematizace** (`better -> good`)
+   - **stemming** - získání základního tvaru, ale nemusí to být existující slovo
+     - např. `fishing, fished, fisher -> fish`
+   - **lematizace** - získání základního tvaru
+     - `saw -> see / saw`, `meeting -> meet / meeting` - sloveso nebo podstatné jméno podle kontextu
+     - `better -> good`
 3. Vytvoření **embeddingu** - převedení textu na číselné vektory (např. Word2Vec, GloVe, BERT, ...).
 
 #### 22.2.1. BERT
 
 - *Bidirectional encoder representations from transformers.*
-- Používá pouze encoder z *Transformer* architektury.
+- Používá pouze **encoder** z *Transformer* architektury (proto není vhodný pro generování textu).
 - Tokenizer *WordPiece* - vytváří *podslova* (velikostí "slovníku" 30 000 slov, neznámá slova se kódují tokenem `[UNK]`).
   - Na začátku abeceda a speciální tokeny: např `word -> [w, ##o, ##r, ##d]`
   - Postupně se potom tokeny na základě četnosti spojují.
-- Předtrénovaní probíhá na velkých korpusech dvěmi úlohami současně:
+- Unsupervised **předtrénovaní** probíhá na velkých korpusech dvěmi úlohami současně:
   - **Masked Language Model (MLM)** - BERT *náhodně maskuje některá slova ve větě* a snaží se předpovědět původní slova, která byla maskována. Např. `"Dnes je slunečný [MASK]"`.
   - **Next Sentence Prediction (NSP)** - BERT predikuje zda *jedna věta logicky následuje po druhé*
 
 ### 22.3. Generování textu
 
-*Generative Pre-trained Transformer (GPT)* - jazykový model, který je schopen generovat text na základě zadaného promptu.
+*Generative Pre-trained Transformer (GPT)* - jazykový model, který je schopen generovat text na základě zadaného promptu. GPT-1 používal pouze *decoder* z *Transformer* architektury.
 
 Text lze generovat např. i znak po znaku pomocí RNN s LSTM.
 
@@ -1912,6 +2118,38 @@ Text lze generovat např. i znak po znaku pomocí RNN s LSTM.
 - CNN používají v alespoň jedné vrstvě konvoluci namísto maticového násobení.
 - Použití pro strukturovaná data uspořádaná do nějaké pravidelné mřížky. Např. obraz, časové řady, video.
 - Hlavní motivací použití hlubokých neuronových sítí pro zpracování obrazu je složitost manuálního výběru obrazový příznaků, což CNN dělají automaticky *(representation learning)*.
+- Místo konvoluce se ve hlubokém učení používá **vzájemná korelace** *(cross-correlation)*:
+
+    $$
+    \begin{align}
+      \begin{bmatrix}
+        \red{1} & \blue{0} \\
+        \green{2} & \orange{3}
+      \end{bmatrix}
+      \star
+      \begin{bmatrix}
+        \red{1} & \blue{2} \\
+        \green{3} & \orange{4}
+      \end{bmatrix}
+      &= \red{1\cdot1}+\blue{2\cdot0}+\green{3\cdot2}+\orange{4\cdot3} = 19\tag{xcorr}\\
+      \underbrace{
+      \begin{bmatrix}
+        \red{1} & \blue{0} \\
+        \green{2} & \orange{3}
+      \end{bmatrix}
+      }_{\text{obraz}}
+      \ast
+      \underbrace{
+      \begin{bmatrix}
+        \orange{1} & \green{2} \\
+        \blue{3} & \red{4}
+      \end{bmatrix}
+      }_{\text{kernel}}
+      &= \red{4\cdot1}+\blue{3\cdot0}+\green{2\cdot2}+\orange{1\cdot3}=11\tag{conv}
+    \end{align}
+    $$
+
+    - Ale jelikož se při trénování učíme **váhy konvolučního jádra**, tak je v hlubokém učení konvoluce a vzájemná korelace **ekvivalentní**, protože síť se může naučit obojí (stačí "otočit" kernel).
 
 ### 23.1. Vrstvy
 
@@ -1924,12 +2162,12 @@ Text lze generovat např. i znak po znaku pomocí RNN s LSTM.
   
     <img src="figures/convolution.png" alt="convolution" width="350px">
 
-  - *Stride* - posun konvolučního jádra (např. 2x2) - zmenšení rozměrů výstupu.
-  - *Dilated convolution* - větší *receptive field* - oblast, kterou konvoluční jádro pokrývá.
+  - *Stride* (krok) - posun konvolučního jádra (např. 2x2) - zmenšení rozměrů výstupu.
+  - *Dilated convolution* (dilatační konvoluce) - větší *receptive field* - oblast, kterou konvoluční jádro pokrývá.
 
       <img src="figures/dilated-convolution.png" alt="dilated-convolution" width="400px">
 
-- Pooling vrstva
+- Pooling vrstva - krok je typicky roven velikosti konvolučního jádra (např. $2\times2$).
   - `Pool2D` - redukce výšky a šířky
   - `Pool3D` - redukce výšky, šířky a časové dimenze u videa
   - Average Pooling
@@ -2004,15 +2242,19 @@ Zjednodušený diagram:
 <img src="figures/lstm.png" alt="lstm" width="500px">
 <img src="figures/lstm-gates.jpg" alt="lstm-gates" width="750px">
 
-Protože ve výpočtu *long-term memory* (zelená linka) nejsou váhy, tak nenastávají problémy s *vanishing/exploding* gradientem!
+Protože ve výpočtu *long-term memory* (zelená linka) **nejsou váhy**, tak nenastávají problémy s *vanishing/exploding* gradientem!
 
-Unrolling:
+LSTM Unrolling:
 
 <img src="figures/lstm-unroll.png" alt="lstm-unroll" width="750px">
 
 "Zjednodušený" diagram:
 
 <img src="figures/lstm.drawio.svg" alt="lstm" width="750px">
+
+**Obousměrné LSTM (Bidirectional LSTM)** - zpracovává sekvenci oběma směry (od začátku i od konce):
+
+<img src="figures/bidir-lstm.png" alt="bidir-lstm" width="400px">
 
 ### 24.3. Gated Recurrent Unit (GRU)
 
