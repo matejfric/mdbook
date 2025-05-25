@@ -2,7 +2,8 @@
 
 - [1. Výpočetní složitost algoritmů. Techniky analýzy výpočetní složitosti algoritmů: analýza rekurzivních algoritmů, amortizovaná analýza, složitost algoritmů v průměrném případě](#1-výpočetní-složitost-algoritmů-techniky-analýzy-výpočetní-složitosti-algoritmů-analýza-rekurzivních-algoritmů-amortizovaná-analýza-složitost-algoritmů-v-průměrném-případě)
   - [1.1. Analýza rekurzivních algoritmů](#11-analýza-rekurzivních-algoritmů)
-  - [1.2. Amortizovaná analýza](#12-amortizovaná-analýza)
+  - [1.2. Asymptotická složitost](#12-asymptotická-složitost)
+  - [1.3. Amortizovaná analýza](#13-amortizovaná-analýza)
 - [2. Matematické modely algoritmů – Turingovy stroje a stroje RAM. Algoritmicky nerozhodnutelné problémy](#2-matematické-modely-algoritmů--turingovy-stroje-a-stroje-ram-algoritmicky-nerozhodnutelné-problémy)
   - [2.1. Turingův stroj](#21-turingův-stroj)
   - [2.2. Stroj RAM](#22-stroj-ram)
@@ -116,7 +117,51 @@ $$
 
 </details>
 
-### 1.2. Amortizovaná analýza
+### 1.2. Asymptotická složitost
+
+Buď $g : \mathbb{N} \to \mathbb{N}$. Pak pro $f : \mathbb{N} \to \mathbb{N}$ platí:
+
+1. $\boxed{f \in \mathcal{O}(g)}\iff(\exists c > 0)(\exists n_0 \geq 0)(\forall n \geq n_0) :$
+
+    $$
+    \boxed{f(n) \leq c \cdot g(n)}
+    $$
+
+2. $\boxed{f \in \Omega(g)}\iff(\exists c > 0)(\exists n_0 \geq 0)(\forall n \geq n_0) :$
+
+    $$
+    \boxed{f(n) \geq c \cdot g(n)}
+    $$
+
+3. $\boxed{f \in \Theta(g)}\iff$
+
+    $$
+    \boxed{f \in \mathcal{O}(g) \quad \wedge \quad f \in \Omega(g)}
+    $$
+
+4. $\boxed{f \in \omicron(g)}\iff(\exists c > 0)(\exists n_0 \geq 0)(\forall n \geq n_0) :$
+
+    $$
+    \boxed{f(n) < c \cdot g(n)}
+    $$
+
+5. $\boxed{f \in \omega(g)}\iff(\exists c > 0)(\exists n_0 \geq 0)(\forall n \geq n_0) :$
+
+    $$
+    \boxed{f(n) > c \cdot g(n)}
+    $$
+
+Navíc platí:
+
+$$
+\boxed{\lim_{n \to +\infty} \frac{f(n)}{g(n)} =\begin{cases}
+  0 & f \in \omicron(g) \\
+  +\infty & f \in \omega(g) \\
+  c \in \mathbb{R}^+ & f \in \Theta(g)
+\end{cases}}
+$$
+
+### 1.3. Amortizovaná analýza
 
 Doplněk k analýze složitosti v nejhorším a průměrném případě. Např. vkládání do `std::Vector` (dynamické pole) má amortizovanou složitost $\mathcal{O}(1)$ pro $n$ vložení.
 
@@ -195,6 +240,12 @@ Simulace Turingových strojů:
 > **Riceova věta**
 >
 > Každá netriviální I/O vlastnost rozhodovacího programu je nerozhodnutelná.
+>
+> |                   |              |          |              |
+> | ----------------------- | ------------ | -------- | ------------ |
+> | Je vlastnost triviální?       | $\times$     | $\times$ | $\checkmark$ |
+> | Je vlastnost I/O?             | $\checkmark$ | $\times$ | $\checkmark$ |
+> | Je vlastnost nerozhodnutelná? | $\checkmark$ | $\times$ | $\times$     |
 
 #### 2.3.1. Halting problem
 
@@ -359,6 +410,10 @@ graph LR
 >
 > - **Vstup:** Neorientovaný graf $G$ a přirozené číslo $k$.  
 > - **Otázka:** Existuje v grafu $G$ množina vrcholů velikosti $k$ taková, že každá hrana má alespoň jeden svůj vrchol v této množině?
+>
+> <img src="../ti/figures/vertex-cover.png" alt="vc" width="300px">
+>
+> *"Policajti ve vrcholech musí vidět na všechny hrany."*
 <!--  -->
 > **CLIQUE** (Problém kliky)
 >
@@ -470,29 +525,87 @@ Procesy znají pouze vstupní a výstupní rozhraní. (Neznají topologii sítě
 send := null
 if přišla zpráva obsahující UID v then
     case
-        v > u: send := v
-        v = u: status := leader
-        v < u: send := null
+        v > u: 
+          send := v
+        v < u:
+          send := null
+        v = u: 
+          status := leader
+          send := null
 ```
+
+- Časová složitost je $\mathcal{O}(n)$, kde $n$ je počet procesů v síti.
+- Komunikační složitost je $\mathcal{O}(n^2)$.
 
 </details>
 
 ## 5. Jazyk predikátové logiky prvního řádu. Práce s kvantifikátory a ekvivalentní transformace formulí
 
-Predikátová logika prvního řádu *(First-Order Logic, FOL)* je rozšíření výrokové logiky.
+```mermaid
+mindmap
+  root )FOL)
+    {{Abeceda}}
+      (Logické symboly)
+        Proměnné
+        Logické spojky
+        Kvantifikátory
+          Univerzální
+          Existenciální
+      (Speciální symboly)
+        Predikáty
+        Funkce
+      (Pomocné symboly)
+        Závorky
+    {{Jazyk}}
+      (Termy)
+        Proměnné
+        Funkce
+          n-ární
+      (Formule)
+        Atomické formule
+        Složené formule
+          Atomické formule
+          Binární logické spojky
+          Negace
+          Kvantifikátory
+```
+
+Predikátová logika prvního řádu *(First-Order Logic, FOL)* je rozšíření výrokové logiky o predikáty a kvantifikátory.
 
 Existují výroky, které nelze vyjádřit pomocí výrokové logiky. Např.
 
 - `Každý student rozumí FOL.`
 - `Každé sudé celé číslo je dělitelné dvěma.`
 
-Jazyk predikátové logiky prvního řádu obsahuje:
+**Abeceda** predikátové logiky prvního řádu obsahuje:
+
+- Logické symboly:
+  - Proměnné: $x, y, z, \ldots$
+  - Logické spojky: $\neg$ (negace), $\lor$ (disjunkce), $\land$ (konjunkce), $\implies$ (implikace), $\iff$ (ekvivalence)
+  - Kvantifikátory: $\forall$ (univerzální kvantifikátor), $\exist$ (existenciální kvantifikátor)
+- Speciální symboly:
+  - Predikáty
+  - Funkce
+- Pomocné symboly $\lbrace, \rbrace, (, ), [, ]$
+
+**Jazyk** predikátové logiky prvního řádu obsahuje:
 
 |Termy|Formule|
 |---|---|
-| **Konstantní symboly** `42`, `Bob` | **Atomické formule** `Knows(Bob, FOL)`, `P(x,y)` |
-| **Proměnné** `x` | **Logické spojky** $\neg, \lor, \land, \implies, \iff$ |
-| **Funkce** ($n$-ární) `Sum(x,3)` | **Kvantifikátory** $\forall, \exist$ |
+| **Konstantní symboly** (nulární funkce) `42`, `Bob` | **Atomické formule** `Knows(Bob, FOL)`, `P(x,y)` |
+| **Proměnné** `x` | **Složené formule**|
+| **Funkce** ($n$-ární) `Sum(x,3)` |  |
+
+Rozdíl mezi funkcí a predikátem: **funkce** dává proměnným **hodnotu**, **predikát** dává proměnným **pravdivostní hodnotu**.
+
+**Složené formule** jsou:
+
+1. **Atomické formule** jsou složené formule.
+2. **Binární logické spojky**. (Pokud $P$ a $Q$ jsou složené formule, pak $P\land Q$, $P\lor Q$, $P\implies Q$, $P\iff Q$ jsou také složené formule.)
+3. **Negace**. (Pokud $P$ je složená formule, pak $\neg P$ je také složená formule.)
+4. **Kvantifikátory**. (Pokud $P(x)$ je složená formule, pak $\forall x\, P(x)$ a $\exist x\, P(x)$ jsou také složené formule.)
+
+Další vlastnosti:
 
 - Univerzální kvantifikátor $\forall$:
   - $\forall x\, P(x)$ rozumíme $P(A)\land P(B)\land \ldots$
@@ -506,9 +619,13 @@ Jazyk predikátové logiky prvního řádu obsahuje:
   - $\exists x\,\exists y\,P(x,y)\Leftrightarrow \exists y\,\exists x\,P(x,y)$
   - $\forall x\,P(x)\land \forall x\,Q(x)\Leftrightarrow \forall x\,(P(x)\land Q(x))$
   - $\exists x\,P(x)\lor \exists x\,Q(x)\Leftrightarrow \exists x\,(P(x)\lor Q(x))$
+- Platí všechny ekvivalence z výrokové logiky, např.:
+  - $x \Rightarrow y \Leftrightarrow \neg x \lor y$
+  - $x \Rightarrow y \Leftrightarrow \neg y \Rightarrow \neg x$
 - **Vázaná proměnná** je taková proměnná, která se vyskytuje vedle kvantifikátoru $(\forall,\exist)$. Proměnné, které nejsou vázané nazýváme **volné**.
 - Formuli nazveme **otevřenou** právě tehdy, když obsahuje alespoň jednu volnou proměnnou. V opačném případě nazveme formuli **uzavřenou**.
 - **Valuace** je jedno konkrétní přiřazení prvků univerza proměnným.
+- $S(x)$ ... "$x$ je student" je **interpretace** predikátu $S$.
 
 <details><summary> Příklady </summary>
 
@@ -602,12 +719,6 @@ Vlastnosti binárních operací. Buď $\circ$ binární homogenní operace na m�
 | **KO**mutativita                                   | $(\forall a,b\in A):\ a\circ b= b\circ  a$                                  |
 | **ID**empotentnost                                 | $(\forall a\in A):\ a\circ a= a$                                            |
 
-- **Grupoid** je dvojice $(A,\circ)$, kde $A$ je neprázdná množina a $\circ$ je binární operace **uzavřená** na $A$ **(UZ)**
-- **Pologrupa** je asociativní grupoid (**+AS**).
-- **Monoid** je pologrupa s jednotkovým prvkem(**+EJ**).
-- **Grupa** je monoid s inverzními prvky ke každému prvku (**+IN**).
-- **Abelova grupa** je komutativní grupa (**+KO**).
-
 ### 7.1. Algebry s jednou binární operací
 
 - *(užzasejeiko**t)*
@@ -625,6 +736,7 @@ Vlastnosti binárních operací. Buď $\circ$ binární homogenní operace na m�
 - Nechť $(A,\circ)$ je grupa, pak $(\forall a \in A): \exists ! \, a^{-1}.$
 - Pokud v Cayleyho tabulce existuje řádek nebo sloupec s neunikátními hodnotami, pak se nemůže jednat o grupu.
 - Neutrální prvek je tam, kde se zkopíruje záhlaví Cayleyho tabulky.
+- Např. $(\mathbb{Z}_2,+)$ je Abelova grupa.
 
 ### 7.2. Algebry se dvěma binárními operacemi
 
@@ -635,7 +747,7 @@ Vlastnosti binárních operací. Buď $\circ$ binární homogenní operace na m�
 | **Okruh** *(Ring)* | Trojice $(R,+,\cdot)$, kde $(R,+)$ je *Abelova grupa,* $(R,\cdot)$ *pologrupa* a platí *distributivní zákony*. |
 | **Unitární okruh** | Okruh, kde $(R,\cdot)$ je monoid. |
 | **Obor** | Unitární okruh bez *dělitelů nuly*. |
-| **Obor integrity** | Komutativní obor. |
+| **Obor integrity** | Komutativní obor, tj. $(R,\cdot)$ je *komutativní* monoid. |
 | **Těleso** | $(R,+)$ je *Abelova grupa* a $(R\setminus\{0\},\cdot)$ je grupa |
 | **Galoisovo těleso** | Konečné těleso. |
 | **Pole** | Těleso, kde násobení je komutativní, tj. $(R\setminus\{0\},\cdot)$ je Abelova grupa. |
@@ -757,6 +869,7 @@ Metrika je *nezáporná*: $2\rho(x,y)=\rho(x,y)+\rho(y,x)\geq \rho(x,x) = 0$.
 | **Hammingova**                 | Počet rozdílných pozic mezi řetězci stejné délky           |
 | **Longest Common Subsequence** | Nejmenší počet operací `vkládání` a `mazání`               |
 | **Levenshteinova**             | Nejmenší počet operací `vkládání`, `mazání` a `substituce` |
+| **Damerau-Levenshteinova**     | Nejmenší počet operací `vkládání`, `mazání`, `substituce` a `transpozice` |
 
 ### 10.2. Podobnosti
 
@@ -880,6 +993,8 @@ $$X\sim \text{H}(N,K,n)\sim\text{H}(30,5,10) \iff p_X(x)=\frac{\binom{K}{x}\bino
 
 $$P_X(X=3)=p_X(3)=\dfrac{\binom{5}{3}\binom{30-5}{5-3}}{\binom{30}{10}}$$
 
+Jiný příklad: plato vajec, 4 vajíčka prasklá, 6 vajíček ok. Buď $X$ počet neporušených vajíček v náhodném výběru 3 vajec. Jaká je pravděpodobnost, že vybereme právě 2 neporušená?
+
 ---
 
 **Negativně binomická** NV reprezentuje **počet pokusů** potřebných k dosažení $k$ úspěchů v posloupnosti bernoulliovských pokusů s pravděpodobností úspěchu $p$.
@@ -895,6 +1010,10 @@ $$X\sim \text{NB}(k,p)\iff p_X(x)=\begin{cases}
 
 $$X\sim \text{Po}(\lambda t)\iff p_X(x)=\frac{\lambda^x e^{-\lambda t}}{x!}$$
 
+Např. během roku dostaneme 1200 e-mailů, jaká je pravděpodobnost, že v lednu dostaneme právě 99 e-mailů? $\mathbb{E}(x) = 1200/12$, tzn. $X\sim(\lambda t = 100)$.
+
+Poissonův proces je *stacionární* (konstantní intenzita) a *beznásledný* (události na sobě nezávisí).
+
 ---
 
 **Exponenciální** NV reprezentuje **čas do výskytu 1. události** v Poissonově procesu s *intenzitou* $\lambda$.
@@ -906,7 +1025,7 @@ $$X\sim \exp(\lambda)\iff f_X(x)=\begin{cases}
 
 ---
 
-**Weibullovo rozdělení** pravděpodobnosti je zobecnění exponenciálního rozdělení. Má dva parametry měřítko $\theta$ a tvar $\beta$. Narozdíl od exponenciálního rozdělení nepředpokládá *konstantní intenzitu* výskytu sledované události.
+**Weibullovo rozdělení** pravděpodobnosti je zobecnění exponenciálního rozdělení. Má dva parametry **měřítko** $\theta$ a **tvar** $\beta$. Narozdíl od exponenciálního rozdělení **ne**předpokládá *konstantní intenzitu* výskytu sledované události.
 
 - využití v analýze spolehlivosti, poruch, přežití atd.
 - Pro nezápornou SNV definujeme rizikovou funkci $\mathrm{risk}(t)=\dfrac{f(t)}{1-F(t)}$
@@ -948,7 +1067,7 @@ Popisná statistika se zabývá popisem a vizualizací dat **bez** provádění 
 ### 14.1. Číselné charakteristiky
 
 1. Kvantitativní proměnné
-   - **Střední hodnota** - průměrná hodnota
+   - **Střední hodnota**, resp. populační odhad - průměr - $\mu = \frac{1}{n}\sum\limits_{i=1}^n x_i$
      - Pro DNV $X$ s pravděpodobnostní funkcí $p_X(x)$ je střední hodnota definována jako
 
         $$\mathbb{E}(X)=\sum\limits_{x\in\mathcal{X}}x\cdot p_X(x)$$
@@ -961,9 +1080,11 @@ Popisná statistika se zabývá popisem a vizualizací dat **bez** provádění 
    - **Modus** - nejčastější hodnota, tj. $\max p_X(x)$, resp. $\max f_X(x)$
    - **$p$-kvantil** $x_p\in\mathbb{R}$ je číslo, pro které platí $\mathcal{P}(X\leq x_p)=p$
      - Pokud je $F_X$ rostoucí a spojitá, tak $x_p=F_X^{-1}(p)$
-   - **Rozptyl** - průměrná kvadratická odchylka dat kolem střední hodnoty
+   - **Rozptyl** - průměrná kvadratická odchylka dat kolem střední hodnoty (druhý centralní moment)
 
       $$\mathbb{D}(X) = \mu_2' = \mathbb{E}((X-\mathbb{E}(X))^2)= \mathbb{E}(X^2)-(\mathbb{E}(X))^2$$
+
+      - Výběrový rozptyl: $S^2=\frac{1}{n-1}\sum\limits_{i=1}^n(x_i-\mu)^2$
 
    - **Směrodatná odchylka** - odmocnina z rozptylu
    - **Variační rozpětí** - $R=x_{max}-x_{min}$
@@ -1060,17 +1181,20 @@ Např. ve výběru 100 lidí bude průměr IQ 110. V jakém rozmezí a s jakou p
 - bodový odhad
 - intervalový odhad
 
+Buď $T_D$ a $T_H$ nějaké statistiky a buď $\alpha\in (0,1)$.
+
 | Popis                                    | Značení                                   | Interval |
 |------------------------------------------|-------------------------------------------|--|
 | Hladina významnosti                      | $\alpha$                                  | |
 | Hladina spolehlivosti                    | $1 - \alpha$                              | |
-| Oboustranný odhad                        | $P(T_D < \mu < T_H) = 1 - \alpha$         |$(T_D; T_H)$|
-| Levostranný odhad                        | $P(T_D^* < \mu) = 1 - \alpha$             |$(T_D^*,+\infty)$|
-| Pravostranný odhad                      | $P(\mu < T_H^*) = 1 - \alpha$             |$(-\infty, T_H^*)$|
+| Oboustranný odhad                        | $P(T_D \leq \theta \leq T_H) = 1 - \alpha$         |$(T_D; T_H)$|
+| Levostranný (dolní) odhad                        | $P(T_D^* \leq \theta) = 1 - \alpha$             |$(T_D^*,+\infty)$|
+| Pravostranný (horní) odhad                      | $P(\theta \leq T_H^*) = 1 - \alpha$             |$(-\infty, T_H^*)$|
 
 ### 15.1. Testování hypotéz
 
-- **Statistická hypotéza** je libovolné tvrzení o rozdělení náhodné veličiny. Cílem testování hypotéz je rozhodnout, zda je daná hypotéza v souladu s pozorovanými daty.
+- **Statistická hypotéza** je libovolné tvrzení o rozdělení náhodné veličiny.
+- Cílem testování hypotéz je rozhodnout, zda je daná hypotéza v souladu s pozorovanými daty.
 - **Statistika** $T(\mathbf{X})$ je funkce náhodných veličin, a tedy je taky náhodnou veličinou (pokud je $T$ borelovská).
 - **Pozorovaná hodnota** $t_{obs}(\mathbf{x})\in\mathbb{R}$, kde $\mathbf{x}=(x_1,\ldots,x_n)$ je konkrétní realizace náhodného výběru, je konkrétní realizací výběrové statistiky $T(\mathbf{X})$.
 - Před testováním hypotéz odstraníme *odlehlé pozorování*.
@@ -1082,9 +1206,9 @@ Např. ve výběru 100 lidí bude průměr IQ 110. V jakém rozmezí a s jakou p
 >      - Alternativní hypotéza je pak tvrzení, které popírá platnost nulové hypotézy. Přítomnost rozdílu.
 > 2. Stanovíme **hladinu významnosti** $\alpha$ (pravděpodobnost chyby I. druhu).
 >
-> 3. Zvolíme tzv. testovou statistiku , tj. výběrovou charakteristiku, jejíž rozdělení závisí na testovaném parametru $\theta$. (Rozdělení testové statistiky za předpokladu platnosti nulové hypotézy nazýváme nulové rozdělení.)
-> 4. Ověříme předpoklady testu.
-> 5. Určíme kritický obor $W^*$:
+> 3. Zvolíme tzv. **testovou statistiku** , tj. výběrovou charakteristiku, jejíž rozdělení závisí na testovaném parametru $\theta$. (Rozdělení testové statistiky za předpokladu platnosti nulové hypotézy nazýváme nulové rozdělení.)
+> 4. **Ověříme předpoklady** testu.
+> 5. Určíme **kritický obor** $W^*$:
 >
 > | Tvar alternativní hypotézy $H_A$ | Kritický obor $W^*$                                     |
 > |-----------------------------------|---------------------------------------------------------|
@@ -1092,15 +1216,15 @@ Např. ve výběru 100 lidí bude průměr IQ 110. V jakém rozmezí a s jakou p
 > | $\theta > \theta_0$               | $(x_{1-\alpha}, \infty)$                                |
 > | $\theta \neq \theta_0$            | $(-\infty, x_{\alpha/2}) \cup (x_{1-\alpha/2}, \infty)$ |
 >
-> 6. Na základě konkrétní realizace výběru určíme pozorovanou hodnotu $x_{\text{OBS}}$ testové statistiky.
-> 7. Rozhodneme o výsledku testu:
+> 6. Na základě konkrétní realizace výběru určíme **pozorovanou hodnotu** $x_{\text{OBS}}$ testové statistiky.
+> 7. **Rozhodneme** o výsledku testu:
 >
 > | Situace                    | Interpretace                                            |
 > |----------------------------|---------------------------------------------------------|
 > | $x_{\text{OBS}} \in W^*$   | Na hladině významnosti $\alpha$ zamítáme $H_0$ ve prospěch $H_A$. |
 > | $x_{\text{OBS}} \notin W^*$ | Na hladině významnosti $\alpha$ nezamítáme $H_0$.        |
 >
-> 8. Místo kroků 5-7 v klasickém testu můžeme určit *p-hodnotu* $p$ a porovnat ji s hladinou významnosti $\alpha$:
+> 8. Místo kroků 5-7 v klasickém testu můžeme určit **p-hodnotu** $p$ a porovnat ji s hladinou významnosti $\alpha$:
 >
 > | Tvar alternativní hypotézy $H_A$  |                      $p$-hodnota                  |
 > |-----------------------------------|----------------------------------------------------|
@@ -1108,7 +1232,7 @@ Např. ve výběru 100 lidí bude průměr IQ 110. V jakém rozmezí a s jakou p
 > | $\theta > \theta_0$               | $1 - F_0(x_{\text{OBS}})$           |
 > | $\theta \neq \theta_0$            | $2 \min\set{F_0(x_{\text{OBS}}), 1 - F_0(x_{\text{OBS}})}$ |
 >
-> 9. Rozhodnutí o výsledku testu. *"P-value is low, null hypothesis must go."*
+> 9. **Rozhodnutí** o výsledku testu. *"P-value is low, null hypothesis must go."*
 >
 > | $p$-hodnota                    | Interpretace                                           |
 > |-----------------------------|--------------------------------------------------------|
@@ -1120,14 +1244,14 @@ Např. ve výběru 100 lidí bude průměr IQ 110. V jakém rozmezí a s jakou p
 1. Odstraním odlehlá pozorování.
 2. $H_0\colon \mu = c, c\in\mathbb{R}$
 3. $H_1\colon \mu \neq c$
-4. $\alpha=0.05$
+4. $\alpha=0.05$ (hladina významnosti)
 
 ```r
 t.test(
     x,
-    mu = 0,
+    mu = c,
     alternative = "two.sided",
-    conf.level = 0.95
+    conf.level = 0.95  # hladina spolehlivosti
 )
 ```
 
@@ -1136,3 +1260,11 @@ t.test(
 Korelace neimplikuje kauzalitu.
 
 $$\rho _{X,Y}={\mathrm {cov} (X,Y) \over \sigma _{X}\sigma _{Y}}={\mathbb{E}((X-\mu _{X})(Y-\mu _{Y})) \over \sigma _{X}\sigma _{Y}}$$
+
+>Zákon velkých čísel
+>
+>Pro $n\rightarrow+\infty$ se výběrový průměr (i.i.d.) blíží střední hodnotě.
+<!--  -->
+>Centrální limitní věta (CLV)
+>
+>Pro dost velká $n$ má výběr (i.i.d. se stejným $\mu$ a $\sigma^2<+\infty$) přibližně normální rozdělení.
