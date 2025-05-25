@@ -452,6 +452,32 @@ graph LR
 
 ## 4. Výpočetní modely pro paralelní a distribuované algoritmy. Výpočetní složitost paralelních algoritmů. Komunikační složitost
 
+```mermaid
+mindmap
+  root )TI)
+    {{Paralelní}}
+      (Nick's class)
+        ["""Procesory
+        p(n) ∈ O(n^k)"""]
+        ["""Časová složitost (kroky)
+        t(n) ∈ O(log^k(n))"""]
+      (PRAM)
+        [Globální paměť]
+        [Synchronní]
+        [EREW]
+        [CREW]
+        [CRCW]
+          [Common]
+          [Arbitrary]
+          [Priority]
+    {{Distribuované}}
+      (Silně souvislá síť)
+      (Komunikační složitost)
+        ["Časová (počet kol)"]
+        ["Komunikační (počet zpráv)"]
+      (Volba koordinátora)
+```
+
 ### 4.1. Paralelní algoritmy
 
 > **Parallel Random Access Machine (PRAM)**
@@ -640,6 +666,24 @@ Další vlastnosti:
 
 ## 6. Pojem relace, operace s relacemi, vlastnosti binárních homogenních relací. Relace ekvivalence a relace uspořádání a jejich aplikace
 
+```mermaid
+mindmap
+  root )"""Binární
+  homogenní
+  relace""")
+    RE
+    IR
+    SY
+    AS
+    AN
+    TR
+    SO
+    ÚP
+    ReAnTr
+    ReSyTr
+    IrAsTr
+```
+
 > ($n$-ární) **relace** $R$ je podmnožina kartézského součinu množin $R\subseteq A_1 \times \ldots \times A_n = \set{(a_1,\ldots,a_n)\mid (\forall i = 1,\ldots,n): a_i\in A_i}$.
 
 Dělení podle arity:
@@ -667,7 +711,7 @@ Operace s relacemi:
 
 > Vlastnosti binárních homogenních relací $(\forall x,y,z):$
 >
-> | Vlastnost           | Výraz                                                      | poznámka |
+> | Vlastnost           | Výraz                                                      | Poznámka |
 > |---------------------|-------------------------------------------------------------|----------|
 > | **RE**flexivita     | $xRx$                                                      |  $\mathrm{diag}(\mathbb{A})=\mathbf{1}$        |
 > | **IR**eflexivita    | $(x,x)\notin R$                                            |  $\mathrm{diag}(\mathbb{A})=\mathbf{0}$         |
@@ -690,6 +734,46 @@ Operace s relacemi:
 | Neostré $\,\,\leq$ | **ReAnTr** | (+ÚP) |
 
 ## 7. Pojem operace a obecný pojem algebra. Algebry s jednou a dvěma binárními operacemi
+
+```mermaid
+mindmap
+  root )Algebra)
+    {{Operace}}
+      (n-ární)
+      (Homogenní)
+      (Heterogenní)
+    {{Algebraický systém}}
+      (Nosiče)
+      (Operace)
+    {{Binární operace}}
+      (UZ)
+      (AS)
+      (EJ)
+      (EN)
+      (EI)
+      (KO)
+      (ID)
+    {{Algebry s jednou binární operací}}
+      (Grupoid)
+      (Pologrupa)
+      (Monoid)
+      (Grupa)
+      (Abelova grupa)
+    {{Algebry se dvěma binárními operacemi}}
+      (Okruh)
+        ["Abelova grupa +"]
+        ["Pologrupa *"]
+        [Distributivní zákony]
+      (Unitární okruh)
+        [Monoid]
+      (Obor)
+        [Unitární okruh bez dělitelů nuly]
+      (Obor integrity)
+        [Komutativní monoid]
+      (Těleso)
+      ("Konečné (Galoisovo) těleso")
+      (Pole)
+```
 
 > Binární relace $R\subseteq X,Y$ je **zobrazení** z $X$ do $Y$ právě tehdy, když
 >
@@ -842,6 +926,39 @@ flowchart TB
 [Asociační pravidla](../azd/azd.md#2-hledání-častých-vzorů-v-datech-základní-principy-metody-varianty-implementace).
 
 ## 10. Metrické a topologické prostory – metriky a podobnosti. Jejich aplikace
+
+```mermaid
+mindmap
+  root )"""Metrické a 
+  topologické
+  prostory""")
+    {{Metrické prostory}}
+      (Axiomy)
+        Totožnost
+        Symetrie
+        Trojúhelníková nerovnost
+      (Metriky)
+        Minkowského p-norma
+        Manhattanská L1-norma
+        Eukleidova L2-norma
+        Čebyševova ∞-norma
+        Hammingova vzdálenost
+        Levenshteinova vzdálenost
+    {{Podobnosti}}
+      (Axiomy)
+        Nezápornost
+        Symetrie
+        Totožnost
+      (Kosinová podobnost)
+      (Jaccardova podobnost)
+    {{Topologické prostory}}
+      (Otevřené množiny)
+        [Uzavřenost vůči průniku dvojic]
+        [Uzavřenost vůči sjednocení]
+      (Uzavřené množiny)
+        [Uzavřenost vůči sjednocení dvojic]
+        [Uzavřenost vůči průniku]
+```
 
 Aplikace např. ve *strojovém učení* - shlukování, klasifikace, ...
 
@@ -1059,6 +1176,33 @@ $$
 
 ## 14. Popisná statistika. Číselné charakteristiky a vizualizace kategoriálních a kvantitativních proměnných
 
+```mermaid
+mindmap
+  root )"""Popisná statistika""")
+    {{Kategorické proměnné}}
+      Nominální
+      Ordinální
+      Četnost
+      Relativní četnost
+      Tabulka četností
+      Modus
+    {{Kvantitativní proměnné}}
+      Střední hodnota
+      Medián
+      Modus
+      Kvantily
+      Rozptyl
+      Směrodatná odchylka
+      Variační rozpětí
+      Mezikvartilové rozpětí
+      Variační koeficient
+      Šikmost
+      Špičatost
+    {{Vizualizace}}
+      Histogram
+      Krabicový graf
+```
+
 Popisná statistika se zabývá popisem a vizualizací dat **bez** provádění závěrů o populaci.
 
 1. **Kategorické** proměnné - barva, pohlaví, název rostliny *(Iris)*
@@ -1160,6 +1304,33 @@ Pokud *šikmost* a *standardní špičatost* $(\mathrm{kurt}(X) - 3)$ leží v i
 - Metoda vnějších hradeb $\langle Q_1-3\cdot \mathrm{IQR}, Q_3 + 3\cdot \mathrm{IQR}\rangle$
 
 ## 15. Metody statistické indukce. Intervalové odhady. Princip testování hypotéz
+
+```mermaid
+mindmap
+  root )Statistika)
+    {{Odhady parametrů}}
+      (Bodové)
+        [Metoda momentů]
+        [Metoda maximální věrohodnosti]
+      (Intervalové)
+        ["Oboustranný (Td, Th)"]
+        ["Levostranný (Td, +∞)"]
+        ["Pravostranný (-∞, Th)"]
+    {{Výběrové charakteristiky}}
+      (Náhodný výběr X)
+        [i.i.d.]
+      ("Statistika T(X)")
+      (Výběrový průměr)
+      (Výběrový rozptyl)
+    {{Testování hypotéz}}
+      (Klasický test)
+        [Hladina významnosti]
+        [Testová statistika]
+        [Nulová a alternativní hypotéza]
+        [Pozorovaná hodnota]
+        [Kritický obor]
+        [P-hodnota]
+```
 
 **Statistická indukce** umožňuje stanovit vlastnosti populace na základě pozorování náhodného výběru. Vychází ze *zákonu velkých čísel* a *centrální limitní věty*.
 
