@@ -85,23 +85,21 @@ U nasazených systému nás může zajímat **Mean Time Between Failures (MTBF)*
 
 ### 1.1. Modely testování
 
-1. **Vodopádový model**:
+1. **Vodopádový model** - "dokonalý kód neobsahuje chyby, takže testování je zbytečné".
 
-    <img src="../ks/figures/waterfall.png" alt="waterfall" width="600px">
+    <img src="figures/waterfall.drawio.svg" alt="waterfall" width="700px">
 
-2. **V-model**:
-    - V-model rozšiřuje vodopádový model tím, že pro každou fázi vývoje definuje odpovídající fázi testování.
+2. **V-model** - rozšiřuje vodopádový model tím, že pro každou fázi vývoje definuje odpovídající fázi testování.
 
-    <img src="../ks/figures/vmodel.png" alt="v-model" width="700px">
+    <img src="figures/v-model.drawio.svg" alt="v-model" width="700px">
 
-3. **Iterativní model** (např. Scrum):
+3. **Iterativní model** (např. Scrum) - zpětná vazba (feedback).
 
-    <img src="../ks/figures/iterative-model.png" alt="iterative" width="550px">
+    <img src="figures/scrum.drawio.svg" alt="iterative" width="600px">
 
-4. **Test-driven development** (TDD):
-    - Jako první se píšou testy (tzn. na začátku by žádný test neměl projít).
+4. **Test-driven development** (TDD) - jako první se píšou testy (tzn. na začátku by žádný test neměl projít).
 
-    <img src="figures/tdd.png" alt="tdd" width="400px">
+    <img src="figures/tdd.drawio.svg" alt="tdd" width="400px">
 
 ### 1.2. Úrovně testování
 
