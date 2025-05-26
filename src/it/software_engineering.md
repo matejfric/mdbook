@@ -329,7 +329,7 @@ mindmap
   root )"""Měření
   kvality
   návrhu""")
-    ("Chidamber &amp; Kemerer metriky")
+    ("`Chidamber & Kemerer metriky`")
         [Hloubka stromu dedičnosti]
         [Počet metod]
         [Počet potomků]
@@ -380,11 +380,11 @@ mindmap
   root )"""Návrhové
   principy""")
     (DRY)
-        ["Don't Repeat Yourself"]
+        ["`Don't Repeat Yourself`"]
     (KIS)
         ["Keep it Simple"]
     (YAGNI)
-        ["You Ain't Gonna Need It"]
+        ["`You Ain't Gonna Need It`"]
     (Modularita)
         [Soudržnost]
         [Provázanost]
