@@ -456,7 +456,7 @@ graph LR
 mindmap
   root )TI)
     {{Paralelní}}
-      (Nick's class)
+      ("Nick's class")
         ["""Procesory
         p(n) ∈ O(n^k)"""]
         ["""Časová složitost (kroky)

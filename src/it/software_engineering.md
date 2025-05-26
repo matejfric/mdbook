@@ -58,6 +58,8 @@ mindmap
         [V-model]
         [Iterativní model]
         ["Test-driven development (TDD)"]
+    (Testování UI)
+        [A/B testování]
 ```
 
 > Testování je proces spouštění programu se záměrem nalézt vadu.
@@ -67,7 +69,7 @@ mindmap
 
 > **Testování komponent (unit testing) a proč vůbec testovat?**
 >
-> U rozsáhlých projektů je často potřeba **aktualizovat** určité **moduly** a podle potřeby **refaktorizovat** kód. Takové změny mohou způsobit **nechtěné následky** u jiných modulů, které aktualizovaný modul používají. To může někdy narušit stávající funkčnost. Kvalitní testy fungují jako **ochrana** proti těmto nechtěným následkům.
+> U rozsáhlých projektů je často potřeba **aktualizovat** určité **moduly** a podle potřeby **refaktorizovat** kód. Takové změny mohou způsobit **nechtěné následky** u jiných modulů, které aktualizovaný modul používají. To může někdy narušit stávající funkčnost. Kvalitní testy fungují jako **ochrana** proti těmto nechtěným následkům **(regresní testování, regrese)**.
 >
 > Jako vývojáři bychom měli kód (ideálně od zahájení vývoje) testovat, abychom zajistili, že všechny moduly v aplikaci fungují tak jak mají. Testy komponent (unit testy) umožňují zkontrolovat, zda **malé izolované moduly fungují správně**, a umožňují opravit nesrovnalosti, které mohou vzniknout při aktualizacích a refaktorizaci.
 
@@ -228,6 +230,7 @@ flowchart LR
 - složité testování
 - potřeba sdíleného repozitáře
 - např. implementace e-shopu
+- návrhový vzor **Observer**
 
 ### 2.5. Repository
 
@@ -250,10 +253,10 @@ flowchart LR
 ### 2.7. Kombinace architektonických stylů
 
 - **REST** (Representational state transfer) - RESTful-API
-- **Medallion architecture** - "Pipes-and-Filter + Repository + Layering"
-  - **Bronze** - raw data (ETL)
-  - **Silver** - cleaned data (ELT)
-  - **Gold** - data products (ELT)
+- **Medallion architecture** - "Pipes-and-Filter (ETL) + Repository + Layering"
+  - **Bronze** - raw data
+  - **Silver** - cleaned data
+  - **Gold** - data products
 
 ### 2.8. Výběr architektonického vzoru - trade-off analýza
 
@@ -305,7 +308,7 @@ mindmap
             [Zapouzdření]
             [Obecnost]
             [Použití rozhraní]
-            ["Soudržnost (SRP), modularita"]
+            ["Soudržnost (SRP), provázanost, modularita"]
         [Testování]
     (Přenositelnost)
         [Platforma]
@@ -326,7 +329,7 @@ mindmap
   root )"""Měření
   kvality
   návrhu""")
-    ("Chidamber & Kemerer metriky")
+    ("Chidamber &amp; Kemerer metriky")
         [Hloubka stromu dedičnosti]
         [Počet metod]
         [Počet potomků]
@@ -346,6 +349,7 @@ mindmap
   2. Počet metod.
   3. Počet potomků.
   4. Provázanost mezi objekty.
+  5. A další.
 - **McCabova cyklomatická míra složitosti** - počet rozhodnutí v grafu řídícího toku
 - **Úroveň vnoření** - cykly, podmínky
 - **Fan-in, Fan-out** - kolik modulů daný modul volá a kolika moduly je modul volán.
@@ -361,15 +365,44 @@ mindmap
       <img src="figures/coupling.png" alt="coupling" width="400px">
 
 - **Maximalizujeme soudržnost** - souvislost vnitřních prvků modulu.
-  1. **Nesouvisející** soudržnost - části SW jednotky spolu nesouvisí (porušení SRP, god object, anti-pattern).
-  2. **Logická** soudržnost - části SW jednotky jsou projeny jen strukturou kódu.
-  3. **Časová** soudržnost - části SW jednotky jsou propojeny, protože se spouští ve stejný čas.
-  4. **Procedurální** soudržnost - části SW jednotky jsou propojeny, protože se spouští při stejné akci (např. backup).
-  5. **Komunikační** soudržnost - SW jednotka funguje nad stejnými daty.
-  6. **Funkční** soudržnost - SW jednotka obsahuje pouze prvky nezbytné pro výkon jedné funkcionality.
+  1. **Nesouvisející** soudržnost - části SW jednotky spolu **nesouvisí** (porušení SRP, god object, anti-pattern).
+  2. **Logická** soudržnost - části SW jednotky jsou projeny jen **strukturou kódu**.
+  3. **Časová** soudržnost - části SW jednotky jsou propojeny, protože se spouští **ve stejný čas**.
+  4. **Procedurální** soudržnost - části SW jednotky jsou propojeny, protože se spouští při **stejné akci** (např. backup).
+  5. **Komunikační** soudržnost - SW jednotka funguje nad **stejnými daty**.
+  6. **Funkční** soudržnost - SW jednotka obsahuje pouze prvky **nezbytné** pro výkon jedné funkcionality.
   7. **Informační** soudržnost - `f(x) = x^2 + 1`
 
 ## 4. Návrhové principy
+
+```mermaid
+mindmap
+  root )"""Návrhové
+  principy""")
+    (DRY)
+        ["Don't Repeat Yourself"]
+    (KIS)
+        ["Keep it Simple"]
+    (YAGNI)
+        ["You Ain't Gonna Need It"]
+    (Modularita)
+        [Soudržnost]
+        [Provázanost]
+    ("SOLID")
+        [SRP]
+        [OCP]
+        [LSP]
+        [ISP]
+        [DIP]
+```
+
+**DRY - Don't Repeat Yourself** - místo opakování kódu je většinou lepší vytvořit znovupoužitelný modul.
+
+**KIS - Keep it Simple** - kód by neměl být zbytečně složitý. Velmi důležité pro práci v týmu.
+
+**YAGNI - You Ain't Gonna Need It** - neimplementuj funkčnost, kterou aktuálně nepotřebuješ.
+
+**Modularita** - soudržnost a provázanost (viz [Měření kvality návrhu](#31-měření-kvality-návrhu)).
 
 **SOLID Design Principles** - *Robert C. Martin*
 
@@ -379,21 +412,90 @@ mindmap
 |**Open Close Principle**| **OCP** | **Princip otevřenosti a uzavřenosti** | **Třída by měla být *otevřená pro rozšíření*, ale *uzavřená pro modifikaci*.** Tzn. měli bychom být schopni přidat novou funkcionalitu bez nutnosti měnit existující kód. Např. několik konkrétních tříd implementujících interface: `IPrinter`, `EPUBPrinter`, `PDFPrinter`. |
 |**Liskov Substitution Principle**| **LSP** | **Liskové substituční princip** | **Podtřídy by měly být zaměnitelné s jejich bázovými třídami.** Pokud máme *interface* a nějakou hierarchii tříd, která implementuje tento *interface*, tak bychom měli být vždy schopni nahradit **předka potomkem** bez omezení správnosti všech metod předka. Polymorfismus. Např. do `Rectangle` lze přiřadit `Square`. |
 |**Interface Segregation Principle**| **ISP** | **Princip oddělení rozhraní** | **Více specifických rozhraní je lepší než jedno univerzální rozhraní.** *Interface* by neměl definovat příliš mnoho chování (metod). Je lepší takové rozhraní rozdělit na více specifických rozhraní. *YAGNI - You Ain't Going to Need It.* Decoupling. |
-|**Dependency Inversion Principle**| **DIP** | **Princip obrácení závislostí** | **Závislosti by měly směřovat od konkrétnímu typu k abstraktnímu.** Cílem je redukce závislostí v kódu. Pokud konkrétní typy závisí pouze na rozhraní, lze je snadno nahradit jinou implementací. Moduly vyšší úrovně by neměly záviset na modulech nižší úrovně. Znovupoužitelnost.|
+|**Dependency Inversion Principle**| **DIP** | **Princip obrácení závislostí** | **Závislosti by měly směřovat od konkrétnímu typu k abstraktnímu.** Cílem je redukce závislostí v kódu. Pokud konkrétní typy závisí pouze na rozhraní, lze je snadno nahradit jinou implementací. Moduly vyšší úrovně by neměly záviset na modulech nižší úrovně. Znovupoužitelnost. Návrhový vzor **Bridge**.|
 
 <img src="figures/isp.drawio.svg" alt="isp.drawio" width="600px">
 
-|Nižší modul závisí na vyšším.| Změna `IBar` vynutí změnu u vyššího modulu. | Princip obrácení závislostí (DIP) - vyšší modul vlastní `IBar`, změny jdou směrem dolů. |
-|--|--|--|
-|<img src="figures/dip-1.png" alt="dip-1" height="200px">| <img src="figures/dip-2.png" alt="dip-2" height="200px"> | <img src="figures/dip-3.png" alt="dip-3" height="200px"> |
+<details><summary> DIP </summary>
 
-**DRY - Don't Repeat Yourself** - místo opakování kódu je většinou lepší vytvořit znovupoužitelný modul.
+Bez DIP:
 
-**KIS - Keep it Simple** - kód by neměl být zbytečně složitý. Velmi důležité pro práci v týmu.
+```mermaid
+classDiagram
+    class ReportGenerator {
+        + generate()
+        - MySQLDatabase db
+    }
 
-**YAGNI - You Ain't Gonna Need It** - neimplementuj funkčnost, kterou aktuálně nepotřebuješ.
+    class MySQLDatabase {
+        + connect()
+    }
 
-**Modularita** - soudržnost a provázanost (viz [Měření kvality návrhu](#31-měření-kvality-návrhu)).
+    MySQLDatabase <.. ReportGenerator: depends on
+```
+
+```python
+# Without DIP
+class MySQLDatabase:
+    def connect(self):
+        print("Connected to MySQL")
+
+class ReportGenerator:
+    def __init__(self):
+        self.database = MySQLDatabase()
+
+    def generate(self):
+        self.database.connect()
+```
+
+Problém: `ReportGenerator` přímo závisí na konkrétní implementaci `MySQLDatabase` (nižší modul). Pokud chceme použít jinou databázi, musíme měnit `ReportGenerator`.
+
+S DIP:
+
+```mermaid
+classDiagram
+    class Database {
+        <<interface>>
+        + connect()
+    }
+
+    class ReportGenerator {
+        + generate()
+        - Database db
+    }
+
+    class MySQLDatabase {
+        + connect()
+    }
+
+    Database <.. ReportGenerator: depends on abstraction
+    Database <|.. MySQLDatabase: implements
+```
+
+```python
+# With DIP
+from abc import ABC, abstractmethod
+
+class Database(ABC):
+    @abstractmethod
+    def connect(self):
+        pass
+
+class MySQLDatabase(Database):
+    def connect(self):
+        print("Connected to MySQL")
+
+class ReportGenerator:
+    def __init__(self, db: Database):
+        self.database = db
+
+    def generate(self):
+        self.database.connect()
+```
+
+Teď `ReportGenerator` závisí na abstraktním rozhraní `Database`, nikoli na konkrétní implementaci. Můžeme snadno přidat další databáze bez nutnosti měnit `ReportGenerator`.
+
+</details>
 
 ## 5. Návrhové vzory
 
@@ -440,7 +542,7 @@ mindmap
 
 1. **Stavitel (Builder)** - vzor pro vytváření složitých objektů po částech.
     - Např. `PersonBuilder().with_name("John").with_age(30)`, praktičtější příklad - složité předzpracování dat
-    - Můžeme definovat "recepty" pro často vytvářené objekty (např. `PersonBuilder.get_recipe("john")`)
+    - Můžeme definovat "recepty" pro často vytvářené objekty, např. `PersonBuilder.get_recipe("john")`
 
 2. **Továrna (Factory)** - vzor pro vytváření objektů bez nutnosti specifikovat konkrétní třídu.
 
@@ -489,7 +591,7 @@ mindmap
 ### 5.3. Vzory strukturální
 
 1. **Adaptér (Adapter)** - vzor pro **přizpůsobení rozhraní** jedné třídy jinému rozhraní.
-2. **Most (Bridge)** - vzor pro **oddělení abstrakce od implementace** (decoupling) pomocí vytvoření mostu mezi hierarchiemi.
+2. **Most (Bridge)** - vzor pro **oddělení abstrakce od implementace** (decoupling) pomocí vytvoření mostu mezi hierarchiemi **(DIP)**.
 
     <img src="figures/bridge.drawio.svg" alt="bridge.drawio" width="470px">
 
@@ -636,7 +738,7 @@ mindmap
     1. Př. u *formátování textu* si nebudeme ukládat formátování pro každý znak, ale budeme si pamatovat pouze indexy `start`, `end` a typ formátování.
     2. Ve 2D hře nebude mít každý objekt uvnitř uložený svůj *sprite*, ale pouze *referenci* na daný sprite.
 7. **Proxy** - úprava existující třídy buď pomocí *kompozice* nebo *dědičnosti*. **OCP**.
-    - Virtualní proxy - načítání objektu až když je potřeba (`lazy loading`).
+    - Virtuální proxy - načítání objektu až když je potřeba (`lazy loading`).
     - Protection proxy - omezení přístupu. Např. `CarProxy` - protection proxy pro `Car`, která zajišťuje, že auto může řídit pouze řidič, který je starší 18 let.
     - Caching proxy
 
@@ -649,19 +751,18 @@ mindmap
                 }
                 
                 class Car {
-                    - driver: Driver
-                    + __init__(driver)
+                    - model: String
+                    + __init__(model)
                     + drive()
                 }
                 
                 class CarProxy {
                     - driver: Driver
                     - car: Car
-                    + __init__(driver)
+                    + __init__(driver, car)
                     + drive()
                 }
                 
-                Car o-- Driver
                 CarProxy o-- Driver
                 CarProxy o-- Car
         ```
@@ -730,6 +831,9 @@ mindmap
         State <|.. OnState
         State <|.. OffState
     ```
+
+    - `OnState.off(switch)` provede `switch.state = OffState()`.
+    - `OnState.on(switch)` neudělá nic.
 
 9. **Strategy** - Definuje skupinu algoritmů, zapouzdří je a docílí jejich vzájemné zaměnitelnosti. Volba algoritmu probíhá až v době běhu programu.
 
