@@ -41,6 +41,50 @@
 
 ## 1. Relační datový model, SQL; funkční závislosti, dekompozice a normální formy
 
+```mermaid
+mindmap
+  root )"""Databáze""")
+    (Relační datový model)
+      relace
+        atributy
+        entice
+      projekce
+      selekce
+      spojení
+    (SQL)
+      Deklarativní jazyk
+      DQL
+        SELECT
+      DML
+        INSERT
+        UPDATE
+        DELETE
+      DDL
+        CREATE
+        ALTER
+        DROP
+      DCL
+        GRANT
+        REVOKE
+      TCL
+        BEGIN TRANSACTION
+        COMMIT
+        ROLLBACK
+        SAVEPOINT
+    (Funkční závislosti)
+      Armstrongovy axiomy
+        Reflexivita
+        Rozšíření
+        Transitivita
+      Dekompozice
+      Sjednocení
+    (Normální formy)
+      1NF
+      2NF
+      3NF
+      BCNF
+```
+
 **Relační datový model** je způsob uložení dat v databázi pomocí relací $R\subseteq \text{atributy} \times \text{n-tice}$. V praxi často uvažujeme tabulky s uspořádanými řádky a sloupci (relace $R$ nedefinuje uspořádání). Výběr atributů je **projekce** a výběr řádku je **selekce**.
 
 <img src="figures/relational-model.svg" alt="relational_model" width="375px">
@@ -50,12 +94,14 @@
 1. **DQL - Data Query Language** - dotazování, založeno na relační algebře `SELECT`
 2. **DML - Data Manipulation Language** - úprava obsahu tabulek `INSERT`, `UPDATE`, `DELETE`
 3. **DDL - Data Definition Language** - úprava struktury tabulky `CREATE`, `ALTER`, `DROP`
+4. **DCL - Data Control Language** - řízení přístupu k datům `GRANT`, `REVOKE`
+5. **TCL - Transaction Control Language** - řízení transakcí `BEGIN TRANSACTION`, `COMMIT`, `ROLLBACK`, `SAVEPOINT`
 
 ### 1.1. Funkční závislosti
 
-> Buď $R$ relace a buď $X,Y\subseteq R$ množiny atributů. Řekneme, že $Y$ **funkčně závisí** na $X$ (značíme $X\to Y$) pokud platí pro každé dvě $n$-tice:
+> Buď relace $R=\mathcal{A}\times\mathcal{N}$, kde $\mathcal{A}$ je množina atributů a $\mathcal{N}$ je množina $n$-tic. Buď $X,Y\subseteq \mathcal{A}$. Řekneme, že $Y$ **funkčně závisí** na $X$ (značíme $X\to Y$) pokud platí pro každé dvě $n$-tice:
 >
-> $$(\forall t_1,t_2\in R)\colon \left[t_1[X]=t_2[X]\right] \implies \left[t_1[Y]=t_2[Y]\right].$$
+> $$(\forall r_1,r_2\in \mathcal{N})\colon \left[r_1[X]=r_2[X]\right] \implies \left[r_1[Y]=r_2[Y]\right].$$
 >
 > (Pokud mají dvě n-tice stejnou hodnotu pro atributy $X$, musí mít stejnou hodnotu i pro atributy $Y$. `False => True`, takže každý atribut závisí na atributu s unikátními hodnotami.)
 
@@ -80,22 +126,22 @@ Navíc lze dokázat platnost:
 
 ### 1.2. Normální formy
 
-**Klíč** je nejmenší podmnožina atributů, která jednoznačně identifikuje jinou množinu atributů.
+> **Klíč** je nejmenší podmnožina atributů, která jednoznačně identifikuje jinou množinu atributů.
+<!--  -->
+> **Dekompozice** je proces rozdělení tabulky na několik menších (dle počtu sloupců), aby byly splněny podmínky normálních forem.
 
 Proč normální formy? Konzistence dat, odstranění redundance. Např. `Nakup(JmenoZakaznika, Produkty, Cena)` není v žádné NF. Normální formy jsou mírou kvality návrhu databáze.
 
-1. **1NF** - **atributy musí být atomické** (nedělitelné) - např. `Produkt = "jablko, hruška"` nebo `Adresa = "Ostrava, Hlavní třída 25"` není 1NF. Takové atributy je třeba rozdělit na více atributů nebo tabulek s vazbou 1:N.
+1. **1NF** - **atributy musí být atomické** (nedělitelné) - např. `Jméno = "<křestní> <příjmení>"`, `Produkt = "jablko, hruška"` nebo `Adresa = "Ostrava, Hlavní třída 25"` není 1NF. Takové atributy je třeba rozdělit na více atributů nebo tabulek s vazbou 1:N.
 2. **2NF** - **každý neklíčový atribut** je **závislý** na ***celém* klíči**, ne jen na jeho části. Důsledek: atributy v tabulce mezi sebou nemají vztah M:N (`zákazník x produkt` je M:N) (+1NF).
 3. **3NF** - **nesmí existovat závislosti mezi atributy, které nejsou součástí klíče**. Data nejsou tranzitivně závislá (+2NF).
 4. **BCNF** (Boyce-Codd) - pro každou funkční závislost `X -> Y` platí, že `X` je klíč tabulky (+3NF).
 
 **Uzávěr** množiny atributů $X$ (značíme $X+$) je množina všech atributů, které podle atributů $X$ můžeme dohledat ("podle šipek").
 
-**Dekompozice** je proces rozdělení tabulky na několik menších, aby byly splněny podmínky normálních forem.
+<details><summary> Příklad: Kniha </summary>
 
-<details><summary> Příklad </summary>
-
-Tabulka `Kniha`. Předpokládáme jednoho autora a *kandidátní klíč* `(Autor, Název)`.
+Tabulka `Kniha`. Předpokládáme jednoho autora a *kandidátní klíč* `(*Autor, *Název)`.
 
 | Autor | Název | Formát | Strany | Cena | Nakladatelství | Země nakladatelství |
 |--------|-------|--------|--------|------|-----------------|---------------------|
@@ -103,9 +149,49 @@ Tabulka `Kniha`. Předpokládáme jednoho autora a *kandidátní klíč* `(Autor
 | Codd | Databázové systémy | e-kniha | 300 | 399 | Cambridge | UK |
 | Boyce | Databázové systémy 2 | e-kniha | 400 | 299 | Harvard | USA |
 
-Cena závisí na formátu a tato závislost *není závislá na klíči*. Vytvoříme tabulku `FormatCena(*Název, *Formát, Cena)` a tabulku `Kniha(*Název, Autor, Formát, Strany, Nakladatelství, Země nakladatelství)`, kde klíč je `Název`. Tím získáme 2NF.
+`Cena` **není** závislá na celém klíči `(Autor, Název)`! `Cena` závisí na dvojici `(Název, Formát)` a tato závislost *není závislá na klíči*. Vytvoříme tabulku `FormatCena(*Název, *Formát, Cena)` a tabulku `Kniha(*Název, *Autor, Strany, Nakladatelství, Země nakladatelství)`. Tím získáme 2NF.
 
 Dále existuje tranzitivní závislost `Název -> Nakladatelství -> Země nakladatelství`. Vytvoříme tabulku `Nakladatelství(*Nakladatelství, Země)`. Tím získáme 3NF.
+
+</details>
+
+<details><summary> Příklad: Studenti a kurzy </summary>
+
+Původní tabulka (1NF):
+
+| student_id | student_name | course_id | course_name | instructor   |
+|------------|--------------|-----------|-------------|--------------|
+| 1          | Alice        | CS101     | Databases   | Dr. Smith    |
+| 2          | Bob          | CS101     | Databases   | Dr. Smith    |
+| 3          | Bob      | CS102     | Algorithms  | Dr. Johnson  |
+| 1          | Alice        | CS103     | Networks    | Dr. Brown    |
+
+Kurzy (2NF):
+
+| course_id | course_name | instructor   |
+|-----------|-------------|--------------|
+| CS101     | Databases   | Dr. Smith    |
+| CS102     | Algorithms  | Dr. Johnson  |
+| CS103     | Networks    | Dr. Brown    |
+
+(Mohla by existovat (pokud neex. dva kurzy se stejným názvem a jiným učitelem) tranzitivní závislost `course_id -> course_name -> instructor`, proto se nejedná o 3NF.)
+
+Studenti (BCNF):
+
+| student_id | student_name |
+|------------|--------------|
+| 1          | Alice        |
+| 2          | Bob          |
+| 3          | Bob      |
+
+Studenti v kurzech (BCNF):
+
+| student_id | course_id |
+|------------|-----------|
+| 1          | CS101     |
+| 1          | CS103     |
+| 2          | CS101     |
+| 3          | CS102     |
 
 </details>
 
@@ -114,7 +200,7 @@ Poznámky:
 - V **konceptuálním modelu** (entity-relation diagramy) nezáleží na volbě databázového systému.
 - Databáze je **konzistentní** právě tehdy, když jsou splněny všechny **integritní omezení**.
 - **Databázový systém / Systém pro řízení báze dat (SŘBD)** je aplikace poskytující rozhraní pro vytvoření databáze a pro komunikaci s databází.
-- **Databáze** je (multi)množina vzájemně propojených dat, které jsou uloženy v databázovém systému.
+- **Databáze** je (uspořádaná) (multi)množina vzájemně propojených dat, které jsou uloženy v databázovém systému.
 
 ## 2. Transakce, zotavení, log, ACID, operace COMMIT a ROLLBACK; problémy souběhu, řízení souběhu: zamykání, úroveň izolace v SQL
 
@@ -143,6 +229,11 @@ mindmap
       READ UNCOMMITED
       READ COMMITED
       REPEATABLE READ
+    (ACID)
+      Atomicity
+      Correctness
+      Isolation
+      Durability
 ```
 
 > **Transakce** je sekvence příkazů která převede databázi z jednoho korektního stavu do druhého korektního stavu. Transakce je atomická operace, buď jsou provedeny všechny příkazy transakce, nebo žádný. Transakce začíná operací `BEGIN TRANSACTION` a končí provedením operací `COMMIT` nebo `ROLLBACK`.
@@ -282,7 +373,7 @@ Pokud dvě transakce pracují se stejným záznamem, mohou nastat čtyři konfli
 
 ### 2.3. Techniky řízení souběhu
 
-- **Zamykání** - jedna kopie dat a přidělování zámků transakcím. Pokud transakce chce provést čtení nebo zápis, tak požádá o zámek na daný objekt. **Dvoufázové uzamykání**:
+- **Zamykání** - jedna kopie dat a přidělování zámků transakcím. Pokud transakce chce provést čtení nebo zápis, tak požádá o zámek na daný objekt. **Dvoufázové uzamykání** (v Rustu `std::sync::RwLock`):
   1. Pro **čtení** si transakce vyžádá **sdílený zámek** `S`.
   2. Pro **aktualizace** si transakce vyžádá **výlučný zámek** `X`.
   3. Pokud zámek drži jiná transakce, přejde transakce do **stavu čekání** (nesmí nastat **uváznutí** - **deadlock**).
@@ -323,7 +414,7 @@ Izolace snižuje propustnost (výkon) DBS. Nicméně nižší izolace přináš�
 
 - `SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;`
 - `RU` - uvolnění *výlučných zámků* před koncem transakce.
-- `RC` - dřívejší uvolnění *sdílených zámků*.
+- `RC` - dřívější uvolnění *sdílených zámků*.
 
 <details><summary> Výskyt fantomů </summary>
 
