@@ -898,19 +898,65 @@ mindmap
 
 ## 6. Co je to Secure Software Development Lifecycle (SSDLC)? Jaká jsou jeho specifika a využití?
 
+```mermaid
+mindmap
+  root )SSDLS)
+    (Analýza požadavků zákazníka)
+        [Bezpečnostní požadavky]
+        [2FA, šifrování]
+    (Specifikace systému)
+        ["Potenciální zranitelnosti (threat modeling)"]
+    (Návrh)
+        [Architektura zohledňující bezpečnost]
+            [Autentizace]
+            [Autorizace]
+    (Implementace)
+        [Bezpečný kód]
+            ["SQL injection (parametrizované dotazy)"]
+            ["XSS (cross-site scripting)"]
+            ["Validace uživatelských vstupů (sanitizace)"]
+        [Code reviews]
+        [Statická analýza kódu]
+    (Testování)
+        [Penetrační testy]
+        [Skenování zranitelností]
+        [Automatizované testy]
+    (Nasazení)
+        [Zajištění bezpečnosti produkčního prostředí]
+        [Aktuální verze OS]
+    (Údržba)
+        [Security patches]
+            [Aktualizace závislostí]
+        [Penetrační testy]
+        [Bug bounties]
+        [Skenování zranitelností]
+        [Monitoring]
+        [Bezpečnostní audity]
+    (Příklady)
+        [OWASP SAMM]
+        [NIST SSDF]
+    (Specifika)
+        [Komunikace]
+        [Prevence místo detekce]
+        [Školení vývojářů]
+        [Soulad s normami]
+        [Snížení nákladů na opravy]
+        [Ochrana citlivých dat]
+```
+
 **SDLC** je proces vývoje SW.
 
-**SSDLC** přidává do každé fáze **SDLC** požadavky na počítačovou bezpečnost.
+**SSDLC** přidává do každé fáze **SDLC** požadavky na počítačovou bezpečnost. Od začátku SDLC je zohledněna bezpečnost, což vede k *nižším nákladům na opravy zranitelností* a *nižšímu riziku nasazení zranitelného SW do produkčního prostředí*.
 
 National Institute of Standards and Technology **(NIST)** definuje Secure software development framework **(SSDF)**, který definuje jak realizovat **SSDLC**.
 
-1. **Analýza požadavků** - stanovení *bezpečnostních požadavků* (např. 2FA, šifrování, ...)
-2. **Plánování** - identifikace potenciálních zranitelností *(threat modeling)*
-3. **Návrh** - architektura zohledňující bezpečnost (např. nastavení uživatelských rolí, ...)
-4. **Implementace/vývoj** - zaměření na bezpečný kód (SQL injection, ...), code reviews, statická analýza kódu
-5. **Testování** - *penetrační testy*, skenování zranitelností, testování kódu, automatizované testy
-6. **Nasazení** - zajištění bezpečnosti produkčního prostředí (např. aktuální verze OS)
-7. **Údržba** - pravidelné bezpečnostní aktualizace (security patches), penetrační testy, bug bounties (odměny za nahlášení vady), skenování zranitelností, monitoring, bezpečnostní audity
+1. **Analýza požadavků zákazníka** - stanovení **bezpečnostních požadavků** (např. 2FA, šifrování, ...)
+2. **Specifikace systému** (plánování) - identifikace **potenciálních zranitelností** *(threat modeling)*
+3. **Návrh** - **architektura** zohledňující **bezpečnost** (např. nastavení uživatelských rolí, ...)
+4. **Implementace** - zaměření na **bezpečný kód** (SQL injection, ...), code reviews, statická analýza kódu
+5. **Testování** - **penetrační testy**, skenování zranitelností, testování kódu, automatizované testy
+6. **Nasazení** - zajištění **bezpečnosti produkčního prostředí** (např. aktuální verze OS)
+7. **Údržba** - pravidelné **bezpečnostní aktualizace** *(security patches)*, penetrační testy, bug bounties (odměny za nahlášení vady), skenování zranitelností, monitoring, bezpečnostní audity
 
 Důležitá je **komunikace** mezi vývojáři a experty na počítačovou bezpečnost. Bezpečnostní experti by měli být zapojeni do každé fáze vývoje SW.
 
@@ -921,25 +967,17 @@ Mezi další specifika SSDLC patří:
 - Soulad s **bezpečnostními normami a standardy**
 - **Snížení nákladů na opravy zranitelností**, protože jsou zranitelnosti odhaleny dříve v procesu vývoje.
 - Zranitelnosti jsou odhaleny dříve v procesu vývoje, což snižuje riziko nasazaní zranitelného SW do produkčního prostředí.
-- Ochrana citlivých dat a informací před zneužitím útočníky.
+- Ochrana **citlivých dat** a informací před zneužitím útočníky.
+- Pravidelné **bezpečnostní audity**.
 
 Známé příklady SSDLC:
 
-- **OWASP SAMM** - Software Assurance Maturity Model
-- **NIST SSDF** - Secure Software Development Framework
+- **OWASP SAMM** - *Software Assurance Maturity Model*
+- **NIST SSDF** - *Secure Software Development Framework*
+
+**XSS** je zranitelnost, která umožňuje útočníkovi vložit škodlivý kód do webové stránky, který se poté spustí v prohlížeči oběti. Např. vložení JavaScriptu do komentáře na webové stránce.
 
 ## 7. Popište pět základních bezpečnostních vlastností, které se používají k zajištění bezpečnosti a spolehlivosti informačních systémů. Zkratka “CIAAN”, tedy “Confidentiality”, “Integrity”, “Availability”, “Authenticity” a “Non-repudiation”. Uveďte příklady softwarových požadavků, které z těchto vlastností vycházejí
-
-Jedná se o softwarové požadavky, které mají zajistit bezpečnost systému:
-
-1. **Confidentiality** (důvěrnost) - informace jsou přístupné pouze oprávněným osobám
-2. **Integrita** - zamezení neautorizované modifikace nebo zničení informací
-3. **Availability** - informace musí být vždy přístupné oprávněným uživatelům, když je potřebují
-4. **Authenticity** (autentičnost) - ověření identity uživatele a integrity dat
-   - **Autentizace** - ověření identity uživatele (např. heslo, 2FA, biometrie)
-   - **Autorizace** - určení, co může uživatel dělat (např. role a práva)
-5. **Non-repudiation** (nepopiratelnost) - odesílatel nemůže popřít, že zprávu odeslal a příjemce nemůže popřít, že zprávu přijal
-   - **Digitální podpisy** - zajišťují nepopiratelnost a integritu dat
 
 ```mermaid
 mindmap
@@ -954,11 +992,13 @@ mindmap
         [Main-in-the-middle]
         [SQL injection]
     (Availability)
-        [Zálohování]
-        [Redundantní systémy]
+        [Zotavení po selhání]
+            [Zálohování]
+            [Redundantní systémy]
         [Zatížení systému]
         [Ochrana před DDoS útoky]
         [Monitorování]
+        [Škálování]
     (Authenticity)
         [2FA]
         [Bezpečné heslo]
@@ -970,7 +1010,20 @@ mindmap
         [Digitální podpisy]
 ```
 
-[Ukázka asymetrického šifrování](./systems_and_networking.md#5-bezpečnost-počítačových-sítí-s-tcpip-útoky-paketové-filtry-stavový-firewall-šifrování-a-autentizace-virtuální-privátní-sítě).
+Jedná se o softwarové požadavky, které mají zajistit bezpečnost systému:
+
+| CIAAN | Popis | SW požadavky | Útoky |
+|-------|-------|--------------|-------|
+| Confidentiality (důvěrnost) | Zajištění, že informace jsou přístupné pouze oprávněným osobám. Ochrana před neoprávněným přístupem. | Šifrování dat; Přístupové role a práva (kontrola přístupu); Autorizace uživatelů (co může uživatel dělat) | - |
+| Integrity (integrita) | Zamezení neautorizované modifikace nebo zničení informací. | Logování změn v systému; Kontrolní součet nebo digitální podpis přenášených dat; Šifrování dat při přenosu | MitM; SQL Injection |
+| Availability (dostupnost) | Zajištění, že informace jsou vždy přístupné oprávněným uživatelům. | Rychlé zotavení při selhání (zálohování, redundantní systémy); Monitorování; Škálování; Load balancing | DDoS |
+| Authenticity (autentičnost) | Ověření identity uživatele (autentizace). Uživatel je tím, za koho se vydává. | 2FA; Bezpečné heslo; Biometrické přihlášení | Spoofing; Phishing; Vishing; Keylogging |
+| Non-repudiation (nepopiratelnost) | Odesílatel nemůže popřít, že zprávu odeslal a příjemce nemůže popřít, že zprávu přijal. | Digitální podpisy (nepopiratelnost a integrita); logování aktivity | Key Theft |
+
+- **SQL Injection** - neošetřené webové aplikace mohou útočníkům dát k dispozici nástroj pro modifikaci dat přímo v databázi.
+- **MitM** - útočník odposlouchává komunikaci mezi dvěma stranami a může ji modifikovat.
+- **Spoofing** - osoba nebo program se vydává za jinou osobu nebo program.
+- [Ukázka asymetrického šifrování](./systems_and_networking.md#5-bezpečnost-počítačových-sítí-s-tcpip-útoky-paketové-filtry-stavový-firewall-šifrování-a-autentizace-virtuální-privátní-sítě).
 
 ## 8. Penetrační testování software. Deskriptivní a preskriptivní rámce pro penetrační testování. Metody penetračního testování
 
@@ -1011,9 +1064,15 @@ mindmap
             [interní]
         (PT hardware)
         (PT zaměstnanců)
-            [phishing]
-            [vishing]
-            [smishing]
+            [social engineering]
+                [phishing]
+                [vishing]
+                [smishing]
+                [nátlak]
+                    [časový]
+                    [finanční]
+                    [reputační]
+                    [emocionální]
 ```
 
 **Podle přístupu k systémovým informacím:**
@@ -1036,7 +1095,7 @@ mindmap
   - **externí** - útok zvenku
   - **interní** - útok zevnitř pomocí odcizených přihlašovacích údajů
 - PT **hardware** - notebooky, IoT zařízení, USB drop
-- PT **zaměstnanců** - social engineering
+- PT **zaměstnanců** - social engineering (lidský faktor, typicky *časový, finanční, reputační a emocionální* **tlak** na zaměstnance, aby provedli akci, kterou by jinak neudělali)
   - *phishing*
   - *vishing (voice phishing)*
   - *smishing (SMS phishing)*
@@ -1059,3 +1118,9 @@ mindmap
 6. **Udržení přístupu** (maintaining access) - pokus o udržení přístupu do systému
 7. **Zpráva** (reporting) - zpráva o výsledcích penetračního testování
 8. **Úklid** (cleanup) - odstranění všech změn provedených během penetračního testování
+
+<details><summary> Cyber Kill Chain </summary>
+
+<img src="figures/cyber-kill-chain.png" alt="cyber-kill-chain https://www.lockheedmartin.com/content/dam/lockheed-martin/rms/photo/cyber/THE-CYBER-KILL-CHAIN-body.png.pc-adaptive.1280.medium.png" width="700px">
+
+</details>
