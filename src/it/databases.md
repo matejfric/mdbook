@@ -435,8 +435,13 @@ Navíc SŘBD umožňují explicitní zamykání programátorem.
 
 ## 3. Procedurální rozšíření SQL, PL/SQL, T-SQL, triggery, funkce, procedury, kurzory, hromadné operace
 
-- **Trigger** je PL/SQL blok, který je spouštěn v závislosti na nějakém příkazu DML jako je `INSERT`, `UPDATE` nebo `DELETE`.
-  - Např. trigger, který každý před smazáním záznamu `BEFORE DELETE` záznam uloží do historizační tabulky.
+- **SQL** *(Structured Query Language)* je deklarativní jazyk.
+- **Procedurální rozšíření SQL** umožňuje psát složitější logiku využitím podmínek, cyklů, proměnných, výjimek atd.
+  - **PL/SQL** je procedurální rozšíření SQL pro databázi *Oracle*.
+  - **T-SQL** je procedurální rozšíření SQL pro *Microsoft SQL Server*.
+- **Trigger** je PL/SQL blok, který je automaticky spouštěn v závislosti na nějakém příkazu DML jako je `INSERT`, `UPDATE` nebo `DELETE`.
+  - Např. Po každém vložení záznamu do tabulky `Order` se automaticky aktualizuje stav skladu.
+  - Např. Trigger, který každý před smazáním záznamu `BEFORE DELETE` záznam uloží do historizační tabulky.
 
 ```sql
 CREATE [OR REPLACE] TRIGGER jmeno_triggeru
@@ -457,6 +462,7 @@ END;
   - Pro parametry se používá prefix `p_`.
   - `mod` může být `{IN | OUT | IN OUT}` - vstupní, výstupní nebo vstupně výstupní proměnná.
   - Proměnné typu `VARCHAR2` nebo `NUMBER` se uvádějí bez závorek, které by specifikovaly jejich velikost.
+  - Např. procedura `create_invoice(id)` vytvoří fakturu a zapíše ji do databáze.
 
 ```sql
 CREATE [OR REPLACE] PROCEDURE jmeno_procedury
@@ -469,6 +475,7 @@ END [jmeno_procedury];
 ```
 
 - **(Pojmenované) funkce** oproti procedurám specifikují návratový typ a *musí vracet hodnotu*.
+  - Např. `get_discount_customer(id)` vrátí výši slevy pro konkrétního zákazníka.
 
 ```sql
 CREATE [OR REPLACE] FUNCTION jmeno_funkce
@@ -481,13 +488,13 @@ BEGIN
 END [jmeno_funkce];
 ```
 
-- **Kurzor** je *pomocná proměnná* vytvořená *po* provedení nějakého SQL příkazu.
+- **Kurzor** je *pomocná proměnná* vytvořená *po* provedení nějakého SQL příkazu. Slouží k práci s více řádky výsledku dotazu (řádek po řádku).
 
 ```sql
 CURSOR jmeno_kursoru IS vysledek_prikazu_select;
 ```
 
-- **Hromadné operace** umožňují efektivní práci s kolekcemi (pole).
+- 📦 **Hromadné operace** umožňují efektivní práci s kolekcemi (pole). Hromadné operace jsou výkonnější než kurzory, když není potřeba individuální zpracování.
 
 ```sql
 -- načtení do kolekce
@@ -934,7 +941,7 @@ ROWS FETCH NEXT 100 ROWS ONLY;
 
 #### 6.2.2. Slovníková komprimace
 
-Slovníková komprimace je aplikována po prefixové. Není omezena jen na jednotlivé sloupce, funguje nad celou tabulkou. Zjednodušeně se kódují opakující se sekvence (kód je umístěn do *CI*).
+Slovníková komprimace je aplikována **po prefixové**. Není omezena jen na jednotlivé sloupce, funguje **nad celou tabulkou**. Zjednodušeně se kódují opakující se sekvence (kód je umístěn do *CI*).
 
 <img src="../ds/figures/dict-compression.png" alt="dict-compression" width="200px">
 
@@ -1033,6 +1040,14 @@ Případná konzistence znamená, že pokud provedeme nějaké zápisy a systém
 - **Nevýhoda**: **redundance**, není možná validace dat dle schématu.
 - **Výhoda**: **jednodušší dotazování**, ptáme se na dokument, **nepoužíváme operaci spojení** pro spojování entit.
 
-> **Replikace dat** znamená, že data jsou uložena v několika kopiích (replikách) na uzlech DDBS systému. Cílem je zvýšení dostupnosti.
+> **Replikace dat** znamená, že data jsou uložena v několika kopiích (replikách) na uzlech DDBS systému.
+>
+> - Cílem je zvýšení dostupnosti.
+> - Řízená redundance.
 
-**CRUD** - `Create`, `Read`, `Update`, `Delete`
+| CRUD   | SQL    |
+|--------|--------|
+| Create | `INSERT` |
+| Read   | `SELECT` |
+| Update | `UPDATE` |
+| Delete | `DELETE` |
