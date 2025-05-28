@@ -803,6 +803,30 @@ mindmap
 
 6. **Mediator** - Definuje, jak by spolu měla množina objektů interagovat. Např. *chatovací aplikace* `ChatRoom` je mediátor mezi uživateli `User`.
 7. **Observer** - Definuje one-to-many závislost publisher-subscriber(s). Pokud jeden objekt změní stav, tak všechny závislé objekty jsou automaticky aktualizovány.
+
+    ```mermaid
+    classDiagram
+        class Publisher {
+            - subscribers: List~Subscriber~
+            + subscribe(subscriber)
+            + unsubscribe(subscriber)
+            + notify()
+        }
+        
+        class Subscriber {
+            <<interface>>
+            + update()
+        }
+
+        class ConcreteSubscriber {
+            - ...
+            + update()
+        }
+        
+        Publisher o-- Subscriber
+        Subscriber <|.. ConcreteSubscriber
+    ```
+
 8. **State** - Umožňuje změnu chování objektu na základě změny vnitřního stavu - změnou třídy objektu (níže `state` je buď `OnState` nebo `OffState`). Konečný automat (lze implementovat třeba přes `enum`, nemusí to být OOP).
 
     ```mermaid
