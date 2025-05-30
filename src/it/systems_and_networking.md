@@ -13,6 +13,9 @@
   - [3.3. E-maily](#33-e-maily)
 - [4. Problémy směrování v počítačových sítích. Adresování v IP sítích](#4-problémy-směrování-v-počítačových-sítích-adresování-v-ip-sítích)
 - [5. Bezpečnost počítačových sítí s TCP/IP: útoky, paketové filtry, stavový firewall. Šifrování a autentizace, virtuální privátní sítě](#5-bezpečnost-počítačových-sítí-s-tcpip-útoky-paketové-filtry-stavový-firewall-šifrování-a-autentizace-virtuální-privátní-sítě)
+  - [5.1. Útoky](#51-útoky)
+  - [5.2. Firewall](#52-firewall)
+  - [5.3. Šifrování](#53-šifrování)
 - [6. Paralelní výpočty a platformy: Flynnova taxonomie, SIMD, MIMD, SPMD. Paralelismus na úrovni instrukcí, datový a funkční paralelismus. Procesy a vlákna](#6-paralelní-výpočty-a-platformy-flynnova-taxonomie-simd-mimd-spmd-paralelismus-na-úrovni-instrukcí-datový-a-funkční-paralelismus-procesy-a-vlákna)
 - [7. Systémy se sdílenou a distribuovanou pamětí: komunikace mezi procesy (souběh, uváznutí, vzájemné vyloučení). Komunikace pomocí zasílání zpráv. OpenMP, MPI](#7-systémy-se-sdílenou-a-distribuovanou-pamětí-komunikace-mezi-procesy-souběh-uváznutí-vzájemné-vyloučení-komunikace-pomocí-zasílání-zpráv-openmp-mpi)
   - [7.1. Model sdílené paměti](#71-model-sdílené-paměti)
@@ -379,10 +382,15 @@ mindmap
   root )"""Bezpečnost
   TCP/IP""")
     (Útoky)
+      [Narušení fyzické vrstvy]
       [Man-in-the-middle]
       [Denial-of-Service]
+        [Rate limiting]
+        [DDoS]
       [Spoofing]
+        [ARP Spoofing]
       [Sniffing]
+      [Replay Attack]
     (Firewall)
       [Stavový]
       [Paketový filtr]
@@ -391,6 +399,7 @@ mindmap
       [Asymetrické]
     (VPN)
       [Šifrovaný tunel]
+      [IPsec]
     (Protokoly)
       [TLS]
       [IPsec]
@@ -399,22 +408,53 @@ mindmap
 
 Problém TCP/IP sítí je, že typicky jsou všechna data přenášena nešifrovaně. Data lze nejen přečíst, ale i upravit.
 
-Útoky:
+### 5.1. Útoky
 
-- **Man-in-the-middle (MITM)** - útočník odposlouchává nebo modifikuje komunikaci mezi dvěma stranami. (Lze řešit šifrováním.)
-- **Denial-of-Service (DoS)** - cílem je přetížit systém nebo službu velkým množstvím požadavků a způsobit tak její nedostupnost.
+- **Narušení fyzické vrstvy** - např. odpojení kabelu, zničení zařízení, překopnutí optického kabelu
+  - Řešení: redundantní síťová zařízení, záložní trasy, záložní napájení
+- **Man-in-the-middle (MITM)** - útočník odposlouchává nebo modifikuje komunikaci mezi dvěma stranami.
+  - Lze řešit šifrováním.
+- **Denial-of-Service (DoS)** - cílem je přetížit systém nebo službu velkým množstvím požadavků a způsobit tak její nedostupnost. Altrnativně zahazování paketů nebo přesměrování provozu.
+  - **Distributed Denial-of-Service (DDoS)** - útok z více zdrojů (např. botnet).
+  - **SYN Flooding** - zahlcení serveru požadavky o navázání TCP spojení (`SYN` pakety)
+  - Částečné řešení: **firewall**, **rate limiting** (omezení počtu požadavků).
 - **Spoofing** - útočník se vydává za jiného uživatele (např. podvržením IP adresy).
+  - Řešení: digitální certifikáty (nepopiratelnost)
 - **Sniffing** - odposlech síťového provozu.
+  - Šifrování: IPsec, TLS, SSH
+- **Replay Attack** - Eve sniffs *("vyčmuchá haha")* `hash(password)` a po ukončení relace mezi Alice a Bob, Eve zahájí novou relaci s heslem Alice (spoofing).
+  - Řešení zaznamenáváním ID relace a MAC adresy; popř. jednorázovými hesly.
+      <img src="figures/replay-attack-on-hash.svg" alt="replay-attack-on-hash https://en.wikipedia.org/wiki/Replay_attack" width="400px">
+- **ARP Spoofing** - útočník podvrhne ARP odpověď a přesměruje provoz na svůj počítač - vydává se za router.
 
-**Paketové filtry** - druh **firewallu**, který kontroluje pakety na základě pravidel: **IP adresa, port, protokol**.
+### 5.2. Firewall
+
+**Firewall** je síťové zařízení, které filtruje síťový provoz na základě pravidel. Může být hardwarový nebo softwarový.
+
+**Paketové filtry** - druh **firewallu**, který zahazuje pakety na základě pravidel *(access control list, ACL)*:
+
+- **IP adresa** zdroje a cíle
+- **port** zdroje a cíle
+- **protokol** (typicky TCP nebo UDP)
+- **IP flags** (např. SYN, ACK, FIN)
 
 **Stavový firewall** (stateful) - sleduje **stav spojení**. Bezpečnější než čistý paketový filtr.
 
+### 5.3. Šifrování
+
 **Transport Layer Security** (TLS) je kryptografický protokol pro komunikaci přes počítačovou síť. Používá se v **aplikační vrstvě** TCP/IP. Navíc *Datagram Transport Layer Security (DTLS)* se používá v *transportní vrstvě*. Nahradil zastaralý protokol *Secure Sockets Layer (SSL)*.
 
-**Internet Protocol Security (IPsec)** - sada protokolů **síťové vrstvy**, která obstarává *autentizaci a šifrování paketů* při komunikaci přes Internet Protocol (IP).
+**Internet Protocol Security (IPsec)** - sada protokolů **síťové vrstvy** (L3), která obstarává *autentizaci a šifrování paketů* při komunikaci přes Internet Protocol (IP).
+
+- **Authentication Header** *(AH)* - poskytuje autentizaci a integritu dat
+- **Encapsulating Security Payload** *(ESP)* - šifrovaná data
 
 **Symetrická kryptografie** - stejný klíč pro šifrování i dešifrování (např. **AES**).
+
+- Při sdílení klíčů může být klíč odcizen, proto se ke sdílení symetrických klíčů používá **asymetrická kryptografie**.
+- Neřeší nepopiratelnost.
+- Rychlejší než asymetrická kryptografie.
+- **AES** (Advanced Encryption Standard) - bloková šifra, která šifruje data po blocích (např. 128 bitů).
 
 **Asymetrická kryptografie** - šifrování pomocí *veřejného* a *privátního* klíče (např. **RSA**). Veřejný klíč je známý všem, privátní klíč je tajný.
 
@@ -427,7 +467,7 @@ Problém TCP/IP sítí je, že typicky jsou všechna data přenášena nešifrov
 
 Asymetrická kryptografie je založena na vynásobení dvou velkých prvočísel, což je rychlý proces, nicméně zpětné hledání těchto dvou čísel (tedy rozklad na prvočísla) je velmi náročný.
 
-**Virtuální privátní sítě** *(VPN – Virtual Private Network)* - vytváří **šifrovaný tunel** mezi klientem a cílovou sítí přes *veřejný internet*. Např. umožňuje bezpečný vzdálený přístup k podnikové síti.
+**Virtuální privátní sítě** *(VPN – Virtual Private Network)* - vytváří **šifrovaný tunel** mezi klientem a cílovou sítí přes *veřejný internet*. Např. umožňuje bezpečný vzdálený přístup k podnikové síti. Využívá IPsec.
 
 ## 6. Paralelní výpočty a platformy: Flynnova taxonomie, SIMD, MIMD, SPMD. Paralelismus na úrovni instrukcí, datový a funkční paralelismus. Procesy a vlákna
 
