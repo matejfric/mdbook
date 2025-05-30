@@ -6,7 +6,11 @@
   - [1.3. Paměťová hierarchie](#13-paměťová-hierarchie)
 - [2. Základní vlastnosti monolitických počítačů a jejich typické integrované periférie. Možnosti použití](#2-základní-vlastnosti-monolitických-počítačů-a-jejich-typické-integrované-periférie-možnosti-použití)
   - [2.1. Typické periferní zařízení](#21-typické-periferní-zařízení)
+  - [2.2. Využití](#22-využití)
 - [3. Protokolová rodina TCP/IP](#3-protokolová-rodina-tcpip)
+  - [3.1. Síťové protokoly a služby](#31-síťové-protokoly-a-služby)
+  - [3.2. Vzdálený přístup](#32-vzdálený-přístup)
+  - [3.3. E-maily](#33-e-maily)
 - [4. Problémy směrování v počítačových sítích. Adresování v IP sítích](#4-problémy-směrování-v-počítačových-sítích-adresování-v-ip-sítích)
 - [5. Bezpečnost počítačových sítí s TCP/IP: útoky, paketové filtry, stavový firewall. Šifrování a autentizace, virtuální privátní sítě](#5-bezpečnost-počítačových-sítí-s-tcpip-útoky-paketové-filtry-stavový-firewall-šifrování-a-autentizace-virtuální-privátní-sítě)
 - [6. Paralelní výpočty a platformy: Flynnova taxonomie, SIMD, MIMD, SPMD. Paralelismus na úrovni instrukcí, datový a funkční paralelismus. Procesy a vlákna](#6-paralelní-výpočty-a-platformy-flynnova-taxonomie-simd-mimd-spmd-paralelismus-na-úrovni-instrukcí-datový-a-funkční-paralelismus-procesy-a-vlákna)
@@ -65,18 +69,18 @@ mindmap
 
 Zpracování instrukce je rozděleno do několika fází a často je možné aby se fáze překrývaly (pokud nejsou instrukce na sobě závislé).
 
-| Krok | Zkratka |Význam                 |
-|:------|:-------:|:-----------------|
-| 1.   | VI | Výběr Instrukce   |
-| 2.   | DE | Dekódování        |
-| 3.   | VA | Výpočet Adresy    |
-| 4.   | VO | Výběr Operandu    |
-| 5.   | PI | Provedení Instrukce |
-| 6.   | UV | Uložení Výsledku  |
+| Krok | Zkratka | Význam              |
+| :--- | :-----: | :------------------ |
+| 1.   |   VI    | Výběr Instrukce     |
+| 2.   |   DE    | Dekódování          |
+| 3.   |   VA    | Výpočet Adresy      |
+| 4.   |   VO    | Výběr Operandu      |
+| 5.   |   PI    | Provedení Instrukce |
+| 6.   |   UV    | Uložení Výsledku    |
 
-|CISC|RISC|
-|:--:|:--:|
-|<img src="figures/cisc-chain.png" alt="cisc-chain" height="125px">|<img src="figures/risc-chain.png" alt="risc-chain" height="125px">|
+|                                CISC                                |                                RISC                                |
+| :----------------------------------------------------------------: | :----------------------------------------------------------------: |
+| <img src="figures/cisc-chain.png" alt="cisc-chain" height="125px"> | <img src="figures/risc-chain.png" alt="risc-chain" height="125px"> |
 
 (V současnosti se nejčastěji používá nějaká kombinace CISC a RISC.)
 
@@ -137,6 +141,10 @@ mindmap
       [Tlačítka]
       [Rádio]
       [IR přijímač]
+    (Příklady)
+      [NVIDIA Jetson]
+      [Arduino]
+      [Raspberry Pi]
 ```
 
 > Monolitický počítač je malý počítač *integrovaný v jediném pouzdře* (na jednom čipu). Tvoří jeden celek - monolit. Někdy také *mikropočítač*.
@@ -145,9 +153,9 @@ mindmap
 
 Pro program se používá *nevolatilní* paměť, která zachovává data i po odpojení (např. Flash EEPROM). Pro data se používají registry nebo SRAM paměti. Převážně se tedy používá harvardská architektura, která odděluje paměti pro data od paměti programu (tzn. program se nemůže přepsat).
 
-| Von Neumannova architektura | Harvardská architektura |
-|--------------------------|------------------------------|
-|<img src="figures/von-neumann.png" alt="von-neumann" height="180px">| <img src="figures/harvard.png" alt="harvard" height="180px">|
+| Von Neumannova architektura                                          | Harvardská architektura                                      |
+| -------------------------------------------------------------------- | ------------------------------------------------------------ |
+| <img src="figures/von-neumann.png" alt="von-neumann" height="180px"> | <img src="figures/harvard.png" alt="harvard" height="180px"> |
 
 Podle typu procesoru rozlišujeme **CISC** (Complex Instruction Set Computer) a **RISC** (Reduced Instruction Set Computer) monolitické počítače.
 
@@ -169,61 +177,100 @@ Podle typu procesoru rozlišujeme **CISC** (Complex Instruction Set Computer) a 
 
 **Watchdog** je časovač který resetuje systém nebo jinak převezme řízení, pokud přestane odpovídat hlavní program (např. zacyklení).
 
+### 2.2. Využití
+
+- Řízení **stroje** - např. pračka, tiskárna, lednička, CNC obrábění (Computer Numerical Control)
+- **Edge computing** - mikropočítač přímo zpracovává data ze senzorů (např. na nějakém stroji) a do cloudu posílá jen výsledky (nízká latence, ale limitovaný výpočetní výkon)
+- **Cloud computing** - mikropočítač posílá data ze senzorů do cloudu, v cloudu se zpracovávají a výsledky se posílají zpět (vyšší latence pro komunikaci, ale téměř neomezený výpočetní výkon)
+- **IoT** *(Internet of Things)* - mikropočítače jsou připojeny k internetu a komunikují mezi sebou (např. chytré domácnosti)
+
 ## 3. Protokolová rodina TCP/IP
 
 <img src="figures/tcp-ip.png" alt="tcp-ip" width="800px">
 
 Vrstvy OSI RM:
 
-1. **Fyzická** vrstva
-    - fyzický přenos bitů
-    - hub (rozbočovač), repeater (opakovač), modemy
-    - optické kabely, *Unshielded Twisted Pair (UTP)* kabely (s RJ45 koncovkou)
-2. **Spojová** vrstva
-    - přenos rámců s **MAC** adresami,
+1. **Fyzická** vrstva - fyzický přenos bitů
+    - **Hub** (rozbočovač)
+    - **Repeater** (opakovač)
+    - **Modem** (modulátor-demodulátor - převádí digitální signál na analogový a opačně
+    - **ADSL** - přenos dat po telefonní lince (s použitím modemu)
+    - Kabely:
+      - **metalické** kabely
+        - **koaxiální** kabely
+        - **kroucená dvojlinka** (twisted pair) - UTP, STP, FTP
+          - UTP *(Unshielded Twisted Pair)* - nechráněná kroucená dvojlinka
+          - STP *(Shielded Twisted Pair)* - stíněná kroucená dvojlinka
+          - RJ45 koncovka
+      - **optické kabely**
+2. **Spojová** vrstva - přenos rámců s **MAC** adresami *(Media Access Control, šest dvojic hexadecimálních čísel) - Ethernet
     - **switche** (přepínače)
     - detekce a korekce chyb
-3. **Síťová** vrstva
-    - *směrování paketů* **routery** (směrovače)
-    - **IP** adresy
+3. **Síťová** vrstva - *směrování paketů* **routery** (směrovače)
+    - **IP** adresy, IPv4 (32 bitů) a IPv6 (128 bitů)
+    - **ARP** *(Address Resolution Protocol)* - `IP -> MAC`, mapování IP adresy na MAC adresu
+    - **NAT** *(Network Address Translation)* - překlad libovolné IP adresy an jinou IP adresu (nejčastěji privátní na veřejné). Umožňuje aby pod jednou IPv4 adresou bylo více počítačů najednou.
+    - **ICMP** *(Internet Control Message Protocol)* - `ping`, `traceroute`
 4. **Transportní** vrstva
-    - protokol **TCP** *(Transmission Control Protocol)* - spolehlivý, velký soubor - *segmenty*
-    - protokol **UDP** *(User Datagram Protocol)* - nespolehlivý, rychlost, stream - *datagramy*
-    - **port**y (trans**port**ní vrstva) `0-65535` $\langle0, 2^{16} - 1\rangle$
-5. **Relační** (session) vrstva
-    - *dialog mezi účastníky* (udržování a synchronizace komunikace)
-6. **Prezentační** vrstva
-    - sjednocení formátů dat, kódování
-7. **Aplikační** vrstva
-    - konkrétní aplikace (prohlížeč, databázový klient)
+    - **TCP** *(Transmission Control Protocol)* - spolehlivý, velký soubor - *segmenty*
+    - **UDP** *(User Datagram Protocol)* - nespolehlivý, rychlost, stream - *datagramy* (zdrojový port není povinný)
+    - **port** (trans**port**ní vrstva) reprezentuje cílový bod komunikace
+      - číslo portu (`uint16`, `0-65535`, $\langle0, 2^{16} - 1\rangle$) je unikátní identifikátor procesu nebo síťové služby v operačním systému
+5. **Relační** (session) vrstva - *dialog mezi účastníky* (udržování a synchronizace komunikace)
+6. **Prezentační** vrstva - sjednocení formátů dat, kódování
+7. **Aplikační** vrstva - konkrétní aplikace (prohlížeč, databázový klient)
+    - **HTTP** *(Hypertext Transfer Protocol)* - `GET`, `POST`, `PUT`, `DELETE`, ...
+    - **DHCP** *(Dynamic Host Configuration Protocol)* - automatické přidělování IP adresy a dalších síťových parametrů (např. DNS serveru) klientům v síti
+    - **FTP** *(File Transfer Protocol)* - protokol pro přenos souborů mezi počítači (klient-server/server-klient)
+    - **DNS** *(Domain Name System)* - překlad doménového jména na IP adresu (a naopak). Analogie k telefonnímu seznamu. Typy záznamů:
+       - **A** (Address) - překlad domény na IPv4 adresu
+       - **AAAA** (IPv6 Address) - překlad domény na IPv6 adresu
+       - **CNAME** (Canonical Name) - alias pro jinou doménu
+       - **MX** (Mail Exchange) - určuje poštovní server pro danou doménu
+       - **TXT** (Text) - libovolný textový záznam
+       - **SOA** (Start of Authority) - určuje autoritu pro danou doménu
 
-**ARP** *(Address Resolution Protocol)* - mapování IP adresy na MAC adresu
-
-**ICMP** *(Internet Control Message Protocol)* - `ping`, `traceroute`
-
-**NAT** *(Network Address Translation)* - překlad libovolné IP adresy an jinou IP adresu (nejčastěji privátní na veřejné). Umožňuje aby pod jednou IPv4 adresou bylo více počítačů najednou.
-
-**DNS** *(Domain Name System)* - překlad doménového jména na IP adresu (a naopak)
-
-**DHCP** *(Dynamic Host Configuration Protocol)* - automatické přidělování IP adresy a dalších síťových parametrů (např. DNS serveru) klientům v síti
-
-**TELNET** - nešifrovaný protokol pro vzdálený přístup k počítači (terminálový emulátor)
-
-**SSH** *(Secure Shell)* - šifrovaný protokol pro vzdálený přístup k počítači (terminálový emulátor), šifrování pomocí *asymetrické kryptografie* (veřejný a privátní klíč)
-
-**SMTP** *(Simple Mail Transfer Protocol)* - protokol pro odesílání e-mailů
-
-**POP3** *(Post Office Protocol 3)* - protokol pro stahování a odstraňování e-mailů z poštovního serveru (stáhne na klienta a odstraní ze serveru)
-
-**IMAP** *(Internet Message Access Protocol)* - protokol pro přístup k e-mailům na poštovním serveru (na serveru), stahování kopie
-
-**FTP** *(File Transfer Protocol)* - protokol pro přenos souborů mezi počítači (klient-server/server-klient)
-
-**HTTP** *(Hypertext Transfer Protocol)* - `GET`, `POST`, `PUT`, `DELETE`, ...
+### 3.1. Síťové protokoly a služby
 
 Kdysi byla fyzická topologie sítě totožná s logickou, ale dnes se použivají VLAN (virtuální LAN) na spojové vrstvě (L2). Jeden fyzický switch se může chovat jako více logických switchů.
 
 <img src="figures/three-way-handshake.png" alt="three-way-handshake" width="500px">
+
+### 3.2. Vzdálený přístup
+
+- **TELNET** - nešifrovaný protokol pro vzdálený přístup k počítači (terminálový emulátor), port `23`
+- **SSH** *(Secure Shell)* - šifrovaný protokol pro vzdálený přístup k počítači (terminálový emulátor), šifrování pomocí *asymetrické kryptografie* (veřejný a privátní klíč), port `22`
+
+### 3.3. E-maily
+
+- **SMTP** *(Simple Mail Transfer Protocol)* - protokol pro odesílání e-mailů od klienta na poštovní server a přeposílání e-mailů mezi poštovními servery
+    1. **Zjištění domény příjemce** - Mail server si vezme část za zavináčem e-mailu (např. `domena.com`).
+    2. **Dotaz na DNS** - Mail server se ptá DNS: *„Který server má na starost e-maily pro `domena.com`?“*
+        - **Hledání MX** (Mail Exchange) **záznamu** pro danou doménu (v DNS). DNS odpoví IP adresou serveru, kam má **SMTP** poslat e-mail.
+- **POP3** *(Post Office Protocol 3)* - protokol pro stahování a odstraňování e-mailů z poštovního serveru (stáhne na klienta a odstraní ze serveru)
+- **IMAP** *(Internet Message Access Protocol)* - protokol pro přístup k e-mailům na poštovním serveru, stahování kopie
+
+```mermaid
+sequenceDiagram
+    participant Alice_Client as Alice's Email Client
+    participant Alice_SMTP as Alice's Mail Server (SMTP)
+    participant Bob_SMTP as Bob's Mail Server (SMTP)
+    participant Bob_Client as Bob's Email Client
+
+    Alice_Client->>Alice_SMTP: Send email (SMTP)
+    Alice_SMTP->>Bob_SMTP: Relay email (SMTP)
+    Note right of Bob_SMTP: Email stored in Bob's mailbox
+
+    alt Bob uses POP3
+        Bob_Client->>Bob_SMTP: Fetch email (POP3)
+        Bob_SMTP-->>Bob_Client: Download & delete email
+        Note right of Bob_Client: Email stored locally only
+    else Bob uses IMAP
+        Bob_Client->>Bob_SMTP: Sync email (IMAP)
+        Bob_SMTP-->>Bob_Client: View email (kept on server)
+        Note right of Bob_Client: Synced across devices
+    end
+```
 
 ## 4. Problémy směrování v počítačových sítích. Adresování v IP sítích
 
@@ -246,16 +293,11 @@ mindmap
 
 ```
 
-**Statické směrování** znamená, že pravidla ve směrovací tabulce jsou spravovány manuálně. Vhodné pouze pro malé sítě.
+**Směrování** zprostředkovává směrovač (router, síťový prvek síťové vrstvy L3) pomocí směrovací tabulky. Cílem je směrovat pakety od zdroje k cíli přes síťové prvky předáváním paketů. Předáváním paketů rozumíme přenos paketu z jednoho síťového rozhraní (síťová karta s MAC adresou) do druhého.
 
-**Dynamické směrování** se automaticky adaptuje na změny v síti. *Dynamické směrovací protokoly* *(RIP, OSPF)* hledají nejkratší cesty v síti. Samotné směrování provádí *směrovače (routery)* podle *směrovací tabulky*.
-
-- **Routing Information Protocol** *(RIP)* - používá *Distance Vector Algorithm (DVA)*, který nezná rychlost spojení a používá *hop-count* (počet skoků) jako metriku pro určení nejkratší cesty. Router periodicky broadcastem (RIPv1, nebo multicast RIPv2) posílá svoji směrovací tabulku. Nevhodné pro velké sítě.
-- **Open Shortest Path First** *(OSPF)* - používá *Link State Algorithm (LSA)*. Router zná topologii sítě a pomocí *Dikstra algoritmu* určí nejkratší cestu na základě ceny spojení podle *přenosové rychlosti*.
-
-|Typ| Cíl/maska | Next hop | Metrika (nižší je lepší) |
-|:--:|:---------:|:--------:|:-----------------------:|
-|R|10.0.0.0/16 | 172.16.10.1 | 2 |
+|  Typ  |  Cíl/maska  |  Next hop   | Metrika (nižší je lepší) |
+| :---: | :---------: | :---------: | :----------------------: |
+|   R   | 10.0.0.0/16 | 172.16.10.1 |            2             |
 
 Typ znamená *typ směrování*:
 
@@ -264,11 +306,71 @@ Typ znamená *typ směrování*:
 - R - RIP
 - O - OSPF
 
+**Statické směrování** znamená, že pravidla ve směrovací tabulce jsou spravovány ručně. Vhodné pouze pro malé sítě.
+
+**Dynamické směrování** se automaticky adaptuje na změny v síti. *Dynamické směrovací protokoly* *(RIP, OSPF)* hledají nejkratší cesty v síti. Samotné směrování provádí *směrovače (routery)* podle *směrovací tabulky*.
+
+- **Routing Information Protocol** *(RIP)*
+  - Používá *Distance Vector Algorithm (DVA)*, který nezná rychlost spojení a používá *hop-count* (počet skoků) jako metriku pro určení nejkratší cesty.
+    1. Router periodicky broadcastem (RIPv1, nebo multicast RIPv2) posílá svoji směrovací tabulku.
+    2. Obdržená směrovací tabulka je porovnána s tou současnou.
+    3. Aktualizace levnějších nebo neznámých cest.
+  - Nevhodné pro velké sítě.
+  - RIPv1 nepracuje s maskou sítě, tzn. nevhodné pro VLSM (níže; preferujeme RIPv2).
+- **Open Shortest Path First** *(OSPF)*
+  - Používá *Link State Algorithm (LSA)*.
+    1. Síťové prvky rozesílají sítí, ke kterým uzlům se můžou připojit.
+    2. Každý prvek rekonstruuje topologii sítě.
+  - Router zná topologii sítě a pomocí *Dikstrova algoritmu* určí nejkratší cestu na základě ceny spojení podle *přenosové rychlosti*.
+
+Metody směrování:
+
+| Unicast                                       | Broadcast                                       | Multicast                                       | Anycast                                       |
+| --------------------------------------------- | ----------------------------------------------- | ----------------------------------------------- | --------------------------------------------- |
+| <img src="figures/Unicast.svg" alt="Unicast"> | <img src="figures/Broadcast.svg" alt="Unicast"> | <img src="figures/Multicast.svg" alt="Unicast"> | <img src="figures/Anycast.svg" alt="Unicast"> |
+| one-to-one                                    | one-to-all                                      | one-to-many-of-many                             | one-to-one-of-many                            |
+
+**Anycast** - Jedna IP adresa je sdílena více servery na různých místech.
+
 **IP adresa** slouží k identifikaci zařízení v síťové vrstvě TPC/IP modelu. Dnes existují dvě verze adres:
 
 - původní **IPv4** - 32bitové číslo (čtveřice bajtů)
 - novější **IPv6** - 128bitové číslo (osmice hexadecimálních číslic)
-  - IPv6 poskytuje mnohem větší adresní prostor než IPv4 který už je vyčerpaný.
+  - IPv6 poskytuje mnohem větší adresní prostor než IPv4, který už je vyčerpaný.
+
+K adresaci se typicky používá **adresování s maskou podsítě proměnné délky** *(Variable-Length Subnet Mask, VLSM)*. "Podstíť je cokoliv mezi routery." (Uvažujeme L2 switche. [Zdroj](http://infra2.cs.vsb.cz/grygarek/TPS-0304/lect/VLSM/VLSM.html).)
+
+<img src="figures/vlsm.drawio.svg" alt="vlsm.drawio" width="470px">
+
+- Největší síť `S1` 7 bitů (120 + 2 zaokrouhleno k nejbližší vyšší mocniněně dvojky).
+- `S2` 6 bitů (50 + 2 adres).
+- `S3` 5 bitů (25 + 2 adres).
+- `S4` 4 bity (7 + 2 adres).
+- Spoje - podsítě `S5-S8` pořebují 2 bity. Proč?
+  - `00` id podsítě
+  - `01` id prvního routeru
+  - `10` id druhého routeru
+  - `11` broadcast
+
+K pokrytí sítě potřebujeme alespoň 256 adres. Uvažujme, že nám poskytovatel internetu přidělí adresu `10.0.0.0/24`. Tzn. z masky 24 víme, že máme k adresování 32-24=8 bitů (poslední byte IP adresy.)
+
+<img src="figures/vlsm2.drawio.svg" alt="vlsm2.drawio.svg" width="330px">
+
+Adresní plán sítě:
+
+- Zápisem `::128` rozumíme `10.0.0.128` apod.
+- `ff = 15*16^1 + 15*16^0 = 255`
+
+| Síť | Prefix (binární) | Adresa sítě | Maska podsítě   | Použitelné adresy | Broadcast |
+| --- | ---------------- | ----------- | --------------- | ----------------- | --------- |
+| S1  | ::1xxx xxxx      | ::0/25      | ff.ff.ff.128 | ::1 - ::126       | ::127     |
+| S2  | ::01xx xxxx      | ::128/26    | ff.ff.ff.192 | ::129 - ::190     | ::191     |
+| S3  | ::001x xxxx      | ::192/27    | ff.ff.ff.224 | ::193 - ::222     | ::223     |
+| S4  | ::0001 xxxx      | ::224/28    | ff.ff.ff.240 | ::225 - ::238     | ::239     |
+| S5  | ::0000 11xx      | ::240/30    | ff.ff.ff.252 | ::241 - ::242     | ::243     |
+| S6  | ::0000 10xx      | ::244/30    | ff.ff.ff.252 | ::245 - ::246     | ::247     |
+| S7  | ::0000 01xx      | ::248/30    | ff.ff.ff.252 | ::249 - ::250     | ::251     |
+| S8  | ::0000 00xx      | ::252/30    | ff.ff.ff.252 | ::253 - ::254     | ::255     |
 
 ## 5. Bezpečnost počítačových sítí s TCP/IP: útoky, paketové filtry, stavový firewall. Šifrování a autentizace, virtuální privátní sítě
 
@@ -364,10 +466,10 @@ mindmap
         [MPI]
 ```
 
-|| Single Data | Multiple Data |
-|:--:|:--:|:--:|
-|Single<br>Instruction|<img src="figures/SISD.svg" alt="SISD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> |<img src="figures/SIMD.svg" alt="SIMD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> |
-|Multiple<br>Instruction|<img src="figures/MISD.svg" alt="MISD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> | <img src="figures/MIMD.svg" alt="MIMD https://en.wikipedia.org/wiki/User:Cburnett" width="250px">|
+|                         |                                            Single Data                                            |                                           Multiple Data                                           |
+| :---------------------: | :-----------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------: |
+|  Single Instruction  | <img src="figures/SISD.svg" alt="SISD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> | <img src="figures/SIMD.svg" alt="SIMD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> |
+| Multiple Instruction | <img src="figures/MISD.svg" alt="MISD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> | <img src="figures/MIMD.svg" alt="MIMD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> |
 
 <img src="figures/flynn-tax.png" alt="flynn-tax" width="400px">
 
@@ -532,7 +634,7 @@ int main() {
 > <img src="figures/prefix-sum-hillis-steele.png" alt="prefix-sum-hillis-steele" width="400px">
 >
 > Zápisem $\oplus_{1:4}$ rozumíme $a_1\oplus a_2\oplus a_3\oplus a_4$, kde $\oplus$ je libovolná **asociativní binární operace** (např. `+`, `*`, `XOR`).
-
+<!--  -->
 > **Up Sweep & Down Sweep**
 >
 > - [Guy E. Blelloch - Prefix Sums and Their Applications](https://www.cs.cmu.edu/~guyb/papers/Ble93.pdf)
