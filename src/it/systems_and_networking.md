@@ -21,10 +21,13 @@
   - [7.1. Model sdílené paměti](#71-model-sdílené-paměti)
     - [7.1.1. OpenMP](#711-openmp)
   - [7.2. Model distribuované paměti](#72-model-distribuované-paměti)
+  - [7.3. MPI (Message Passing Interface)](#73-mpi-message-passing-interface)
 - [8. Paralelní redukce a paralelní scan: principy fungování ve vybrané technologii a příklady užití](#8-paralelní-redukce-a-paralelní-scan-principy-fungování-ve-vybrané-technologii-a-příklady-užití)
   - [8.1. Paralelní redukce](#81-paralelní-redukce)
   - [8.2. Prefix sum (paralelní scan)](#82-prefix-sum-paralelní-scan)
 - [9. Konkurentní datové struktury: přehled, blokující a neblokující implementace](#9-konkurentní-datové-struktury-přehled-blokující-a-neblokující-implementace)
+  - [9.1. Atomické operace](#91-atomické-operace)
+  - [9.2. Konkurentní fronty](#92-konkurentní-fronty)
 
 ## 1. Architektura univerzálních procesorů. Principy urychlování činnosti procesorů
 
@@ -420,12 +423,12 @@ Problém TCP/IP sítí je, že typicky jsou všechna data přenášena nešifrov
   - Částečné řešení: **firewall**, **rate limiting** (omezení počtu požadavků).
 - **Spoofing** - útočník se vydává za jiného uživatele (např. podvržením IP adresy).
   - Řešení: digitální certifikáty (nepopiratelnost)
+- **ARP Spoofing** - útočník podvrhne ARP odpověď a přesměruje provoz na svůj počítač - vydává se za router.
 - **Sniffing** - odposlech síťového provozu.
   - Šifrování: IPsec, TLS, SSH
 - **Replay Attack** - Eve sniffs *("vyčmuchá haha")* `hash(password)` a po ukončení relace mezi Alice a Bob, Eve zahájí novou relaci s heslem Alice (spoofing).
   - Řešení zaznamenáváním ID relace a MAC adresy; popř. jednorázovými hesly.
       <img src="figures/replay-attack-on-hash.svg" alt="replay-attack-on-hash https://en.wikipedia.org/wiki/Replay_attack" width="400px">
-- **ARP Spoofing** - útočník podvrhne ARP odpověď a přesměruje provoz na svůj počítač - vydává se za router.
 
 ### 5.2. Firewall
 
@@ -477,11 +480,13 @@ Asymetrická kryptografie je založena na vynásobení dvou velkých prvočísel
 
 **Instrukční paralelismus** - využití nezávislých instrukcí - např. jedny vlákna chystají data, další je zpracovávají nebo třeba ukládají.
 
-**Hyper-threading** - každé vlákno se navenek rozdělí. 16jádro má 16 instrukčních sad.
+**Hyper-threading** - každé jádro procesoru se navenek rozdělí. 16jádro má 16 instrukčních sad.
 
-Co rozumíme pojmem **proces**? OS alokuje a spravuje *paměť*, přidělí *zásobník* a alespoň jedno *hlavní jádro (main thread)*.
+**Proces** je instance počítačového programu, která je prováděna jedním nebo více vlákny. OS procesu alokuje a spravuje *paměť* (adresní prostor), přidělí *zásobník* a alespoň jedno *hlavní jádro (main thread)*. Procesy jsou nezávislé, při selhání jednoho procesu neselžou ostatní.
 
-**Logické vlákno** je *sled instrukcí*. Potřebuju *registry* a nějakou *výpočetní jednotku*. Běží dokud má instrukce. Přerušení výpočtu vláken určuje programátor.
+**Logické vlákno** je *sled instrukcí* řízený schedulerem OS. Potřebuje *registry* a nějakou *výpočetní jednotku*. Běží dokud má instrukce. Přerušení výpočtu vláken určuje programátor.
+
+V případě, že procesor nepodporuje více vláken, nebo jich nepodporuje dost, pracují tato vlákna **"za sebou"** a v rámci procesu se přepíná jejich běh.
 
 Proč potřebujeme více jader procesoru? **Skrývání latence** - každá instrukce má nějaký čas vykonávání a my chceme skrývat latenci mezi instrukcemi (tzn. zkrátit čas nečinnosti procesoru). Např. odmocnina nebo modulo jsou drahé operace, nejdražší je čtení z disku (nebo dokonce ze vzdáleného disku neno data lake).
 
@@ -493,11 +498,13 @@ mindmap
       (SISD)
         [Skalární instrukce]
       (SIMD)
-        ["Vektorové instrucke (AVX)"]
-        ["SIMT (GPU)"]
+        [Datový paralelismus]
+        ["Vektorové instrukce (AVX-512)"]
+          [Součet vektorů]
+        ["SIMT (GPGPU)"]
       (MIMD)
         [Multi-core CPU]
-        ["MIMD (jádra) + SIMD (AVX)"]
+          ["MIMD (jádra) + SIMD (AVX)"]
       (MISD)
         %% https://doi.org/10.1145/358234.358246
         [Palubní počítač raketoplánu Discovery]
@@ -537,14 +544,47 @@ _mm256_storeu_ps(c, vec_c);
 
 ## 7. Systémy se sdílenou a distribuovanou pamětí: komunikace mezi procesy (souběh, uváznutí, vzájemné vyloučení). Komunikace pomocí zasílání zpráv. OpenMP, MPI
 
+```mermaid
+mindmap
+  root )Paralelní modely(
+      (Sdílená paměť)
+        [Procesy sdílí adresní prostor]
+        [Asynchronní čtení a zápis]
+        [Synchronizace]
+          [Vzájemné vyloučení]
+          [Atomické operace]
+        [OpenMP]
+          [Fork-join model]
+        [Podle přístupu]
+          [UMA]
+          [NUMA]
+      (Distribuovaná paměť)
+        [Procesy mají vlastní adresní prostor]
+        [Komunikace pomocí zpráv]
+        [MPI]
+          [OpenMPI]
+          [Rutiny]
+            [Point-to-point]
+            [Broadcast]
+            [Scatter]
+            [Gather]
+            [Reduction]
+```
+
 - komunikace sdílením stavu (mutexy)
 - komunikace zasíláním zpráv (kanály, MPI)
 
 ### 7.1. Model sdílené paměti
 
-<img src="figures/shared-memory.png" alt="shared-memory" width="250px">
+Procesy *sdílejí adresní prostor*, kde můžou *asynchronně* číst a zapisovat. Dělení podle přístupu ke sdílené paměti:
 
-Procesy *sdílejí adresní prostor*, kde můžou *asynchronně* číst a zapisovat.
+1. **Uniform memory access (UMA)** - pokud procesor aktualizuje sdílenou paměť, tak ostatní procesory vidí změnu (**cache coherence** protokol - procesory mají [lokální cache](https://en.wikipedia.org/w/index.php?title=Cache_coherence&oldid=1292490736), která hardware-ově zaručuje konzistenci s poslední zapsanou hodnotou).
+
+    <img src="figures/shared-memory.png" alt="shared-memory" width="250px">
+
+2. **Non-uniform memory access (NUMA)** - procesory mají vlastní lokální paměť, ale mohou přistupovat i k paměti ostatních procesorů, ale s vyšší latencí.
+
+    <img src="figures/numa.png" alt="numa" width="400px">
 
 **Souběh** *(race condition)* může nastat např. když dvě nebo více vláken přistupuje současně ke stejnému místu v paměti **(kritická sekce)**, alespoň jedno z nich zapisuje a vlákna nepoužívají synchronizaci k řízení svého přístupu (toto je porušení základního pravidla Rustu - *aliasing + mutabilita*). K souběhu může dojít také pokud výsledek programu závisí na pořadí vykonávání vláken.
 
@@ -565,6 +605,10 @@ fn drop_late(m: &Mutex<Option<u32>>) {
 ```
 
 #### 7.1.1. OpenMP
+
+- **Fork-join model** - hlavní vlákno spouští další vlákna *(fork)* a čeká na jejich dokončení *(join)*.
+
+<img src="figures/fork-join.svg" alt="fork-join" width="700px">
 
 <details><summary> Nastavení ve Visual Studio </summary>
 
@@ -611,15 +655,25 @@ int main() {
 
 <img src="figures/distributed-memory.png" alt="distributed-memory" width="300px">
 
-Každý proces má vlastní data a adresní prostor. Procesy komunikují pomocí **zasílání zpráv** (např. pomocí MPI). MPI je standard pro komunikaci mezi procesy v distribuovaném systému. Usnadňuje implementaci, protože řeší detaily komunikace mezi procesy - výběr nejrychlejší cesty (shared memory, síť, ...), pořadí zásílaných zpráv, jistota, že zpráva dorazila, atd. Implementace standardu MPI je např. OpenMPI. Existují bindingy pro různé jazyky (C, C++, Fortran, Python, ...).
+- Každý proces má vlastní data a adresní prostor.
+- Procesy komunikují pomocí **zasílání zpráv** (např. pomocí MPI).
 
-MPI navíc implementuje standardní komunikační rutiny jako:
+### 7.3. MPI (Message Passing Interface)
+
+- MPI je standard pro komunikaci mezi procesy v distribuovaném systému.
+- Usnadňuje implementaci, protože řeší **detaily komunikace** mezi procesy:
+  - **výběr nejrychlejší cesty** (shared memory, síť, ...),
+  - **pořadí** zásílaných **zpráv**,
+  - jistota, že **zpráva dorazila**, atd.
+- Implementace standardu MPI je např. **OpenMPI**. Existují bindingy pro různé jazyky (C, C++, Fortran, Python, ...).
+
+MPI navíc implementuje standardní **komunikační rutiny** jako:
 
 - **point-to-point**
 - **broadcast** (*one-to-many*, stejná zpráva pro všechny)
 - **scatter** (*one-to-many*, různé zprávy pro různé procesy)
-- **gather** (*many-to-one*, různé zprávy pro jeden proces, opak scatter)
-- **reduce** (*many-to-one*, agregace dat z více procesů do jednoho procesu, např. `sum`, `max`, `min`)
+- **gather** (*many-to-one*, různé zprávy pro jeden proces, opak scatter, výsledek je vektor)
+- **reduce** (*many-to-one*, agregace dat z více procesů do jednoho procesu, výsledek je skalár, např. `sum`, `max`, `min`)
 
 <img src="figures/mpi-communication-routines.png" alt="mpi-communication-routines" width="400px">
 
@@ -632,7 +686,13 @@ mpiexec -n 4 ./my_program
 
 ### 8.1. Paralelní redukce
 
-Průchod dat - **agregace** do jedné hodnoty (`min`, `max`, `sum` atd.)
+Průchod dat - **agregace** do jedné hodnoty (`sum`, `min`, `max`, skalární součin, atd.). Formálně:
+
+Buď $\oplus$ libovolná **asociativní binární operace** (např. `+`, `*`, `XOR`). Pak výsledek paralelní redukce nad vektorem $[a_1, a_2, \ldots, a_n]$ je:
+
+$$
+b = a_1 \oplus a_2 \oplus \ldots \oplus a_n
+$$
 
 <img src="figures/parallel-reduction.png" alt="parallel-reduction" width="600px">
 
@@ -669,7 +729,20 @@ int main() {
 
 ### 8.2. Prefix sum (paralelní scan)
 
-> **Hillis-Steele** (Stride to $n$):
+Buď $\oplus$ libovolná **asociativní binární operace** (např. `+`, `*`). Pak výsledek prefix sum nad vektorem $[a_1, a_2, \ldots, a_n]$ je:
+
+$$
+\oplus_{1:n} = [I, a_1 \oplus a_2, \ldots, a_1\oplus a_2 \oplus \ldots \oplus a_{n-1}],
+$$
+
+kde $I$ je identita pro $\oplus$ (např. $0$ pro `+`, $1$ pro `*`).
+
+Praktické využití prefix sum je např. výpočet empirické kumulativní distribuční funkce **(ECDF)** z histogramu relativních četností.
+
+> [**Hillis-Steele**](https://doi.org/10.1145/7902.7903)
+>
+> - Stride to $2^n$, kde $n$ je počet iterací.
+> - Krok se zdvojnásobuje.
 >
 > <img src="figures/prefix-sum-hillis-steele.png" alt="prefix-sum-hillis-steele" width="400px">
 >
@@ -678,6 +751,9 @@ int main() {
 > **Up Sweep & Down Sweep**
 >
 > - [Guy E. Blelloch - Prefix Sums and Their Applications](https://www.cs.cmu.edu/~guyb/papers/Ble93.pdf)
+> - [CUDA](https://developer.nvidia.com/gpugems/gpugems3/part-vi-gpu-computing/chapter-39-parallel-prefix-sum-scan-cuda)
+> - Vychází z *vyváženého binárního stromu* s hloubkou $d=\log_2 n$.
+> - Provede méně operací $\oplus$ než Hillis-Steele $O(n)$ vs. $O(n\log_2 n)$, proto se tento algoritmus někdy označuje jako *work-efficient prefix sum*.
 > - Modré šipky značí sčítání, šedé přesun, červená reset na nulu.
 > - (Algoritmus pracuje in-place s jedním polem stejně jako Hillis-Steele)
 >
@@ -713,9 +789,136 @@ int main() {
 
 ## 9. Konkurentní datové struktury: přehled, blokující a neblokující implementace
 
-Naivní použití standardních datových struktur může vést k souběhu (race condition). Konkurentní datové struktury obvykle používají nějaké prostředky pro synchronizaci - vzájemné vyloučení, atomické operace. Např. `queue.Queue` (MPMC kanál) v Pythonu je konkurentní datová struktura, která používá zámky pro synchronizaci přístupu k frontě.
+```mermaid
+mindmap
+  root )Konkurentní datové struktury(
+    (Problémy souběhu)
+    (Synchronizace)
+      [Vzájemné vyloučení]
+        [Blokující]
+          [Busy wait]
+      [Atomické operace]
+        [Lock-free algoritmy]
+        [Neblokující]
+        [CAS]
+        [FAA]
+        [Řešené hardware]
+    (Konkurentní fronty)
+      [SPSC]
+        [Kruhový buffer]
+          [Lock-free]
+          [Head]
+          [Tail]
+      [MPSC]
+      [SMPC]
+      [MPMC]
+```
 
-Problém blokující implementace je, že vlákno čeká na zámek - *spin / busy wait* - se 100% vytížením jádra. Pro neblokující implementaci I/O operací můžeme použít např. `epoll` (Linux) pro monitorování více file descriptorů najednou (stačí jednoho vlákno). Alternativou je asynchronní programování - vlákna se neblokují, ale čekají na události, např. `async/await` v Rustu.
+- Naivní použití standardních datových struktur může vést k **souběhu** *(race condition)*.
+- Konkurentní datové struktury jsou **náročnější na návrh** a je **složité ověřit** jejich **správnost** (především kvůli asynchronnímu modelu zpracování vláken).
+- Data konkurentní datové struktury jsou obvykle uložena ve **sdílené paměti**.
+- Konkurentní datové struktury obvykle používají nějaké **mechanizmy pro synchronizaci**:
+  - **vzájemné vyloučení**
+  - **atomické operace**
+- Podle způsobu synchronizace dělíme datové struktury na **blokující** a **neblokující**.
+- Problém blokující implementace je, že vlákno čeká na zámek - *spin / busy wait* - se 100% vytížením jádra.
+- Neblokující implementace využívají **atomické operace** a **lock-free** algoritmy.
+- V některých případech může být vhodnější (a výrazně jednodušší) mít lokání kopii dat ve vlákně.
+
+### 9.1. Atomické operace
+
+> **Atomické operace** jsou primitivní operace, které jsou implementovány v **hardware**, a zaručují, že budou provedeny v jednom kroce a nenastane souběh.
+>
+> - Pokud je například provedeno *atomické přiřazení (atomic store)* do sdílené proměnné, tak žádné jiné vlákno nemůže pozorovat nedokončenou modifikaci (tzn. uvidí tam už novou hodnotu).
+> - Atomické operace jsou možné díky **cache coherence** protokolu (viz UMA).
+
+Kromě běžných operací jako `load` a `store` (přiřazení) existují i další atomické operace:
+
+- `CAS` *(Compare-And-Swap)* - atomicky porovná hodnotu v paměti s očekávanou hodnotou a pokud se shodují, zapíše novou hodnotu.
+- `FAA` *(Fetch-And-Add)* - atomicky přičte hodnotu k proměnné a vrátí původní hodnotu.
+- a [další...](https://doc.rust-lang.org/std/sync/atomic/)
+
+Např. v Rustu můžeme použít atomické typy z modulu `std::sync::atomic`:
+
+```rust
+use std::sync::atomic::{AtomicUsize, Ordering};
+
+let counter = AtomicUsize::new(0);
+
+// FAA
+let old_value = counter.fetch_add(42, Ordering::SeqCst);
+println!("Counter: {} -> {}", old_value, counter.load(Ordering::SeqCst));
+
+// CAS
+let success = counter.compare_and_swap(42, 7, Ordering::SeqCst);
+if success == 42 {
+    println!("Counter was 42, now set to {}", counter.load(Ordering::SeqCst));
+} else {
+    println!("Counter was not 42, it was {}", success);
+}
+
+// Atomické přiřazení
+counter.store(666, Ordering::SeqCst);
+println!("Counter: {}", counter.load(Ordering::SeqCst));
+```
+
+### 9.2. Konkurentní fronty
+
+- Konkurentní fronta je jednou z nejběžnějších konkurentních datových struktur.
+- Umožňuje více vláknům přidávat a odebírat prvky.
+- V závislosti na počtu producentů a spotřebitelů můžeme fronty rozdělit na:
+
+||Jeden producent|Více producentů|
+|:--:|:--:|:--:|
+|**Jeden spotřebitel**|**SPSC** |**MPSC** |
+|**Více spotřebitelů**|**SMPC** |**MPMC** |
+
+Implementace kanálů:
+
+|Kanál|Konkurentní datová struktura|
+|:--:|:--:|
+|**SPSC**| Kruhový buffer s atomicky inkrementovaným `head` a `tail`.|
+|**MPMC**| Plně synchronizovaná fronta, lze implementovat lock-free.|
+
+Příklady konkrétních implementací konkurentních front:
+
+- Python `queue.Queue` (MPMC kanál) v Pythonu, která používá zámky a atomické operace pro synchronizaci přístupu k frontě (výběr podle parametru `block: bool`).
+- C++ [`moodycamel::ConcurrentQueue`](https://github.com/cameron314/concurrentqueue) [lock-free](https://preshing.com/20120612/an-introduction-to-lock-free-programming/) MPMC kanál, který používá jeden modifikovaný kruhový buffer pro každého producenta a operace `deque` následně vybírá prvek z jednoho z těchto bufferů. Na pořadí nezáleží, protože pro více než jednoho producenta už `enqueue` nedeterministické.
+- Rust `std::sync::{mpsc, mpmc}` (MPSC, MPMC), `tokio::sync::oneshot:channel()` (SPSC, např. pro signál k vypnutí serveru).
+
+<details><summary> Rust MPSC </summary>
+
+```rust
+use std::sync::mpsc::channel;
+use std::thread;
+use std::time::Duration;
+
+let (tx, rx) = channel();
+
+fn expensive_computation() -> i32 {
+    thread::sleep(Duration::from_secs(1));
+    42 
+}
+
+let tx1 = tx.clone();
+thread::spawn(move || {
+    tx1.send(expensive_computation()).unwrap();
+});
+thread::spawn(move || {
+    tx.send(expensive_computation()).unwrap();
+});
+
+// Let's see what that answers are (blocking)
+println!("{:?}", rx.recv().unwrap());
+println!("{:?}", rx.recv().unwrap());
+```
+
+</details>
+
+<details><summary> Neblokující implementace I/O operací </summary>
+
+- Pro neblokující implementaci I/O operací můžeme použít např. `epoll` (Linux) pro monitorování více file descriptorů najednou (stačí jednoho vlákno).
+- Alternativou je asynchronní programování - vlákna se neblokují, ale čekají na události, např. `async/await` v Rustu.
 
 ```rust
 use tokio::net::TcpListener;
@@ -735,24 +938,4 @@ async fn main() {
 }
 ```
 
-**MPSC** channel:
-
-```rust
-use std::sync::mpsc::channel;
-use std::thread;
-
-let (sender, receiver) = channel();
-
-// Spawn off an expensive computation
-thread::spawn(move || {
-    sender.send(expensive_computation()).unwrap();
-});
-
-// Do some useful work for awhile
-
-// Let's see what that answer was
-// (blocking)
-println!("{:?}", receiver.recv().unwrap());
-```
-
-**SPSC** channel `tokio::sync::oneshot:channel()` - např. pro signál k vypnutí serveru.
+</details>
