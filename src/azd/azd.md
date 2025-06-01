@@ -223,7 +223,7 @@ Proč vybírat atributy?
 
 ##### 1.4.1.1. Gini index
 
-Buď třídy $1,2,\dots,C$ a buď $v_1,v_2, \dots, v_A$ všechny (diskrétní nebo diskretizované) hodnoty atributu $A$. Gini index pro konkrétní hodnotu $v_i, i=1,\dots,A,$ je definován jako:
+Buď třídy $1,2,\dots,C$ a buď $v_1,v_2, \dots, v_n$ všechny (diskrétní nebo diskretizované) hodnoty atributu $A$, kde $n=|\set{A}|$. Gini index pro konkrétní hodnotu $v_i, i=1,\dots,n,$ je definován jako:
 
 $$
 \begin{align*}
@@ -233,13 +233,15 @@ $$
 \end{align*}
 $$
 
-kde $p_c(v_i)$ je pravděpodobnost, že náhodně vybraný prvek z množiny $v_i$ patří do třídy $c$.
+kde $p_c(v_i)$ je pravděpodobnost, že náhodně vybraný prvek z multi-množiny $\mathcal{V}_i=\set{a | a\in A \land a = v_i}$ patří do třídy $c$.
 
 Gini index pro atribut (příznak) $A$ je definován jako vážený průměr Gini indexů pro jednotlivé hodnoty $v_i$:
 
 $$
-\mathrm{Gini}(A) = \sum_{i=1}^A \dfrac{N_i}{N} \cdot \mathrm{Gini}(v_i),
+\mathrm{Gini}(A) = \sum_{i=1}^n \dfrac{n_i}{n} \cdot \mathrm{Gini}(v_i),
 $$
+
+kde $n_i$ je počet objektů (záznamů), které mají hodnotu $v_i$ a $n$ je celkový počet objektů.
 
 ##### 1.4.1.2. Entropie
 
@@ -252,7 +254,7 @@ $$
 Entropie pro atribut $A$ je definována jako vážený průměr entropií pro jednotlivé hodnoty $v_i$:
 
 $$
-E(A) = \sum_{i=1}^A \dfrac{N_i}{N} \cdot E(v_i)
+E(A) = \sum_{i=1}^n \dfrac{n_i}{n} \cdot E(v_i)
 $$
 
 #### 1.4.2. Wrapper methods
