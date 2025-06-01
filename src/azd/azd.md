@@ -513,11 +513,13 @@ Rozhodovací strom je klasifikační algoritmus. Je to příklad učení s učit
 
 ### 4.1. Entropie
 
-Podobným způsobem lze místo Gini indexu počítat [**entropii**](https://www.cs.toronto.edu/~axgao/cs486686_f21/lecture_notes/Lecture_07_on_Decision_Trees.pdf) jednotlivých pravidel. Následně musíme spočítat **information gain** pro každé pravidlo:
-$$
-\text{information gain} = \text{entropie před rozdělením} - \text{vážená entropie po rozdělení}
-$$
-Entropii před výběrem kořene spočteme jako $-\sum\limits_{c\in\mathcal{C}}p_c\log(p_c)$, kde $p_c$ je relativní četnost třídy $c$ v trénovacích datech. Následně vždy používáme poměry tříd v přechůdci *(parent node)*.
+- Podobným způsobem lze místo Gini indexu počítat [**entropii**](https://www.cs.toronto.edu/~axgao/cs486686_f21/lecture_notes/Lecture_07_on_Decision_Trees.pdf) jednotlivých pravidel.
+- Následně musíme spočítat **information gain** pro každý atribut, který zvažujeme pro rozdělení uzlu:
+    $$
+    \text{information gain} = \text{entropie před rozdělením} - \text{vážená entropie po rozdělení}
+    $$
+- Entropii před výběrem kořene spočteme jako $-\sum\limits_{c\in\mathcal{C}}p_c\log(p_c)$, kde $p_c$ je relativní četnost třídy $c$ v trénovacích datech. Následně vždy používáme poměry tříd v přechůdci *(parent node)*.
+- Vybíráme atribut, který **maximalizuje information gain**.
 
 Pro pomícháná data (např. 50 % třída A, 50 % třída B) je entropie i Gini index maximální. Obojí se snažíme minimalizovat.
 
