@@ -456,7 +456,7 @@ graph LR
 mindmap
   root )TI)
     {{Paralelní}}
-      ("`Nick's class`")
+      ("`Nick’s class`")
         ["""Procesory
         p(n) ∈ O(n^k)"""]
         ["""Časová složitost (kroky)
@@ -730,8 +730,8 @@ Operace s relacemi:
 
 | Uspořádání | Částečné | Úplné |
 |:---:|---|---|
-| Ostré $\,\,<$ | **IrAsTr** | (+SO) |
-| Neostré $\,\,\leq$ | **ReAnTr** | (+ÚP) |
+| Ostré $\,\,<$ | **IrAsTr** | +SO |
+| Neostré $\,\,\leq$ | **ReAnTr** | +ÚP |
 
 ## 7. Pojem operace a obecný pojem algebra. Algebry s jednou a dvěma binárními operacemi
 

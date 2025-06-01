@@ -329,7 +329,7 @@ mindmap
   root )"""Měření
   kvality
   návrhu""")
-    ("`Chidamber & Kemerer metriky`")
+    ("`Chidamber a Kemerer metriky`")
         [Hloubka stromu dedičnosti]
         [Počet metod]
         [Počet potomků]
@@ -380,11 +380,11 @@ mindmap
   root )"""Návrhové
   principy""")
     (DRY)
-        ["`Don't Repeat Yourself`"]
+        ["`Don’t Repeat Yourself`"]
     (KIS)
         ["Keep it Simple"]
     (YAGNI)
-        ["`You Ain't Gonna Need It`"]
+        ["`You Ain’t Gonna Need It`"]
     (Modularita)
         [Soudržnost]
         [Provázanost]
@@ -1038,16 +1038,16 @@ Jedná se o softwarové požadavky, které mají zajistit bezpečnost systému:
 
 | CIAAN | Popis | SW požadavky | Útoky |
 |-------|-------|--------------|-------|
-| Confidentiality (důvěrnost) | Zajištění, že informace jsou přístupné pouze oprávněným osobám. Ochrana před neoprávněným přístupem. | Šifrování dat; Přístupové role a práva (kontrola přístupu); Autorizace uživatelů (co může uživatel dělat) | - |
+| Confidentiality (důvěrnost) | Zajištění, že informace jsou přístupné pouze oprávněným osobám. Ochrana před neoprávněným přístupem. | Šifrování dat; Přístupové role a práva (kontrola přístupu); Autorizace uživatelů (co může uživatel dělat) | MitM |
 | Integrity (integrita) | Zamezení neautorizované modifikace nebo zničení informací. | Logování změn v systému; Kontrolní součet nebo digitální podpis přenášených dat; Šifrování dat při přenosu | MitM; SQL Injection |
 | Availability (dostupnost) | Zajištění, že informace jsou vždy přístupné oprávněným uživatelům. | Rychlé zotavení při selhání (zálohování, redundantní systémy); Monitorování; Škálování; Load balancing | DDoS |
-| Authenticity (autentičnost) | Ověření identity uživatele (autentizace). Uživatel je tím, za koho se vydává. | 2FA; Bezpečné heslo; Biometrické přihlášení | Spoofing; Phishing; Vishing; Keylogging |
+| Authenticity (autentičnost) | Ověření identity uživatele (autentizace). Uživatel je tím, za koho se vydává. | 2FA; Bezpečné heslo; Biometrické přihlášení | Spoofing; Replay attack; Phishing; Vishing; Keylogging |
 | Non-repudiation (nepopiratelnost) | Odesílatel nemůže popřít, že zprávu odeslal a příjemce nemůže popřít, že zprávu přijal. | Digitální podpisy (nepopiratelnost a integrita); logování aktivity | Key Theft |
 
 - **SQL Injection** - neošetřené webové aplikace mohou útočníkům dát k dispozici nástroj pro modifikaci dat přímo v databázi.
 - **MitM** - útočník odposlouchává komunikaci mezi dvěma stranami a může ji modifikovat.
 - **Spoofing** - osoba nebo program se vydává za jinou osobu nebo program.
-- [Ukázka asymetrického šifrování](./systems_and_networking.md#5-bezpečnost-počítačových-sítí-s-tcpip-útoky-paketové-filtry-stavový-firewall-šifrování-a-autentizace-virtuální-privátní-sítě).
+- [Ukázka asymetrického šifrování](./systems_and_networking.md#53-šifrování).
 
 ## 8. Penetrační testování software. Deskriptivní a preskriptivní rámce pro penetrační testování. Metody penetračního testování
 

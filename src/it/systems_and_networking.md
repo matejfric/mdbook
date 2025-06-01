@@ -515,8 +515,8 @@ mindmap
 
 |                         |                                            Single Data                                            |                                           Multiple Data                                           |
 | :---------------------: | :-----------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------: |
-|  Single Instruction  | <img src="figures/SISD.svg" alt="SISD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> | <img src="figures/SIMD.svg" alt="SIMD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> |
-| Multiple Instruction | <img src="figures/MISD.svg" alt="MISD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> | <img src="figures/MIMD.svg" alt="MIMD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> |
+|  **Single Instruction**  | <img src="figures/SISD.svg" alt="SISD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> | <img src="figures/SIMD.svg" alt="SIMD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> |
+| **Multiple Instruction** | <img src="figures/MISD.svg" alt="MISD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> | <img src="figures/MIMD.svg" alt="MIMD https://en.wikipedia.org/wiki/User:Cburnett" width="250px"> |
 
 <img src="figures/flynn-tax.png" alt="flynn-tax" width="400px">
 
@@ -754,8 +754,8 @@ Praktické využití prefix sum je např. výpočet empirické kumulativní dist
 > - [CUDA](https://developer.nvidia.com/gpugems/gpugems3/part-vi-gpu-computing/chapter-39-parallel-prefix-sum-scan-cuda)
 > - Vychází z *vyváženého binárního stromu* s hloubkou $d=\log_2 n$.
 > - Provede méně operací $\oplus$ než Hillis-Steele $O(n)$ vs. $O(n\log_2 n)$, proto se tento algoritmus někdy označuje jako *work-efficient prefix sum*.
-> - Modré šipky značí sčítání, šedé přesun, červená reset na nulu.
-> - (Algoritmus pracuje in-place s jedním polem stejně jako Hillis-Steele)
+> - Modré šipky značí sčítání, šedé přesun, červená reset na identitu $I$.
+> - Algoritmus pracuje in-place s jedním polem stejně jako Hillis-Steele.
 >
 > <img src="figures/prefix-sum-up-down-sweep.png" alt="prefix-sum-up-down-sweep" width="400px">
 
@@ -882,8 +882,8 @@ Implementace kanálů:
 
 Příklady konkrétních implementací konkurentních front:
 
-- Python `queue.Queue` (MPMC kanál) v Pythonu, která používá zámky a atomické operace pro synchronizaci přístupu k frontě (výběr podle parametru `block: bool`).
-- C++ [`moodycamel::ConcurrentQueue`](https://github.com/cameron314/concurrentqueue) [lock-free](https://preshing.com/20120612/an-introduction-to-lock-free-programming/) MPMC kanál, který používá jeden modifikovaný kruhový buffer pro každého producenta a operace `deque` následně vybírá prvek z jednoho z těchto bufferů. Na pořadí nezáleží, protože pro více než jednoho producenta už `enqueue` nedeterministické.
+- Python `queue.Queue` MPMC kanál, který používá zámky a atomické operace pro synchronizaci přístupu k frontě (výběr podle parametru `block: bool`).
+- C++ [`moodycamel::ConcurrentQueue`](https://github.com/cameron314/concurrentqueue) [lock-free](https://preshing.com/20120612/an-introduction-to-lock-free-programming/) MPMC kanál, který používá jeden modifikovaný kruhový buffer pro každého producenta a operace `deque` následně vybírá prvek z jednoho z těchto bufferů. Na pořadí nezáleží, protože pro více než jednoho producenta je už i operace `enqueue` nedeterministická.
 - Rust `std::sync::{mpsc, mpmc}` (MPSC, MPMC), `tokio::sync::oneshot:channel()` (SPSC, např. pro signál k vypnutí serveru).
 
 <details><summary> Rust MPSC </summary>
@@ -908,7 +908,7 @@ thread::spawn(move || {
     tx.send(expensive_computation()).unwrap();
 });
 
-// Let's see what that answers are (blocking)
+// Wait for answers (blocking)
 println!("{:?}", rx.recv().unwrap());
 println!("{:?}", rx.recv().unwrap());
 ```
