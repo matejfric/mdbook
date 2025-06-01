@@ -419,6 +419,9 @@ mindmap
 - Vhodné pro menší množiny dat.
 - Na začátku máme $n$ shluků (každý bod je shluk).
 - Postupně slučujeme shluky do větších shluků.
+- V každém kroce vybereme dva shluky, které sloučíme. Výběr zavísí na zvolené metodě (níže), např.:
+  
+    $$(i^*,j^*)=\argmin\limits_{\substack{i \ne j \\ i,j = 1,\ldots,k}} d_{CL}(C_i, C_j)$$
 
 |||
 |--|--|
