@@ -1325,8 +1325,8 @@ $$
 
 ### 14.2. Hledání komunit
 
-- **Globální přístup** - hledá komunity v celé síti (např. Girvan-Newman, Louvain, Infomap).
-- **Lokální přístup** - hledá komunity v okolí vrcholu (např. Label Propagation, Walktrap, Fast Greedy).
+- **Globální přístup** - hledá komunity v celé síti (např. Girvan-Newman, Louvain).
+- **Lokální přístup** - hledá komunity v okolí vrcholu (např. Label Propagation, Walktrap).
 
 ```mermaid
 mindmap
@@ -1739,7 +1739,7 @@ Pro vzor $p$ vytvoříme DKA, s.t.
 
 - $Q$ je *množina* všech *prefixů* vzoru $p$, tzn.
   
-    $$Q = \{\varepsilon, p[1], p[0..1], \ldots, p[0..m-2], p\}$$
+    $$Q = \{\varepsilon, p[0], p[0..1], \ldots, p[0..m-2], p\}$$
 - $q_0=\varepsilon$,
 - $\Sigma$ je abeceda textu,
 - $F=\{p\}$,
@@ -1818,7 +1818,7 @@ Pomocí derivace regulárních výrazů a konečných automatů.
 > 1. **Hamming**ova vzdálenost - počet pozic, kde se řetězce liší (nejmenší počet substitucí).
 > 2. **Longest Common Subsequence (LCS)** - nejmenší počet operací *vkládání a mazání*.
 > 3. **Levenshtein**ova (editační) vzdálenost - nejmenší počet operací *vkládání, mazání a substituce*.
-> 4. **Damerau–Levenshtein**ova vzdálenost */demró/* - nejmenší počet operací *vkládání, mazání, substituce a transpozice*. `DV(abcc, acbc) = 1` (transpozice `c` a `b`).
+> 4. **Damerau–Levenshtein**ova vzdálenost */demró/* - nejmenší počet operací *vkládání, mazání, substituce a transpozice*. `DL(abcc, acbc) = 1` (transpozice `c` a `b`).
 >
 > |Metrika|Význam|
 > |--|--|
@@ -1852,7 +1852,7 @@ Lexikální analýza slouží k přípravě textu před zpracováním v DIS.
   - `saw` $\rightarrow$ `see` NEBO `saw` (sloveso nebo podstatné jméno)
   - `meeting` $\rightarrow$ `meet` NEBO `meeting` (sloveso nebo podstatné jméno)
 - **Odstranění stop-slov** – odstranění častých slov, které běžně neovlivňují význam `"the", "a", ...`
-  - Typicky seřadímě term frequency (TF) a vybere nejčastější slova k vyřazení z indexu - `stop list` (nebo použijeme existující `stop list`).
+  - Typicky seřadíme term frequency (TF) a vybere nejčastější slova k vyřazení z indexu - `stop list` (nebo použijeme existující `stop list`).
 
 ### 20.2. Booleovský model
 
@@ -1918,9 +1918,9 @@ Výsledek spočteme pomocí:
 ```sql
 SELECT doc AS Document, SUM(tfidf) AS Score
 FROM VectorModel
-WHERE word IN (q)
+WHERE word IN query_terms -- vstupní parametr
 GROUP BY doc
-ORDER BY score DESC
+ORDER BY Score DESC
 LIMIT 10;
 ```
 
@@ -2055,7 +2055,7 @@ tzn. jedná se o řádkovou stochastickou matici.
 
 Navíc platí:
 
-$$\mathbf{R} = \underbrace{(\dfrac{1-\tau}{|V|}\mathbf{1}^{N\times N}+d\mathcal{M}^\top)}_{\widehat{\mathcal{M}}}\mathbf{R}$$
+$$\mathbf{R} = \underbrace{\left(\dfrac{1-\tau}{|V|}\mathbf{1}^{N\times N}+d\mathcal{M}^\top\right)}_{\widehat{\mathcal{M}}}\mathbf{R}$$
 
 Kde $\mathcal{M}^\top$ je sloupcová stochastická matice (tzn. matice přechodových pravděpodobností). Potom lze použít mocninnou metodu:
 
@@ -2282,7 +2282,7 @@ Díky **unrolling**u jsme schopni zpracovat různě dlouhé sekvenční data (t�
 - *Váhy* a *biasy* jsou *stejné pro všechny časy*.
 - Dlouhý unrolling má nevýhody:
   - **Vanishing/exploding gradient** (gradienty se zmenšují nebo zvětšují exponenciálně)
-    - Kdyby $w_2=2$ (a zanedbali bychom ostatní váhy), tak pro 50 dnů dat (což není moc) bychom vstup násobili $2^{50}$. Naopak pro $w_2 < 1$ nastává vashing gradient problem.
+    - Kdyby $w_2=2$ (a zanedbali bychom ostatní váhy), tak pro 50 dnů dat (což není moc) bychom vstup násobili $2^{50}$. Naopak pro $w_2 < 1$ nastává *vashing gradient problem*.
       - **vanishing**: gradient descent udělá málo (zmenšujících se) kroků
         <img src="figures/vanishing-gradient.png" alt="vanishing-gradient" width="300px">
       - **exploding**: gradient descent "skáče tam a zpátky"
