@@ -22,6 +22,9 @@
     - [3.3.1. DBSCAN](#331-dbscan)
   - [3.4. Validace shluků](#34-validace-shluků)
 - [4. Rozhodovací stromy (princip, algoritmus, metriky pro vhodnou volbu hodnot dělících atributů, prořezávání)](#4-rozhodovací-stromy-princip-algoritmus-metriky-pro-vhodnou-volbu-hodnot-dělících-atributů-prořezávání)
+  - [4.1. Entropie](#41-entropie)
+  - [4.2. Rozhodovací rovina](#42-rozhodovací-rovina)
+  - [4.3. Přetrénování](#43-přetrénování)
 - [5. Pravděpodobnostní klasifikace (Bayesovský teorém, naivní Bayesovský teorém)](#5-pravděpodobnostní-klasifikace-bayesovský-teorém-naivní-bayesovský-teorém)
 - [6. Support Vector Machines (princip, algoritmus, kernel trick)](#6-support-vector-machines-princip-algoritmus-kernel-trick)
 - [7. Neuronové sítě (základní princip, metody učení, aktivační funkce)](#7-neuronové-sítě-základní-princip-metody-učení-aktivační-funkce)
@@ -503,6 +506,34 @@ Rozhodovací strom je klasifikační algoritmus. Je to příklad učení s učit
 
 <img src="figures/decision-tree.drawio.svg" alt="decision-tree.drawio.svg" width="700px">
 
+### 4.1. Entropie
+
+Podobným způsobem lze místo Gini indexu počítat [**entropii**](https://www.cs.toronto.edu/~axgao/cs486686_f21/lecture_notes/Lecture_07_on_Decision_Trees.pdf) jednotlivých pravidel. Následně musíme spočítat **information gain** pro každé pravidlo:
+$$
+\text{information gain} = \text{entropie před rozdělením} - \text{vážená entropie po rozdělení}
+$$
+Entropii před výběrem kořene spočteme jako $-\sum\limits_{c\in\mathcal{C}}p_c\log(p_c)$, kde $p_c$ je relativní četnost třídy $c$ v trénovacích datech. Následně vždy používáme poměry tříd v přechůdci *(parent node)*.
+
+Pro pomícháná data (např. 50 % třída A, 50 % třída B) je entropie i Gini index maximální. Obojí se snažíme minimalizovat.
+
+<img src="../su/figures/gini-entropy.png" alt="gini-entropy" width="500px">
+
+### 4.2. Rozhodovací rovina
+
+Pro dva atributy můžeme rozhodovací strom vizualizovat jako rozhodovací rovinu, která odděluje jednotlivé třídy. Rozhodovací rovinu lze vytvořit sjednocením "obdélníků" (částí roviny) odpovídajících větvím stromu.
+
+<img src="figures/simple-decision-plane.drawio.svg" alt="simple-decision-plane.drawio" width="500px">
+
+Případně pro složitější strom:
+
+<img src="../su/figures/decision-plane.png" alt="decision-plane" width="500px">
+
+Nemusí to být jedna křivka, může to být sloučení [více "obdélníků"](https://scikit-learn.org/stable/modules/generated/sklearn.inspection.DecisionBoundaryDisplay.html).
+
+<img src="figures/decision-plane-iris.png" alt="decision-plane-iris" width="500px">
+
+### 4.3. Přetrénování
+
 Bez omezení vždy dojde k overfittingu (přetrénování). Preferujeme jednoduché stromy (s menším hloubkou a menším počtem uzlů).
 
 Přetrénování můžeme bránit:
@@ -679,6 +710,10 @@ Polynomiální kernel $\boxed{(\left\langle\mathbf{x}_i,\mathbf{x}_j\right\rangl
 
 Gaussian kernel (RBF kernel):
 $$\boxed{e^{-\dfrac{||\mathbf{x}_i-\mathbf{x}_j||}{\sigma}}}$$
+
+Rozhodovací rovina ve 2D: (a) lineární kernel a lineárně separabilní data, (b) **ne**lineární kernel a lineárně **ne**separabilní data.
+
+<img src="figures/svm-decision-plane.png" alt="svm-decision-plane" width="400px">
 
 ## 7. Neuronové sítě (základní princip, metody učení, aktivační funkce)
 
