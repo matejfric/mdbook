@@ -30,6 +30,7 @@
 - [7. Neuronové sítě (základní princip, metody učení, aktivační funkce)](#7-neuronové-sítě-základní-princip-metody-učení-aktivační-funkce)
   - [7.1. Aktivační funkce](#71-aktivační-funkce)
   - [7.2. MLP](#72-mlp)
+  - [7.3. Další typy učení](#73-další-typy-učení)
 - [8. Vyhodnocení klasifikačních algoritmů (chybovost, přesnost, pokrytí, f-metrika)](#8-vyhodnocení-klasifikačních-algoritmů-chybovost-přesnost-pokrytí-f-metrika)
 - [9. Regrese (lineární a nelineární regrese, regresní stromy, metody vyhodnocení kvality modelu)](#9-regrese-lineární-a-nelineární-regrese-regresní-stromy-metody-vyhodnocení-kvality-modelu)
   - [9.1. Simple linear regression](#91-simple-linear-regression)
@@ -763,10 +764,10 @@ $$
 
 Compute loss function (MSE):
 $$
-c(\mathbf{y},\mathbf{a}) = \dfrac{1}{2} \sum\limits_{i=1}^{2} \left(\mathsf{y}_i - a^{(2)}_{i}\right)^2.
+c(\mathbf{y},\mathbf{a}) = \dfrac{1}{2} \sum\limits_{i=1}^{2} \left(y_i - a^{(2)}_{i}\right)^2 = \dfrac{1}{2}\left(\left(y_1 - a^{(2)}_{1}\right)^2 + \left(y_2 - a^{(2)}_{2}\right)^2\right).
 $$
 Gradient w.r.t. the output layer:
-$$\frac{\partial c}{\partial \mathbf{a}^{(2)}}=-\mathbf{y}+\mathbf{a}^{(2)},$$
+$$\frac{\partial c}{\partial \mathbf{a}^{(2)}}=-\mathbf{y}+\mathbf{a}^{(2)} = y_1 - a^{(2)}_{1} + y_2 - a^{(2)}_{2},$$
 $$\frac{\partial c}{\partial \mathbf{z}^{(2)}} = \frac{\partial c}{\partial \mathbf{a}^{(2)}} \odot \sigma'(\mathbf{z}^{(2)}).$$
 Gradient w.r.t. $\mathsf{W}^{(2)}$ and $\mathbf{b}^{(2)}$:
 $$
@@ -789,6 +790,22 @@ $$
 $$
 \boxed{\frac{\partial c}{\partial \mathbf{b}^{(1)}}} = \frac{\partial c}{\partial \mathbf{z}^{(1)}}.
 $$
+Aktualizace vah pomocí **metody největšího spádu** *(gradient descent)* s učící rychlostí $\lambda$ *(learning rate)*:
+$$
+\begin{align*}
+    \mathsf{W}^{(1)} &\leftarrow \mathsf{W}^{(1)} - \lambda \cdot \frac{\partial c}{\partial \mathsf{W}^{(1)}}\\
+    \mathbf{b}^{(1)} &\leftarrow \mathbf{b}^{(1)} - \lambda \cdot \frac{\partial c}{\partial \mathbf{b}^{(1)}}\\
+    \mathsf{W}^{(2)} &\leftarrow \mathsf{W}^{(2)} - \lambda \cdot \frac{\partial c}{\partial \mathsf{W}^{(2)}}\\
+    \mathbf{b}^{(2)} &\leftarrow \mathbf{b}^{(2)} - \lambda \cdot \frac{\partial c}{\partial \mathbf{b}^{(2)}}
+\end{align*}
+$$
+
+<img src="figures/gradient-descent.svg" alt="gradient-descent" width="350px">
+
+### 7.3. Další typy učení
+
+- **SOM** *(Self-Organizing Map; aka Kohonen Map)* je typ umělé neuronové sítě, která se používá kompetetivní učení (unsupervised) k reprezentaci dat v nižší dimenzi.
+- **Hopfieldova** neuronová síť je rekurentní neuronová síť, která se používá pro ukládání vzorů - např. pro odstranění šumu.
 
 ## 8. Vyhodnocení klasifikačních algoritmů (chybovost, přesnost, pokrytí, f-metrika)
 
