@@ -1428,6 +1428,13 @@ t.test(
 
 </details>
 
+Výsledky testování hypotéz:
+
+| $H_0$           | zamítáme $T(\mathbf{X})\in W^*$ | nezamítáme $T(\mathbf{X})\notin W^*$ |
+|----------------|-------------------------------|-------------------------------------|
+| **platí**      | chyba 1. druhu *(odsouzení nevinného)*<br>$P\big(T(\mathbf{X})\in W^*\mid H_0\big)\leq\alpha$ | OK |
+| **neplatí**    | OK, síla testu<br>$P(T(\mathbf{X})\in W^*\mid H_1)$ | chyba 2. druhu *(neodsouzení vinného)*<br>$P(T(\mathbf{X})\notin W^*\mid H_1)$ |
+
 Korelace neimplikuje kauzalitu.
 
 $$\rho _{X,Y}={\mathrm {cov} (X,Y) \over \sigma _{X}\sigma _{Y}}={\mathbb{E}((X-\mu _{X})(Y-\mu _{Y})) \over \sigma _{X}\sigma _{Y}}$$
