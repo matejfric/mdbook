@@ -8,7 +8,6 @@
   - [2.1. Typické periferní zařízení](#21-typické-periferní-zařízení)
   - [2.2. Využití](#22-využití)
 - [3. Protokolová rodina TCP/IP](#3-protokolová-rodina-tcpip)
-  - [3.1. Síťové protokoly a služby](#31-síťové-protokoly-a-služby)
   - [3.2. Vzdálený přístup](#32-vzdálený-přístup)
   - [3.3. E-maily](#33-e-maily)
 - [4. Problémy směrování v počítačových sítích. Adresování v IP sítích](#4-problémy-směrování-v-počítačových-sítích-adresování-v-ip-sítích)
@@ -30,10 +29,6 @@
   - [9.2. Konkurentní fronty](#92-konkurentní-fronty)
 
 ## 1. Architektura univerzálních procesorů. Principy urychlování činnosti procesorů
-
-<img src="figures/simplified-pc.png" alt="simplified-pc" width="350px">
-
-> Procesor je *sekvenční obvod*, vstupem jsou instrukce z paměti.
 
 ```mermaid
 mindmap
@@ -70,6 +65,15 @@ mindmap
       [Vyšší frekvence jader]
       ["SIMD instrukce (AVX)"]
 ```
+
+> Procesor je *sekvenční obvod*, vstupem jsou instrukce z paměti.
+>
+> 1. Řídící jednotka (řadič) zpracovává instrukce.
+> 2. ALU provádí výpočty.
+
+<img src="figures/simplified-pc.png" alt="simplified-pc" width="350px">
+
+> Řadič periferie zabezpečuje komunikaci s periferií přes sběrnici. Údaje z periferie překládá do formátu, kterému rozumí sběrnice a naopak.
 
 ### 1.1. Zpracování instrukce a zřetězení (pipelining)
 
@@ -153,7 +157,7 @@ mindmap
       [Raspberry Pi]
 ```
 
-> Monolitický počítač je malý počítač *integrovaný v jediném pouzdře* (na jednom čipu). Tvoří jeden celek - monolit. Někdy také *mikropočítač*.
+> Monolitický počítač je malý počítač *integrovaný v jediném pouzdře* (na jednom čipu / integrovaném obvodu). Tvoří jeden celek - monolit. Někdy také *mikropočítač*.
 >
 > Monolitický počítač obsahuje **procesor** (CPU), **paměť** (RAM, Flash) a **periferie**.
 
@@ -192,14 +196,14 @@ Podle typu procesoru rozlišujeme **CISC** (Complex Instruction Set Computer) a 
 
 ## 3. Protokolová rodina TCP/IP
 
-<img src="figures/tcp-ip.png" alt="tcp-ip" width="800px">
+<img src="figures/tcp-ip.drawio.svg" alt="tcp-ip" width="800px">
 
 Vrstvy OSI RM:
 
 1. **Fyzická** vrstva - fyzický přenos bitů
     - **Hub** (rozbočovač)
     - **Repeater** (opakovač)
-    - **Modem** (modulátor-demodulátor - převádí digitální signál na analogový a opačně
+    - **Modem** (modulátor-demodulátor) - převádí digitální signál na analogový a opačně
     - **ADSL** - přenos dat po telefonní lince (s použitím modemu)
     - Kabely:
       - **metalické** kabely
@@ -209,16 +213,23 @@ Vrstvy OSI RM:
           - STP *(Shielded Twisted Pair)* - stíněná kroucená dvojlinka
           - RJ45 koncovka
       - **optické kabely**
-2. **Spojová** vrstva - přenos rámců s **MAC** adresami *(Media Access Control, šest dvojic hexadecimálních čísel) - Ethernet
-    - **switche** (přepínače)
-    - detekce a korekce chyb
+2. **Spojová** vrstva - přenos rámců s **MAC** adresami *(Media Access Control, šest dvojic hexadecimálních čísel)*
+    - **Ethernet** - sada protokolů řešící komunikaci přes kabelové spojení; detekce a korekce chyb
+    - **Switch** (přepínač)
 3. **Síťová** vrstva - *směrování paketů* **routery** (směrovače)
     - **IP** adresy, IPv4 (32 bitů) a IPv6 (128 bitů)
     - **ARP** *(Address Resolution Protocol)* - `IP -> MAC`, mapování IP adresy na MAC adresu
-    - **NAT** *(Network Address Translation)* - překlad libovolné IP adresy an jinou IP adresu (nejčastěji privátní na veřejné). Umožňuje aby pod jednou IPv4 adresou bylo více počítačů najednou.
-    - **ICMP** *(Internet Control Message Protocol)* - `ping`, `traceroute`
+    - **NAT** *(Network Address Translation)* - překlad libovolné IP adresy na jinou IP adresu (nejčastěji privátní na veřejné). NAT umožňuje, aby pod jednou IPv4 adresou bylo více počítačů najednou.
+    - **ICMP** *(Internet Control Message Protocol)*
+      - `ping` - `ICMP echo request`
+      - `pong` - `ICMP echo reply`
+      - `traceroute`
 4. **Transportní** vrstva
     - **TCP** *(Transmission Control Protocol)* - spolehlivý, velký soubor - *segmenty*
+      - K ustálení spojení se používá *three-way handshake*:
+
+          <img src="figures/three-way-handshake.drawio.svg" alt="three-way-handshake" width="500px">
+
     - **UDP** *(User Datagram Protocol)* - nespolehlivý, rychlost, stream - *datagramy* (zdrojový port není povinný)
     - **port** (trans**port**ní vrstva) reprezentuje cílový bod komunikace
       - číslo portu (`uint16`, `0-65535`, $\langle0, 2^{16} - 1\rangle$) je unikátní identifikátor procesu nebo síťové služby v operačním systému
@@ -235,12 +246,6 @@ Vrstvy OSI RM:
        - **MX** (Mail Exchange) - určuje poštovní server pro danou doménu
        - **TXT** (Text) - libovolný textový záznam
        - **SOA** (Start of Authority) - určuje autoritu pro danou doménu
-
-### 3.1. Síťové protokoly a služby
-
-Kdysi byla fyzická topologie sítě totožná s logickou, ale dnes se použivají VLAN (virtuální LAN) na spojové vrstvě (L2). Jeden fyzický switch se může chovat jako více logických switchů.
-
-<img src="figures/three-way-handshake.png" alt="three-way-handshake" width="500px">
 
 ### 3.2. Vzdálený přístup
 
@@ -344,11 +349,13 @@ Metody směrování:
 - novější **IPv6** - 128bitové číslo (osmice hexadecimálních číslic)
   - IPv6 poskytuje mnohem větší adresní prostor než IPv4, který už je vyčerpaný.
 
+Kdysi byla fyzická topologie sítě totožná s logickou, ale dnes se použivají VLAN (virtuální LAN) na spojové vrstvě (L2). Jeden fyzický switch se může chovat jako více logických switchů.
+
 K adresaci se typicky používá **adresování s maskou podsítě proměnné délky** *(Variable-Length Subnet Mask, VLSM)*. "Podstíť je cokoliv mezi routery." (Uvažujeme L2 switche. [Zdroj](http://infra2.cs.vsb.cz/grygarek/TPS-0304/lect/VLSM/VLSM.html).)
 
 <img src="figures/vlsm.drawio.svg" alt="vlsm.drawio" width="470px">
 
-- Největší síť `S1` 7 bitů (120 + 2 zaokrouhleno k nejbližší vyšší mocniněně dvojky).
+- Největší síť `S1` 7 bitů (120 + 2 zaokrouhleno k nejbližší vyšší mocnině dvojky).
 - `S2` 6 bitů (50 + 2 adres).
 - `S3` 5 bitů (25 + 2 adres).
 - `S4` 4 bity (7 + 2 adres).
@@ -488,7 +495,7 @@ Asymetrická kryptografie je založena na vynásobení dvou velkých prvočísel
 
 V případě, že procesor nepodporuje více vláken, nebo jich nepodporuje dost, pracují tato vlákna **"za sebou"** a v rámci procesu se přepíná jejich běh.
 
-Proč potřebujeme více jader procesoru? **Skrývání latence** - každá instrukce má nějaký čas vykonávání a my chceme skrývat latenci mezi instrukcemi (tzn. zkrátit čas nečinnosti procesoru). Např. odmocnina nebo modulo jsou drahé operace, nejdražší je čtení z disku (nebo dokonce ze vzdáleného disku neno data lake).
+Proč potřebujeme více jader procesoru? **Skrývání latence** - každá instrukce má nějaký čas vykonávání a my chceme skrývat latenci mezi instrukcemi (tzn. zkrátit čas nečinnosti procesoru). Např. odmocnina nebo modulo jsou drahé operace, nejdražší je čtení z disku (nebo dokonce ze vzdáleného disku).
 
 **SPMD** (Single Program Multiple Data) - každý proces spouští stejný program, ale na jiných datech. Neexistuje žádný *"hlavní proces"*. Využívá se v **MPI** (Message Passing Interface) - compiler `mpicc` (C), `mpicxx` (C++). Typicky se používá v HPC (High Performance Computing) - na superpočítačích.
 
@@ -732,7 +739,7 @@ int main() {
 Buď $\oplus$ libovolná **asociativní binární operace** (např. `+`, `*`). Pak výsledek prefix sum nad vektorem $[a_1, a_2, \ldots, a_n]$ je:
 
 $$
-\oplus_{1:n} = [I, a_1 \oplus a_2, \ldots, a_1\oplus a_2 \oplus \ldots \oplus a_{n-1}],
+\oplus_{1:n-1} = [I, a_1 \oplus a_2, \ldots, a_1\oplus a_2 \oplus \ldots \oplus a_{n-1}],
 $$
 
 kde $I$ je identita pro $\oplus$ (např. $0$ pro `+`, $1$ pro `*`).

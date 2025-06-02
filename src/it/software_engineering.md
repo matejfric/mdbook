@@ -927,7 +927,7 @@ mindmap
   root )SSDLS)
     (Analýza požadavků zákazníka)
         [Bezpečnostní požadavky]
-        [2FA, šifrování]
+            [2FA, šifrování]
     (Specifikace systému)
         ["Potenciální zranitelnosti (threat modeling)"]
     (Návrh)
@@ -939,8 +939,8 @@ mindmap
             ["SQL injection (parametrizované dotazy)"]
             ["XSS (cross-site scripting)"]
             ["Validace uživatelských vstupů (sanitizace)"]
-        [Code reviews]
-        [Statická analýza kódu]
+            [Code reviews]
+            [Statická analýza kódu]
     (Testování)
         [Penetrační testy]
         [Skenování zranitelností]
@@ -1053,7 +1053,7 @@ Jedná se o softwarové požadavky, které mají zajistit bezpečnost systému:
 
 > **Penetrační testování** je kontrolovaný proces simulující útok na informační systém, aplikaci nebo síť s cílem odhalit *zranitelnosti*, které by mohly být zneužity útočníkem.
 
-Analytici zabývající penetračním testováním jsou experti v oblasti etického hackování, kteří vyživájí hackerské nástroje a techniky k odhalené zranitelností informačního systému.
+Analytici zabývající penetračním testováním jsou experti v oblasti etického hackování *(white-hat)*, kteří vyživájí hackerské nástroje a techniky k odhalení zranitelností informačního systému.
 
 ### 8.1. Deskriptivní rámce
 
@@ -1115,6 +1115,9 @@ mindmap
 **Podle cíle:**
 
 - PT **aplikace** - často podle **OWASP Top 10** zranitelností (pravidelně aktualizovaný seznam 10 nejzávažnějších zranitelností webových aplikací)
+
+    <img src="figures/owasp-top-10.png" alt="owasp-top-10 https://owasp.org/www-project-top-ten/" width="700px">
+
 - PT **sítě**
   - **externí** - útok zvenku
   - **interní** - útok zevnitř pomocí odcizených přihlašovacích údajů
