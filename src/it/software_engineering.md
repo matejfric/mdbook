@@ -770,6 +770,9 @@ mindmap
 ### 5.4. Vzory chování
 
 1. **Chain of Responsibility** - umožňuje předat požadavek řetězci zpracovatelů *(handlers)*. Každý zpracovatel buď pošle požadavek v řetězci dál nebo požadavek zpracuje.
+
+    <img src="figures/chain-of-responsibility.png" alt="chain-of-responsibility https://refactoring.guru/design-patterns/chain-of-responsibility" width="450px">
+
 2. **Command** - zapouzdřuje nějaký *požadavek jako objekt*. Umožňuje ukládání požadavků do fronty, čímž lze implementovat `undo` a `redo`.
 3. **Interpreter** - vzor pro **interpretaci** jazyků:
     1. *lexing* - rozdělení textu na tokeny.
