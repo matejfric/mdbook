@@ -1022,7 +1022,7 @@ Metrika je *nezáporná*: $2\rho(x,y)=\rho(x,y)+\rho(y,x)\geq \rho(x,x) = 0$.
 > Pak $(X,\mathcal{T}')$ tvoří topologický prostor (TP), kde prvky topologie $\mathcal{T}'$ jsou uzavřené množiny.
 
 - Duální topologii vytvořím $\boxed{\mathcal{T}' = X \setminus \mathcal{T}.}$
-- Trivialní topologie $\boxed{\mathcal{T} = \lbrace \emptyset, X \rbrace}$.
+- Triviální topologie $\boxed{\mathcal{T} = \lbrace \emptyset, X \rbrace}$.
 - Každý metrický prostor je topologický prostor.
 
 <details><summary> Příklad </summary>
