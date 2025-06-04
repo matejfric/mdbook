@@ -177,6 +177,10 @@ Explorativní datová analýza (EDA) - prvotní průzkum dat, hledání vzorů, 
     $$\tilde{x}=\dfrac{x-\mu}{\max(x)-\min(x)} \Rightarrow \tilde{x}\in[-1,1]$$
 3. **Standardizace** (z-skóre)
     $$z=\frac{x - \mu}{\sigma} \Rightarrow \mu(z)=0,\,\,\sigma(z)=1$$
+
+    - $z>0:$ hodnota nad průměrem ($z$ násobek směrodatné odchylky)
+    - $z<0:$ hodnota pod průměrem
+
 4. **Nelineární** transformace (mocninná / logaritmická)
    - Transformace dat, aby byly více normální (gaussovské).
    - **Box-Cox** - pouze pro (striktně) kladné hodnoty
@@ -764,10 +768,10 @@ $$
 
 Compute loss function (MSE):
 $$
-c(\mathbf{y},\mathbf{a}) = \dfrac{1}{2} \sum\limits_{i=1}^{2} \left(y_i - a^{(2)}_{i}\right)^2 = \dfrac{1}{2}\left(\left(y_1 - a^{(2)}_{1}\right)^2 + \left(y_2 - a^{(2)}_{2}\right)^2\right).
+c(\mathbf{y},\mathbf{a}) = \dfrac{1}{2} \sum\limits_{i=1}^{2} \left(a^{(2)}_{i} - y_i\right)^2 = \dfrac{1}{2}\left(\left(a^{(2)}_{1} - y_1\right)^2 + \left(a^{(2)}_{2} - y_2\right)^2\right).
 $$
 Gradient w.r.t. the output layer:
-$$\frac{\partial c}{\partial \mathbf{a}^{(2)}}=-\mathbf{y}+\mathbf{a}^{(2)} = y_1 - a^{(2)}_{1} + y_2 - a^{(2)}_{2},$$
+$$\frac{\partial c}{\partial \mathbf{a}^{(2)}}=\mathbf{a}^{(2)} -\mathbf{y} = a^{(2)}_{1} - y_1 + a^{(2)}_{2} - y_2,$$
 $$\frac{\partial c}{\partial \mathbf{z}^{(2)}} = \frac{\partial c}{\partial \mathbf{a}^{(2)}} \odot \sigma'(\mathbf{z}^{(2)}).$$
 Gradient w.r.t. $\mathsf{W}^{(2)}$ and $\mathbf{b}^{(2)}$:
 $$
@@ -2011,10 +2015,10 @@ tak $\lambda$ nazýváme *vlastním číslem* a $v$ *vlastním vektorem* matice 
 
     $$\boxed{\mathrm{PR}(v)=\dfrac{1-\tau}{|V|}+\tau\sum\limits_{u\in L(v)}\dfrac{\mathrm{PR}(u)}{\mathrm{out}(u)}},$$
 
-  - kde $V$ je množina vrcholů grafu $G$,
-  - $L(v)$ je množina vrcholů takových, že z nich existuje **link** do $v$, tzn. $L(v)=\set{(x,v)\mid x\in V}$.
-  - $\mathrm{out}(u)$ je výstupní stupeň $u$
-  - $\tau\in[0,1]$ je teleportační faktor - konstanta - obvykle nastavená na 0.85
+  - kde $V$ je množina vrcholů grafu $G(V,E)$ a $E$ je množina hran,
+  - $L(v)$ je množina vrcholů takových, že z nich existuje **link** do $v$, tzn. $L(v)=\set{(x,v)\mid x\in V \land (x,v)\in E}$,
+  - $\mathrm{out}(u)$ je výstupní stupeň $u$,
+  - $\tau\in[0,1]$ je teleportační faktor (konstanta) obvykle nastavená na $0.85$.
   - Na začátku se $\mathrm{PR}$ inicializuje na $\dfrac{1}{|V|}$.
   - Výstupem je pravděpodobnostní rozdělení $\Rightarrow\sum\limits_{v\in V}\mathrm{PR}(v)=1$.
   - Iterativní výpočet dokud $\left|\overrightarrow{\mathrm{PR}}_{t-1} - \overrightarrow{\mathrm{PR}}_{t}\right| > \varepsilon$

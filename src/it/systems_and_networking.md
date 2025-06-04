@@ -385,6 +385,8 @@ Adresní plán sítě:
 | S7  | ::0000 01xx      | ::248/30    | ff.ff.ff.252 | ::249 - ::250     | ::251     |
 | S8  | ::0000 00xx      | ::252/30    | ff.ff.ff.252 | ::253 - ::254     | ::255     |
 
+Jaké jsou rozdíly mezi IPv4 a IPv6?
+
 ## 5. Bezpečnost počítačových sítí s TCP/IP: útoky, paketové filtry, stavový firewall. Šifrování a autentizace, virtuální privátní sítě
 
 ```mermaid

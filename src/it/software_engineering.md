@@ -1056,7 +1056,7 @@ Jedná se o softwarové požadavky, které mají zajistit bezpečnost systému:
 
 > **Penetrační testování** je kontrolovaný proces simulující útok na informační systém, aplikaci nebo síť s cílem odhalit *zranitelnosti*, které by mohly být zneužity útočníkem.
 
-Analytici zabývající penetračním testováním jsou experti v oblasti etického hackování *(white-hat)*, kteří vyživájí hackerské nástroje a techniky k odhalení zranitelností informačního systému.
+Analytici zabývající penetračním testováním jsou experti v oblasti etického hackování *(white-hat)*, kteří využívají hackerské nástroje a techniky k odhalení zranitelností informačního systému.
 
 ### 8.1. Deskriptivní rámce
 
